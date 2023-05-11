@@ -1,10 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-export const periodSlice = createSlice({
+const initialCurrent = {
   name: "period",
-  initialState: {
-    value: "01",
-  },
+      value: "01"}
+
+  const initialState = {
+  name: "period",
+      value: "01"}
+
   reducers: {
     increment: (state) => {
       state.value += 1;
@@ -16,7 +19,7 @@ export const periodSlice = createSlice({
       state.value += action.payload;
     },
   },
-});
+};
 
 // Action creators are generated for each case reducer function
 export const { increment, decrement, incrementByAmount } = periodSlice.actions;
