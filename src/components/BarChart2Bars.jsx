@@ -63,10 +63,10 @@ const BarChart2Bars = (props) => {
       .scaleOrdinal()
       .domain(x)
       .range([
-        "#e57373",
-        "#64b5f6",
-        "#80b1d3",
-        "#fb8072",
+        "rgb(175,180,116)",
+        "rgb(5,111,173)",
+        "rgb(175,180,116)",
+        "rgb(5,111,173)",
 
         "#fdb462",
         "#b3de69",
@@ -75,8 +75,8 @@ const BarChart2Bars = (props) => {
         "#bc80bd",
 
         "#ccebc5",
-        "#e57373",
-        "#64b5f6",
+        "rgb(175,180,116)",
+        "rgb(5,111,173)",
       ]);
 
     //draw bars

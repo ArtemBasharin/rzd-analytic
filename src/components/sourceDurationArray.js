@@ -70,12 +70,12 @@ const durationCounter = (src, name, chartname) => {
   return [
     {
       value: Math.round(pastYearCount * 10) / 10,
-      label: pastYear,
+      label: pastYear + 2000,
       title: chartname,
     },
     {
       value: Math.round(currentYearCount * 10) / 10,
-      label: currentYear,
+      label: currentYear + 2000,
       title: chartname,
     },
   ];
@@ -98,22 +98,22 @@ const totalDurationCounter = (array) => {
   let tempArray = array.flat();
   // console.log("tempArray", tempArray);
   tempArray.forEach((element) => {
-    if (element.label === pastYear) {
+    if (element.label === pastYear + 2000) {
       pastYearCount = pastYearCount + element.value;
     }
-    if (element.label === currentYear) {
+    if (element.label === currentYear + 2000) {
       currentYearCount = currentYearCount + element.value;
     }
   });
   return [
     {
       value: Math.round(pastYearCount * 10) / 10,
-      label: pastYear,
+      label: pastYear + 2000,
       title: "Всего",
     },
     {
       value: Math.round(currentYearCount * 10) / 10,
-      label: currentYear,
+      label: currentYear + 2000,
       title: "Всего",
     },
   ];

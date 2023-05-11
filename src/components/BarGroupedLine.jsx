@@ -70,8 +70,8 @@ const BarGroupedLine = (props) => {
       .scaleOrdinal()
       .domain(subgroups)
       .range([
-        "#80b1d3",
-        "#fb8072",
+        "rgb(175,180,116)",
+        "rgb(5,111,173)",
 
         "#64b5f6",
         "#e57373",
