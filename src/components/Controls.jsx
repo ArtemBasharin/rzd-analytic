@@ -7,16 +7,15 @@ import Select from "@mui/material/Select";
 import { useSelector, useDispatch } from "react-redux";
 import { increment, decrement, addTodo } from "../redux/toolkitSlice";
 
-export let periodValue = "";
-
+export let periodValue = "01";
+let period = "";
 export default function SelectAutoWidth() {
   const count = useSelector((state) => state.toolkit.count);
   const todos = useSelector((state) => state.toolkit.todos);
   const dispatch = useDispatch();
 
-  const [period, setPeriod] = useState("01");
   const handleChange = (event) => {
-    setPeriod(event.target.value);
+    period = event.target.value;
 
     if (period.length < 3) {
       periodValue = `${period}`;
