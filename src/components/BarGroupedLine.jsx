@@ -15,9 +15,9 @@ const BarGroupedLine = (props) => {
 
     let resData = props.stats.slice(0, arrTrimIndex(props.stats, 2));
 
-    const margin = { top: 50, right: 60, bottom: 250, left: 100 },
+    const margin = { top: 50, right: 60, bottom: 250, left: 180 },
       width = props.width - margin.left - margin.right,
-      height = 600 - margin.top - margin.bottom;
+      height = 800 - margin.top - margin.bottom;
     const groups = resData.map((d) => {
       return d.label;
     });
@@ -41,7 +41,7 @@ const BarGroupedLine = (props) => {
       .selectAll("text")
       .attr("transform", `translate(-3,5)rotate(-35)`)
       .attr("text-anchor", "end")
-      .call(wrap, x.bandwidth() * 2); //temporary text wrap is off
+      .call(wrap, x.bandwidth() * 2.7); //temporary text wrap is off
 
     // Add Y axis
     const y = d3
@@ -242,7 +242,7 @@ const BarGroupedLine = (props) => {
       className="chartItem groupedChart"
       ref={svgRef3}
       width="100%"
-      height={600}
+      height={800}
     ></svg>
   );
 };

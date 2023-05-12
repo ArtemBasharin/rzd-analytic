@@ -46,10 +46,8 @@ const createGuiltsArray = (src) => {
       label: unit,
       value: 1,
     };
-
     if (subUnitsAsMap.has(year + "-" + unit)) {
       let existedItem = subUnitsAsMap.get(year + "-" + unit);
-
       existedItem.value += 1;
     } else {
       subUnitsAsMap.set(year + "-" + unit, currentItem);

@@ -2,8 +2,8 @@ import React, { useRef, useEffect } from "react";
 import * as d3 from "d3";
 
 import "../App.css";
-import descend from "../images/descend.svg";
-import increase from "../images/increase.svg";
+import descendArrow from "../images/descendArrow.svg";
+import increaseArrow from "../images/increaseArrow.svg";
 
 const BarChart2Bars = (props) => {
   const svgRef2 = useRef();
@@ -133,6 +133,7 @@ const BarChart2Bars = (props) => {
       .attr("text-anchor", "middle");
 
     //draw comparison text
+    let arrowKind = "";
     const createComparisonText = () => {
       if (resData[0].value === resData[1].value) {
         return "Без изменений";
@@ -153,16 +154,16 @@ const BarChart2Bars = (props) => {
         return "-" + resData[0].value + " ТН";
       }
     };
-    let arrowKind = "";
     const setTextAndArrowKind = () => {
+      if (resData[0].value > resData[1].value) arrowKind = descendArrow;
+      if (resData[0].value === resData[1].value) arrowKind = "";
+      if (resData[0].value < resData[1].value) arrowKind = increaseArrow;
       if (
         resData[0].value === resData[1].value ||
         createComparisonText().toString().includes("-")
       ) {
-        arrowKind = descend;
         return "rgb(0, 128, 0)";
       } else {
-        arrowKind = increase;
         return "rgb(128, 0, 0)";
       }
     };

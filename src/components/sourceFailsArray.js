@@ -20,8 +20,10 @@ const totalFailsCounter = (src) => {
   let pastYearCount = 0;
   let currentYearCount = 0;
   src.forEach((element) => {
-    element["Дата нарушения"].includes(pastYear) && pastYearCount++;
-    element["Дата нарушения"].includes(currentYear) && currentYearCount++;
+    if (element["Дата нарушения"]) {
+      element["Дата нарушения"].includes(pastYear) && pastYearCount++;
+      element["Дата нарушения"].includes(currentYear) && currentYearCount++;
+    }
   });
   return [
     { value: pastYearCount, label: pastYear, title: "Всего" },

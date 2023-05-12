@@ -1,27 +1,35 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
-export let periodValue = "01";
+import { useSelector, useDispatch } from "react-redux";
+import { increment, decrement, addTodo } from "../redux/toolkitSlice";
+
+export let periodValue = "";
+
 export default function SelectAutoWidth() {
+  const count = useSelector((state) => state.toolkit.count);
+  const todos = useSelector((state) => state.toolkit.todos);
+  const dispatch = useDispatch();
+
   const [period, setPeriod] = useState("01");
   const handleChange = (event) => {
     setPeriod(event.target.value);
-  };
 
-  if (period.length < 3) {
-    periodValue = `${period}`;
-  } else {
-    let tempArr = period.split("-").map((el) => Number(el));
-
-    let resultArr = [];
-    for (let i = tempArr[0]; i <= tempArr[1]; ++i) {
-      i < 10 ? resultArr.push("0" + i) : resultArr.push(i);
+    if (period.length < 3) {
+      periodValue = `${period}`;
+    } else {
+      let tempArr = period.split("-").map((el) => Number(el));
+      let resultArr = [];
+      for (let i = tempArr[0]; i <= tempArr[1]; ++i) {
+        i < 10 ? resultArr.push("0" + i) : resultArr.push(i);
+      }
+      periodValue = resultArr.join("|");
     }
-    periodValue = resultArr.join("|");
-  }
+    dispatch(addTodo(periodValue));
+  };
 
   console.log("periodValueControl", periodValue);
 
