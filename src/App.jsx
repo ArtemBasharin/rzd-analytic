@@ -8,7 +8,6 @@ import durationsArray, {
   yMaxDurations,
 } from "./components/sourceDurationArray";
 import {
-  sourceGuiltyArray,
   yMaxGroups,
   paretoArrayResult,
   maxYear,
@@ -18,6 +17,12 @@ import {
   yMaxReasons,
   maxYearReasons,
 } from "./components/sourceReasonsArray";
+import {
+  paretoArrayResultDuration,
+  yMaxGroupsDuration,
+  maxYearGuiltyDuration,
+} from "./components/sourceGuiltyDurationArray";
+
 import Navbar from "./components/Navbar";
 // console.log(paretoArrayResultReasons);
 // import MixedChart from "./components/MixedChart";
@@ -28,7 +33,7 @@ import Navbar from "./components/Navbar";
 // import MyGraph4 from "./components/MyGraph4";
 
 import { periodValue } from "../src/components/Controls";
-console.log("importedperiodValue", periodValue);
+// console.log("importedperiodValue", periodValue);
 // import Drawer from "./components/Drawer";
 //console.log(paretoArrayResult);
 function App() {
@@ -104,6 +109,12 @@ function App() {
     width: window.screen.width - 5,
   };
 
+  //section of bargrouped chart
+  const paramsGroupedSectionDurations = {
+    id: 17, //this prop need to create unique #id svg elements
+    width: window.screen.width - 5,
+  };
+
   return (
     <div className="App">
       <Navbar />
@@ -124,6 +135,16 @@ function App() {
         key={paramsGroupedSection.id}
         yMax={yMaxGroups}
         maxYear={maxYear}
+        period={periodValue}
+      />
+      <BarGroupedLine
+        className="groupedChart"
+        stats={paretoArrayResultDuration}
+        width={paramsGroupedSectionDurations.width}
+        id={paramsGroupedSectionDurations.id}
+        key={paramsGroupedSectionDurations.id}
+        yMax={yMaxGroupsDuration}
+        maxYear={maxYearGuiltyDuration}
         period={periodValue}
       />
       <BarGroupedLine
