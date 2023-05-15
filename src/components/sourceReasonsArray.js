@@ -1,5 +1,16 @@
 import { delaysSource } from "../test/delaysSource";
 import * as d3 from "d3";
+import { store } from "../redux/store";
+
+let regexp = new RegExp(`[.]${store.getState().toolkit.todos}[.]`, "g"); // /\.01\./gm
+
+let srcArray = [];
+for (let i = 0; i < delaysSource.length; ++i) {
+  if (regexp.test(delaysSource[i]["Начало"])) {
+    srcArray.push(delaysSource[i]);
+  }
+}
+
 const yearFilter = (el) => {
   return Number(
     20 +
@@ -79,7 +90,7 @@ const createReasonsArray = (src) => {
   return result.sort(byField(maxYearKey(result)));
 };
 
-export let sourceReasonsArray = createReasonsArray(delaysSource);
+export let sourceReasonsArray = createReasonsArray(srcArray);
 export let maxYearReasons = maxYearKey(sourceReasonsArray);
 
 let yMaxGroupsArr = [];
