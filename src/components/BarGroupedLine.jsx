@@ -5,7 +5,7 @@ import "../App.css";
 const BarGroupedLine = (props) => {
   const svgRef3 = useRef();
   let currentYear = props.maxYear;
-  console.log("props.period", props.period);
+
   useEffect(() => {
     const arrTrimIndex = (arr, maxValue) => {
       for (let i = 0; i < arr.length; ++i) {

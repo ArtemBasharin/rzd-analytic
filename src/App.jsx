@@ -32,7 +32,7 @@ import Navbar from "./components/Navbar";
 // import MyGraph3 from "./components/MyGraph3";
 // import MyGraph4 from "./components/MyGraph4";
 
-import { periodValue } from "../src/components/Controls";
+// import { periodValue } from "../src/components/Controls";
 // console.log("importedperiodValue", periodValue);
 // import Drawer from "./components/Drawer";
 //console.log(paretoArrayResult);
@@ -52,7 +52,6 @@ function App() {
         width={paramsFailsSection.width}
         yMax={yMax}
         key={item}
-        period={periodValue}
       />
     );
   });
@@ -73,7 +72,6 @@ function App() {
         yMax={yMaxDelays}
         key={item}
         maxYear={maxYear}
-        period={periodValue}
       />
     );
   });
@@ -92,7 +90,6 @@ function App() {
         width={paramsDurationsSection.width}
         yMax={yMaxDurations}
         key={item}
-        period={periodValue}
       />
     );
   });
@@ -135,7 +132,6 @@ function App() {
         key={paramsGroupedSection.id}
         yMax={yMaxGroups}
         maxYear={maxYear}
-        period={periodValue}
       />
       <BarGroupedLine
         className="groupedChart"
@@ -145,7 +141,6 @@ function App() {
         key={paramsGroupedSectionDurations.id}
         yMax={yMaxGroupsDuration}
         maxYear={maxYearGuiltyDuration}
-        period={periodValue}
       />
       <BarGroupedLine
         className="groupedChart"
@@ -155,7 +150,6 @@ function App() {
         key={paramsReasonsSection.id}
         yMax={yMaxReasons}
         maxYear={maxYearReasons}
-        period={periodValue}
       />
     </div>
   );

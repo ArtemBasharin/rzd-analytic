@@ -4,9 +4,28 @@ import { delaysSource } from "../test/delaysSource";
 // import { periodValue } from "./Controls";
 import { store } from "../redux/store";
 
-console.log("storeValue", store.getState().toolkit.todos);
+// function select(state) {
+//   return state.toolkit.todos;
+// }
+
+// let currentValue;
+// function handleChange() {
+//   let previousValue = currentValue;
+//   currentValue = select(store.getState());
+
+//   if (previousValue !== currentValue) {
+//     console.log(
+//       "Некоторое глубокое вложенное свойство измененное от ",
+//       previousValue,
+//       "к",
+//       currentValue
+//     );
+//   }
+// }
+
+// const unsubscribe = store.subscribe(handleChange);
+// unsubscribe();
 let regexp = new RegExp(`[.]${store.getState().toolkit.todos}[.]`, "g"); // /\.01\./gm
-console.log("regexpStore", regexp);
 
 let srcArray = [];
 for (let i = 0; i < delaysSource.length; ++i) {
@@ -14,7 +33,6 @@ for (let i = 0; i < delaysSource.length; ++i) {
     srcArray.push(delaysSource[i]);
   }
 }
-console.log("filteredFromStoreArr", srcArray);
 
 // year-params will be reassigned in future versions
 let pastYear = 22;
@@ -94,9 +112,9 @@ const delaysCounter = (src, name, chartname) => {
 
 //creating array for
 let delaysArray = [];
-delaysArray.push(delaysCounter(delaysSource, "Грузовой", "Грузовых"));
-delaysArray.push(delaysCounter(delaysSource, "Пассажирский", "Пассажирских"));
-delaysArray.push(delaysCounter(delaysSource, "Пригородный", "Пригородных"));
+delaysArray.push(delaysCounter(srcArray, "Грузовой", "Грузовых"));
+delaysArray.push(delaysCounter(srcArray, "Пассажирский", "Пассажирских"));
+delaysArray.push(delaysCounter(srcArray, "Пригородный", "Пригородных"));
 
 //counting number of total delays
 const totalDelaysCounter = (array) => {

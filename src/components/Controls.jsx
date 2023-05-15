@@ -5,12 +5,11 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
 import { useSelector, useDispatch } from "react-redux";
-import { increment, decrement, addTodo } from "../redux/toolkitSlice";
+import { addTodo } from "../redux/toolkitSlice";
 
-export let periodValue = "01";
+export let periodValue = "";
 let period = "";
 export default function SelectAutoWidth() {
-  const count = useSelector((state) => state.toolkit.count);
   const todos = useSelector((state) => state.toolkit.todos);
   const dispatch = useDispatch();
 
@@ -30,7 +29,7 @@ export default function SelectAutoWidth() {
     dispatch(addTodo(periodValue));
   };
 
-  console.log("periodValueControl", periodValue);
+  console.log("var period", periodValue);
 
   return (
     <div>

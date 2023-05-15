@@ -1,6 +1,15 @@
 import * as d3 from "d3";
+import { store } from "../redux/store";
 import { delaysSource } from "../test/delaysSource";
 
+let regexp = new RegExp(`[.]${store.getState().toolkit.todos}[.]`, "g"); // /\.01\./gm
+
+let srcArray = [];
+for (let i = 0; i < delaysSource.length; ++i) {
+  if (regexp.test(delaysSource[i]["Начало"])) {
+    srcArray.push(delaysSource[i]);
+  }
+}
 // year-params will be reassigned in future versions
 let pastYear = 22;
 let currentYear = 23;
@@ -83,13 +92,9 @@ const durationCounter = (src, name, chartname) => {
 
 //creating array for
 let durationsArray = [];
-durationsArray.push(durationCounter(delaysSource, "Грузовой", "Грузовых"));
-durationsArray.push(
-  durationCounter(delaysSource, "Пассажирский", "Пассажирских")
-);
-durationsArray.push(
-  durationCounter(delaysSource, "Пригородный", "Пригородных")
-);
+durationsArray.push(durationCounter(srcArray, "Грузовой", "Грузовых"));
+durationsArray.push(durationCounter(srcArray, "Пассажирский", "Пассажирских"));
+durationsArray.push(durationCounter(srcArray, "Пригородный", "Пригородных"));
 
 //counting number of total durations
 const totalDurationCounter = (array) => {

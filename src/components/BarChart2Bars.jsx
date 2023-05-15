@@ -148,10 +148,10 @@ const BarChart2Bars = (props) => {
         );
       }
       if (resData[0].value === 0) {
-        return "+" + resData[1].value + " ТН";
+        return "+" + resData[1].value;
       }
       if (resData[1].value === 0) {
-        return "-" + resData[0].value + " ТН";
+        return "-" + resData[0].value;
       }
     };
     const setTextAndArrowKind = () => {

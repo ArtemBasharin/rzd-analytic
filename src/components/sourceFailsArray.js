@@ -1,6 +1,16 @@
 import * as d3 from "d3";
 import { testSource } from "../test/testSource";
+import { store } from "../redux/store";
 
+let regexp = new RegExp(`[-]${store.getState().toolkit.todos}[-]`, "g"); // /\.01\./gm
+
+let srcArray = [];
+for (let i = 0; i < testSource.length; ++i) {
+  if (regexp.test(testSource[i]["Дата нарушения"])) {
+    srcArray.push(testSource[i]);
+  }
+}
+console.log(srcArray);
 // year-params will be reassigned in future versions
 let pastYear = 2022;
 let currentYear = 2023;
@@ -57,29 +67,24 @@ const failsCounter = (src, name, prop, chartname) => {
 
 //creating array for
 let failsArray = [];
-failsArray.push(totalFailsCounter(testSource));
-failsArray.push(failsCounter(testSource, "Номер / кат.", "/ 1", "1 категории"));
-failsArray.push(failsCounter(testSource, "Номер / кат.", "/ 2", "2 категории"));
+failsArray.push(totalFailsCounter(srcArray));
+failsArray.push(failsCounter(srcArray, "Номер / кат.", "/ 1", "1 категории"));
+failsArray.push(failsCounter(srcArray, "Номер / кат.", "/ 2", "2 категории"));
 failsArray.push(
-  failsCounter(testSource, "Тип", "Технического характера", "Техн. хар-ра")
+  failsCounter(srcArray, "Тип", "Технического характера", "Техн. хар-ра")
+);
+failsArray.push(
+  failsCounter(srcArray, "Тип", "Технологического характера", "Технол. хар-ра")
 );
 failsArray.push(
   failsCounter(
-    testSource,
-    "Тип",
-    "Технологического характера",
-    "Технол. хар-ра"
-  )
-);
-failsArray.push(
-  failsCounter(
-    testSource,
+    srcArray,
     "Тип",
     "Особая технологическая необходимость",
     "Особая технол. необх."
   )
 );
-failsArray.push(failsCounter(testSource, "Тип", "Внешние", "Внешние"));
+failsArray.push(failsCounter(srcArray, "Тип", "Внешние", "Внешние"));
 
 //create of array to find max value and export in d3.scales component
 const yMaxFind = (array) => {
