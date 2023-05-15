@@ -1,9 +1,12 @@
 import * as d3 from "d3";
+import { useState, useEffect } from "react";
 import { delaysSource } from "../test/delaysSource";
-import { periodValue } from "./Controls";
+// import { periodValue } from "./Controls";
+import { store } from "../redux/store";
 
-let regexp = new RegExp(`[.]${periodValue}[.]`, "g"); // /\.01\./gm
-console.log("regexp", regexp);
+console.log("storeValue", store.getState().toolkit.todos);
+let regexp = new RegExp(`[.]${store.getState().toolkit.todos}[.]`, "g"); // /\.01\./gm
+console.log("regexpStore", regexp);
 
 let srcArray = [];
 for (let i = 0; i < delaysSource.length; ++i) {
@@ -11,7 +14,7 @@ for (let i = 0; i < delaysSource.length; ++i) {
     srcArray.push(delaysSource[i]);
   }
 }
-console.log(srcArray);
+console.log("filteredFromStoreArr", srcArray);
 
 // year-params will be reassigned in future versions
 let pastYear = 22;

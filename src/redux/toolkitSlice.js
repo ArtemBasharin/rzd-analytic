@@ -4,7 +4,7 @@ const toolkitSlice = createSlice({
   name: "toolkit",
   initialState: {
     count: 0,
-    todos: "",
+    todos: "01",
   },
   reducers: {
     increment(state) {
