@@ -1,31 +1,16 @@
 import * as d3 from "d3";
 import { useState, useEffect } from "react";
 import { delaysSource } from "../test/delaysSource";
-// import { periodValue } from "./Controls";
 import { store } from "../redux/store";
 
-// function select(state) {
-//   return state.toolkit.todos;
-// }
+let exp = "";
+const unsubscribe = store.subscribe(() => {
+  exp = store.getState().toolkit.todos;
+  console.log("exp", exp);
+});
 
-// let currentValue;
-// function handleChange() {
-//   let previousValue = currentValue;
-//   currentValue = select(store.getState());
-
-//   if (previousValue !== currentValue) {
-//     console.log(
-//       "Некоторое глубокое вложенное свойство измененное от ",
-//       previousValue,
-//       "к",
-//       currentValue
-//     );
-//   }
-// }
-
-// const unsubscribe = store.subscribe(handleChange);
-// unsubscribe();
-let regexp = new RegExp(`[.]${store.getState().toolkit.todos}[.]`, "g"); // /\.01\./gm
+let regexp = new RegExp(`[.]${exp}[.]`, "g"); // /\.01\./gm
+console.log("regexp", regexp);
 
 let srcArray = [];
 for (let i = 0; i < delaysSource.length; ++i) {
