@@ -9,7 +9,7 @@ const unsubscribe = store.subscribe(() => {
   console.log("exp", exp);
 });
 
-let regexp = new RegExp(`[.]${exp}[.]`, "g"); // /\.01\./gm
+let regexp = new RegExp(`[.]${store.getState().toolkit.todos}[.]`, "g"); // /\.01\./gm
 console.log("regexp", regexp);
 
 let srcArray = [];
