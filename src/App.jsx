@@ -2,26 +2,28 @@ import React from "react";
 import "./App.css";
 import BarChart2Bars from "./components/BarChart2Bars";
 import BarGroupedLine from "./components/BarGroupedLine";
-import failsArray, { yMax } from "./components/sourceFailsArray";
-import delaysArray, { yMaxDelays } from "./components/sourceDelaysArray";
+import failsArray, { yMax } from "./components/arrGenerators/sourceFailsArray";
+import delaysArray, {
+  yMaxDelays,
+} from "./components/arrGenerators/sourceDelaysArray";
 import durationsArray, {
   yMaxDurations,
-} from "./components/sourceDurationArray";
+} from "./components/arrGenerators/sourceDurationArray";
 import {
   yMaxGroups,
   paretoArrayResult,
   maxYear,
-} from "./components/sourceGuiltyArray";
+} from "./components/arrGenerators/sourceGuiltyArray";
 import {
   paretoArrayResultReasons,
   yMaxReasons,
   maxYearReasons,
-} from "./components/sourceReasonsArray";
+} from "./components/arrGenerators/sourceReasonsArray";
 import {
   paretoArrayResultDuration,
   yMaxGroupsDuration,
   maxYearGuiltyDuration,
-} from "./components/sourceGuiltyDurationArray";
+} from "./components/arrGenerators/sourceGuiltyDurationArray";
 
 import Navbar from "./components/Navbar";
 // console.log(paretoArrayResultReasons);

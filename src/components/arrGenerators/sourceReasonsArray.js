@@ -1,7 +1,6 @@
-import { delaysSource } from "../test/delaysSource";
+import { delaysSource } from "../../test/delaysSource";
 import * as d3 from "d3";
-
-import { store } from "../redux/store";
+import { store } from "../../redux/store";
 
 let regexp = new RegExp(`[.]${store.getState().toolkit.todos}[.]`, "g"); // /\.01\./gm
 
@@ -23,45 +22,8 @@ const yearFilter = (el) => {
   );
 };
 
-const unitFilter = (el) => {
-  return el["Ответственный"]
-    .replace(/[\r\n]/g, " ")
-    .replace(/З-СИБ,/g, "")
-    .replace(/ООО «ЛокоТех-Сервис»/g, " ")
-    .replace(/ООО «СТМ-Сервис»/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-};
-
-const durationFilter = (el) => {
-  let trainKinds = ["Грузовой", "Пассажирский", "Пригородный"];
-  let totalDuration = 0;
-  trainKinds.forEach((el_tr) => {
-    if (el[el_tr])
-      if (el[el_tr].split("\r\n")[1].includes("к учету")) {
-        totalDuration =
-          totalDuration +
-          Number(
-            el[el_tr]
-              .split("\r\n")[1]
-              .split("к учету")[1]
-              .replace(/ /g, "")
-              .replace(/,/g, ".")
-              .slice(0, -2)
-          );
-      } else {
-        totalDuration =
-          totalDuration +
-          Number(
-            el[el_tr]
-              .split("\r\n")[1]
-              .replace(/ /g, "")
-              .replace(/,/g, ".")
-              .slice(0, -1)
-          );
-      }
-  });
-  return totalDuration;
+const reasonFilter = (el) => {
+  return el["Причина"].replace(/\([0-9]{1,4}\)/gm, "").trim();
 };
 
 const maxYearKey = (arr) => {
@@ -76,29 +38,31 @@ function byField(field) {
   return (a, b) => (a[field] < b[field] ? 1 : -1);
 }
 
-const createGuiltsArray = (src) => {
+const createReasonsArray = (src) => {
   //accumulate values from source
-  const subUnitsAsMap = new Map();
+  const reasonsAsMap = new Map();
   let uniqueYearLabelsArr = [];
   for (let i = 0; i < src.length; i += 1) {
-    const unit = unitFilter(src[i]);
+    const reason = reasonFilter(src[i]);
     const year = yearFilter(src[i]);
     if (!uniqueYearLabelsArr.includes(year)) uniqueYearLabelsArr.push(year);
     const currentItem = {
       yearLabel: year,
-      label: unit,
-      value: durationFilter(src[i]),
+      label: reason,
+      value: 1,
     };
-    if (subUnitsAsMap.has(year + "-" + unit)) {
-      let existedItem = subUnitsAsMap.get(year + "-" + unit);
-      existedItem.value += durationFilter(src[i]);
+
+    if (reasonsAsMap.has(year + "-" + reason)) {
+      let existedItem = reasonsAsMap.get(year + "-" + reason);
+
+      existedItem.value += 1;
     } else {
-      subUnitsAsMap.set(year + "-" + unit, currentItem);
+      reasonsAsMap.set(year + "-" + reason, currentItem);
     }
   }
 
-  //unite items with same key [subUnit]
-  let transitArr = [...subUnitsAsMap.values()];
+  //unite items with same key [reason]
+  let transitArr = [...reasonsAsMap.values()];
   const subResult = new Map();
   for (let i = 0; i < transitArr.length; i += 1) {
     const currentItem = transitArr[i].label;
@@ -119,26 +83,24 @@ const createGuiltsArray = (src) => {
   uniqueYearLabelsArr.sort();
   for (let i = 0; i < uniqueYearLabelsArr.length; i++) {
     result.map(function (el) {
-      if (!el[uniqueYearLabelsArr[i]]) {
-        return (el[uniqueYearLabelsArr[i]] = 0);
-      }
+      if (!el[uniqueYearLabelsArr[i]]) return (el[uniqueYearLabelsArr[i]] = 0);
     });
   }
 
   return result.sort(byField(maxYearKey(result)));
 };
 
-export let sourceGuiltyDurationArray = createGuiltsArray(srcArray);
-export let maxYearGuiltyDuration = maxYearKey(sourceGuiltyDurationArray);
+export let sourceReasonsArray = createReasonsArray(srcArray);
+export let maxYearReasons = maxYearKey(sourceReasonsArray);
 
 let yMaxGroupsArr = [];
-sourceGuiltyDurationArray.forEach((el) => {
+sourceReasonsArray.forEach((el) => {
   Object.values(el).forEach((el2) => {
     if (!isNaN(el2)) yMaxGroupsArr.push(el2);
   });
 });
 
-export let yMaxGroupsDuration = d3.max(yMaxGroupsArr);
+export let yMaxReasons = d3.max(yMaxGroupsArr);
 
 const arrayByField = (src) => {
   let result = [];
@@ -156,9 +118,9 @@ const paretoArrayGen = (src) => {
   return result.map((el) => Math.round((el / totalSum) * 1000) / 10);
 };
 
-let paretoArray = paretoArrayGen(sourceGuiltyDurationArray);
-for (let i = 0; i < sourceGuiltyDurationArray.length; i += 1) {
-  sourceGuiltyDurationArray[i].valueP = paretoArray[i];
+let paretoArray = paretoArrayGen(sourceReasonsArray);
+for (let i = 0; i < sourceReasonsArray.length; i += 1) {
+  sourceReasonsArray[i].valueP = paretoArray[i];
 }
-export let paretoArrayResultDuration = sourceGuiltyDurationArray;
-console.log("paretoArrayResultDuration", paretoArrayResultDuration);
+export let paretoArrayResultReasons = sourceReasonsArray;
+console.log("paretoArrayResultReasons", paretoArrayResultReasons);

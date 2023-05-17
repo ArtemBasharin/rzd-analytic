@@ -1,6 +1,7 @@
-import { delaysSource } from "../test/delaysSource";
+import { delaysSource } from "../../test/delaysSource";
 import * as d3 from "d3";
-import { store } from "../redux/store";
+
+import { store } from "../../redux/store";
 
 let regexp = new RegExp(`[.]${store.getState().toolkit.todos}[.]`, "g"); // /\.01\./gm
 
@@ -32,6 +33,37 @@ const unitFilter = (el) => {
     .trim();
 };
 
+const durationFilter = (el) => {
+  let trainKinds = ["Грузовой", "Пассажирский", "Пригородный"];
+  let totalDuration = 0;
+  trainKinds.forEach((el_tr) => {
+    if (el[el_tr])
+      if (el[el_tr].split("\r\n")[1].includes("к учету")) {
+        totalDuration =
+          totalDuration +
+          Number(
+            el[el_tr]
+              .split("\r\n")[1]
+              .split("к учету")[1]
+              .replace(/ /g, "")
+              .replace(/,/g, ".")
+              .slice(0, -2)
+          );
+      } else {
+        totalDuration =
+          totalDuration +
+          Number(
+            el[el_tr]
+              .split("\r\n")[1]
+              .replace(/ /g, "")
+              .replace(/,/g, ".")
+              .slice(0, -1)
+          );
+      }
+  });
+  return totalDuration;
+};
+
 const maxYearKey = (arr) => {
   let maxKeyArr = [];
   Object.keys(arr[0]).forEach((el2) => {
@@ -55,11 +87,11 @@ const createGuiltsArray = (src) => {
     const currentItem = {
       yearLabel: year,
       label: unit,
-      value: 1,
+      value: durationFilter(src[i]),
     };
     if (subUnitsAsMap.has(year + "-" + unit)) {
       let existedItem = subUnitsAsMap.get(year + "-" + unit);
-      existedItem.value += 1;
+      existedItem.value += durationFilter(src[i]);
     } else {
       subUnitsAsMap.set(year + "-" + unit, currentItem);
     }
@@ -96,17 +128,17 @@ const createGuiltsArray = (src) => {
   return result.sort(byField(maxYearKey(result)));
 };
 
-export let sourceGuiltyArray = createGuiltsArray(srcArray);
-export let maxYear = maxYearKey(sourceGuiltyArray);
+export let sourceGuiltyDurationArray = createGuiltsArray(srcArray);
+export let maxYearGuiltyDuration = maxYearKey(sourceGuiltyDurationArray);
 
 let yMaxGroupsArr = [];
-sourceGuiltyArray.forEach((el) => {
+sourceGuiltyDurationArray.forEach((el) => {
   Object.values(el).forEach((el2) => {
     if (!isNaN(el2)) yMaxGroupsArr.push(el2);
   });
 });
 
-export let yMaxGroups = d3.max(yMaxGroupsArr);
+export let yMaxGroupsDuration = d3.max(yMaxGroupsArr);
 
 const arrayByField = (src) => {
   let result = [];
@@ -124,9 +156,9 @@ const paretoArrayGen = (src) => {
   return result.map((el) => Math.round((el / totalSum) * 1000) / 10);
 };
 
-let paretoArray = paretoArrayGen(sourceGuiltyArray);
-for (let i = 0; i < sourceGuiltyArray.length; i += 1) {
-  sourceGuiltyArray[i].valueP = paretoArray[i];
+let paretoArray = paretoArrayGen(sourceGuiltyDurationArray);
+for (let i = 0; i < sourceGuiltyDurationArray.length; i += 1) {
+  sourceGuiltyDurationArray[i].valueP = paretoArray[i];
 }
-export let paretoArrayResult = sourceGuiltyArray;
-console.log("pareto", paretoArrayResult);
+export let paretoArrayResultDuration = sourceGuiltyDurationArray;
+console.log("paretoArrayResultDuration", paretoArrayResultDuration);

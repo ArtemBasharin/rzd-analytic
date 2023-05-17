@@ -1,6 +1,6 @@
 import * as d3 from "d3";
-import { testSource } from "../test/testSource";
-import { store } from "../redux/store";
+import { testSource } from "../../test/testSource";
+import { store } from "../../redux/store";
 
 let regexp = new RegExp(`[-]${store.getState().toolkit.todos}[-]`, "g"); // /\.01\./gm
 
