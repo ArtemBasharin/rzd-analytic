@@ -3,7 +3,8 @@ import "./App.css";
 import BarChart2Bars from "./components/BarChart2Bars";
 import BarGroupedLine from "./components/BarGroupedLine";
 import failsArray, { yMax } from "./components/arrGenerators/sourceFailsArray";
-import delaysArray, {
+import {
+  delaysArray,
   yMaxDelays,
 } from "./components/arrGenerators/sourceDelaysArray";
 import durationsArray, {
@@ -24,8 +25,9 @@ import {
   yMaxGroupsDuration,
   maxYearGuiltyDuration,
 } from "./components/arrGenerators/sourceGuiltyDurationArray";
-
 import Navbar from "./components/Navbar";
+
+console.log("0000000000000000", delaysArray);
 // console.log(paretoArrayResultReasons);
 // import MixedChart from "./components/MixedChart";
 

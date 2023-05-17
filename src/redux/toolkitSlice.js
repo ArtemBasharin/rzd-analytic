@@ -4,7 +4,8 @@ const toolkitSlice = createSlice({
   name: "toolkit",
   initialState: {
     count: 0,
-    todos: "01|02|03",
+    pattern: "01",
+    delaysArrayState: [],
   },
   reducers: {
     increment(state) {
@@ -13,11 +14,15 @@ const toolkitSlice = createSlice({
     decrement(state) {
       state.count = state.count - 1;
     },
-    addTodo(state, action) {
-      state.todos = action.payload;
+    setPattern(state, action) {
+      state.pattern = action.payload;
+    },
+    setDelaysArray(state, action) {
+      state.delaysArray = action.payload;
     },
   },
 });
 
 export default toolkitSlice.reducer;
-export const { increment, decrement, addTodo } = toolkitSlice.actions;
+export const { increment, decrement, setPattern, setDelaysArray } =
+  toolkitSlice.actions;

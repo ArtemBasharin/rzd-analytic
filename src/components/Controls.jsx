@@ -5,12 +5,12 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 
 import { useSelector, useDispatch } from "react-redux";
-import { addTodo } from "../redux/toolkitSlice";
+import { setPattern } from "../redux/toolkitSlice";
 
 export let periodValue = "";
-let period = "";
+let period = "01";
 export default function SelectAutoWidth() {
-  const todos = useSelector((state) => state.toolkit.todos);
+  const pattern = useSelector((state) => state.toolkit.pattern);
   const dispatch = useDispatch();
 
   const handleChange = (event) => {
@@ -26,10 +26,8 @@ export default function SelectAutoWidth() {
       }
       periodValue = resultArr.join("|");
     }
-    dispatch(addTodo(periodValue));
   };
-
-  console.log("var period", periodValue);
+  dispatch(setPattern(periodValue));
 
   return (
     <div>
