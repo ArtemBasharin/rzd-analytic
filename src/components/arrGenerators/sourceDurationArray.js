@@ -2,7 +2,7 @@ import * as d3 from "d3";
 import { store } from "../../redux/store";
 import { delaysSource } from "../../test/delaysSource";
 
-let regexp = new RegExp(`[.]${store.getState().toolkit.pattern}[.]`, "g"); // /\.01\./gm
+let regexp = new RegExp(`[.]${store.getState().filters.regexpPattern}[.]`, "g"); // /\.01\./gm
 
 let srcArray = [];
 for (let i = 0; i < delaysSource.length; ++i) {

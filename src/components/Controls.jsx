@@ -7,27 +7,18 @@ import Select from "@mui/material/Select";
 import { useSelector, useDispatch } from "react-redux";
 import { setPattern } from "../redux/toolkitSlice";
 
-export let periodValue = "";
+export let periodValue = "01";
 let period = "01";
 export default function SelectAutoWidth() {
-  const pattern = useSelector((state) => state.toolkit.pattern);
+  const pattern = useSelector((state) => state.filters.regexpPattern);
+  console.log("pattern", pattern);
   const dispatch = useDispatch();
-
   const handleChange = (event) => {
     period = event.target.value;
-
-    if (period.length < 3) {
-      periodValue = `${period}`;
-    } else {
-      let tempArr = period.split("-").map((el) => Number(el));
-      let resultArr = [];
-      for (let i = tempArr[0]; i <= tempArr[1]; ++i) {
-        i < 10 ? resultArr.push("0" + i) : resultArr.push(i);
-      }
-      periodValue = resultArr.join("|");
-    }
+    console.log("handleChange", period);
+    periodValue = period;
+    dispatch(setPattern(period));
   };
-  dispatch(setPattern(periodValue));
 
   return (
     <div>

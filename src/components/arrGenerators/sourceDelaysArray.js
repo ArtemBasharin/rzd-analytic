@@ -5,17 +5,11 @@ import { store } from "../../redux/store";
 import { useSelector, useDispatch } from "react-redux";
 import { setDelaysArray } from "../../redux/toolkitSlice";
 
-let exp = "";
-const unsubscribe = store.subscribe(() => {
-  exp = store.getState().toolkit.pattern;
-  ArrFunc();
-});
 export default function ArrFunc() {
-  // here is invalid hook call https://reactjs.org/link/invalid-hook-call
-  // const delaysArr = useSelector((state) => state.toolkit.delaysArrayState);
-  // const dispatch = useDispatch();
-
-  let regexp = new RegExp(`[.]${store.getState().toolkit.pattern}[.]`, "g"); // /\.01\./gm
+  let regexp = new RegExp(
+    `[.]${store.getState().filters.regexpPattern}[.]`,
+    "g"
+  ); // /\.01\./gm
   console.log("regexp", regexp);
 
   let srcArray = [];

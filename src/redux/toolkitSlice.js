@@ -1,11 +1,16 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const toolkitSlice = createSlice({
-  name: "toolkit",
+  name: "filters",
   initialState: {
     count: 0,
-    pattern: "01",
+    regexpPattern: "01",
+    failsArrayState: [],
     delaysArrayState: [],
+    durationsArrayState: [],
+    subunitsArrayState: [],
+    subunitsDurationArrayState: [],
+    reasonsArrayState: [],
   },
   reducers: {
     increment(state) {
@@ -15,7 +20,20 @@ const toolkitSlice = createSlice({
       state.count = state.count - 1;
     },
     setPattern(state, action) {
-      state.pattern = action.payload;
+      let periodStr = "";
+      let period = action.payload;
+      if (period.length < 3) {
+        periodStr = `${period}`;
+      } else {
+        let tempArr = period.split("-").map((el) => Number(el));
+        let resultArr = [];
+        for (let i = tempArr[0]; i <= tempArr[1]; ++i) {
+          i < 10 ? resultArr.push("0" + i) : resultArr.push(i);
+        }
+        periodStr = resultArr.join("|");
+      }
+      state.regexpPattern = periodStr;
+      console.log("slice", periodStr);
     },
     setDelaysArray(state, action) {
       state.delaysArray = action.payload;
