@@ -1,9 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
+let date = new Date();
 
 const toolkitSlice = createSlice({
   name: "filters",
   initialState: {
     count: 0,
+    currentYear: date.getFullYear(),
+    pastYear: date.getFullYear() - 1,
     regexpPattern: "01",
     failsArrayState: [],
     delaysArrayState: [],
