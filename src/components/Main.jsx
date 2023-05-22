@@ -1,7 +1,4 @@
 import React from "react";
-import "./App.css";
-
-////////////////////////////////// copied to main
 import BarChart2Bars from "./components/BarChart2Bars";
 import BarGroupedLine from "./components/BarGroupedLine";
 import failsArray, { yMax } from "./components/arrGenerators/sourceFailsArray";
@@ -27,24 +24,8 @@ import {
   yMaxGroupsDuration,
   maxYearGuiltyDuration,
 } from "./components/arrGenerators/sourceGuiltyDurationArray";
-////////////////////////////////// copied to main
 
-import Navbar from "./components/Navbar";
-
-//console.log("0000000000000000", delaysArray);
-// console.log(paretoArrayResultReasons);
-// import MixedChart from "./components/MixedChart";
-
-// import MyGraph from "./components/MyGraph";
-// import LineChart from "./components/MyGraph2";
-// import MyGraph3 from "./components/MyGraph3";
-// import MyGraph4 from "./components/MyGraph4";
-
-// import { periodValue } from "../src/components/Controls";
-// console.log("importedperiodValue", periodValue);
-// import Drawer from "./components/Drawer";
-//console.log(paretoArrayResult);
-function App() {
+function Main() {
   //section of charts with fails counting
   let chartFailsWidth = window.screen.width / 7 - 10;
   const paramsFailsSection = {
@@ -65,9 +46,9 @@ function App() {
   });
 
   //section of charts with delays counting
-  let chartDelaysWidth = window.screen.width / 5 / 2 - 10;
+  let chartDelaysWidth = window.screen.width / 4 / 2 - 10;
   const paramsDelaysSection = {
-    ids: [7, 8, 9, 10, 101], //this prop need to create unique #id svg elements
+    ids: [7, 8, 9, 10], //this prop need to create unique #id svg elements
     width: chartDelaysWidth,
   };
   let layoutDelays = [];
@@ -121,11 +102,7 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <Navbar />
-
-      {/* <Drawer /> */}
-      {/* <SelectAutoWidth /> */}
+    <div className="Main">
       <div className="horizontalSection">{layoutFails}</div>
       <div className="horizontalSection horizontalSection_group">
         <div className="horizontalSection">{layoutDelays}</div>
@@ -163,4 +140,4 @@ function App() {
   );
 }
 
-export default App;
+export default Main;

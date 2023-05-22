@@ -4,7 +4,7 @@ let date = new Date();
 const toolkitSlice = createSlice({
   name: "filters",
   initialState: {
-    count: 0,
+    minValue: 0,
     currentYear: date.getFullYear(),
     pastYear: date.getFullYear() - 1,
     regexpPattern: "01",
@@ -17,10 +17,10 @@ const toolkitSlice = createSlice({
   },
   reducers: {
     increment(state) {
-      state.count = state.count + 1;
+      state.minValue = state.minValue + 1;
     },
     decrement(state) {
-      state.count = state.count - 1;
+      state.minValue = state.minValue - 1;
     },
     setPattern(state, action) {
       let periodStr = "";

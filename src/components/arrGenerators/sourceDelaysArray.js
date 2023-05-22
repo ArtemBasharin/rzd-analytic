@@ -4,29 +4,45 @@ import { delaysSource } from "../../test/delaysSource";
 import { store } from "../../redux/store";
 import { useSelector, useDispatch } from "react-redux";
 import { setDelaysArray } from "../../redux/toolkitSlice";
+import {
+  startTime,
+  failCategory,
+  failKind,
+  guiltyUnit,
+  failReason,
+  freightTrainsDelayed,
+  freightTrainsDuration,
+  passTrainsDelayed,
+  passTrainsDuration,
+  subTrainsDelayed,
+  subTrainsDuration,
+  otherTrainsDelayed,
+  otherTrainsDuration,
+} from "../../config/config";
+import { testArr } from "../../test/test";
 
 export default function ArrFunc() {
   let regexp = new RegExp(
-    `[.]${store.getState().filters.regexpPattern}[.]`,
+    `[-]${store.getState().filters.regexpPattern}[-]`,
     "g"
   ); // /\.01\./gm
   console.log("regexp", regexp);
 
   let srcArray = [];
-  for (let i = 0; i < delaysSource.length; ++i) {
-    if (regexp.test(delaysSource[i]["Начало"])) {
-      srcArray.push(delaysSource[i]);
+  for (let i = 0; i < testArr.length; ++i) {
+    if (regexp.test(testArr[i][startTime])) {
+      srcArray.push(testArr[i]);
     }
   }
 
   // year-params will be reassigned in future versions
-  let pastYear = 22;
-  let currentYear = 23;
+  let pastYear = store.getState().filters.pastYear;
+  let currentYear = store.getState().filters.currentYear;
 
   //counting number of fails with conditions
   const delaysCounter = (src, name, chartname) => {
     const findYear = (year) => {
-      let regexp = new RegExp(`[0-9]{2}.[0-9]{2}.${year}`, "g");
+      let regexp = new RegExp(`${year}`, "g");
       return regexp;
     };
     let pastYearCount = 0;
@@ -35,48 +51,14 @@ export default function ArrFunc() {
     src.forEach((element) => {
       if (element[name]) {
         //this check is necessary, the property may be missed
-        if (findYear(pastYear).test(element["Начало"])) {
-          if (element[name].split("\r\n")[0].includes("к учету")) {
-            pastYearCount =
-              pastYearCount +
-              Number(
-                element[name]
-                  .split("\r\n")[0]
-                  .split("(к учету")[1]
-                  .replace(/ /g, "")
-                  .slice(0, -1)
-              );
-          } else {
-            pastYearCount =
-              pastYearCount +
-              Number(
-                element[name]
-                  .split("\r\n")[0]
-                  .replace(/шт/g, "")
-                  .replace(/ /g, "")
-              );
+        if (findYear(pastYear).test(element[startTime])) {
+          if (element[name]) {
+            pastYearCount = pastYearCount + Number(element[name]);
           }
         }
-        if (findYear(currentYear).test(element["Начало"])) {
-          if (element[name].split("\r\n")[0].includes("к учету")) {
-            currentYearCount =
-              currentYearCount +
-              Number(
-                element[name]
-                  .split("\r\n")[0]
-                  .split("(к учету")[1]
-                  .replace(/ /g, "")
-                  .slice(0, -1)
-              );
-          } else {
-            currentYearCount =
-              currentYearCount +
-              Number(
-                element[name]
-                  .split("\r\n")[0]
-                  .replace(/шт/g, "")
-                  .replace(/ /g, "")
-              );
+        if (findYear(currentYear).test(element[startTime])) {
+          if (element[name]) {
+            currentYearCount = currentYearCount + Number(element[name]);
           }
         }
       }
@@ -84,12 +66,12 @@ export default function ArrFunc() {
     return [
       {
         value: pastYearCount,
-        label: pastYear + 2000,
+        label: pastYear,
         title: chartname,
       },
       {
         value: currentYearCount,
-        label: currentYear + 2000,
+        label: currentYear,
         title: chartname,
       },
     ];
@@ -97,9 +79,10 @@ export default function ArrFunc() {
 
   //creating array for
   let delaysArray = [];
-  delaysArray.push(delaysCounter(srcArray, "Грузовой", "Грузовых"));
-  delaysArray.push(delaysCounter(srcArray, "Пассажирский", "Пассажирских"));
-  delaysArray.push(delaysCounter(srcArray, "Пригородный", "Пригородных"));
+  delaysArray.push(delaysCounter(srcArray, freightTrainsDelayed, "Грузовых"));
+  delaysArray.push(delaysCounter(srcArray, passTrainsDelayed, "Пассажирских"));
+  delaysArray.push(delaysCounter(srcArray, subTrainsDelayed, "Пригородных"));
+  delaysArray.push(delaysCounter(srcArray, otherTrainsDelayed, "Прочих"));
 
   //counting number of total delays
   const totalDelaysCounter = (array) => {
@@ -108,22 +91,22 @@ export default function ArrFunc() {
     let tempArray = array.flat();
     // console.log("tempArray", tempArray);
     tempArray.forEach((element) => {
-      if (element.label === pastYear + 2000) {
+      if (element.label === pastYear) {
         pastYearCount = pastYearCount + element.value;
       }
-      if (element.label === currentYear + 2000) {
+      if (element.label === currentYear) {
         currentYearCount = currentYearCount + element.value;
       }
     });
     return [
       {
         value: pastYearCount,
-        label: pastYear + 2000,
+        label: pastYear,
         title: "Всего",
       },
       {
         value: currentYearCount,
-        label: currentYear + 2000,
+        label: currentYear,
         title: "Всего",
       },
     ];
@@ -138,11 +121,9 @@ export default function ArrFunc() {
       values.push(j.value);
     })
   );
-  let yMaxDelays = d3.max(values); //extra multiplier for extra margin-top in histogram
+  let yMaxDelays = d3.max(values);
   console.log("Arrfunc", delaysArray);
 
-  // here is invalid hook call https://reactjs.org/link/invalid-hook-call
-  // dispatch(setDelaysArray(delaysArray));
   return [delaysArray, yMaxDelays];
 }
 

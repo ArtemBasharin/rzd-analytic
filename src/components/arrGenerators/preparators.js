@@ -1,23 +1,36 @@
 import * as d3 from "d3";
+import {
+  startTime,
+  failCategory,
+  failKind,
+  guiltyUnit,
+  failReason,
+  freightTrainsDelayed,
+  freightTrainsDuration,
+  passTrainsDelayed,
+  passTrainsDuration,
+  subTrainsDelayed,
+  subTrainsDuration,
+} from "../../config/config";
 
-export const filterByMonth = (arr, regexpPattern) => {
+const filteredByMonthArray = (arr, regexpPattern) => {
   let regexp = new RegExp(`[-]${regexpPattern}[-]`, "g");
   let resultArray = [];
   for (let i = 0; i < arr.length; ++i) {
-    if (regexp.test(arr[i]["Начало отказа"])) {
+    if (regexp.test(arr[i][startTime])) {
       resultArray.push(arr[i]);
     }
   }
   return resultArray;
 };
 
-export const totalFailsCounter = (src, pastYear, currentYear) => {
+const totalFailsCounter = (src, pastYear, currentYear) => {
   let pastYearCount = 0;
   let currentYearCount = 0;
   src.forEach((el) => {
-    if (el["Начало отказа"]) {
-      el["Начало отказа"].includes(pastYear) && pastYearCount++;
-      el["Начало отказа"].includes(currentYear) && currentYearCount++;
+    if (el[startTime]) {
+      el[startTime].includes(pastYear) && pastYearCount++;
+      el[startTime].includes(currentYear) && currentYearCount++;
     }
   });
   return [
@@ -32,14 +45,11 @@ const failsCounter = (src, name, prop, chartname, currentYear, pastYear) => {
   let currentYearCount = 0;
   src.forEach((element) => {
     if (element[name]) {
-      if (
-        element[name].includes(prop) &&
-        element["Дата нарушения"].includes(pastYear)
-      )
+      if (element[name].includes(prop) && element[startTime].includes(pastYear))
         pastYearCount++;
       if (
         element[name].includes(prop) &&
-        element["Дата нарушения"].includes(currentYear)
+        element[startTime].includes(currentYear)
       )
         currentYearCount++;
     }
@@ -50,20 +60,23 @@ const failsCounter = (src, name, prop, chartname, currentYear, pastYear) => {
   ];
 };
 
-//creating array for
-
-let failsArray = [];
-const unitedArrGenerate = (srcArray) => {
+// create array for chart section with some kinds fails
+export const unitedArrFails = (srcArray) => {
+  let failsArray = [];
   failsArray.push(totalFailsCounter(srcArray));
-  failsArray.push(failsCounter(srcArray, "Номер / кат.", "/ 1", "1 категории"));
-  failsArray.push(failsCounter(srcArray, "Номер / кат.", "/ 2", "2 категории"));
   failsArray.push(
-    failsCounter(srcArray, "Тип", "Технического характера", "Техн. хар-ра")
+    failsCounter(srcArray, failCategory, "1 категория", "1 категории")
+  );
+  failsArray.push(
+    failsCounter(srcArray, failCategory, "2 категория", "2 категории")
+  );
+  failsArray.push(
+    failsCounter(srcArray, failKind, "Технического характера", "Техн. хар-ра")
   );
   failsArray.push(
     failsCounter(
       srcArray,
-      "Тип",
+      failKind,
       "Технологического характера",
       "Технол. хар-ра"
     )
@@ -71,18 +84,18 @@ const unitedArrGenerate = (srcArray) => {
   failsArray.push(
     failsCounter(
       srcArray,
-      "Тип",
+      failKind,
       "Особая технологическая необходимость",
       "Особая технол. необх."
     )
   );
-  failsArray.push(failsCounter(srcArray, "Тип", "Внешние", "Внешние"));
-};
-//create of array to find max value and export in d3.scales component
-const maxYFind = (array) => {
-  let values = [];
-  array.flat().forEach((e) => values.push(e.value));
-  return d3.max(values); //extra multiplier for extra margin-top in histogram
+  failsArray.push(failsCounter(srcArray, failKind, "Внешние", "Внешние"));
+  return failsArray;
 };
 
-export let yMax = maxYFind(failsArray);
+//find max value for d3.scales element
+const findMaxValue = (array) => {
+  let values = [];
+  array.flat().forEach((e) => values.push(e.value));
+  return d3.max(values);
+};
