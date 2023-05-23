@@ -1,45 +1,13 @@
-import React, { useState } from "react";
 import * as d3 from "d3";
-import { delaysSource } from "../../test/delaysSource";
-import { store } from "../../redux/store";
-import { useSelector, useDispatch } from "react-redux";
-import { setDelaysArray } from "../../redux/toolkitSlice";
 import {
   startTime,
-  failCategory,
-  failKind,
-  guiltyUnit,
-  failReason,
   freightTrainsDelayed,
-  freightTrainsDuration,
   passTrainsDelayed,
-  passTrainsDuration,
   subTrainsDelayed,
-  subTrainsDuration,
   otherTrainsDelayed,
-  otherTrainsDuration,
 } from "../../config/config";
-import { testArr } from "../../test/test";
-import { ContrastOutlined } from "@mui/icons-material";
-import { yMax } from "./sourceFailsArray";
 
-export default function ArrFunc() {
-  let regexp = new RegExp(
-    `[-]${store.getState().filters.regexpPattern}[-]`,
-    "g"
-  ); // /\.01\./gm
-  console.log("regexp", regexp);
-
-  let srcArray = [];
-  for (let i = 0; i < testArr.length; ++i) {
-    if (regexp.test(testArr[i][startTime])) {
-      srcArray.push(testArr[i]);
-    }
-  }
-
-  let pastYear = store.getState().filters.pastYear;
-  let currentYear = store.getState().filters.currentYear;
-
+export const getArrDelays = (srcArray, pastYear, currentYear) => {
   //counting number of fails with conditions
   const delaysCounter = (src, name, chartname) => {
     let pastYearCount = 0;
@@ -106,22 +74,11 @@ export default function ArrFunc() {
 
   delaysArray.push(totalDelaysCounter(delaysArray));
 
-  return delaysArray;
-}
-
-export let delaysArray = ArrFunc();
-
-console.log("delaysArray", delaysArray);
-
-const yMaxV = () => {
-  //create of array to find max value and export in d3.scales component
-  let values = [];
-  delaysArray.forEach((i) =>
-    i.forEach((j) => {
-      values.push(j.value);
-    })
-  );
-  let yMaxDelays = d3.max(values);
-  return yMaxDelays;
+  //find max value for d3.scales element
+  const findMaxValue = (array) => {
+    let values = [];
+    array.flat().forEach((e) => values.push(e.value));
+    return d3.max(values);
+  };
+  return { arr: delaysArray, y: findMaxValue(delaysArray) };
 };
-export let yMaxDelays = yMaxV();

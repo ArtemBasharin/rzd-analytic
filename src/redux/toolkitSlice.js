@@ -36,7 +36,6 @@ const toolkitSlice = createSlice({
         periodStr = resultArr.join("|");
       }
       state.regexpPattern = periodStr;
-      console.log("slice", periodStr);
     },
     setDelaysArray(state, action) {
       state.delaysArray = action.payload;
