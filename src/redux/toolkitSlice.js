@@ -19,9 +19,11 @@ const toolkitSlice = createSlice({
     increment(state) {
       state.minValue = state.minValue + 1;
     },
+
     decrement(state) {
       state.minValue = state.minValue - 1;
     },
+
     setPattern(state, action) {
       let periodStr = "";
       let period = action.payload;
@@ -37,6 +39,11 @@ const toolkitSlice = createSlice({
       }
       state.regexpPattern = periodStr;
     },
+
+    setMinValue(state, action) {
+      state.minValue = action.payload;
+    },
+
     setDelaysArray(state, action) {
       state.delaysArray = action.payload;
     },
@@ -44,5 +51,5 @@ const toolkitSlice = createSlice({
 });
 
 export default toolkitSlice.reducer;
-export const { increment, decrement, setPattern, setDelaysArray } =
+export const { increment, decrement, setPattern, setMinValue, setDelaysArray } =
   toolkitSlice.actions;

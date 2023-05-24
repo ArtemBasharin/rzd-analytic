@@ -1,32 +1,71 @@
-import React, { useState } from "react";
+import React from "react";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
-
 import { useSelector, useDispatch } from "react-redux";
-import { setPattern } from "../redux/toolkitSlice";
+import { setPattern, setMinValue } from "../redux/toolkitSlice";
 
 export let periodValue = "01";
 let period = "01";
 export default function SelectAutoWidth() {
   const pattern = useSelector((state) => state.filters.regexpPattern);
-  console.log("pattern", pattern);
+  const minValue = useSelector((state) => state.filters.minValue);
   const dispatch = useDispatch();
+
   const handleChange = (event) => {
     period = event.target.value;
-    console.log("handleChange", period);
     periodValue = period;
     dispatch(setPattern(period));
   };
+  console.log("pattern", pattern);
+
+  const handleChangeMinValue = (event) => {
+    dispatch(setMinValue(event.target.value));
+  };
+  console.log("minValue", minValue);
 
   return (
-    <div>
+    <div style={{ display: "flex" }}>
       <FormControl
         sx={{ m: 2, minWidth: 100, color: "#fff", borderColor: "#fff" }}
       >
         <InputLabel
-          id="demo-simple-select-autowidth-label"
+          id="select-minvalue-label"
+          sx={{
+            color: "#fff",
+          }}
+        >
+          Минимум
+        </InputLabel>
+        <Select
+          labelId="select-minvalue-label"
+          id="select-minvalue"
+          value={minValue}
+          onChange={handleChangeMinValue}
+          autoWidth
+          label="Минимум"
+          sx={{
+            color: "#fff",
+            minWidth: 50,
+          }}
+        >
+          <MenuItem value="0">
+            <em>Не выбрано</em>
+          </MenuItem>
+          <MenuItem value={0}>0</MenuItem>
+          <MenuItem value={1}>1</MenuItem>
+          <MenuItem value={2}>2</MenuItem>
+          <MenuItem value={3}>3</MenuItem>
+          <MenuItem value={4}>4</MenuItem>
+          <MenuItem value={5}>5</MenuItem>
+        </Select>
+      </FormControl>
+      <FormControl
+        sx={{ m: 2, minWidth: 100, color: "#fff", borderColor: "#fff" }}
+      >
+        <InputLabel
+          id="select-period-label"
           sx={{
             color: "#fff",
           }}
@@ -34,8 +73,8 @@ export default function SelectAutoWidth() {
           Период
         </InputLabel>
         <Select
-          labelId="demo-simple-select-autowidth-label"
-          id="demo-simple-select-autowidth"
+          labelId="select-period-label"
+          id="select-period"
           value={period}
           onChange={handleChange}
           autoWidth
