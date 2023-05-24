@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import { delaysSource } from "../../test/delaysSource";
 import { store } from "../../redux/store";
 import { useSelector, useDispatch } from "react-redux";
-import { setDelaysArray } from "../../redux/toolkitSlice";
+import { setDelaysArray } from "../../redux/filtersSlice";
 import {
   startTime,
   failCategory,

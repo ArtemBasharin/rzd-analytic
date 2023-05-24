@@ -4,7 +4,7 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { useSelector, useDispatch } from "react-redux";
-import { setPattern, setMinValue } from "../redux/toolkitSlice";
+import { setPattern, setMinValue } from "../redux/filtersSlice";
 
 export let periodValue = "01";
 let period = "01";
