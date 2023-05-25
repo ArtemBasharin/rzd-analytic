@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { startTime, failCategory, failKind } from "../../config/config";
 
-export const getUnitedArrFails = (srcArray, pastYear, currentYear) => {
+export const getArrFails = (srcArray, pastYear, currentYear) => {
   const totalFailsCounter = (src) => {
     let pastYearCount = 0;
     let currentYearCount = 0;

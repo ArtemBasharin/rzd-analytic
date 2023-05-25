@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-// import { getUnitedArr } from "../components/arrGenerators/combiner";
+import { getAnalyze } from "../components/arrGenerators/combiner";
 let date = new Date();
 
 const filtersSlice = createSlice({
@@ -9,7 +9,7 @@ const filtersSlice = createSlice({
     currentYear: date.getFullYear(),
     pastYear: date.getFullYear() - 1,
     regexpPattern: "01",
-    unitedArrayState: [],
+    analyzeState: {},
   },
   reducers: {
     increment(state) {
@@ -34,23 +34,29 @@ const filtersSlice = createSlice({
         pattern = resultArr.join("|");
       }
       state.regexpPattern = pattern;
+      state.analyzeState = getAnalyze(
+        state.pastYear,
+        state.currentYear,
+        state.regexpPattern
+      );
     },
 
     setMinValue(state, action) {
       state.minValue = action.payload;
+      state.analyzeState = getAnalyze(
+        state.pastYear,
+        state.currentYear,
+        state.regexpPattern
+      );
     },
-
-    // setUnitedArrayState(state) {
-    //   state.delaysArray = getUnitedArr(
-    //     state.minValue,
-    //     state.currentYear,
-    //     state.pastYear,
-    //     state.regexpPattern
-    //   );
-    // },
   },
 });
 
 export default filtersSlice.reducer;
-export const { increment, decrement, setPattern, setMinValue } =
-  filtersSlice.actions;
+export const {
+  increment,
+  decrement,
+  setPattern,
+  setMinValue,
+  setAnalyzeState,
+} = filtersSlice.actions;

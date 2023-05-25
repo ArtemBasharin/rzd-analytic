@@ -30,6 +30,7 @@ import {
 ////////////////////////////////// copied to main
 
 import Navbar from "./components/Navbar";
+import Main from "./components/Main";
 
 //console.log("0000000000000000", delaysArray);
 // console.log(paretoArrayResultReasons);
@@ -159,6 +160,7 @@ function App() {
         yMax={yMaxReasons}
         maxYear={maxYearReasons}
       />
+      {/* <Main /> */}
     </div>
   );
 }

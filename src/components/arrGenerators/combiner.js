@@ -1,13 +1,13 @@
 import { startTime } from "../../config/config";
-import { store } from "../../redux/store";
 import { testArr } from "../../test/test";
-import { getUnitedArrFails } from "./getUnitedArrFails";
+import { getArrFails } from "./getArrFails";
 import { getArrDelays } from "./getArrDelays";
+import { getArrDurations } from "./getArrDurations";
+import { getArrGuilt } from "./getArrGuilt";
+import { getArrGuiltDuration } from "./getArrGuiltDuration";
+import { getArrReasons } from "./getArrReasons";
 
-let pastYear = store.getState().filters.pastYear;
-let currentYear = store.getState().filters.currentYear;
-
-export default function analyzeChapter() {
+export function getAnalyze(pastYear, currentYear, pattern) {
   const filterByMonth = (arr, regexpPattern) => {
     let regexp = new RegExp(`[-]${regexpPattern}[-]`, "g");
     let resultArray = [];
@@ -18,16 +18,20 @@ export default function analyzeChapter() {
     }
     return resultArray;
   };
-  let filteredArray = filterByMonth(
-    testArr,
-    store.getState().filters.regexpPattern
-  );
+  let filteredArr = filterByMonth(testArr, pattern);
 
   return {
-    failsChartArray: getUnitedArrFails(filteredArray, pastYear, currentYear)
-      .arr,
-    failsChartYmax: getUnitedArrFails(filteredArray, pastYear, currentYear).y,
-    delaysChartArray: getArrDelays(filteredArray, pastYear, currentYear).arr,
-    delaysChartYmax: getArrDelays(filteredArray, pastYear, currentYear).y,
+    failsArray: getArrFails(filteredArr, pastYear, currentYear).arr,
+    failsYmax: getArrFails(filteredArr, pastYear, currentYear).y,
+    delaysArray: getArrDelays(filteredArr, pastYear, currentYear).arr,
+    delaysYmax: getArrDelays(filteredArr, pastYear, currentYear).y,
+    durationsArray: getArrDurations(filteredArr, pastYear, currentYear).arr,
+    durationsYmax: getArrDurations(filteredArr, pastYear, currentYear).y,
+    guiltsArray: getArrGuilt(filteredArr).arr,
+    guiltsYmax: getArrGuilt(filteredArr).y,
+    guiltsDurationsArray: getArrGuiltDuration(filteredArr).arr,
+    guiltsDurationsYmax: getArrGuiltDuration(filteredArr).y,
+    reasonsArray: getArrReasons(filteredArr).arr,
+    reasonsYmax: getArrReasons(filteredArr).y,
   };
 }

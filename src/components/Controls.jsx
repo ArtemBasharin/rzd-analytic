@@ -11,6 +11,7 @@ let period = "01";
 export default function SelectAutoWidth() {
   const pattern = useSelector((state) => state.filters.regexpPattern);
   const minValue = useSelector((state) => state.filters.minValue);
+
   const dispatch = useDispatch();
 
   const handleChange = (event) => {

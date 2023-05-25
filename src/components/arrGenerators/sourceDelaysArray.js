@@ -10,14 +10,14 @@ import {
   failKind,
   guiltyUnit,
   failReason,
-  freightTrainsDelayed,
-  freightTrainsDuration,
-  passTrainsDelayed,
-  passTrainsDuration,
-  subTrainsDelayed,
-  subTrainsDuration,
-  otherTrainsDelayed,
-  otherTrainsDuration,
+  freightDelayed,
+  freightDuration,
+  passDelayed,
+  passDuration,
+  subDelayed,
+  subDuration,
+  otherDelayed,
+  otherDuration,
 } from "../../config/config";
 import { testArr } from "../../test/test";
 import { ContrastOutlined } from "@mui/icons-material";
@@ -72,10 +72,10 @@ export default function ArrFunc() {
 
   //creating array for
   let delaysArray = [];
-  delaysArray.push(delaysCounter(srcArray, freightTrainsDelayed, "Грузовых"));
-  delaysArray.push(delaysCounter(srcArray, passTrainsDelayed, "Пассажирских"));
-  delaysArray.push(delaysCounter(srcArray, subTrainsDelayed, "Пригородных"));
-  delaysArray.push(delaysCounter(srcArray, otherTrainsDelayed, "Прочих"));
+  delaysArray.push(delaysCounter(srcArray, freightDelayed, "Грузовых"));
+  delaysArray.push(delaysCounter(srcArray, passDelayed, "Пассажирских"));
+  delaysArray.push(delaysCounter(srcArray, subDelayed, "Пригородных"));
+  delaysArray.push(delaysCounter(srcArray, otherDelayed, "Прочих"));
 
   //counting number of total delays
   const totalDelaysCounter = (array) => {

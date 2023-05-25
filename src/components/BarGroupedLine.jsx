@@ -234,7 +234,7 @@ const BarGroupedLine = (props) => {
         }
       });
     }
-  }, [props.period]);
+  }, []);
 
   return (
     <svg

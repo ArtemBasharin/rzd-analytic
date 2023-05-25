@@ -1,31 +1,13 @@
-import React from "react";
-import BarChart2Bars from "./components/BarChart2Bars";
-import BarGroupedLine from "./components/BarGroupedLine";
-import failsArray, { yMax } from "./components/arrGenerators/sourceFailsArray";
-import {
-  delaysArray,
-  yMaxDelays,
-} from "./components/arrGenerators/sourceDelaysArray";
-import durationsArray, {
-  yMaxDurations,
-} from "./components/arrGenerators/sourceDurationArray";
-import {
-  yMaxGroups,
-  paretoArrayResult,
-  maxYear,
-} from "./components/arrGenerators/sourceGuiltyArray";
-import {
-  paretoArrayResultReasons,
-  yMaxReasons,
-  maxYearReasons,
-} from "./components/arrGenerators/sourceReasonsArray";
-import {
-  paretoArrayResultDuration,
-  yMaxGroupsDuration,
-  maxYearGuiltyDuration,
-} from "./components/arrGenerators/sourceGuiltyDurationArray";
+import React, { useEffect } from "react";
+import BarChart2Bars from "./BarChart2Bars";
+import BarGroupedLine from "./BarGroupedLine";
+import { store } from "../redux/store";
 
 function Main() {
+  let maxYear = store.getState().filters.currentYear;
+  let srcArr = store.getState().filters.analyzeState;
+  console.log("main", srcArr);
+
   //section of charts with fails counting
   let chartFailsWidth = window.screen.width / 7 - 10;
   const paramsFailsSection = {
@@ -36,10 +18,10 @@ function Main() {
   paramsFailsSection.ids.forEach((item) => {
     layoutFails.push(
       <BarChart2Bars
-        stats={failsArray[paramsFailsSection.ids.indexOf(item)]}
+        stats={srcArr.failsArray[paramsFailsSection.ids.indexOf(item)]}
         config={item}
         width={paramsFailsSection.width}
-        yMax={yMax}
+        yMax={srcArr.yMax}
         key={item}
       />
     );
@@ -55,10 +37,10 @@ function Main() {
   paramsDelaysSection.ids.forEach((item) => {
     layoutDelays.push(
       <BarChart2Bars
-        stats={delaysArray[paramsDelaysSection.ids.indexOf(item)]}
+        stats={srcArr.delaysArray[paramsDelaysSection.ids.indexOf(item)]}
         config={item}
         width={paramsDelaysSection.width}
-        yMax={yMaxDelays}
+        yMax={srcArr.delaysYmax}
         key={item}
         maxYear={maxYear}
       />
@@ -74,10 +56,10 @@ function Main() {
   paramsDurationsSection.ids.forEach((item) => {
     layoutDurations.push(
       <BarChart2Bars
-        stats={durationsArray[paramsDurationsSection.ids.indexOf(item)]}
+        stats={srcArr.durationsArray[paramsDurationsSection.ids.indexOf(item)]}
         config={item}
         width={paramsDurationsSection.width}
-        yMax={yMaxDurations}
+        yMax={srcArr.durationsYmax}
         key={item}
       />
     );
@@ -111,30 +93,30 @@ function Main() {
 
       <BarGroupedLine
         className="groupedChart"
-        stats={paretoArrayResult}
+        stats={srcArr.guiltsArray}
         width={paramsGroupedSection.width}
         id={paramsGroupedSection.id}
         key={paramsGroupedSection.id}
-        yMax={yMaxGroups}
+        yMax={srcArr.guiltsYmax}
         maxYear={maxYear}
       />
       <BarGroupedLine
         className="groupedChart"
-        stats={paretoArrayResultDuration}
+        stats={srcArr.guiltsDurationsArray}
         width={paramsGroupedSectionDurations.width}
         id={paramsGroupedSectionDurations.id}
         key={paramsGroupedSectionDurations.id}
-        yMax={yMaxGroupsDuration}
-        maxYear={maxYearGuiltyDuration}
+        yMax={srcArr.guiltsDurationsYmax}
+        maxYear={maxYear}
       />
       <BarGroupedLine
         className="groupedChart"
-        stats={paretoArrayResultReasons}
+        stats={srcArr.reasonsArray}
         width={paramsReasonsSection.width}
         id={paramsReasonsSection.id}
         key={paramsReasonsSection.id}
-        yMax={yMaxReasons}
-        maxYear={maxYearReasons}
+        yMax={srcArr.reasonsYmax}
+        maxYear={maxYear}
       />
     </div>
   );

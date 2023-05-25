@@ -1,13 +1,13 @@
 import * as d3 from "d3";
 import {
   startTime,
-  freightDelayed,
-  passDelayed,
-  subDelayed,
-  otherDelayed,
+  freightDuration,
+  passDuration,
+  subDuration,
+  otherDuration,
 } from "../../config/config";
 
-export const getArrDelays = (srcArray, pastYear, currentYear) => {
+export const getArrDurations = (srcArray, pastYear, currentYear) => {
   //counting number of fails with conditions
   const delaysCounter = (src, name, chartname) => {
     let pastYearCount = 0;
@@ -40,10 +40,10 @@ export const getArrDelays = (srcArray, pastYear, currentYear) => {
 
   //creating array for
   let delaysArray = [];
-  delaysArray.push(delaysCounter(srcArray, freightDelayed, "Грузовых"));
-  delaysArray.push(delaysCounter(srcArray, passDelayed, "Пассажирских"));
-  delaysArray.push(delaysCounter(srcArray, subDelayed, "Пригородных"));
-  delaysArray.push(delaysCounter(srcArray, otherDelayed, "Прочих"));
+  delaysArray.push(delaysCounter(srcArray, freightDuration, "Грузовых"));
+  delaysArray.push(delaysCounter(srcArray, passDuration, "Пассажирских"));
+  delaysArray.push(delaysCounter(srcArray, subDuration, "Пригородных"));
+  delaysArray.push(delaysCounter(srcArray, otherDuration, "Прочих"));
 
   //counting number of total delays
   const totalDelaysCounter = (array) => {
