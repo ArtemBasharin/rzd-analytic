@@ -3,7 +3,7 @@ import { startTime, failReason } from "../../config/config";
 
 export const getArrReasons = (srcArray) => {
   const yearFilter = (el) => {
-    return Number(20 + el[startTime].slice(0, 4));
+    return Number(el[startTime].slice(0, 4));
   };
 
   const maxYearKey = (arr) => {
@@ -99,7 +99,7 @@ export const getArrReasons = (srcArray) => {
 
   let paretoArray = paretoArrayGen(sourceReasonsArray);
   for (let i = 0; i < sourceReasonsArray.length; i += 1) {
-    sourceReasonsArray[i].valuePareto = paretoArray[i];
+    sourceReasonsArray[i].valueP = paretoArray[i];
   }
   console.log("paretoArrayResultReasons", sourceReasonsArray);
   return { arr: sourceReasonsArray, y: yMaxReasons };

@@ -234,7 +234,15 @@ const BarGroupedLine = (props) => {
         }
       });
     }
-  }, []);
+  }, [
+    props.stats,
+    props.config,
+    props.yMax,
+    props.width,
+    props.id,
+    props.maxYear,
+    currentYear,
+  ]);
 
   return (
     <svg

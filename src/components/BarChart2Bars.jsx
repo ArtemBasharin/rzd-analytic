@@ -197,7 +197,7 @@ const BarChart2Bars = (props) => {
       .attr("y", function () {
         return y(d3.max([resData[0].value, resData[1].value])) - 50; //find tallest bar and set y-position of text
       });
-  }, []);
+  }, [props.stats, props.config, props.yMax, props.width]);
   return (
     <svg id={`id${props.config}`} className="chartItem" ref={svgRef2}></svg>
   );

@@ -9,7 +9,7 @@ const filtersSlice = createSlice({
     currentYear: date.getFullYear(),
     pastYear: date.getFullYear() - 1,
     regexpPattern: "01",
-    analyzeState: {},
+    analyzeState: getAnalyze(date.getFullYear() - 1, date.getFullYear(), "01"),
   },
   reducers: {
     increment(state) {

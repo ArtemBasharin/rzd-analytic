@@ -1,12 +1,14 @@
-import React, { useEffect } from "react";
+import React from "react";
 import BarChart2Bars from "./BarChart2Bars";
 import BarGroupedLine from "./BarGroupedLine";
 import { store } from "../redux/store";
+import { useSelector } from "react-redux";
 
 function Main() {
-  let maxYear = store.getState().filters.currentYear;
-  let srcArr = store.getState().filters.analyzeState;
+  let maxYear = useSelector((state) => state.filters.currentYear);
+  let srcArr = useSelector((state) => state.filters.analyzeState);
   console.log("main", srcArr);
+  console.log(typeof store.getState().filters.analyzeState);
 
   //section of charts with fails counting
   let chartFailsWidth = window.screen.width / 7 - 10;
@@ -21,14 +23,14 @@ function Main() {
         stats={srcArr.failsArray[paramsFailsSection.ids.indexOf(item)]}
         config={item}
         width={paramsFailsSection.width}
-        yMax={srcArr.yMax}
+        yMax={srcArr.failsYmax}
         key={item}
       />
     );
   });
 
   //section of charts with delays counting
-  let chartDelaysWidth = window.screen.width / 4 / 2 - 10;
+  let chartDelaysWidth = window.screen.width / 4 / 2 - 20;
   const paramsDelaysSection = {
     ids: [7, 8, 9, 10], //this prop need to create unique #id svg elements
     width: chartDelaysWidth,
@@ -50,7 +52,7 @@ function Main() {
   //section of charts with durations counting
   const paramsDurationsSection = {
     ids: [11, 12, 13, 14], //this prop need to create unique #id svg elements
-    width: window.screen.width / 4 / 2 - 5,
+    width: window.screen.width / 4 / 2 - 20,
   };
   let layoutDurations = [];
   paramsDurationsSection.ids.forEach((item) => {
@@ -68,19 +70,19 @@ function Main() {
   //section of bargrouped chart
   const paramsGroupedSection = {
     id: 15, //this prop need to create unique #id svg elements
-    width: window.screen.width - 5,
+    width: window.screen.width,
   };
 
   //section of bargrouped chart
   const paramsReasonsSection = {
     id: 16, //this prop need to create unique #id svg elements
-    width: window.screen.width - 5,
+    width: window.screen.width,
   };
 
   //section of bargrouped chart
   const paramsGroupedSectionDurations = {
     id: 17, //this prop need to create unique #id svg elements
-    width: window.screen.width - 5,
+    width: window.screen.width,
   };
 
   return (
