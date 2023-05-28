@@ -3,8 +3,12 @@ import BarChart2Bars from "./BarChart2Bars";
 import BarGroupedLine from "./BarGroupedLine";
 import { store } from "../redux/store";
 import { useSelector } from "react-redux";
+import * as d3 from "d3";
 
 function Main() {
+  //clear old svg
+  d3.selectAll("g").remove();
+
   let maxYear = useSelector((state) => state.filters.currentYear);
   let srcArr = useSelector((state) => state.filters.analyzeState);
   console.log("main", srcArr);

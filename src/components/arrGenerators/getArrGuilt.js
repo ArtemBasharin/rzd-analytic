@@ -1,19 +1,5 @@
 import * as d3 from "d3";
-import {
-  startTime,
-  failCategory,
-  failKind,
-  guiltyUnit,
-  failReason,
-  freightDelayed,
-  freightDuration,
-  passDelayed,
-  passDuration,
-  subDelayed,
-  subDuration,
-  otherDelayed,
-  otherDuration,
-} from "../../config/config";
+import { startTime, guiltyUnit } from "../../config/config";
 
 export const getArrGuilt = (srcArray, pastYear, currentYear) => {
   const maxYearKey = (arr) => {
