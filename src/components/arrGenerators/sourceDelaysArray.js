@@ -28,7 +28,6 @@ export default function ArrFunc() {
     `[-]${store.getState().filters.regexpPattern}[-]`,
     "g"
   ); // /\.01\./gm
-  console.log("regexp", regexp);
 
   let srcArray = [];
   for (let i = 0; i < testArr.length; ++i) {
@@ -110,8 +109,6 @@ export default function ArrFunc() {
 }
 
 export let delaysArray = ArrFunc();
-
-console.log("delaysArray", delaysArray);
 
 const yMaxV = () => {
   //create of array to find max value and export in d3.scales component

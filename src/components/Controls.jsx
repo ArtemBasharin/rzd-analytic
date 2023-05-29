@@ -18,12 +18,10 @@ export default function SelectAutoWidth() {
     periodValue = period;
     dispatch(setPattern(period));
   };
-  console.log("pattern", pattern);
 
   const handleChangeMinValue = (event) => {
     dispatch(setMinValue(event.target.value));
   };
-  console.log("minValue", minValue);
 
   return (
     <div style={{ display: "flex" }}>

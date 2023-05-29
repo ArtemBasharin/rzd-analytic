@@ -101,7 +101,6 @@ const totalDurationCounter = (array) => {
   let pastYearCount = 0;
   let currentYearCount = 0;
   let tempArray = array.flat();
-  // console.log("tempArray", tempArray);
   tempArray.forEach((element) => {
     if (element.label === pastYear + 2000) {
       pastYearCount = pastYearCount + element.value;

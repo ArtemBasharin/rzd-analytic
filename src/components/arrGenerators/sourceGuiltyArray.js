@@ -129,4 +129,3 @@ for (let i = 0; i < sourceGuiltyArray.length; i += 1) {
   sourceGuiltyArray[i].valueP = paretoArray[i];
 }
 export let paretoArrayResult = sourceGuiltyArray;
-console.log("pareto", paretoArrayResult);

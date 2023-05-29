@@ -7,7 +7,6 @@ let initialData = [];
 
 function DropZoneParser() {
   const onDrop = useCallback((acceptedFiles) => {
-    console.log("acceptedFiles[0]:", acceptedFiles[0]);
     const reader = new FileReader();
     reader.readAsBinaryString(acceptedFiles[0]);
     reader.onload = function (e) {

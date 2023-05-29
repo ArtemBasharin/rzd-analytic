@@ -7,13 +7,15 @@ const BarGroupedLine = (props) => {
   let currentYear = props.maxYear;
 
   useEffect(() => {
-    const arrTrimIndex = (arr, maxValue) => {
+    const findTrimIndex = (arr, minValue) => {
       for (let i = 0; i < arr.length; ++i) {
-        if (arr[i][currentYear] < maxValue) return i;
+        if (arr[i][currentYear] < minValue) return i;
       }
     };
-
-    let resData = props.stats.slice(0, arrTrimIndex(props.stats, 2));
+    let resData = props.stats.slice(
+      0,
+      findTrimIndex(props.stats, props.minValue)
+    );
 
     const margin = { top: 50, right: 60, bottom: 250, left: 180 },
       width = props.width - margin.left - margin.right,
@@ -242,6 +244,7 @@ const BarGroupedLine = (props) => {
     props.id,
     props.maxYear,
     currentYear,
+    props.minValue,
   ]);
 
   return (

@@ -101,6 +101,5 @@ export const getArrReasons = (srcArray) => {
   for (let i = 0; i < sourceReasonsArray.length; i += 1) {
     sourceReasonsArray[i].valueP = paretoArray[i];
   }
-  console.log("paretoArrayResultReasons", sourceReasonsArray);
   return { arr: sourceReasonsArray, y: yMaxReasons };
 };

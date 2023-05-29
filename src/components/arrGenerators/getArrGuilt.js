@@ -15,7 +15,7 @@ export const getArrGuilt = (srcArray, pastYear, currentYear) => {
   }
 
   const yearFilter = (el) => {
-    return Number(20 + el[startTime].slice(0, 4));
+    return Number(el[startTime].slice(0, 4));
   };
 
   const createGuiltsArray = (src) => {

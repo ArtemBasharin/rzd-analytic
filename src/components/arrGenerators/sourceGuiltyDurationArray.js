@@ -161,4 +161,3 @@ for (let i = 0; i < sourceGuiltyDurationArray.length; i += 1) {
   sourceGuiltyDurationArray[i].valueP = paretoArray[i];
 }
 export let paretoArrayResultDuration = sourceGuiltyDurationArray;
-console.log("paretoArrayResultDuration", paretoArrayResultDuration);

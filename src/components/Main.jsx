@@ -11,8 +11,7 @@ function Main() {
 
   let maxYear = useSelector((state) => state.filters.currentYear);
   let srcArr = useSelector((state) => state.filters.analyzeState);
-  console.log("main", srcArr);
-  console.log(typeof store.getState().filters.analyzeState);
+  let minValue = useSelector((state) => state.filters.minValue);
 
   //section of charts with fails counting
   let chartFailsWidth = window.screen.width / 7 - 10;
@@ -105,6 +104,7 @@ function Main() {
         key={paramsGroupedSection.id}
         yMax={srcArr.guiltsYmax}
         maxYear={maxYear}
+        minValue={minValue}
       />
       <BarGroupedLine
         className="groupedChart"
@@ -114,6 +114,7 @@ function Main() {
         key={paramsGroupedSectionDurations.id}
         yMax={srcArr.guiltsDurationsYmax}
         maxYear={maxYear}
+        minValue={minValue}
       />
       <BarGroupedLine
         className="groupedChart"
@@ -123,6 +124,7 @@ function Main() {
         key={paramsReasonsSection.id}
         yMax={srcArr.reasonsYmax}
         maxYear={maxYear}
+        minValue={minValue}
       />
     </div>
   );

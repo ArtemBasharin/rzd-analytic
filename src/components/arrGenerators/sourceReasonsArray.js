@@ -123,4 +123,3 @@ for (let i = 0; i < sourceReasonsArray.length; i += 1) {
   sourceReasonsArray[i].valueP = paretoArray[i];
 }
 export let paretoArrayResultReasons = sourceReasonsArray;
-console.log("paretoArrayResultReasons", paretoArrayResultReasons);

@@ -10,7 +10,6 @@ for (let i = 0; i < testSource.length; ++i) {
     srcArray.push(testSource[i]);
   }
 }
-console.log(srcArray);
 // year-params will be reassigned in future versions
 let pastYear = 2022;
 let currentYear = 2023;
