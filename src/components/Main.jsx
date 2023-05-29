@@ -86,6 +86,9 @@ function Main() {
     id: 17, //this prop need to create unique #id svg elements
     width: window.screen.width,
   };
+  console.log("id" + paramsGroupedSection.id);
+  let ID = "id" + paramsGroupedSection.id;
+  console.log(document.getElementById("id15"));
 
   return (
     <div className="Main">
@@ -98,7 +101,7 @@ function Main() {
       <BarGroupedLine
         className="groupedChart"
         stats={srcArr.guiltsArray}
-        width={paramsGroupedSection.width}
+        width={1920}
         id={paramsGroupedSection.id}
         key={paramsGroupedSection.id}
         yMax={srcArr.guiltsYmax}

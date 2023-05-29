@@ -286,7 +286,7 @@ const BarGroupedLine = (props) => {
       id={`id${props.id}`}
       className="chartItem groupedChart"
       ref={svgRef3}
-      width="100%"
+      width={props.width}
       height={800}
     ></svg>
   );

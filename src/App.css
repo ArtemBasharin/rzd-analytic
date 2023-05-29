@@ -64,5 +64,6 @@ code {
   position: relative;
 }
 .Main {
+  max-width: 1920px;
   margin-top: 90px;
 }
