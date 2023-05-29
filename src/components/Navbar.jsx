@@ -12,7 +12,7 @@ import Controls from "./Controls";
 export default function ButtonAppBar() {
   return (
     <Box sx={{ width: "100%" }}>
-      <AppBar position="static">
+      <AppBar position="fixed">
         <Toolbar>
           <IconButton
             size="large"

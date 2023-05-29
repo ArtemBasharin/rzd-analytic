@@ -63,8 +63,6 @@ code {
 .chartItem {
   position: relative;
 }
-
-/* .groupedChart {
-  /* height: 400px; */
-/* overflow: visible; */
-/* } */
+.Main {
+  margin-top: 90px;
+}

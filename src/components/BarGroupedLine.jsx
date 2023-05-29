@@ -7,17 +7,19 @@ const BarGroupedLine = (props) => {
   let currentYear = props.maxYear;
 
   useEffect(() => {
-    const arrTrimIndex = (arr, maxValue) => {
+    const findTrimIndex = (arr, minValue) => {
       for (let i = 0; i < arr.length; ++i) {
-        if (arr[i][currentYear] < maxValue) return i;
+        if (arr[i][currentYear] < minValue) return i;
       }
     };
+    let resData = props.stats.slice(
+      0,
+      findTrimIndex(props.stats, props.minValue)
+    );
 
-    let resData = props.stats.slice(0, arrTrimIndex(props.stats, 2));
-
-    const margin = { top: 50, right: 60, bottom: 250, left: 180 },
+    const margin = { top: 50, right: 100, bottom: 250, left: 180 },
       width = props.width - margin.left - margin.right,
-      height = 800 - margin.top - margin.bottom;
+      height = 0.45 * width - margin.top - margin.bottom;
     const groups = resData.map((d) => {
       return d.label;
     });
@@ -149,7 +151,9 @@ const BarGroupedLine = (props) => {
         d3
           .line()
           .x(function (d) {
-            return x(d.label) + xSubgroup.bandwidth();
+            return (
+              x(d.label) + xSubgroup.bandwidth() * (subgroups.length - 0.5)
+            );
           })
           .y(function (d) {
             return yP(d.valueP);
@@ -171,7 +175,7 @@ const BarGroupedLine = (props) => {
       .attr("fill", "#000")
       .attr("transform", "translate(0, -7)")
       .attr("x", function (d) {
-        return x(d.label) + xSubgroup.bandwidth();
+        return x(d.label) + xSubgroup.bandwidth() * (subgroups.length - 0.5);
       })
       .attr("y", function (d) {
         return yP(d.valueP);
@@ -234,7 +238,48 @@ const BarGroupedLine = (props) => {
         }
       });
     }
-  }, [props.period]);
+
+    // Add one dot in the legend for each name.
+    svg
+      .selectAll("mydots")
+      .data(subgroups)
+      .enter()
+      .append("circle")
+      .attr("cx", width - 110)
+      .attr("cy", function (d, i) {
+        return 140 + i * 35;
+      }) // 100 is where the first dot appears. 25 is the distance between dots
+      .attr("r", 15)
+      .style("fill", function (d) {
+        return color(d);
+      });
+
+    // Add one dot in the legend for each name.
+    svg
+      .selectAll("mylabels")
+      .data(subgroups)
+      .enter()
+      .append("text")
+      .attr("x", width - 90)
+      .attr("y", function (d, i) {
+        return 140 + i * 35;
+      }) // 100 is where the first dot appears. 25 is the distance between dots
+      .style("fill", "#000")
+      .text(function (d) {
+        return "- " + d + " год";
+      })
+      .attr("text-anchor", "left")
+      .style("alignment-baseline", "middle");
+  }, [
+    props.stats,
+    props.config,
+    props.yMax,
+    props.width,
+    props.id,
+    props.maxYear,
+    currentYear,
+    props.minValue,
+  ]);
 
   return (
     <svg

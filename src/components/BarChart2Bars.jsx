@@ -7,32 +7,24 @@ import increaseArrow from "../images/increaseArrow.svg";
 
 const BarChart2Bars = (props) => {
   const svgRef2 = useRef();
+
   useEffect(() => {
     let resData = props.stats;
-    //console.log("resData", resData);
-
-    // set the dimensions and margins of the graph
-
     const margin = { top: 100, right: 5, bottom: 50, left: 5 },
       width = props.width - margin.left - margin.right,
       height = 400 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
-    //console.log("props.width", props.width);
-    //console.log("props.config", props.config);
     const svg = d3
-      .select(`#id${props.config}`) //temp id comes outside
+      .select(`#id${props.config}`) //temporary id comes outside
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    // get the data
-
     let x = d3.map(resData, (d) => d.label);
-    //console.log("x", x);
 
-    // X axis: scale and draw:
+    // X axis: scale and draw
     let X = d3
       .scaleBand()
       .domain(resData.map((d) => d.label)) // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
@@ -45,16 +37,10 @@ const BarChart2Bars = (props) => {
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(X));
 
-    // Y axis: scale and draw:
+    // Y axis: scale and draw
     const y = d3.scalePow().exponent(0.4).range([height, 0]);
-    y.domain([
-      0,
-      props.yMax,
-      // d3.max(resData, function (d) {
-      //   return d.value * 1.2;
-      // }),
-    ]);
-    //svg.append("g").call(d3.axisLeft(y)); //temp remove leftAxis
+    y.domain([0, props.yMax]);
+    //svg.append("g").call(d3.axisLeft(y)); //temporary remove leftAxis
 
     let bars = svg.selectAll("mybar").data(resData).enter();
 
@@ -86,7 +72,7 @@ const BarChart2Bars = (props) => {
         return X(d.label);
       })
       .attr("y", function (d) {
-        return y(d.value) - 1; //-1 px is vertical offset for positioning scales below bars
+        return y(d.value);
       })
       .attr("width", X.bandwidth())
       .attr("height", function (d) {
@@ -197,7 +183,7 @@ const BarChart2Bars = (props) => {
       .attr("y", function () {
         return y(d3.max([resData[0].value, resData[1].value])) - 50; //find tallest bar and set y-position of text
       });
-  }, []);
+  }, [props.stats, props.config, props.yMax, props.width]);
   return (
     <svg id={`id${props.config}`} className="chartItem" ref={svgRef2}></svg>
   );
