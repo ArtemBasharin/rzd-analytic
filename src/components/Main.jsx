@@ -1,7 +1,6 @@
 import React from "react";
 import BarChart2Bars from "./BarChart2Bars";
 import BarGroupedLine from "./BarGroupedLine";
-import { store } from "../redux/store";
 import { useSelector } from "react-redux";
 import * as d3 from "d3";
 
