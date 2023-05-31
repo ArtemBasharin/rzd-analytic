@@ -1,5 +1,12 @@
 import * as d3 from "d3";
-import { startTime, guiltyUnit } from "../../config/config";
+import {
+  startTime,
+  guiltyUnit,
+  freightDuration,
+  passDuration,
+  subDuration,
+  otherDuration,
+} from "../../config/config";
 
 export const getArrGuiltDuration = (srcArray) => {
   const maxYearKey = (arr) => {
@@ -29,11 +36,19 @@ export const getArrGuiltDuration = (srcArray) => {
       const currentItem = {
         yearLabel: year,
         label: unit,
-        value: 1,
+        value:
+          src[i][freightDuration] +
+          src[i][passDuration] +
+          src[i][subDuration] +
+          src[i][otherDuration],
       };
       if (subUnitsAsMap.has(year + "-" + unit)) {
         let existedItem = subUnitsAsMap.get(year + "-" + unit);
-        existedItem.value += 1;
+        existedItem.value +=
+          src[i][freightDuration] +
+          src[i][passDuration] +
+          src[i][subDuration] +
+          src[i][otherDuration];
       } else {
         subUnitsAsMap.set(year + "-" + unit, currentItem);
       }

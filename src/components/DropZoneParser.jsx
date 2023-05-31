@@ -25,7 +25,15 @@ function DropZoneParser() {
         }
       });
 
-      console.log("parsedXLSData:", JSON.stringify(result, null, 4));
+      // let importedObject = JSON.stringify(result, null, 4);
+      let resultArray;
+      for (let i in result) {
+        if (!resultArray) {
+          resultArray = result[i];
+        }
+      }
+      initialData = resultArray;
+      console.log("resultArray", resultArray);
     };
   }, []);
 

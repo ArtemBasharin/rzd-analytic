@@ -13,7 +13,7 @@ function Main() {
   let minValue = useSelector((state) => state.filters.minValue);
 
   //section of charts with fails counting
-  let chartFailsWidth = window.screen.width / 7 - 10;
+  let chartFailsWidth = window.screen.width / 7 - 15;
   const paramsFailsSection = {
     ids: [0, 1, 2, 3, 4, 5, 6], //this prop need to create unique #id svg elements
     width: chartFailsWidth,
@@ -72,7 +72,7 @@ function Main() {
   //section of bargrouped chart
   const paramsGroupedSection = {
     id: 15, //this prop need to create unique #id svg elements
-    width: window.screen.width,
+    width: window.screen.width - 50,
   };
 
   //section of bargrouped chart

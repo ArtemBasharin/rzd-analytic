@@ -3,10 +3,12 @@ import { startTime, failCategory, failKind } from "../../config/config";
 
 export const getArrFails = (srcArray, pastYear, currentYear) => {
   const totalFailsCounter = (src) => {
+    console.log("totalFailsCounter1");
     let pastYearCount = 0;
     let currentYearCount = 0;
     src.forEach((el) => {
       if (el[startTime]) {
+        // console.log(el);
         el[startTime].includes(pastYear) && pastYearCount++;
         el[startTime].includes(currentYear) && currentYearCount++;
       }
@@ -44,6 +46,7 @@ export const getArrFails = (srcArray, pastYear, currentYear) => {
   // create array for chart section with some kinds fails
   let failsArray = [];
   failsArray.push(totalFailsCounter(srcArray));
+
   failsArray.push(
     failsCounter(srcArray, failCategory, "1 категория", "1 категории")
   );
@@ -51,13 +54,18 @@ export const getArrFails = (srcArray, pastYear, currentYear) => {
     failsCounter(srcArray, failCategory, "2 категория", "2 категории")
   );
   failsArray.push(
-    failsCounter(srcArray, failKind, "Технического характера", "Техн. хар-ра")
+    failsCounter(
+      srcArray,
+      failKind,
+      "Нарушение технического вида",
+      "Техн. хар-ра"
+    )
   );
   failsArray.push(
     failsCounter(
       srcArray,
       failKind,
-      "Технологического характера",
+      "Технологическое нарушение",
       "Технол. хар-ра"
     )
   );
@@ -69,7 +77,9 @@ export const getArrFails = (srcArray, pastYear, currentYear) => {
       "Особая технол. необх."
     )
   );
-  failsArray.push(failsCounter(srcArray, failKind, "Внешние", "Внешние"));
+  failsArray.push(
+    failsCounter(srcArray, failKind, "Прочие причины", "Прочие причины")
+  );
 
   //find max value for d3.scales element
   const findMaxValue = (array) => {
