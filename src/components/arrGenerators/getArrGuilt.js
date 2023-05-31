@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 import { startTime, guiltyUnit } from "../../config/config";
 
-export const getArrGuilt = (srcArray, pastYear, currentYear) => {
+export const getArrGuilt = (srcArray) => {
   const maxYearKey = (arr) => {
     let maxKeyArr = [];
     Object.keys(arr[0]).forEach((el2) => {

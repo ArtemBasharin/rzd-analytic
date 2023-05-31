@@ -24,17 +24,12 @@ export function getAnalyze(pastYear, currentYear, pattern) {
     arr.map((el) => {
       if (!el[freightDelayed]) el[freightDelayed] = 0;
       if (!el[freightDuration]) el[freightDuration] = 0;
-      else el[freightDuration] = Math.round(el[freightDuration] / 6) / 10;
       if (!el[passDelayed]) el[passDelayed] = 0;
-
       if (!el[passDuration]) el[passDuration] = 0;
-      else el[passDuration] = Math.round(el[passDuration] / 6) / 10;
       if (!el[subDelayed]) el[subDelayed] = 0;
       if (!el[subDuration]) el[subDuration] = 0;
-      else el[subDuration] = Math.round(el[subDuration] / 6) / 10;
       if (!el[otherDelayed]) el[otherDelayed] = 0;
       if (!el[otherDuration]) el[otherDuration] = 0;
-      else el[otherDuration] = Math.round(el[otherDuration] / 6) / 10;
     });
     return arr;
   };
@@ -47,6 +42,7 @@ export function getAnalyze(pastYear, currentYear, pattern) {
         resultArray.push(arr[i]);
       }
     }
+    console.log("resultArray", resultArray);
     return resultArray;
   };
   let filteredArr =

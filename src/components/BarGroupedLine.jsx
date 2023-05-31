@@ -24,6 +24,7 @@ const BarGroupedLine = (props) => {
       return d.label;
     });
     // sort method put on to start yearLabels keys, then slice all keys except years
+    console.log("resData[0]", resData[0]);
     const subgroups = Object.keys(resData[0]).sort().slice(0, -2);
     const svg = d3
       .select(`#id${props.id}`) //temp id comes outside
@@ -136,7 +137,7 @@ const BarGroupedLine = (props) => {
       .attr("fill", "#000")
       .attr("text-anchor", "middle")
       .attr("fill", "#000")
-      .text((d) => Number.parseFloat(d.value).toFixed(0));
+      .text((d) => d.value);
 
     // draw simple pareto line
     svg

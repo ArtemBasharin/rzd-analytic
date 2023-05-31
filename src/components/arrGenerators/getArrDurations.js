@@ -17,21 +17,21 @@ export const getArrDurations = (srcArray, pastYear, currentYear) => {
       if (element[name]) {
         //this check is necessary, the property may be missed
         if (element[startTime].includes(pastYear)) {
-          pastYearCount = pastYearCount + Number(element[name]);
+          pastYearCount = pastYearCount + element[name];
         }
         if (element[startTime].includes(currentYear)) {
-          currentYearCount = currentYearCount + Number(element[name]);
+          currentYearCount = currentYearCount + element[name];
         }
       }
     });
     return [
       {
-        value: pastYearCount,
+        value: Math.round(pastYearCount / 6) / 10,
         label: pastYear,
         title: chartname,
       },
       {
-        value: currentYearCount,
+        value: Math.round(currentYearCount / 6) / 10,
         label: currentYear,
         title: chartname,
       },
@@ -73,7 +73,7 @@ export const getArrDurations = (srcArray, pastYear, currentYear) => {
   };
 
   delaysArray.push(totalDelaysCounter(delaysArray));
-
+  console.log(delaysArray);
   //find max value for d3.scales element
   const findMaxValue = (array) => {
     let values = [];
