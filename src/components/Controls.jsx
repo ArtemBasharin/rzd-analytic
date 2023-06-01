@@ -5,17 +5,27 @@ import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { useSelector, useDispatch } from "react-redux";
 import { setPattern, setMinValue } from "../redux/filtersSlice";
+import Box from "@mui/material/Box";
+import Slider from "@mui/material/Slider";
 
-export let periodValue = "01";
 let period = "01";
+let date = new Date();
+
+/////Slider section
+const minDistance = 1;
+function valuetext(value) {
+  return `${value}°C`;
+}
+
 export default function SelectAutoWidth() {
   const pattern = useSelector((state) => state.filters.regexpPattern);
   const minValue = useSelector((state) => state.filters.minValue);
+  const pastYear = useSelector((state) => state.filters.pastYear);
+  const currentYear = useSelector((state) => state.filters.currentYear);
   const dispatch = useDispatch();
 
   const handleChange = (event) => {
     period = event.target.value;
-    periodValue = period;
     dispatch(setPattern(period));
   };
 
@@ -23,8 +33,38 @@ export default function SelectAutoWidth() {
     dispatch(setMinValue(event.target.value));
   };
 
+  /////Slider section
+  const [value2, setValue2] = React.useState([20, 37]);
+  const handleChange2 = (event, newValue, activeThumb) => {
+    if (!Array.isArray(newValue)) {
+      return;
+    }
+
+    if (newValue[1] - newValue[0] < minDistance) {
+      if (activeThumb === 0) {
+        const clamped = Math.min(newValue[0], date.getFullYear() - minDistance);
+        setValue2([clamped, clamped + minDistance]);
+      } else {
+        const clamped = Math.max(newValue[1], minDistance);
+        setValue2([clamped - minDistance, clamped]);
+      }
+    } else {
+      setValue2(newValue);
+    }
+  };
+
   return (
-    <div style={{ display: "flex" }}>
+    <div style={{ display: "flex", alignItems: "center" }}>
+      <Box sx={{ width: 300, heigth: 88 }}>
+        <Slider
+          getAriaLabel={() => "Minimum distance shift"}
+          value={value2}
+          onChange={handleChange2}
+          valueLabelDisplay="auto"
+          getAriaValueText={valuetext}
+          disableSwap
+        />
+      </Box>
       <FormControl
         sx={{ m: 2, minWidth: 100, color: "#fff", borderColor: "#fff" }}
       >
