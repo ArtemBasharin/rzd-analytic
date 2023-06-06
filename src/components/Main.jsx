@@ -13,7 +13,9 @@ function Main() {
   let minValue = useSelector((state) => state.filters.minValue);
 
   //section of charts with fails counting
-  let chartFailsWidth = window.screen.width / 7 - 15;
+  let chartFailsWidth = 1920 / 7 - 20
+  if (window.screen.width < 1920) chartFailsWidth = window.screen.width / 7 - 30;
+
   const paramsFailsSection = {
     ids: [0, 1, 2, 3, 4, 5, 6], //this prop need to create unique #id svg elements
     width: chartFailsWidth,
@@ -32,7 +34,8 @@ function Main() {
   });
 
   //section of charts with delays counting
-  let chartDelaysWidth = window.screen.width / 4 / 2 - 20;
+  let chartDelaysWidth = 1920 / 4 / 2 -30
+  if (window.screen.width < 1920) chartDelaysWidth = window.screen.width / 4 / 2 -30
   const paramsDelaysSection = {
     ids: [7, 8, 9, 10], //this prop need to create unique #id svg elements
     width: chartDelaysWidth,
@@ -54,7 +57,7 @@ function Main() {
   //section of charts with durations counting
   const paramsDurationsSection = {
     ids: [11, 12, 13, 14], //this prop need to create unique #id svg elements
-    width: window.screen.width / 4 / 2 - 20,
+    width: chartDelaysWidth
   };
   let layoutDurations = [];
   paramsDurationsSection.ids.forEach((item) => {
@@ -78,7 +81,7 @@ function Main() {
   //section of bargrouped chart
   const paramsReasonsSection = {
     id: 16, //this prop need to create unique #id svg elements
-    width: window.screen.width,
+    width: window.screen.width - 100,
   };
 
   //section of bargrouped chart
@@ -86,9 +89,7 @@ function Main() {
     id: 17, //this prop need to create unique #id svg elements
     width: window.screen.width,
   };
-  console.log("id" + paramsGroupedSection.id);
-  let ID = "id" + paramsGroupedSection.id;
-  console.log(document.getElementById("id15"));
+  // let ID = "id" + paramsGroupedSection.id;
 
   return (
     <div className="Main">

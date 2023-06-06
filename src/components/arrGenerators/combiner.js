@@ -17,10 +17,13 @@ import {
   otherDuration,
 } from "../../config/config";
 // import { initialData } from "../DropZoneParser";
+// import dummyArr from "./dummyArr"
 
 export function getAnalyze(pastYear, currentYear, pattern) {
   console.time("getAnalyze");
+  // console.log("dummyArr" ,dummyArr)
   const setUndefinedFactsToZero = (arr) => {
+    // eslint-disable-next-line
     arr.map((el) => {
       if (!el[freightDelayed]) el[freightDelayed] = 0;
       if (!el[freightDuration]) el[freightDuration] = 0;
@@ -42,7 +45,7 @@ export function getAnalyze(pastYear, currentYear, pattern) {
         resultArray.push(arr[i]);
       }
     }
-    console.log("resultArray", resultArray);
+    // console.log("resultArray", resultArray);
     return resultArray;
   };
   let filteredArr =

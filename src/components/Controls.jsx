@@ -24,7 +24,7 @@ export default function SelectAutoWidth() {
   const currentYear = useSelector((state) => state.filters.currentYear);
   const dispatch = useDispatch();
 
-  const handleChange = (event) => {
+  const handleChangePeriod = (event) => {
     period = event.target.value;
     dispatch(setPattern(period));
   };
@@ -55,13 +55,15 @@ export default function SelectAutoWidth() {
 
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
-      <Box sx={{ width: 300, heigth: 88 }}>
+      <Box sx={{ width: 150, heigth: 88 }}>
         <Slider
           getAriaLabel={() => "Minimum distance shift"}
           value={value2}
           onChange={handleChange2}
-          valueLabelDisplay="auto"
+          valueLabelDisplay="on"
           getAriaValueText={valuetext}
+          min={2013}
+          max={date.getFullYear()}
           disableSwap
         />
       </Box>
@@ -114,7 +116,7 @@ export default function SelectAutoWidth() {
           labelId="select-period-label"
           id="select-period"
           value={period}
-          onChange={handleChange}
+          onChange={handleChangePeriod}
           autoWidth
           label="Период"
           sx={{

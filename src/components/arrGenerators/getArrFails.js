@@ -3,7 +3,6 @@ import { startTime, failCategory, failKind } from "../../config/config";
 
 export const getArrFails = (srcArray, pastYear, currentYear) => {
   const totalFailsCounter = (src) => {
-    console.log("totalFailsCounter1");
     let pastYearCount = 0;
     let currentYearCount = 0;
     src.forEach((el) => {

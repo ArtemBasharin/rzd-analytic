@@ -73,7 +73,6 @@ export const getArrDurations = (srcArray, pastYear, currentYear) => {
   };
 
   delaysArray.push(totalDelaysCounter(delaysArray));
-  console.log(delaysArray);
   //find max value for d3.scales element
   const findMaxValue = (array) => {
     let values = [];

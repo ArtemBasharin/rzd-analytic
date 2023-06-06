@@ -17,6 +17,7 @@ code {
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-width: 1920px;
 }
 
 .dropzone {
@@ -46,7 +47,11 @@ code {
   background: hsl(123, 100%, 93%);
 }
 
+
+
 .horizontalSection {
+ 
+  /* padding: 0 30px; */
   width: 100%;
   margin: 0 auto;
   display: flex;
@@ -58,6 +63,8 @@ code {
 
 .horizontalSection_group {
   flex-wrap: nowrap;
+  /* padding: 0 30px; */
+  
 }
 
 .chartItem {

@@ -24,7 +24,7 @@ const BarGroupedLine = (props) => {
       return d.label;
     });
     // sort method put on to start yearLabels keys, then slice all keys except years
-    console.log("resData[0]", resData[0]);
+    // console.log("resData[0]", resData[0]);
     const subgroups = Object.keys(resData[0]).sort().slice(0, -2);
     const svg = d3
       .select(`#id${props.id}`) //temp id comes outside
