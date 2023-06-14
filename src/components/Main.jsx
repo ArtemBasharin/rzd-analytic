@@ -102,7 +102,7 @@ function Main() {
       <BarGroupedLine
         className="groupedChart"
         stats={srcArr.guiltsArray}
-        width={1920}
+        width={paramsGroupedSection.width}
         id={paramsGroupedSection.id}
         key={paramsGroupedSection.id}
         yMax={srcArr.guiltsYmax}
