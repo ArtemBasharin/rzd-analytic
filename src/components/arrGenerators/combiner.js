@@ -1,5 +1,4 @@
 import { startTime } from "../../config/config";
-import { testArr } from "../../test/test";
 import { getArrFails } from "./getArrFails";
 import { getArrDelays } from "./getArrDelays";
 import { getArrDurations } from "./getArrDurations";
@@ -19,7 +18,7 @@ import {
 // import { initialData } from "../DropZoneParser";
 // import dummyArr from "./dummyArr"
 
-export function getAnalyze(pastYear, currentYear, pattern) {
+export function getAnalyze(sourceArr, pastYear, currentYear, pattern) {
   console.time("getAnalyze");
   // console.log("dummyArr" ,dummyArr)
   const setUndefinedFactsToZero = (arr) => {
@@ -48,10 +47,8 @@ export function getAnalyze(pastYear, currentYear, pattern) {
     // console.log("resultArray", resultArray);
     return resultArray;
   };
-  let filteredArr =
-    // initialData &&
-    // filterByMonth(initialData, pattern) &&
-    setUndefinedFactsToZero(filterByMonth(testArr, pattern));
+
+  let filteredArr = setUndefinedFactsToZero(filterByMonth(sourceArr, pattern));
 
   console.timeEnd("getAnalyze");
   return {

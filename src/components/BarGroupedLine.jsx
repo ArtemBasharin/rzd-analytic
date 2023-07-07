@@ -19,7 +19,7 @@ const BarGroupedLine = (props) => {
 
     const margin = { top: 50, right: 100, bottom: 250, left: 180 },
       width = props.width - margin.left - margin.right,
-      height = 0.45 * width - margin.top - margin.bottom;
+      height = 500 - margin.top - margin.bottom;
     const groups = resData.map((d) => {
       return d.label;
     });

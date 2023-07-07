@@ -4,18 +4,23 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import Select from "@mui/material/Select";
 import { useSelector, useDispatch } from "react-redux";
-import { setPattern, setMinValue } from "../redux/filtersSlice";
-import Box from "@mui/material/Box";
-import Slider from "@mui/material/Slider";
+import {
+  setPattern,
+  setMinValue,
+  setPastYear,
+  setCurrentYear,
+} from "../redux/filtersSlice";
+// import Box from "@mui/material/Box";
+// import Slider from "@mui/material/Slider";
 
 let period = "01";
-let date = new Date();
+// let date = new Date();
 
 /////Slider section
-const minDistance = 1;
-function valuetext(value) {
-  return `${value}°C`;
-}
+// const minDistance = 1;
+// function valuetext(value) {
+//   return `${value}°C`;
+// }
 
 export default function SelectAutoWidth() {
   const pattern = useSelector((state) => state.filters.regexpPattern);
@@ -33,29 +38,37 @@ export default function SelectAutoWidth() {
     dispatch(setMinValue(event.target.value));
   };
 
-  /////Slider section
-  const [value2, setValue2] = React.useState([20, 37]);
-  const handleChange2 = (event, newValue, activeThumb) => {
-    if (!Array.isArray(newValue)) {
-      return;
-    }
-
-    if (newValue[1] - newValue[0] < minDistance) {
-      if (activeThumb === 0) {
-        const clamped = Math.min(newValue[0], date.getFullYear() - minDistance);
-        setValue2([clamped, clamped + minDistance]);
-      } else {
-        const clamped = Math.max(newValue[1], minDistance);
-        setValue2([clamped - minDistance, clamped]);
-      }
-    } else {
-      setValue2(newValue);
-    }
+  const handleChangeFromYear = (event) => {
+    dispatch(setPastYear(event.target.value));
   };
+
+  const handleChangeToYear = (event) => {
+    dispatch(setCurrentYear(event.target.value));
+  };
+
+  /////Slider section
+  // const [value2, setValue2] = React.useState([20, 37]);
+  // const handleChange2 = (event, newValue, activeThumb) => {
+  //   if (!Array.isArray(newValue)) {
+  //     return;
+  //   }
+
+  //   if (newValue[1] - newValue[0] < minDistance) {
+  //     if (activeThumb === 0) {
+  //       const clamped = Math.min(newValue[0], date.getFullYear() - minDistance);
+  //       setValue2([clamped, clamped + minDistance]);
+  //     } else {
+  //       const clamped = Math.max(newValue[1], minDistance);
+  //       setValue2([clamped - minDistance, clamped]);
+  //     }
+  //   } else {
+  //     setValue2(newValue);
+  //   }
+  // };
 
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
-      <Box sx={{ width: 150, heigth: 88 }}>
+      {/* <Box sx={{ width: 150, heigth: 88, marginTop: 2 }}>
         <Slider
           getAriaLabel={() => "Minimum distance shift"}
           value={value2}
@@ -64,9 +77,86 @@ export default function SelectAutoWidth() {
           getAriaValueText={valuetext}
           min={2013}
           max={date.getFullYear()}
+          step={1}
           disableSwap
+          marks
         />
-      </Box>
+      </Box> */}
+      <FormControl
+        sx={{ m: 2, minWidth: 100, color: "#fff", borderColor: "#fff" }}
+      >
+        <InputLabel
+          id="select-fromyear-label"
+          sx={{
+            color: "#fff",
+          }}
+        >
+          c
+        </InputLabel>
+        <Select
+          labelId="select-fromyear-label"
+          id="select-fromyear"
+          value={pastYear}
+          onChange={handleChangeFromYear}
+          autoWidth
+          label="Минимум"
+          sx={{
+            color: "#fff",
+            minWidth: 50,
+          }}
+        >
+          <MenuItem value={pastYear}></MenuItem>
+          <MenuItem value={2013}>2013</MenuItem>
+          <MenuItem value={2014}>2014</MenuItem>
+          <MenuItem value={2015}>2015</MenuItem>
+          <MenuItem value={2016}>2016</MenuItem>
+          <MenuItem value={2017}>2017</MenuItem>
+          <MenuItem value={2018}>2018</MenuItem>
+          <MenuItem value={2019}>2019</MenuItem>
+          <MenuItem value={2020}>2020</MenuItem>
+          <MenuItem value={2021}>2021</MenuItem>
+          <MenuItem value={2022}>2022</MenuItem>
+        </Select>
+      </FormControl>
+
+      <FormControl
+        sx={{ m: 2, minWidth: 100, color: "#fff", borderColor: "#fff" }}
+      >
+        <InputLabel
+          id="select-toyear-label"
+          sx={{
+            color: "#fff",
+          }}
+        >
+          до
+        </InputLabel>
+        <Select
+          labelId="select-toyear-label"
+          id="select-toyear"
+          value={currentYear}
+          onChange={handleChangeToYear}
+          autoWidth
+          label="Минимум"
+          sx={{
+            color: "#fff",
+            minWidth: 50,
+          }}
+        >
+          <MenuItem value={currentYear}></MenuItem>
+          <MenuItem value={2013}>2013</MenuItem>
+          <MenuItem value={2014}>2014</MenuItem>
+          <MenuItem value={2015}>2015</MenuItem>
+          <MenuItem value={2016}>2016</MenuItem>
+          <MenuItem value={2017}>2017</MenuItem>
+          <MenuItem value={2018}>2018</MenuItem>
+          <MenuItem value={2019}>2019</MenuItem>
+          <MenuItem value={2020}>2020</MenuItem>
+          <MenuItem value={2021}>2021</MenuItem>
+          <MenuItem value={2022}>2022</MenuItem>
+          <MenuItem value={2023}>2023</MenuItem>
+        </Select>
+      </FormControl>
+
       <FormControl
         sx={{ m: 2, minWidth: 100, color: "#fff", borderColor: "#fff" }}
       >
@@ -90,9 +180,7 @@ export default function SelectAutoWidth() {
             minWidth: 50,
           }}
         >
-          <MenuItem value="0">
-            <em>Не выбрано</em>
-          </MenuItem>
+          <MenuItem value={minValue}></MenuItem>
           <MenuItem value={0}>0</MenuItem>
           <MenuItem value={1}>1</MenuItem>
           <MenuItem value={2}>2</MenuItem>
@@ -121,7 +209,7 @@ export default function SelectAutoWidth() {
           label="Период"
           sx={{
             color: "#fff",
-            minWidth: 120,
+            minWidth: 180,
           }}
         >
           <MenuItem value="">
