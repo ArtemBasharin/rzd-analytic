@@ -1,29 +1,15 @@
-import axios from "axios";
 import { createSlice } from "@reduxjs/toolkit";
 import { getAnalyze } from "../components/arrGenerators/combiner";
 import { testArr } from "../test/test";
+import { getViolationsArray } from "../components/requests";
+
 let date = new Date();
 let arrSource = testArr;
 
-axios.defaults.baseURL = "http://localhost:3001";
-
-axios
-  .get("/violations", {
-    params: {
-      "fromYear": date.getFullYear() - 1,
-      "toYear": date.getFullYear(),
-    },
-  })
-  .then(function (res) {
-    console.log("Violations.length is:", res.data);
-    // if (res.data.length > 0) {
-    //   arrSource = res.data;
-    // }
-  })
-  .catch(function (error) {
-    console.log("axios.get error:", error);
-  })
-  .finally(function () {});
+getViolationsArray({
+  "fromYear": date.getFullYear() - 1,
+  "toYear": date.getFullYear(),
+});
 
 const filtersSlice = createSlice({
   name: "filters",

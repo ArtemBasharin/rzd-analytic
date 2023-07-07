@@ -52,12 +52,13 @@ export function getAnalyze(sourceArr, pastYear, currentYear, pattern) {
 
   console.timeEnd("getAnalyze");
   return {
-    failsArray: getArrFails(filteredArr, pastYear, currentYear).arr,
-    failsYmax: getArrFails(filteredArr, pastYear, currentYear).y,
-    delaysArray: getArrDelays(filteredArr, pastYear, currentYear).arr,
-    delaysYmax: getArrDelays(filteredArr, pastYear, currentYear).y,
-    durationsArray: getArrDurations(filteredArr, pastYear, currentYear).arr,
-    durationsYmax: getArrDurations(filteredArr, pastYear, currentYear).y,
+    failsArray: getArrFails(filteredArr, currentYear - 1, currentYear).arr,
+    failsYmax: getArrFails(filteredArr, currentYear - 1, currentYear).y,
+    delaysArray: getArrDelays(filteredArr, currentYear - 1, currentYear).arr,
+    delaysYmax: getArrDelays(filteredArr, currentYear - 1, currentYear).y,
+    durationsArray: getArrDurations(filteredArr, currentYear - 1, currentYear)
+      .arr,
+    durationsYmax: getArrDurations(filteredArr, currentYear - 1, currentYear).y,
     guiltsArray: getArrGuilt(filteredArr).arr,
     guiltsYmax: getArrGuilt(filteredArr).y,
     guiltsDurationsArray: getArrGuiltDuration(filteredArr).arr,

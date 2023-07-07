@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 
 import * as XLSX from "xlsx/xlsx.mjs";
+import { postViolationsArray } from "./requests";
 
 let initialData = [];
 
@@ -26,13 +27,16 @@ function DropZoneParser() {
       });
 
       // let importedObject = JSON.stringify(result, null, 4);
+      let importedObject = JSON.stringify(result, null, 4);
       let resultArray;
+
       for (let i in result) {
         if (!resultArray) {
           resultArray = result[i];
         }
       }
       initialData = resultArray;
+      postViolationsArray(resultArray);
       console.log("resultArray", resultArray);
     };
   }, []);
