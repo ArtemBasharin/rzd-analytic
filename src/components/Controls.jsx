@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
@@ -9,25 +9,48 @@ import {
   setMinValue,
   setPastYear,
   setCurrentYear,
+  setSourceState,
 } from "../redux/filtersSlice";
-// import Box from "@mui/material/Box";
-// import Slider from "@mui/material/Slider";
+import { getViolationsArray } from "./requests";
+import axios from "axios";
 
 let period = "01";
-// let date = new Date();
-
-/////Slider section
-// const minDistance = 1;
-// function valuetext(value) {
-//   return `${value}°C`;
-// }
+let date = new Date();
 
 export default function SelectAutoWidth() {
   const pattern = useSelector((state) => state.filters.regexpPattern);
   const minValue = useSelector((state) => state.filters.minValue);
   const pastYear = useSelector((state) => state.filters.pastYear);
   const currentYear = useSelector((state) => state.filters.currentYear);
+  const sourceState = useSelector((state) => state.filters.sourceState);
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    let params = {
+      "fromYear": date.getFullYear() - 1,
+      "toYear": date.getFullYear(),
+    };
+
+    axios
+      .get(
+        "/violations",
+        { params }
+        // {
+        //   method: "GET",
+        //   headers: { "Content-Type": "application/json" },
+        // }
+      )
+      .then(function (res) {
+        console.log("res.data length is now:", res.data.length);
+        dispatch(setSourceState(res.data));
+
+        console.log("sourceState.length", sourceState);
+        // console.log(res);
+      })
+      .catch(function (error) {
+        console.log("axios.get error:", error);
+      });
+  }, []);
 
   const handleChangePeriod = (event) => {
     period = event.target.value;
@@ -45,26 +68,6 @@ export default function SelectAutoWidth() {
   const handleChangeToYear = (event) => {
     dispatch(setCurrentYear(event.target.value));
   };
-
-  /////Slider section
-  // const [value2, setValue2] = React.useState([20, 37]);
-  // const handleChange2 = (event, newValue, activeThumb) => {
-  //   if (!Array.isArray(newValue)) {
-  //     return;
-  //   }
-
-  //   if (newValue[1] - newValue[0] < minDistance) {
-  //     if (activeThumb === 0) {
-  //       const clamped = Math.min(newValue[0], date.getFullYear() - minDistance);
-  //       setValue2([clamped, clamped + minDistance]);
-  //     } else {
-  //       const clamped = Math.max(newValue[1], minDistance);
-  //       setValue2([clamped - minDistance, clamped]);
-  //     }
-  //   } else {
-  //     setValue2(newValue);
-  //   }
-  // };
 
   return (
     <div style={{ display: "flex", alignItems: "center" }}>

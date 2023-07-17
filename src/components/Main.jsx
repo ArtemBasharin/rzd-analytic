@@ -1,10 +1,12 @@
 import React from "react";
-import BarChart2Bars from "./BarChart2Bars";
-import BarGroupedLine from "./BarGroupedLine";
 import { useSelector } from "react-redux";
 import * as d3 from "d3";
+import BarChart2Bars from "./BarChart2Bars";
+import BarGroupedLine from "./BarGroupedLine";
 
 function Main() {
+  // let date = new Date();
+
   //clear old svg
   d3.selectAll("g").remove();
 
@@ -13,8 +15,9 @@ function Main() {
   let minValue = useSelector((state) => state.filters.minValue);
 
   //section of charts with fails counting
-  let chartFailsWidth = 1920 / 7 - 20
-  if (window.screen.width < 1920) chartFailsWidth = window.screen.width / 7 - 30;
+  let chartFailsWidth = 1920 / 7 - 20;
+  if (window.screen.width < 1920)
+    chartFailsWidth = window.screen.width / 7 - 30;
 
   const paramsFailsSection = {
     ids: [0, 1, 2, 3, 4, 5, 6], //this prop need to create unique #id svg elements
@@ -34,8 +37,9 @@ function Main() {
   });
 
   //section of charts with delays counting
-  let chartDelaysWidth = 1920 / 4 / 2 -30
-  if (window.screen.width < 1920) chartDelaysWidth = window.screen.width / 4 / 2 -30
+  let chartDelaysWidth = 1920 / 4 / 2 - 30;
+  if (window.screen.width < 1920)
+    chartDelaysWidth = window.screen.width / 4 / 2 - 30;
   const paramsDelaysSection = {
     ids: [7, 8, 9, 10], //this prop need to create unique #id svg elements
     width: chartDelaysWidth,
@@ -57,7 +61,7 @@ function Main() {
   //section of charts with durations counting
   const paramsDurationsSection = {
     ids: [11, 12, 13, 14], //this prop need to create unique #id svg elements
-    width: chartDelaysWidth
+    width: chartDelaysWidth,
   };
   let layoutDurations = [];
   paramsDurationsSection.ids.forEach((item) => {

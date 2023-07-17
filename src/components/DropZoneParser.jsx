@@ -37,7 +37,7 @@ function DropZoneParser() {
       }
       initialData = resultArray;
       postViolationsArray(resultArray);
-      console.log("resultArray", resultArray);
+      console.log("resultArray.length is", resultArray.length);
     };
   }, []);
 

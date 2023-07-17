@@ -1,19 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { getAnalyze } from "../components/arrGenerators/combiner";
 import { testArr } from "../test/test";
-import { getViolationsArray } from "../components/requests";
 
 let date = new Date();
 let arrSource = testArr;
 
-getViolationsArray({
-  "fromYear": date.getFullYear() - 1,
-  "toYear": date.getFullYear(),
-});
-
 const filtersSlice = createSlice({
   name: "filters",
   initialState: {
+    sourceState: [],
     minValue: 0,
     currentYear: date.getFullYear(),
     pastYear: date.getFullYear() - 1,
@@ -25,6 +20,7 @@ const filtersSlice = createSlice({
       "01"
     ),
   },
+
   reducers: {
     increment(state) {
       state.minValue = state.minValue + 1;
@@ -49,7 +45,7 @@ const filtersSlice = createSlice({
       }
       state.regexpPattern = pattern;
       state.analyzeState = getAnalyze(
-        arrSource,
+        state.sourceState,
         state.pastYear,
         state.currentYear,
         state.regexpPattern
@@ -59,7 +55,7 @@ const filtersSlice = createSlice({
     setMinValue(state, action) {
       state.minValue = action.payload;
       state.analyzeState = getAnalyze(
-        arrSource,
+        state.sourceState,
         state.pastYear,
         state.currentYear,
         state.regexpPattern
@@ -69,7 +65,7 @@ const filtersSlice = createSlice({
     setPastYear(state, action) {
       state.pastYear = action.payload;
       state.analyzeState = getAnalyze(
-        arrSource,
+        state.sourceState,
         state.pastYear,
         state.currentYear,
         state.regexpPattern
@@ -79,7 +75,17 @@ const filtersSlice = createSlice({
     setCurrentYear(state, action) {
       state.currentYear = action.payload;
       state.analyzeState = getAnalyze(
-        arrSource,
+        state.sourceState,
+        state.pastYear,
+        state.currentYear,
+        state.regexpPattern
+      );
+    },
+
+    setSourceState(state, action) {
+      state.sourceState = action.payload;
+      state.analyzeState = getAnalyze(
+        state.sourceState,
         state.pastYear,
         state.currentYear,
         state.regexpPattern
@@ -97,4 +103,5 @@ export const {
   setAnalyzeState,
   setPastYear,
   setCurrentYear,
+  setSourceState,
 } = filtersSlice.actions;
