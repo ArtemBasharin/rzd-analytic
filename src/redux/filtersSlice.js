@@ -1,7 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { getAnalyze } from "../components/arrGenerators/combiner";
+import { getAnalyze } from "../data-preprocessors/combiner";
 // import { testArr } from "../test/test";
-import testArr from "../components/arrGenerators/dummyArr";
+import testArr from "../data-preprocessors/dummyArr";
 
 let date = new Date();
 let arrSource = testArr;

@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { startTime, guiltyUnit } from "../../config/config";
+import { startTime, guiltyUnit } from "../config/config";
 
 export const getArrGuilt = (srcArray) => {
   const maxYearKey = (arr) => {

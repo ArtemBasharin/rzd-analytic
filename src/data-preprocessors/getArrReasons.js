@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { startTime, failReason } from "../../config/config";
+import { startTime, failReason } from "../config/config";
 
 export const getArrReasons = (srcArray) => {
   const yearFilter = (el) => {

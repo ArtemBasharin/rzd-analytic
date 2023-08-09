@@ -1,4 +1,4 @@
-import { startTime } from "../../config/config";
+import { startTime } from "../config/config";
 import { getArrFails } from "./getArrFails";
 import { getArrDelays } from "./getArrDelays";
 import { getArrDurations } from "./getArrDurations";
@@ -14,7 +14,7 @@ import {
   subDuration,
   otherDelayed,
   otherDuration,
-} from "../../config/config";
+} from "../config/config";
 // import { initialData } from "../DropZoneParser";
 // import dummyArr from "./dummyArr"
 

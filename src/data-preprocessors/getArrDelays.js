@@ -5,7 +5,7 @@ import {
   passDelayed,
   subDelayed,
   otherDelayed,
-} from "../../config/config";
+} from "../config/config";
 
 export const getArrDelays = (srcArray, pastYear, currentYear) => {
   //counting number of fails with conditions

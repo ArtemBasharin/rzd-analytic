@@ -5,7 +5,7 @@ import {
   passDuration,
   subDuration,
   otherDuration,
-} from "../../config/config";
+} from "../config/config";
 
 export const getArrDurations = (srcArray, pastYear, currentYear) => {
   //counting number of fails with conditions
