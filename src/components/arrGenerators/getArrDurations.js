@@ -26,12 +26,12 @@ export const getArrDurations = (srcArray, pastYear, currentYear) => {
     });
     return [
       {
-        value: Math.round(pastYearCount / 6) / 10,
+        value: Math.round(pastYearCount * 10) / 10,
         label: pastYear,
         title: chartname,
       },
       {
-        value: Math.round(currentYearCount / 6) / 10,
+        value: Math.round(currentYearCount * 10) / 10,
         label: currentYear,
         title: chartname,
       },

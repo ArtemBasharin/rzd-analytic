@@ -1,23 +1,26 @@
 import React from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/scrollbar";
 import { useSelector } from "react-redux";
 import * as d3 from "d3";
 import BarChart2Bars from "./BarChart2Bars";
 import BarGroupedLine from "./BarGroupedLine";
 
 function Main() {
-  // let date = new Date();
-
   //clear old svg
   d3.selectAll("g").remove();
 
   let maxYear = useSelector((state) => state.filters.currentYear);
   let srcArr = useSelector((state) => state.filters.analyzeState);
   let minValue = useSelector((state) => state.filters.minValue);
-
+  let areaWidth = window.innerWidth;
   //section of charts with fails counting
   let chartFailsWidth = 1920 / 7 - 20;
-  if (window.screen.width < 1920)
-    chartFailsWidth = window.screen.width / 7 - 30;
+  if (areaWidth < 1920) chartFailsWidth = areaWidth / 7 - 30;
 
   const paramsFailsSection = {
     ids: [0, 1, 2, 3, 4, 5, 6], //this prop need to create unique #id svg elements
@@ -38,8 +41,7 @@ function Main() {
 
   //section of charts with delays counting
   let chartDelaysWidth = 1920 / 4 / 2 - 30;
-  if (window.screen.width < 1920)
-    chartDelaysWidth = window.screen.width / 4 / 2 - 30;
+  if (areaWidth < 1920) chartDelaysWidth = areaWidth / 4 / 2 - 30;
   const paramsDelaysSection = {
     ids: [7, 8, 9, 10], //this prop need to create unique #id svg elements
     width: chartDelaysWidth,
@@ -79,60 +81,102 @@ function Main() {
   //section of bargrouped chart
   const paramsGroupedSection = {
     id: 15, //this prop need to create unique #id svg elements
-    width: window.screen.width - 50,
-  };
-
-  //section of bargrouped chart
-  const paramsReasonsSection = {
-    id: 16, //this prop need to create unique #id svg elements
-    width: window.screen.width - 100,
+    width: areaWidth,
   };
 
   //section of bargrouped chart
   const paramsGroupedSectionDurations = {
     id: 17, //this prop need to create unique #id svg elements
-    width: window.screen.width,
+    width: areaWidth,
   };
   // let ID = "id" + paramsGroupedSection.id;
 
-  return (
-    <div className="Main">
-      <div className="horizontalSection">{layoutFails}</div>
-      <div className="horizontalSection horizontalSection_group">
-        <div className="horizontalSection">{layoutDelays}</div>
-        <div className="horizontalSection">{layoutDurations}</div>
-      </div>
+  //section of bargrouped chart
+  const paramsReasonsSection = {
+    id: 16, //this prop need to create unique #id svg elements
+    width: areaWidth,
+  };
 
-      <BarGroupedLine
-        className="groupedChart"
-        stats={srcArr.guiltsArray}
-        width={paramsGroupedSection.width}
-        id={paramsGroupedSection.id}
-        key={paramsGroupedSection.id}
-        yMax={srcArr.guiltsYmax}
-        maxYear={maxYear}
-        minValue={minValue}
-      />
-      <BarGroupedLine
-        className="groupedChart"
-        stats={srcArr.guiltsDurationsArray}
-        width={paramsGroupedSectionDurations.width}
-        id={paramsGroupedSectionDurations.id}
-        key={paramsGroupedSectionDurations.id}
-        yMax={srcArr.guiltsDurationsYmax}
-        maxYear={maxYear}
-        minValue={minValue}
-      />
-      <BarGroupedLine
-        className="groupedChart"
-        stats={srcArr.reasonsArray}
-        width={paramsReasonsSection.width}
-        id={paramsReasonsSection.id}
-        key={paramsReasonsSection.id}
-        yMax={srcArr.reasonsYmax}
-        maxYear={maxYear}
-        minValue={minValue}
-      />
+  return (
+    <div className="main">
+      <Swiper
+        modules={[Navigation, Pagination, Scrollbar, A11y]}
+        spaceBetween={50}
+        navigation
+        // pagination={{ clickable: true }}
+        // scrollbar={{ draggable: true }}
+        // spaceBetween={50}
+        slidesPerView={1}
+        onSlideChange={() => console.log("slide change")}
+        onSwiper={(swiper) => console.log(swiper)}
+      >
+        <SwiperSlide>
+          <h2 className="section-title">
+            Технологические нарушения по виду и характеру
+          </h2>
+          <div className="horizontalSection">{layoutFails}</div>
+          <div className="horizontalSection horizontalSection_group">
+            <div>
+              <h2 className="section-title">Задержано поездов</h2>
+              <div className="horizontalSection">{layoutDelays}</div>
+            </div>
+            <div>
+              <h2 className="section-title">
+                Продолжительность задержек поездов, ч
+              </h2>
+              <div className="horizontalSection">{layoutDurations}</div>
+            </div>
+          </div>
+        </SwiperSlide>
+        <SwiperSlide>
+          <h2 className="section-title">
+            Сравнительный анализ количества допущенных технологических нарушений
+            по виновным подразделениям
+          </h2>
+          <BarGroupedLine
+            className="groupedChart"
+            stats={srcArr.guiltsArray}
+            width={paramsGroupedSection.width}
+            id={paramsGroupedSection.id}
+            key={paramsGroupedSection.id}
+            yMax={srcArr.guiltsYmax}
+            maxYear={maxYear}
+            minValue={minValue}
+          />
+        </SwiperSlide>
+        <SwiperSlide>
+          <h2 className="section-title">
+            Сравнительный анализ задержек поездов от технологических нарушений
+            по виновным подразделениям
+          </h2>
+          <BarGroupedLine
+            className="groupedChart"
+            stats={srcArr.guiltsDurationsArray}
+            width={paramsGroupedSectionDurations.width}
+            id={paramsGroupedSectionDurations.id}
+            key={paramsGroupedSectionDurations.id}
+            yMax={srcArr.guiltsDurationsYmax}
+            maxYear={maxYear}
+            minValue={minValue}
+          />
+        </SwiperSlide>
+        <SwiperSlide>
+          <h2 className="section-title">
+            Сравнительный анализ по причинам допущенных технологических
+            нарушений
+          </h2>
+          <BarGroupedLine
+            className="groupedChart"
+            stats={srcArr.reasonsArray}
+            width={paramsReasonsSection.width}
+            id={paramsReasonsSection.id}
+            key={paramsReasonsSection.id}
+            yMax={srcArr.reasonsYmax}
+            maxYear={maxYear}
+            minValue={minValue}
+          />
+        </SwiperSlide>
+      </Swiper>
     </div>
   );
 }

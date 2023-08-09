@@ -60,6 +60,7 @@ export const getArrGuilt = (srcArray) => {
     let result = [...subResult.values()];
     uniqueYearLabelsArr.sort();
     for (let i = 0; i < uniqueYearLabelsArr.length; i++) {
+      // eslint-disable-next-line array-callback-return
       result.map(function (el) {
         if (!el[uniqueYearLabelsArr[i]]) {
           return (el[uniqueYearLabelsArr[i]] = 0);

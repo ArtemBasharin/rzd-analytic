@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 
 import * as XLSX from "xlsx/xlsx.mjs";
 import { postViolationsArray } from "./requests";
+import { guiltyUnit, guiltyNew } from "../config/config";
 
 let initialData = [];
 
@@ -27,7 +28,7 @@ function DropZoneParser() {
       });
 
       // let importedObject = JSON.stringify(result, null, 4);
-      let importedObject = JSON.stringify(result, null, 4);
+      // let importedObject = JSON.stringify(result, null, 4);
       let resultArray;
 
       for (let i in result) {
@@ -35,9 +36,34 @@ function DropZoneParser() {
           resultArray = result[i];
         }
       }
+
       initialData = resultArray;
-      postViolationsArray(resultArray);
-      console.log("resultArray.length is", resultArray.length);
+
+      const filterArray = (arr) => {
+        let result = [];
+        // let regex = new RegExp("/sЗ-СИБ$", "gm");
+        // let regex = /З-СИБ$/;
+        // let units = [];
+        // arr.forEach((el) => {
+        //   el[guiltyNew] && units.push(el[guiltyNew]);
+        //   el[guiltyUnit] && units.push(el[guiltyUnit]);
+        // });
+        arr.forEach((el) => {
+          if (el["ID отказа"] || el["#"]) {
+            if (el[guiltyNew]) {
+              el[guiltyNew] = el[guiltyNew].replace(/З-СИБ$/, "");
+            }
+            if (el[guiltyUnit]) {
+              el[guiltyUnit] = el[guiltyUnit].replace(/З-СИБ$/, "");
+            }
+          }
+          result.push(el);
+        });
+        return result;
+      };
+
+      postViolationsArray(filterArray(resultArray));
+      console.log("resultArray.length is", filterArray(resultArray).length);
     };
   }, []);
 

@@ -1,6 +1,5 @@
 import React, { useRef, useEffect } from "react";
 import * as d3 from "d3";
-import "../App.css";
 
 const BarGroupedLine = (props) => {
   const svgRef3 = useRef();
@@ -17,9 +16,28 @@ const BarGroupedLine = (props) => {
       findTrimIndex(props.stats, props.minValue)
     );
 
-    const margin = { top: 50, right: 100, bottom: 250, left: 180 },
+    let amountOfLabels = resData.length;
+    console.log("amountOfLabels", amountOfLabels);
+
+    const getMaxLabelLength = () => {
+      if (props.stats[0].label) {
+        let arr = [];
+        props.stats.forEach((element) => {
+          if (element.label) arr.push(element.label.length);
+        });
+        return d3.max(arr) / 2;
+      } else return 0;
+    };
+
+    const margin = {
+        top: 50,
+        right: 100,
+        bottom: 210 + getMaxLabelLength() * 1.5,
+        left: 130 + getMaxLabelLength() * 1.5,
+      },
       width = props.width - margin.left - margin.right,
-      height = 500 - margin.top - margin.bottom;
+      height =
+        window.innerHeight - margin.bottom - margin.top - margin.bottom + 150;
     const groups = resData.map((d) => {
       return d.label;
     });
@@ -36,15 +54,19 @@ const BarGroupedLine = (props) => {
 
     // Add X axis
     const x = d3.scaleBand().domain(groups).range([0, width]).padding([0.2]);
+    let rotationAngle = -45;
     svg
       .append("g")
       .data(resData)
       .attr("transform", `translate(0, ${height})`)
       .call(d3.axisBottom(x).tickSize(0))
       .selectAll("text")
-      .attr("transform", `translate(-3,5)rotate(-35)`)
+      .attr("transform", `translate(-3,5)rotate(${rotationAngle})`)
       .attr("text-anchor", "end")
-      .call(wrap, x.bandwidth() * 2.7); //temporary text wrap is off
+      .attr("font-size", function (d) {
+        return `${(1 - amountOfLabels / 100) * 12}px`; // ${(1 - amountOfLabels / 10) * 10}px
+      })
+      .call(wrap, margin.bottom / Math.sin(90 + rotationAngle)); //text wrap, instead x.bandwidth() pasted margin.bottom
 
     // Add Y axis
     const y = d3
@@ -114,6 +136,7 @@ const BarGroupedLine = (props) => {
       .attr("filter", "drop-shadow(1px -1px 3px rgb(0 0 0 / 0.2))");
 
     // draw labels
+    let yArrBarLabels = [];
     svg
       .append("g")
       .selectAll("g")
@@ -128,8 +151,10 @@ const BarGroupedLine = (props) => {
       })
       .join("text")
       .attr("x", (d) => xSubgroup(d.key) + xSubgroup.bandwidth() / 2)
-      .attr("y", (d) => y(d.value) - 5)
-
+      .attr("y", function (d) {
+        yArrBarLabels.push(y(d.value) - 5);
+        return y(d.value) - 5;
+      })
       .text((d) => height - y(d.value))
       .attr("font-family", "roboto")
       .attr("font-size", "10px")
@@ -137,7 +162,18 @@ const BarGroupedLine = (props) => {
       .attr("fill", "#000")
       .attr("text-anchor", "middle")
       .attr("fill", "#000")
-      .text((d) => d.value);
+      .text(function (d) {
+        if (d.value >= 100) {
+          return Math.round(d.value);
+        } else {
+          return Math.round(d.value * 10) / 10;
+        }
+      });
+
+    //create array of y coordinates of labels of current year bars
+    yArrBarLabels = yArrBarLabels.filter(
+      (item) => yArrBarLabels.indexOf(item) % 2 !== 0
+    );
 
     // draw simple pareto line
     svg
@@ -162,6 +198,7 @@ const BarGroupedLine = (props) => {
       );
 
     // draw pareto line labels
+    let testarr = [];
     svg
       .append("g")
       .selectAll("textLabels")
@@ -178,8 +215,32 @@ const BarGroupedLine = (props) => {
       .attr("x", function (d) {
         return x(d.label) + xSubgroup.bandwidth() * (subgroups.length - 0.5);
       })
-      .attr("y", function (d) {
-        return yP(d.valueP);
+      .attr("y", function (d, i) {
+        testarr.push(yArrBarLabels[i] - yP(d.valueP));
+        // if pareto label on backgroung of the bar make it white
+        if (yArrBarLabels[i] - yP(d.valueP) < 0) {
+          d3.select(this)
+            .style("fill", "white")
+            .style(
+              "text-shadow",
+              "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000"
+            );
+        }
+        // if pareto label is first or near by barlabel make it white
+        if (
+          (i === 0) | (yArrBarLabels[i] - yP(d.valueP) > -30) &&
+          yArrBarLabels[i] - yP(d.valueP) < 0
+        ) {
+          d3.select(this)
+            .style("fill", "white")
+            .style(
+              "text-shadow",
+              "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000"
+            );
+          return yP(d.valueP) + 25;
+        } else {
+          return yP(d.valueP);
+        }
       })
       .text(function (d) {
         return d.valueP;
@@ -213,7 +274,7 @@ const BarGroupedLine = (props) => {
         let word,
           line = [];
         let lineNumber = 0,
-          lineHeight = 1.1; // ems
+          lineHeight = 1; // ems
         let y = text.attr("y"),
           dy = parseFloat(text.attr("dy"));
         let tspan = text
@@ -249,13 +310,13 @@ const BarGroupedLine = (props) => {
       .attr("cx", width - 110)
       .attr("cy", function (d, i) {
         return 140 + i * 35;
-      }) // 100 is where the first dot appears. 25 is the distance between dots
+      }) // 140 is where the first dot appears. 35 is the distance between dots
       .attr("r", 15)
       .style("fill", function (d) {
         return color(d);
       });
 
-    // Add one dot in the legend for each name.
+    // Add text in the legend for each name.
     svg
       .selectAll("mylabels")
       .data(subgroups)
@@ -264,13 +325,14 @@ const BarGroupedLine = (props) => {
       .attr("x", width - 90)
       .attr("y", function (d, i) {
         return 140 + i * 35;
-      }) // 100 is where the first dot appears. 25 is the distance between dots
+      }) // 140 is where the first dot appears. 35 is the distance between dots
       .style("fill", "#000")
       .text(function (d) {
         return "- " + d + " год";
       })
       .attr("text-anchor", "left")
       .style("alignment-baseline", "middle");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     props.stats,
     props.config,
@@ -288,7 +350,7 @@ const BarGroupedLine = (props) => {
       className="chartItem groupedChart"
       ref={svgRef3}
       width={props.width}
-      height={800}
+      height={window.innerHeight - 90}
     ></svg>
   );
 };

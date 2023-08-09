@@ -14,8 +14,16 @@ import {
 import { getViolationsArray } from "./requests";
 import axios from "axios";
 
-let period = "01";
 let date = new Date();
+const getPastMonth = () => {
+  let monthCode = date.getMonth().toString();
+  if (monthCode.length < 2) {
+    return "0" + monthCode;
+  } else {
+    return monthCode;
+  }
+};
+let period = getPastMonth();
 
 export default function SelectAutoWidth() {
   const pattern = useSelector((state) => state.filters.regexpPattern);
@@ -32,24 +40,14 @@ export default function SelectAutoWidth() {
     };
 
     axios
-      .get(
-        "/violations",
-        { params }
-        // {
-        //   method: "GET",
-        //   headers: { "Content-Type": "application/json" },
-        // }
-      )
+      .get("/violations", { params })
       .then(function (res) {
-        console.log("res.data length is now:", res.data.length);
         dispatch(setSourceState(res.data));
-
-        console.log("sourceState.length", sourceState);
-        // console.log(res);
       })
       .catch(function (error) {
         console.log("axios.get error:", error);
       });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleChangePeriod = (event) => {
@@ -71,20 +69,6 @@ export default function SelectAutoWidth() {
 
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
-      {/* <Box sx={{ width: 150, heigth: 88, marginTop: 2 }}>
-        <Slider
-          getAriaLabel={() => "Minimum distance shift"}
-          value={value2}
-          onChange={handleChange2}
-          valueLabelDisplay="on"
-          getAriaValueText={valuetext}
-          min={2013}
-          max={date.getFullYear()}
-          step={1}
-          disableSwap
-          marks
-        />
-      </Box> */}
       <FormControl
         sx={{ m: 2, minWidth: 100, color: "#fff", borderColor: "#fff" }}
       >
@@ -190,6 +174,11 @@ export default function SelectAutoWidth() {
           <MenuItem value={3}>3</MenuItem>
           <MenuItem value={4}>4</MenuItem>
           <MenuItem value={5}>5</MenuItem>
+          <MenuItem value={6}>6</MenuItem>
+          <MenuItem value={7}>7</MenuItem>
+          <MenuItem value={8}>8</MenuItem>
+          <MenuItem value={9}>9</MenuItem>
+          <MenuItem value={10}>10</MenuItem>
         </Select>
       </FormControl>
       <FormControl
@@ -215,9 +204,7 @@ export default function SelectAutoWidth() {
             minWidth: 180,
           }}
         >
-          <MenuItem value="">
-            <em>Не выбрано</em>
-          </MenuItem>
+          <MenuItem value={period}>Прошлый месяц</MenuItem>
           <MenuItem value={"01"}>Январь</MenuItem>
           <MenuItem value={"02"}>Февраль</MenuItem>
           <MenuItem value={"1-2"}>2 месяца</MenuItem>

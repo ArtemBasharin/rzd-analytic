@@ -10,9 +10,9 @@ const BarChart2Bars = (props) => {
 
   useEffect(() => {
     let resData = props.stats;
-    const margin = { top: 100, right: 5, bottom: 50, left: 5 },
+    const margin = { top: 80, right: 5, bottom: 50, left: 5 },
       width = props.width - margin.left - margin.right,
-      height = 400 - margin.top - margin.bottom;
+      height = 350 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     const svg = d3
@@ -85,7 +85,7 @@ const BarChart2Bars = (props) => {
     bars
       .append("text")
       .text(function (d) {
-        return d.value;
+        return Math.round(d.value * 100) / 100;
       })
       .attr("x", function (d) {
         return X(d.label) + X.bandwidth() / 2;

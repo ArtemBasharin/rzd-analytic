@@ -190,26 +190,26 @@ const getRandomizedValue = (min, max) => {
 
 const generateElement = () =>
   testArr.push({
-    "Начало отказа": `${getRandomizedValue(2021, 2023)}-0${getRandomizedValue(
+    "Начало отказа": `${getRandomizedValue(2022, 2023)}-0${getRandomizedValue(
       1,
       9
     )}-0${getRandomizedValue(1, 9)}T15:11:43.000Z`,
     "Категория отказа": `${getRandomizedValue(1, 2)} категория`,
     "Виновное предприятие": unitsList[getRandomizedValue(0, 50)],
-    "Количество грузовых поездов(по месту)": getRandomizedValue(1, 5),
-    "Время грузовых поездов(по месту)": getRandomizedValue(1, 20),
-    "Количество пассажирских поездов(по месту)": getRandomizedValue(1, 2),
-    "Время пассажирских поездов(по месту)": getRandomizedValue(1, 3),
-    "Количество пригородных поездов(по месту)": getRandomizedValue(1, 2),
-    "Время пригородных поездов(по месту)": getRandomizedValue(1, 3),
-    "Количество прочих поездов(по месту)": getRandomizedValue(1, 2),
-    "Время прочих поездов(по месту)": getRandomizedValue(1, 10),
+    "Количество грузовых поездов(по месту)": getRandomizedValue(1, 50),
+    "Время грузовых поездов(по месту)": getRandomizedValue(1, 200),
+    "Количество пассажирских поездов(по месту)": getRandomizedValue(1, 20),
+    "Время пассажирских поездов(по месту)": getRandomizedValue(1, 30),
+    "Количество пригородных поездов(по месту)": getRandomizedValue(1, 20),
+    "Время пригородных поездов(по месту)": getRandomizedValue(1, 30),
+    "Количество прочих поездов(по месту)": getRandomizedValue(1, 20),
+    "Время прочих поездов(по месту)": getRandomizedValue(1, 100),
     "Причина 2 ур": reasonsList[getRandomizedValue(0, 123)],
     "Вид технологического нарушения": failKindsList[getRandomizedValue(0, 3)],
   });
 
 let testArr = [];
-for (let i = 0; i < 300; ++i) {
+for (let i = 0; i < 2000; ++i) {
   generateElement();
 }
 

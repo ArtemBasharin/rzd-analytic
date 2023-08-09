@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { getAnalyze } from "../components/arrGenerators/combiner";
-import { testArr } from "../test/test";
+// import { testArr } from "../test/test";
+import testArr from "../components/arrGenerators/dummyArr";
 
 let date = new Date();
 let arrSource = testArr;
@@ -8,8 +9,10 @@ let arrSource = testArr;
 const filtersSlice = createSlice({
   name: "filters",
   initialState: {
+    pageWidth: 1600,
+    pageHeight: window.height,
     sourceState: [],
-    minValue: 0,
+    minValue: 1,
     currentYear: date.getFullYear(),
     pastYear: date.getFullYear() - 1,
     regexpPattern: "01",
