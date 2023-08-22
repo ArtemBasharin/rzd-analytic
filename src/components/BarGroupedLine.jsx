@@ -17,7 +17,7 @@ const BarGroupedLine = (props) => {
     );
 
     let amountOfLabels = resData.length;
-    console.log("amountOfLabels", amountOfLabels);
+    // console.log("amountOfLabels", amountOfLabels);
 
     const getMaxLabelLength = () => {
       if (props.stats[0].label) {

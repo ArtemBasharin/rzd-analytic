@@ -9,6 +9,8 @@ import { useSelector } from "react-redux";
 import * as d3 from "d3";
 import BarChart2Bars from "./BarChart2Bars";
 import BarGroupedLine from "./BarGroupedLine";
+import StackedAreaDiagram from "./StackedAreaDiagram";
+import StackedAreaDiagram2 from "./StackedAreaDiagramm2";
 
 function Main() {
   //clear old svg
@@ -16,6 +18,7 @@ function Main() {
 
   let maxYear = useSelector((state) => state.filters.currentYear);
   let srcArr = useSelector((state) => state.filters.analyzeState);
+  let originArr = useSelector((state) => state.filters.originSrcState);
   let minValue = useSelector((state) => state.filters.minValue);
   let areaWidth = window.innerWidth;
   //section of charts with fails counting
@@ -107,8 +110,8 @@ function Main() {
         // scrollbar={{ draggable: true }}
         // spaceBetween={50}
         slidesPerView={1}
-        onSlideChange={() => console.log("slide change")}
-        onSwiper={(swiper) => console.log(swiper)}
+        // onSlideChange={() => console.log("slide change")}
+        // onSwiper={(swiper) => console.log(swiper)}
       >
         <SwiperSlide>
           <h2 className="section-title">
@@ -175,6 +178,18 @@ function Main() {
             maxYear={maxYear}
             minValue={minValue}
           />
+        </SwiperSlide>
+        <SwiperSlide>
+          <h2 className="section-title">
+            Аналитика причастности подразделений к причинам нарушений
+          </h2>
+          <StackedAreaDiagram src={originArr} />
+        </SwiperSlide>
+        <SwiperSlide>
+          <h2 className="section-title">
+            Аналитика причастности подразделений к причинам нарушений
+          </h2>
+          <StackedAreaDiagram2 src={originArr} />
         </SwiperSlide>
       </Swiper>
     </div>

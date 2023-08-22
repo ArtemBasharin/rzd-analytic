@@ -1,5 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { getAnalyze } from "../data-preprocessors/combiner";
+import { getArrDurationsPerDay } from "../data-preprocessors/getStackedArr";
 // import { testArr } from "../test/test";
 import testArr from "../data-preprocessors/dummyArr";
 
@@ -22,6 +23,7 @@ const filtersSlice = createSlice({
       date.getFullYear(),
       "01"
     ),
+    originSrcState: getArrDurationsPerDay(arrSource),
   },
 
   reducers: {
@@ -93,6 +95,7 @@ const filtersSlice = createSlice({
         state.currentYear,
         state.regexpPattern
       );
+      state.originSrcState = getArrDurationsPerDay(state.sourceState);
     },
   },
 });
@@ -107,4 +110,5 @@ export const {
   setPastYear,
   setCurrentYear,
   setSourceState,
+  originSrcState,
 } = filtersSlice.actions;

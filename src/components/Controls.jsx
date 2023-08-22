@@ -31,6 +31,7 @@ export default function SelectAutoWidth() {
   const pastYear = useSelector((state) => state.filters.pastYear);
   const currentYear = useSelector((state) => state.filters.currentYear);
   const sourceState = useSelector((state) => state.filters.sourceState);
+  // const originSrcState = useSelector((state) => state.filters.originSrcState);
   const dispatch = useDispatch();
 
   useEffect(() => {

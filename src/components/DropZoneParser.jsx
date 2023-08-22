@@ -41,13 +41,6 @@ function DropZoneParser() {
 
       const filterArray = (arr) => {
         let result = [];
-        // let regex = new RegExp("/sЗ-СИБ$", "gm");
-        // let regex = /З-СИБ$/;
-        // let units = [];
-        // arr.forEach((el) => {
-        //   el[guiltyNew] && units.push(el[guiltyNew]);
-        //   el[guiltyUnit] && units.push(el[guiltyUnit]);
-        // });
         arr.forEach((el) => {
           if (el["ID отказа"] || el["#"]) {
             if (el[guiltyNew]) {

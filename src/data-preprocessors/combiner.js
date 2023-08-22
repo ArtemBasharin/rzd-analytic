@@ -38,8 +38,8 @@ export function getAnalyze(sourceArr, pastYear, currentYear, pattern) {
 
   const filterByMonth = (arr, regexpPattern) => {
     let regexp = new RegExp(`[-](${regexpPattern})[-]`, "g");
-    console.log(regexp);
-    console.log(arr[0][startTime], arr[0][startTime].search(regexp));
+    // console.log(regexp);
+    // console.log(arr[0][startTime], arr[0][startTime].search(regexp));
     let resultArray = [];
     for (let i = 0; i < arr.length; ++i) {
       if (arr[i][startTime].search(regexp) > -1) {
