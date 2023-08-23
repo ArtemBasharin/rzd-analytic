@@ -179,17 +179,21 @@ function Main() {
             minValue={minValue}
           />
         </SwiperSlide>
+
         <SwiperSlide>
           <h2 className="section-title">
-            Аналитика причастности подразделений к причинам нарушений
+            Соотношение потерь по подразделениям за период
           </h2>
-          <StackedAreaDiagram src={originArr} />
+          <StackedAreaDiagram
+            src={originArr.unitedDatesResult}
+            yMax={originArr.yMax}
+          />
         </SwiperSlide>
+
         <SwiperSlide>
           <h2 className="section-title">
             Аналитика причастности подразделений к причинам нарушений
           </h2>
-          <StackedAreaDiagram2 src={originArr} />
         </SwiperSlide>
       </Swiper>
     </div>
