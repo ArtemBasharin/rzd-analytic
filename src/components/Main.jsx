@@ -10,7 +10,7 @@ import * as d3 from "d3";
 import BarChart2Bars from "./BarChart2Bars";
 import BarGroupedLine from "./BarGroupedLine";
 import StackedAreaDiagram from "./StackedAreaDiagram";
-import StackedAreaDiagram2 from "./StackedAreaDiagramm2";
+import SankeyDiagram from "./SankeyDiagram";
 
 function Main() {
   //clear old svg
@@ -194,6 +194,7 @@ function Main() {
           <h2 className="section-title">
             Аналитика причастности подразделений к причинам нарушений
           </h2>
+          <SankeyDiagram />
         </SwiperSlide>
       </Swiper>
     </div>

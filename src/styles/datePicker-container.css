@@ -1,0 +1,7 @@
+.datePicker-container {
+  display: flex;
+}
+
+.datePicker {
+  margin: auto 5px;
+}

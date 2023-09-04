@@ -7,6 +7,8 @@ import chroma from "chroma-js";
 const StackedAreaDiagram = (props) => {
   const svgRef5 = useRef();
   useEffect(() => {
+    console.log("StackedAreaDiagram load", props.src.length);
+
     let resData = props.src;
 
     // set the dimensions and margins of the graph
@@ -27,6 +29,7 @@ const StackedAreaDiagram = (props) => {
     // d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/5_OneCatSevNumOrdered_wide.csv").then( function(data) {
 
     // List of groups = header of the csv files
+    console.log("resData[0]", resData);
     const keys = Object.keys(resData[0]).slice(1);
 
     // Add X axis
@@ -46,10 +49,10 @@ const StackedAreaDiagram = (props) => {
       const month = date.getMonth() + 1; // Получаем номер месяца (начиная с 0)
       const year = date.getFullYear(); // Получаем год
 
-      // Форматируем день и месяц, добавляя ведущий ноль если число состоит из одной цифры
+      // Форматируем день и месяц, добавляя ноль если число состоит из одной цифры
       const formattedDay = day.toString().padStart(2, "0");
       const formattedMonth = month.toString().padStart(2, "0");
-      console.log("unix", `${formattedDay}-${formattedMonth}-${year}`);
+      // console.log("unix", `${formattedDay}-${formattedMonth}-${year}`);
       return `${formattedDay}-${formattedMonth}-${year}`;
     }
 

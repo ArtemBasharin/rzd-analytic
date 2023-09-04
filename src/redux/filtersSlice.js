@@ -3,9 +3,19 @@ import { getAnalyze } from "../data-preprocessors/combiner";
 import { getArrDurationsPerDay } from "../data-preprocessors/getStackedArr";
 // import { testArr } from "../test/test";
 import testArr from "../data-preprocessors/dummyArr";
+import { getCustomCalendar } from "../data-preprocessors/getCustomCalendar";
 
 let date = new Date();
 let arrSource = testArr;
+let initialStartDate = new Date(date.getFullYear(), 0, 1);
+let initialEndDate = new Date(
+  new Date(date.getFullYear(), date.getMonth(), 1) - 1
+);
+let initialCustomCalendar = getCustomCalendar(
+  5,
+  initialStartDate,
+  initialEndDate
+);
 
 const filtersSlice = createSlice({
   name: "filters",
@@ -16,6 +26,9 @@ const filtersSlice = createSlice({
     minValue: 1,
     currentYear: date.getFullYear(),
     pastYear: date.getFullYear() - 1,
+    dateStart: initialStartDate,
+    // dateEnd: new Date(`${date.getFullYear()}-${date.getMonth()}-00T23:59:59`),
+    dateEnd: initialEndDate,
     regexpPattern: "01",
     analyzeState: getAnalyze(
       arrSource,
@@ -23,7 +36,14 @@ const filtersSlice = createSlice({
       date.getFullYear(),
       "01"
     ),
-    originSrcState: getArrDurationsPerDay(arrSource),
+    customCalendar: initialCustomCalendar,
+    originSrcState: getArrDurationsPerDay(
+      arrSource,
+      new Date(date.getFullYear() - 1, 0, 1),
+      initialEndDate,
+      initialCustomCalendar
+    ),
+    daysInGroup: 5,
   },
 
   reducers: {
@@ -95,7 +115,49 @@ const filtersSlice = createSlice({
         state.currentYear,
         state.regexpPattern
       );
-      state.originSrcState = getArrDurationsPerDay(state.sourceState);
+      // console.log("state.dateStart", state.dateStart);
+      state.originSrcState = getArrDurationsPerDay(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd
+      );
+    },
+
+    setDateStart(state, action) {
+      if (action.payload) state.dateStart = action.payload;
+      // console.log("setDateStart action.payload", action.payload);
+      state.originSrcState = getArrDurationsPerDay(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd
+      );
+    },
+
+    setDateEnd(state, action) {
+      state.dateEnd = action.payload;
+      // console.log(action.payload);
+      state.originSrcState = getArrDurationsPerDay(
+        state.sourceState,
+        state.dateStart,
+        action.payload
+      );
+    },
+
+    setCustomCalendar(state) {
+      state.customCalendar = getCustomCalendar(
+        state.daysInGroup,
+        state.dateStart,
+        state.dateEnd
+      );
+    },
+
+    setDaysInGroup(state, action) {
+      state.daysInGroup = action.payload;
+      state.customCalendar = getCustomCalendar(
+        state.daysInGroup,
+        state.dateStart,
+        state.dateEnd
+      );
     },
   },
 });
@@ -111,4 +173,8 @@ export const {
   setCurrentYear,
   setSourceState,
   originSrcState,
+  setDateStart,
+  setDateEnd,
+  setDaysInGroup,
+  setCustomCalendar,
 } = filtersSlice.actions;

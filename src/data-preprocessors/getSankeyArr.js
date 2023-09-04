@@ -9,16 +9,7 @@ import {
   guiltyUnit,
 } from "../config/config";
 
-export const getArrDurationsPerDay = (
-  srcArray,
-  dateStart,
-  dateEnd,
-  customCalendar
-) => {
-  console.log("SRCcustomCalendar", customCalendar);
-  console.log("dateStart", dateStart);
-  console.log("dateEnd", dateEnd);
-
+export const getArrDurationsPerDay = (srcArray, startDate, endDate) => {
   const calcTotalDuration = (obj) => {
     let freightDur,
       passDur,
@@ -32,6 +23,17 @@ export const getArrDurationsPerDay = (
     obj[otherDuration] ? (otherDur = obj[otherDuration]) : (otherDur = 0);
     let total = freightDur + passDur + subDur + otherDur;
     return total;
+  };
+
+  const makeCustomCalendar = (step) => {
+    var result = [];
+    // var startDate = new Date(2022, 0, 1);
+    // var endDate = new Date(2023, 6, 31);
+    while (startDate <= endDate) {
+      result.push(Date.parse(startDate));
+      startDate.setDate(startDate.getDate() + step);
+    }
+    return result;
   };
 
   const setHHMMSStoZero = (date) => {
@@ -62,6 +64,7 @@ export const getArrDurationsPerDay = (
     units.add(obj.guiltyUnit);
     dates.add(obj.violationDate);
   }
+  // console.log("dates", dates);
   // Initialize result array with objects having 0 values for each unit
   for (let date of dates) {
     let obj = { date };
@@ -80,9 +83,10 @@ export const getArrDurationsPerDay = (
     targetObj[unit] += total;
   }
 
-  // console.log("result0", result);
   result.sort((a, b) => a.date - b.date);
-  // console.log("result1", result);
+
+  let customCalendar = makeCustomCalendar(20);
+  // console.log("cal", makeCustomCalendar(3));
 
   let unitedDatesResult = [];
   for (let i = 0; i < customCalendar.length - 1; i++) {
@@ -115,6 +119,6 @@ export const getArrDurationsPerDay = (
 
   let yMax = d3.max(yMaxArr);
 
-  console.log("untidyList", unitedDatesResult, yMax);
+  // console.log("untidyList", unitedDatesResult, yMax);
   return { unitedDatesResult: unitedDatesResult, yMax: yMax };
 };

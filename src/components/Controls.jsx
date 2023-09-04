@@ -13,6 +13,7 @@ import {
 } from "../redux/filtersSlice";
 import { getViolationsArray } from "./requests";
 import axios from "axios";
+import DateRangePicker from "./DatePicker";
 
 let date = new Date();
 const getPastMonth = () => {
@@ -234,6 +235,7 @@ export default function SelectAutoWidth() {
           <MenuItem value={"10-12"}>IV квартал</MenuItem>
         </Select>
       </FormControl>
+      <DateRangePicker />
     </div>
   );
 }
