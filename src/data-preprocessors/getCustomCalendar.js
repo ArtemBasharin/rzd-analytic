@@ -1,15 +1,15 @@
 export const getCustomCalendar = (step, dateStart, dateEnd) => {
   let result = [];
-  if (dateStart < dateEnd) {
-    while (dateStart <= dateEnd) {
-      // console.log("dateStart", dateStart);
-      // console.log("dateEnd", dateEnd);
-      let val = dateStart.setDate(dateStart.getDate() + step);
-      console.log("dateStart + step", val);
+  let start = new Date(...[dateStart]);
+  let end = new Date(...[dateEnd]);
+  if (start < end) {
+    while (start <= end) {
+      // console.log("календарь", start, dateStart);
+      let val = start.setDate(start.getDate() + step);
       result.push(val);
     }
-    if (dateStart > dateEnd) result.slice(-1);
   }
+  // if (start > end) result.slice(-1);
   console.log("resultCal", result);
   return result;
 };

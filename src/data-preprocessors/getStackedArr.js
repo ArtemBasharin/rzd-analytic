@@ -9,15 +9,10 @@ import {
   guiltyUnit,
 } from "../config/config";
 
-export const getArrDurationsPerDay = (
-  srcArray,
-  dateStart,
-  dateEnd,
-  customCalendar
-) => {
-  console.log("SRCcustomCalendar", customCalendar);
-  console.log("dateStart", dateStart);
+export const getStackedArr = (srcArray, dateStart, dateEnd, customCalendar) => {
+  console.log("customCalendar", customCalendar);
   console.log("dateEnd", dateEnd);
+  console.log("dateStart", dateStart);
 
   const calcTotalDuration = (obj) => {
     let freightDur,
@@ -115,6 +110,10 @@ export const getArrDurationsPerDay = (
 
   let yMax = d3.max(yMaxArr);
 
-  console.log("untidyList", unitedDatesResult, yMax);
-  return { unitedDatesResult: unitedDatesResult, yMax: yMax };
+  let deletedEmptyDatesArr = unitedDatesResult.filter(
+    (el) => Object.keys(el).length !== 1
+  );
+
+  console.log("untidyList", deletedEmptyDatesArr, yMax);
+  return { unitedDatesResult: deletedEmptyDatesArr, yMax: yMax };
 };

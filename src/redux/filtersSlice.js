@@ -1,6 +1,6 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, current } from "@reduxjs/toolkit";
 import { getAnalyze } from "../data-preprocessors/combiner";
-import { getArrDurationsPerDay } from "../data-preprocessors/getStackedArr";
+import { getStackedArr } from "../data-preprocessors/getStackedArr";
 // import { testArr } from "../test/test";
 import testArr from "../data-preprocessors/dummyArr";
 import { getCustomCalendar } from "../data-preprocessors/getCustomCalendar";
@@ -29,6 +29,7 @@ const filtersSlice = createSlice({
     dateStart: initialStartDate,
     // dateEnd: new Date(`${date.getFullYear()}-${date.getMonth()}-00T23:59:59`),
     dateEnd: initialEndDate,
+    customCalendar: initialCustomCalendar,
     regexpPattern: "01",
     analyzeState: getAnalyze(
       arrSource,
@@ -36,8 +37,7 @@ const filtersSlice = createSlice({
       date.getFullYear(),
       "01"
     ),
-    customCalendar: initialCustomCalendar,
-    originSrcState: getArrDurationsPerDay(
+    originSrcState: getStackedArr(
       arrSource,
       new Date(date.getFullYear() - 1, 0, 1),
       initialEndDate,
@@ -109,41 +109,49 @@ const filtersSlice = createSlice({
 
     setSourceState(state, action) {
       state.sourceState = action.payload;
+      console.log("setSourceState", state.sourceState);
       state.analyzeState = getAnalyze(
         state.sourceState,
         state.pastYear,
         state.currentYear,
         state.regexpPattern
       );
-      // console.log("state.dateStart", state.dateStart);
-      state.originSrcState = getArrDurationsPerDay(
+      console.log("customCalendar", state.customCalendar);
+      state.originSrcState = getStackedArr(
         state.sourceState,
         state.dateStart,
-        state.dateEnd
+        state.dateEnd,
+        current(state.customCalendar)
       );
     },
 
     setDateStart(state, action) {
       if (action.payload) state.dateStart = action.payload;
-      // console.log("setDateStart action.payload", action.payload);
-      state.originSrcState = getArrDurationsPerDay(
+      console.log("setDateStart", state.customCalendar);
+      state.originSrcState = getStackedArr(
         state.sourceState,
         state.dateStart,
-        state.dateEnd
+        state.dateEnd,
+        state.customCalendar
       );
     },
 
     setDateEnd(state, action) {
-      state.dateEnd = action.payload;
-      // console.log(action.payload);
-      state.originSrcState = getArrDurationsPerDay(
+      if (action.payload) state.dateEnd = action.payload;
+      console.log("setDateEnd", state.customCalendar);
+      state.originSrcState = getStackedArr(
         state.sourceState,
         state.dateStart,
-        action.payload
+        action.payload,
+        state.customCalendar
       );
     },
 
     setCustomCalendar(state) {
+      console.log("setCustomCalendar", state.customCalendar);
+      console.log("setCustomCalendar state.daysInGroup", state.daysInGroup);
+      console.log("setCustomCalendar state.dateStart", state.dateStart);
+      console.log("setCustomCalendar state.dateEnd", state.dateEnd);
       state.customCalendar = getCustomCalendar(
         state.daysInGroup,
         state.dateStart,
@@ -158,6 +166,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd
       );
+      console.log("setDaysInGroup", state.customCalendar);
     },
   },
 });

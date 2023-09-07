@@ -19,7 +19,7 @@ import {
 // import dummyArr from "./dummyArr"
 
 export function getAnalyze(sourceArr, pastYear, currentYear, pattern) {
-  console.time("getAnalyze");
+  // console.time("getAnalyze");
   // console.log("dummyArr" ,dummyArr)
   const setUndefinedFactsToZero = (arr) => {
     // eslint-disable-next-line
@@ -51,7 +51,7 @@ export function getAnalyze(sourceArr, pastYear, currentYear, pattern) {
 
   let filteredArr = setUndefinedFactsToZero(filterByMonth(sourceArr, pattern));
 
-  console.timeEnd("getAnalyze");
+  // console.timeEnd("getAnalyze");
   return {
     failsArray: getArrFails(filteredArr, currentYear - 1, currentYear).arr,
     failsYmax: getArrFails(filteredArr, currentYear - 1, currentYear).y,

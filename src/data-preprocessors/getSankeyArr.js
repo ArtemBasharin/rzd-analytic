@@ -9,7 +9,7 @@ import {
   guiltyUnit,
 } from "../config/config";
 
-export const getArrDurationsPerDay = (srcArray, startDate, endDate) => {
+export const getStackedArr = (srcArray, startDate, endDate) => {
   const calcTotalDuration = (obj) => {
     let freightDur,
       passDur,

@@ -190,12 +190,12 @@ function Main() {
           />
         </SwiperSlide>
 
-        <SwiperSlide>
+        {/* <SwiperSlide>
           <h2 className="section-title">
             Аналитика причастности подразделений к причинам нарушений
           </h2>
           <SankeyDiagram />
-        </SwiperSlide>
+        </SwiperSlide> */}
       </Swiper>
     </div>
   );

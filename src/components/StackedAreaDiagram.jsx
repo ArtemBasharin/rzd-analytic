@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import * as d3 from "d3";
 import { similarColors } from "../config/config";
 // import { interpolateRainbow } from "d3-scale-chromatic";
-import chroma from "chroma-js";
+// import chroma from "chroma-js";
 
 const StackedAreaDiagram = (props) => {
   const svgRef5 = useRef();
@@ -29,8 +29,9 @@ const StackedAreaDiagram = (props) => {
     // d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/5_OneCatSevNumOrdered_wide.csv").then( function(data) {
 
     // List of groups = header of the csv files
-    console.log("resData[0]", resData);
+    console.log("resData", resData);
     const keys = Object.keys(resData[0]).slice(1);
+    console.log("keys", keys);
 
     // Add X axis
     const x = d3

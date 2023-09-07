@@ -44,6 +44,7 @@ export default function SelectAutoWidth() {
     axios
       .get("/violations", { params })
       .then(function (res) {
+        console.log("controls", res.data);
         dispatch(setSourceState(res.data));
       })
       .catch(function (error) {

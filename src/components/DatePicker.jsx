@@ -23,6 +23,7 @@ const DateRangePicker = () => {
   const dateEnd = useSelector((state) => state.filters.dateEnd);
   const daysInGroup = useSelector((state) => state.filters.daysInGroup);
   const dispatch = useDispatch();
+  console.log("DateRangePicker");
 
   // const [dateStart, setDateStart] = useState(null);
   // const [dateEnd, setDateEnd] = useState(null);
@@ -38,11 +39,11 @@ const DateRangePicker = () => {
 
   const handleSubmit = () => {
     const dateRange = { start: dateStart, end: dateEnd };
-
+    dispatch(setCustomCalendar());
     console.log("dateRange", dateRange);
   };
 
-  console.log(dateStart, dateEnd);
+  console.log("datepicker", dateStart, dateEnd);
 
   return (
     <div className="datePicker-container">
@@ -75,7 +76,7 @@ const DateRangePicker = () => {
           dateFormat="dd/MM/yy"
         />
       </div>
-      <FormControl sx={{ m: 1, width: "10ch" }} variant="outlined">
+      <FormControl sx={{ m: 1, width: "15ch" }} variant="outlined">
         <OutlinedInput
           id="outlined-adornment-weight"
           value={daysInGroup}
@@ -85,9 +86,6 @@ const DateRangePicker = () => {
             "aria-label": "weight",
           }}
         />
-        <FormHelperText id="outlined-weight-helper-text">
-          Группировать по
-        </FormHelperText>
       </FormControl>
       <Button onClick={handleSubmit} color="inherit">
         Ok
