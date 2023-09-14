@@ -23,6 +23,7 @@ const BarChart2Bars = (props) => {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     let x = d3.map(resData, (d) => d.label);
+    // console.log("x", x);
 
     // X axis: scale and draw
     let X = d3
@@ -48,22 +49,7 @@ const BarChart2Bars = (props) => {
     const color = d3
       .scaleOrdinal()
       .domain(x)
-      .range([
-        "rgb(175,180,116)",
-        "rgb(5,111,173)",
-        "rgb(175,180,116)",
-        "rgb(5,111,173)",
-
-        "#fdb462",
-        "#b3de69",
-        "#fccde5",
-        "#d9d9d9",
-        "#bc80bd",
-
-        "#ccebc5",
-        "rgb(175,180,116)",
-        "rgb(5,111,173)",
-      ]);
+      .range(["rgb(175,180,116)", "rgb(5,111,173)"]);
 
     //draw bars
     bars
@@ -78,7 +64,7 @@ const BarChart2Bars = (props) => {
       .attr("height", function (d) {
         return height - y(d.value);
       })
-      .attr("fill", (d) => color(d))
+      .attr("fill", (d) => color(d.label))
       .attr("filter", "drop-shadow(1px -1px 3px rgb(0 0 0 / 0.2))");
 
     //draw labels

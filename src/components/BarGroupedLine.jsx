@@ -158,7 +158,7 @@ const BarGroupedLine = (props) => {
       .text((d) => height - y(d.value))
       .attr("font-family", "roboto")
       .attr("font-size", "10px")
-      .attr("font-weight", "700")
+      .attr("font-weight", "900")
       .attr("fill", "#000")
       .attr("text-anchor", "middle")
       .attr("fill", "#000")
