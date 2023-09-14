@@ -32,7 +32,7 @@ export default function SelectAutoWidth() {
   const pastYear = useSelector((state) => state.filters.pastYear);
   const currentYear = useSelector((state) => state.filters.currentYear);
   const sourceState = useSelector((state) => state.filters.sourceState);
-  // const originSrcState = useSelector((state) => state.filters.originSrcState);
+  // const stackedArrState = useSelector((state) => state.filters.stackedArrState);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -44,7 +44,7 @@ export default function SelectAutoWidth() {
     axios
       .get("/violations", { params })
       .then(function (res) {
-        console.log("controls", res.data);
+        // console.log("controls", res.data);
         dispatch(setSourceState(res.data));
       })
       .catch(function (error) {

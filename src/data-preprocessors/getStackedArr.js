@@ -10,9 +10,9 @@ import {
 } from "../config/config";
 
 export const getStackedArr = (srcArray, dateStart, dateEnd, customCalendar) => {
-  console.log("customCalendar", customCalendar);
-  console.log("dateEnd", dateEnd);
-  console.log("dateStart", dateStart);
+  // console.log("customCalendar", customCalendar);
+  // console.log("dateEnd", dateEnd);
+  // console.log("dateStart", dateStart);
 
   const calcTotalDuration = (obj) => {
     let freightDur,
@@ -114,6 +114,6 @@ export const getStackedArr = (srcArray, dateStart, dateEnd, customCalendar) => {
     (el) => Object.keys(el).length !== 1
   );
 
-  console.log("untidyList", deletedEmptyDatesArr, yMax);
+  // console.log("untidyList", deletedEmptyDatesArr, yMax);
   return { unitedDatesResult: deletedEmptyDatesArr, yMax: yMax };
 };

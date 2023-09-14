@@ -18,8 +18,9 @@ function Main() {
 
   let maxYear = useSelector((state) => state.filters.currentYear);
   let srcArr = useSelector((state) => state.filters.analyzeState);
-  let originArr = useSelector((state) => state.filters.originSrcState);
+  let originArr = useSelector((state) => state.filters.stackedArrState);
   let minValue = useSelector((state) => state.filters.minValue);
+  let sankeyArr = useSelector((state) => state.filters.sankeyArrState);
   let areaWidth = window.innerWidth;
   //section of charts with fails counting
   let chartFailsWidth = 1920 / 7 - 20;
@@ -189,13 +190,12 @@ function Main() {
             yMax={originArr.yMax}
           />
         </SwiperSlide>
-
-        {/* <SwiperSlide>
+        <SwiperSlide>
           <h2 className="section-title">
             Аналитика причастности подразделений к причинам нарушений
           </h2>
-          <SankeyDiagram />
-        </SwiperSlide> */}
+          <SankeyDiagram src={sankeyArr} />
+        </SwiperSlide>
       </Swiper>
     </div>
   );

@@ -10,6 +10,6 @@ export const getCustomCalendar = (step, dateStart, dateEnd) => {
     }
   }
   // if (start > end) result.slice(-1);
-  console.log("resultCal", result);
+  // console.log("resultCal", result);
   return result;
 };

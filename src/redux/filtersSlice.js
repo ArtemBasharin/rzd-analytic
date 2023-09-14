@@ -4,10 +4,11 @@ import { getStackedArr } from "../data-preprocessors/getStackedArr";
 // import { testArr } from "../test/test";
 import testArr from "../data-preprocessors/dummyArr";
 import { getCustomCalendar } from "../data-preprocessors/getCustomCalendar";
+import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
 
 let date = new Date();
 let arrSource = testArr;
-let initialStartDate = new Date(date.getFullYear(), 0, 1);
+let initialStartDate = new Date(date.getFullYear() - 1, 0, 1);
 let initialEndDate = new Date(
   new Date(date.getFullYear(), date.getMonth(), 1) - 1
 );
@@ -20,10 +21,11 @@ let initialCustomCalendar = getCustomCalendar(
 const filtersSlice = createSlice({
   name: "filters",
   initialState: {
-    pageWidth: 1600,
-    pageHeight: window.height,
+    pageWidth: window.innerWidth,
+    pageHeight: window.innerHeight,
     sourceState: [],
     minValue: 1,
+    daysInGroup: 5,
     currentYear: date.getFullYear(),
     pastYear: date.getFullYear() - 1,
     dateStart: initialStartDate,
@@ -37,13 +39,13 @@ const filtersSlice = createSlice({
       date.getFullYear(),
       "01"
     ),
-    originSrcState: getStackedArr(
+    stackedArrState: getStackedArr(
       arrSource,
       new Date(date.getFullYear() - 1, 0, 1),
       initialEndDate,
       initialCustomCalendar
     ),
-    daysInGroup: 5,
+    sankeyArrState: getSankeyArr(arrSource, initialStartDate, initialEndDate),
   },
 
   reducers: {
@@ -109,26 +111,32 @@ const filtersSlice = createSlice({
 
     setSourceState(state, action) {
       state.sourceState = action.payload;
-      console.log("setSourceState", state.sourceState);
+      // console.log("setSourceState", state.sourceState);
       state.analyzeState = getAnalyze(
         state.sourceState,
         state.pastYear,
         state.currentYear,
         state.regexpPattern
       );
-      console.log("customCalendar", state.customCalendar);
-      state.originSrcState = getStackedArr(
+      // console.log("customCalendar", state.customCalendar);
+      state.stackedArrState = getStackedArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
         current(state.customCalendar)
       );
+      state.sankeyArrState = getSankeyArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd
+      );
+      console.log("current(state.sankeyArrState)", state.sankeyArrState);
     },
 
     setDateStart(state, action) {
       if (action.payload) state.dateStart = action.payload;
-      console.log("setDateStart", state.customCalendar);
-      state.originSrcState = getStackedArr(
+      // console.log("setDateStart", state.customCalendar);
+      state.stackedArrState = getStackedArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
@@ -138,8 +146,8 @@ const filtersSlice = createSlice({
 
     setDateEnd(state, action) {
       if (action.payload) state.dateEnd = action.payload;
-      console.log("setDateEnd", state.customCalendar);
-      state.originSrcState = getStackedArr(
+      // console.log("setDateEnd", state.customCalendar);
+      state.stackedArrState = getStackedArr(
         state.sourceState,
         state.dateStart,
         action.payload,
@@ -148,10 +156,10 @@ const filtersSlice = createSlice({
     },
 
     setCustomCalendar(state) {
-      console.log("setCustomCalendar", state.customCalendar);
-      console.log("setCustomCalendar state.daysInGroup", state.daysInGroup);
-      console.log("setCustomCalendar state.dateStart", state.dateStart);
-      console.log("setCustomCalendar state.dateEnd", state.dateEnd);
+      // console.log("setCustomCalendar", state.customCalendar);
+      // console.log("setCustomCalendar state.daysInGroup", state.daysInGroup);
+      // console.log("setCustomCalendar state.dateStart", state.dateStart);
+      // console.log("setCustomCalendar state.dateEnd", state.dateEnd);
       state.customCalendar = getCustomCalendar(
         state.daysInGroup,
         state.dateStart,
@@ -166,7 +174,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd
       );
-      console.log("setDaysInGroup", state.customCalendar);
+      // console.log("setDaysInGroup", state.customCalendar);
     },
   },
 });
@@ -181,7 +189,7 @@ export const {
   setPastYear,
   setCurrentYear,
   setSourceState,
-  originSrcState,
+  stackedArrState,
   setDateStart,
   setDateEnd,
   setDaysInGroup,

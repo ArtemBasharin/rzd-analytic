@@ -7,7 +7,7 @@ import { similarColors } from "../config/config";
 const StackedAreaDiagram = (props) => {
   const svgRef5 = useRef();
   useEffect(() => {
-    console.log("StackedAreaDiagram load", props.src.length);
+    // console.log("StackedAreaDiagram load", props.src.length);
 
     let resData = props.src;
 
@@ -19,7 +19,7 @@ const StackedAreaDiagram = (props) => {
     // append the svg object to the body of the page
     const svg = d3
       .select("#id21")
-      .append("svg")
+      // .append("svg")
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .append("g")
@@ -29,9 +29,9 @@ const StackedAreaDiagram = (props) => {
     // d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/5_OneCatSevNumOrdered_wide.csv").then( function(data) {
 
     // List of groups = header of the csv files
-    console.log("resData", resData);
+    // console.log("resData", resData);
     const keys = Object.keys(resData[0]).slice(1);
-    console.log("keys", keys);
+    // console.log("keys", keys);
 
     // Add X axis
     const x = d3
