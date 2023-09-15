@@ -180,7 +180,7 @@ const BarGroupedLine = (props) => {
       .append("path")
       .datum(resData)
       .attr("fill", "none")
-      .attr("stroke", "rgba(128,0,0,0.5")
+      .attr("stroke", "rgba(128,0,0,0.5)")
       .attr("stroke-dasharray", "15 8")
       .attr("stroke-width", 2)
       .attr(
@@ -195,6 +195,7 @@ const BarGroupedLine = (props) => {
           .y(function (d) {
             return yP(d.valueP);
           })
+          .curve(d3.curveBasis)
       );
 
     // draw pareto line labels
