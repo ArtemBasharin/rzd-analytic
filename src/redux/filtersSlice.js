@@ -8,7 +8,7 @@ import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
 
 let date = new Date();
 let arrSource = testArr;
-let initialStartDate = new Date(date.getFullYear() - 1, 0, 1);
+let initialStartDate = new Date(date.getFullYear(), 7, 1);
 let initialEndDate = new Date(
   new Date(date.getFullYear(), date.getMonth(), 1) - 1
 );
@@ -136,23 +136,23 @@ const filtersSlice = createSlice({
     setDateStart(state, action) {
       if (action.payload) state.dateStart = action.payload;
       // console.log("setDateStart", state.customCalendar);
-      state.stackedArrState = getStackedArr(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd,
-        state.customCalendar
-      );
+      // state.stackedArrState = getStackedArr(
+      //   state.sourceState,
+      //   state.dateStart,
+      //   state.dateEnd,
+      //   state.customCalendar
+      // );
     },
 
     setDateEnd(state, action) {
       if (action.payload) state.dateEnd = action.payload;
       // console.log("setDateEnd", state.customCalendar);
-      state.stackedArrState = getStackedArr(
-        state.sourceState,
-        state.dateStart,
-        action.payload,
-        state.customCalendar
-      );
+      // state.stackedArrState = getStackedArr(
+      //   state.sourceState,
+      //   state.dateStart,
+      //   action.payload,
+      //   state.customCalendar
+      // );
     },
 
     setCustomCalendar(state) {
@@ -176,6 +176,15 @@ const filtersSlice = createSlice({
       );
       // console.log("setDaysInGroup", state.customCalendar);
     },
+
+    setSankeyArrState(state) {
+      console.log("setSankeyArrState", state.sourceState);
+      state.sankeyArrState = getSankeyArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd
+      );
+    },
   },
 });
 
@@ -194,4 +203,5 @@ export const {
   setDateEnd,
   setDaysInGroup,
   setCustomCalendar,
+  setSankeyArrState,
 } = filtersSlice.actions;

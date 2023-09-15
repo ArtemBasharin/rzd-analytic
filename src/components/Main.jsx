@@ -20,7 +20,6 @@ function Main() {
   let srcArr = useSelector((state) => state.filters.analyzeState);
   let originArr = useSelector((state) => state.filters.stackedArrState);
   let minValue = useSelector((state) => state.filters.minValue);
-  let sankeyArr = useSelector((state) => state.filters.sankeyArrState);
   let areaWidth = window.innerWidth;
   //section of charts with fails counting
   let chartFailsWidth = 1920 / 7 - 20;
@@ -194,7 +193,7 @@ function Main() {
           <h2 className="section-title">
             Аналитика причастности подразделений к причинам нарушений
           </h2>
-          <SankeyDiagram src={sankeyArr} />
+          <SankeyDiagram />
         </SwiperSlide>
       </Swiper>
     </div>

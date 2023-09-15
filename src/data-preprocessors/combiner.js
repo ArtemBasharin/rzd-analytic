@@ -50,7 +50,6 @@ export function getAnalyze(sourceArr, pastYear, currentYear, pattern) {
   };
 
   let filteredArr = setUndefinedFactsToZero(filterByMonth(sourceArr, pattern));
-  console.log("filteredArr", filteredArr);
   // console.timeEnd("getAnalyze");
   return {
     failsArray: getArrFails(filteredArr, currentYear - 1, currentYear).arr,

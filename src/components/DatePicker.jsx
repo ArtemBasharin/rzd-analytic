@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "../styles/datePicker-container.css";
 import {
   Button,
   FormControl,
-  FormHelperText,
+  // FormHelperText,
   InputAdornment,
   OutlinedInput,
 } from "@mui/material";
@@ -15,6 +15,7 @@ import {
   setDateStart,
   setDateEnd,
   setCustomCalendar,
+  setSankeyArrState,
 } from "../redux/filtersSlice";
 // import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
 
@@ -40,6 +41,7 @@ const DateRangePicker = () => {
   const handleSubmit = () => {
     const dateRange = { start: dateStart, end: dateEnd };
     dispatch(setCustomCalendar());
+    dispatch(setSankeyArrState());
     console.log("dateRange", dateRange);
   };
 
