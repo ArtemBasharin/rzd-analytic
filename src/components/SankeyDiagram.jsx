@@ -30,7 +30,7 @@ const SankeyDiagram = () => {
 
     svg.append("g");
 
-    const color = d3.scaleOrdinal(d3.schemeCategory10);
+    const color = d3.scaleOrdinal(d3.schemeSet2);
 
     const sankeyGenerator = sankey()
       .nodeSort(null)
@@ -39,7 +39,7 @@ const SankeyDiagram = () => {
       .nodePadding(10)
       .extent([
         [0, 5],
-        [width, height - 5],
+        [width, height - 10],
       ]);
 
     const { nodes, links } = sankeyGenerator({
@@ -74,7 +74,9 @@ const SankeyDiagram = () => {
 
     svg
       .append("g")
-      .style("font", "10px sans-serif")
+      .attr("font-family", "roboto")
+      .attr("font-size", "10")
+      .attr("font-weight", "900")
       .selectAll("text")
       .data(nodes)
       .join("text")
@@ -82,6 +84,11 @@ const SankeyDiagram = () => {
       .attr("y", (d) => (d.y1 + d.y0) / 2)
       .attr("dy", "0.35em")
       .attr("text-anchor", (d) => (d.x0 < width / 2 ? "start" : "end"))
+      // .style("fill", "white")
+      // .style(
+      //   "text-shadow",
+      //   "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000"
+      // )
       .text((d) => d.name)
       .append("tspan")
       .attr("fill-opacity", 0.7)
