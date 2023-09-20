@@ -92,7 +92,6 @@ const StackedAreaDiagram = (props) => {
 
     //stack the data?
     const stackedData = d3.stack().keys(keys)(resData);
-    //console.log("This is the stack result: ", stackedData)
 
     // Show the areas
     svg
@@ -122,6 +121,7 @@ const StackedAreaDiagram = (props) => {
           .y1(function (d) {
             return y(d[1]);
           })
+          .curve(d3.curveBumpX)
       );
 
     // Add one circle in the legend for each name.

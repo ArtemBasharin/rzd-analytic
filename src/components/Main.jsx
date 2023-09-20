@@ -5,12 +5,13 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/scrollbar";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import * as d3 from "d3";
 import BarChart2Bars from "./BarChart2Bars";
 import BarGroupedLine from "./BarGroupedLine";
 import StackedAreaDiagram from "./StackedAreaDiagram";
 import SankeyDiagram from "./SankeyDiagram";
+import { setToolPalette } from "../redux/filtersSlice";
 
 function Main() {
   //clear old svg
@@ -20,7 +21,11 @@ function Main() {
   let srcArr = useSelector((state) => state.filters.analyzeState);
   let originArr = useSelector((state) => state.filters.stackedArrState);
   let minValue = useSelector((state) => state.filters.minValue);
+
+  const dispatch = useDispatch();
+
   let areaWidth = window.innerWidth;
+
   //section of charts with fails counting
   let chartFailsWidth = 1920 / 7 - 20;
   if (areaWidth < 1920) chartFailsWidth = areaWidth / 7 - 30;
@@ -110,8 +115,19 @@ function Main() {
         // scrollbar={{ draggable: true }}
         // spaceBetween={50}
         slidesPerView={1}
-        // onSlideChange={() => console.log("slide change")}
-        // onSwiper={(swiper) => console.log(swiper)}
+        onSlideChange={(swiper) => {
+          console.log("slide change", swiper.activeIndex);
+          let activeSlideIndex = swiper.activeIndex;
+          // setActiveSlideIndex(swiper.activeIndex);
+          if (activeSlideIndex === 0) dispatch(setToolPalette("analyze"));
+          if (activeSlideIndex >= 1 && activeSlideIndex <= 3)
+            dispatch(setToolPalette("groupedChart"));
+          if (activeSlideIndex === 4) dispatch(setToolPalette("stacked"));
+          if (activeSlideIndex === 5) dispatch(setToolPalette("sankey"));
+        }}
+        onSwiper={(swiper) => {
+          console.log(swiper);
+        }}
       >
         <SwiperSlide>
           <h2 className="section-title">
@@ -131,6 +147,7 @@ function Main() {
             </div>
           </div>
         </SwiperSlide>
+
         <SwiperSlide>
           <h2 className="section-title">
             Сравнительный анализ количества допущенных технологических нарушений
@@ -147,6 +164,7 @@ function Main() {
             minValue={minValue}
           />
         </SwiperSlide>
+
         <SwiperSlide>
           <h2 className="section-title">
             Сравнительный анализ задержек поездов от технологических нарушений
@@ -163,6 +181,7 @@ function Main() {
             minValue={minValue}
           />
         </SwiperSlide>
+
         <SwiperSlide>
           <h2 className="section-title">
             Сравнительный анализ по причинам допущенных технологических
@@ -189,6 +208,7 @@ function Main() {
             yMax={originArr.yMax}
           />
         </SwiperSlide>
+
         <SwiperSlide>
           <h2 className="section-title">
             Аналитика причастности подразделений к причинам нарушений

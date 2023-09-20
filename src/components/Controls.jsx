@@ -11,7 +11,7 @@ import {
   setCurrentYear,
   setSourceState,
 } from "../redux/filtersSlice";
-import { getViolationsArray } from "./requests";
+// import { getViolationsArray } from "./requests";
 import axios from "axios";
 import DateRangePicker from "./DatePicker";
 

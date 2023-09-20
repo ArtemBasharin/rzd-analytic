@@ -46,6 +46,7 @@ const filtersSlice = createSlice({
       initialCustomCalendar
     ),
     sankeyArrState: getSankeyArr(arrSource, initialStartDate, initialEndDate),
+    toolPalette: "analyze",
   },
 
   reducers: {
@@ -185,6 +186,10 @@ const filtersSlice = createSlice({
         state.dateEnd
       );
     },
+    setToolPalette(state, action) {
+      state.toolPalette = action.payload;
+      console.log("state.toolPalette", state.toolPalette);
+    },
   },
 });
 
@@ -204,4 +209,5 @@ export const {
   setDaysInGroup,
   setCustomCalendar,
   setSankeyArrState,
+  setToolPalette,
 } = filtersSlice.actions;
