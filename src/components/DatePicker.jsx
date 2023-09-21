@@ -23,6 +23,7 @@ const DateRangePicker = () => {
   const dateStart = useSelector((state) => state.filters.dateStart);
   const dateEnd = useSelector((state) => state.filters.dateEnd);
   const daysInGroup = useSelector((state) => state.filters.daysInGroup);
+  const toolPalette = useSelector((state) => state.filters.toolPalette);
   const dispatch = useDispatch();
   console.log("DateRangePicker");
 
@@ -78,7 +79,14 @@ const DateRangePicker = () => {
           dateFormat="dd/MM/yy"
         />
       </div>
-      <FormControl sx={{ m: 1, width: "15ch" }} variant="outlined">
+      <FormControl
+        sx={{
+          m: 1,
+          width: "15ch",
+          display: `${toolPalette.daysInGroupVisibility}`,
+        }}
+        variant="outlined"
+      >
         <OutlinedInput
           id="outlined-adornment-weight"
           value={daysInGroup}

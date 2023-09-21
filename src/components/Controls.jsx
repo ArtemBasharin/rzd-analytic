@@ -27,12 +27,13 @@ const getPastMonth = () => {
 let period = getPastMonth();
 
 export default function SelectAutoWidth() {
-  const pattern = useSelector((state) => state.filters.regexpPattern);
+  // const pattern = useSelector((state) => state.filters.regexpPattern);
   const minValue = useSelector((state) => state.filters.minValue);
   const pastYear = useSelector((state) => state.filters.pastYear);
   const currentYear = useSelector((state) => state.filters.currentYear);
-  const sourceState = useSelector((state) => state.filters.sourceState);
+  // const sourceState = useSelector((state) => state.filters.sourceState);
   // const stackedArrState = useSelector((state) => state.filters.stackedArrState);
+  const toolPalette = useSelector((state) => state.filters.toolPalette);
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -69,11 +70,17 @@ export default function SelectAutoWidth() {
   const handleChangeToYear = (event) => {
     dispatch(setCurrentYear(event.target.value));
   };
-
+  console.log("controls", toolPalette);
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <FormControl
-        sx={{ m: 2, minWidth: 100, color: "#fff", borderColor: "#fff" }}
+        sx={{
+          m: 2,
+          minWidth: 100,
+          color: "#fff",
+          borderColor: "#fff",
+          display: `${toolPalette.yearVisibility}`,
+        }}
       >
         <InputLabel
           id="select-fromyear-label"
@@ -110,7 +117,13 @@ export default function SelectAutoWidth() {
       </FormControl>
 
       <FormControl
-        sx={{ m: 2, minWidth: 100, color: "#fff", borderColor: "#fff" }}
+        sx={{
+          m: 2,
+          minWidth: 100,
+          color: "#fff",
+          borderColor: "#fff",
+          display: `${toolPalette.yearVisibility}`,
+        }}
       >
         <InputLabel
           id="select-toyear-label"
@@ -148,7 +161,13 @@ export default function SelectAutoWidth() {
       </FormControl>
 
       <FormControl
-        sx={{ m: 2, minWidth: 100, color: "#fff", borderColor: "#fff" }}
+        sx={{
+          m: 2,
+          minWidth: 100,
+          color: "#fff",
+          borderColor: "#fff",
+          display: `${toolPalette.minValueVisibility}`,
+        }}
       >
         <InputLabel
           id="select-minvalue-label"
@@ -185,7 +204,13 @@ export default function SelectAutoWidth() {
         </Select>
       </FormControl>
       <FormControl
-        sx={{ m: 2, minWidth: 100, color: "#fff", borderColor: "#fff" }}
+        sx={{
+          m: 2,
+          minWidth: 100,
+          color: "#fff",
+          borderColor: "#fff",
+          display: `${toolPalette.periodVisibility}`,
+        }}
       >
         <InputLabel
           id="select-period-label"
@@ -236,7 +261,7 @@ export default function SelectAutoWidth() {
           <MenuItem value={"10-12"}>IV квартал</MenuItem>
         </Select>
       </FormControl>
-      <DateRangePicker />
+      {toolPalette.datePickerVisibility !== "none" ? <DateRangePicker /> : ""}
     </div>
   );
 }

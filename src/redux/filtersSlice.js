@@ -17,6 +17,22 @@ let initialCustomCalendar = getCustomCalendar(
   initialStartDate,
   initialEndDate
 );
+let initialToolPalette = {
+  kind: "analyze",
+  yearVisibility: "block",
+  minValueVisibility: "none",
+  periodVisibility: "block",
+  datePickerVisibility: "none",
+};
+
+let originToolPalette = {
+  kind: "",
+  yearVisibility: "block",
+  minValueVisibility: "block",
+  periodVisibility: "block",
+  datePickerVisibility: "block",
+  daysInGroupVisibility: "block",
+};
 
 const filtersSlice = createSlice({
   name: "filters",
@@ -46,7 +62,7 @@ const filtersSlice = createSlice({
       initialCustomCalendar
     ),
     sankeyArrState: getSankeyArr(arrSource, initialStartDate, initialEndDate),
-    toolPalette: "analyze",
+    toolPalette: initialToolPalette,
   },
 
   reducers: {
@@ -131,7 +147,6 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd
       );
-      console.log("current(state.sankeyArrState)", state.sankeyArrState);
     },
 
     setDateStart(state, action) {
@@ -187,7 +202,30 @@ const filtersSlice = createSlice({
       );
     },
     setToolPalette(state, action) {
-      state.toolPalette = action.payload;
+      state.toolPalette = originToolPalette;
+      if (action.payload === "analyze") {
+        state.toolPalette = { ...state.toolPalette, kind: action.payload };
+        state.toolPalette.datePickerVisibility = "none";
+        state.toolPalette.minValueVisibility = "none";
+        state.toolPalette.daysInGroupVisibility = "none";
+      }
+      if (action.payload === "groupedChart") {
+        state.toolPalette = { ...state.toolPalette, kind: action.payload };
+        state.toolPalette.datePickerVisibility = "none";
+        state.toolPalette.daysInGroupVisibility = "none";
+      }
+      if (action.payload === "stacked") {
+        state.toolPalette = { ...state.toolPalette, kind: action.payload };
+        state.toolPalette.yearVisibility = "none";
+        state.toolPalette.minValueVisibility = "none";
+        state.toolPalette.periodVisibility = "none";
+      }
+      if (action.payload === "sankey") {
+        state.toolPalette = { ...state.toolPalette, kind: action.payload };
+        state.toolPalette.yearVisibility = "none";
+        state.toolPalette.periodVisibility = "none";
+        state.toolPalette.daysInGroupVisibility = "none";
+      }
       console.log("state.toolPalette", state.toolPalette);
     },
   },
