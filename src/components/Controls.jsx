@@ -70,7 +70,6 @@ export default function SelectAutoWidth() {
   const handleChangeToYear = (event) => {
     dispatch(setCurrentYear(event.target.value));
   };
-  console.log("controls", toolPalette);
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
       <FormControl
@@ -203,6 +202,7 @@ export default function SelectAutoWidth() {
           <MenuItem value={10}>10</MenuItem>
         </Select>
       </FormControl>
+
       <FormControl
         sx={{
           m: 2,

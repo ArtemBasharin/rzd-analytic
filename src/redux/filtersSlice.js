@@ -198,7 +198,8 @@ const filtersSlice = createSlice({
       state.sankeyArrState = getSankeyArr(
         state.sourceState,
         state.dateStart,
-        state.dateEnd
+        state.dateEnd,
+        state.minValue
       );
     },
     setToolPalette(state, action) {

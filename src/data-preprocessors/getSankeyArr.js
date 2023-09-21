@@ -12,7 +12,7 @@ import {
   failReason,
 } from "../config/config";
 
-export const getSankeyArr = (srcArray, dateStart, dateEnd) => {
+export const getSankeyArr = (srcArray, dateStart, dateEnd, minValue) => {
   // console.log("dateEnd", dateEnd);
   // console.log("dateStart", dateStart);
   console.log("srcArray", srcArray);
@@ -42,15 +42,17 @@ export const getSankeyArr = (srcArray, dateStart, dateEnd) => {
         guiltyUnit: el[guiltyUnit],
         failReason: el[failReason],
         totalDuration: calcTotalDuration(el),
-        freightDuration: el[freightDuration],
-        passDuration: el[passDuration],
-        subDuration: el[subDuration],
-        otherDuration: el[otherDuration],
+        freightDuration: el[freightDuration] || 0,
+        passDuration: el[passDuration] || 0,
+        subDuration: el[subDuration] || 0,
+        otherDuration: el[otherDuration] || 0,
         failCategory: el[failCategory],
         failKind: el[failKind],
       });
     }
   });
+
+  console.log(result);
 
   const keys = ["guiltyUnit", "failReason", "failCategory", "failKind"];
   let index = -1;
@@ -75,9 +77,10 @@ export const getSankeyArr = (srcArray, dateStart, dateEnd) => {
     const b = keys[i];
     const prefix = keys.slice(0, i + 1);
     const linkByKey = new d3.InternMap([], JSON.stringify);
+    console.log("result", result);
     for (const d of result) {
       const names = prefix.map((k) => d[k]);
-      const value = d.value || 1;
+      const value = d.totalDuration || 1; /////////// here need to use selector for choose quantity, duration,
       let link = linkByKey.get(names);
       if (link) {
         link.value += value;
@@ -93,6 +96,5 @@ export const getSankeyArr = (srcArray, dateStart, dateEnd) => {
       linkByKey.set(names, link);
     }
   }
-
   return { nodes, links };
 };
