@@ -10,12 +10,15 @@ import {
   setPastYear,
   setCurrentYear,
   setSourceState,
+  increment,
+  decrement,
 } from "../redux/filtersSlice";
 // import { getViolationsArray } from "./requests";
 import axios from "axios";
 import DateRangePicker from "./DatePicker";
 
 let date = new Date();
+
 const getPastMonth = () => {
   let monthCode = date.getMonth().toString();
   if (monthCode.length < 2) {
@@ -24,6 +27,7 @@ const getPastMonth = () => {
     return monthCode;
   }
 };
+
 let period = getPastMonth();
 
 export default function SelectAutoWidth() {
@@ -70,8 +74,36 @@ export default function SelectAutoWidth() {
   const handleChangeToYear = (event) => {
     dispatch(setCurrentYear(event.target.value));
   };
+
+  const handleIncrement = () => {
+    dispatch(increment());
+  };
+
+  const handleDecrement = () => {
+    dispatch(decrement());
+  };
+
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
+      <div style={{ display: `${toolPalette.minValueVisibility}` }}>
+        <div className="tools divider">
+          <button
+            className="tools tools_square tools_minus"
+            onClick={handleDecrement}
+          ></button>
+          <input
+            className="tools_square "
+            type="text"
+            value={minValue}
+            onChange={(e) => dispatch(setMinValue(Number(e.target.value)))}
+          />
+          <button
+            className="tools tools_square tools_plus"
+            onClick={handleIncrement}
+          ></button>
+          <span className="input-label">показать не менее</span>
+        </div>
+      </div>
       <FormControl
         sx={{
           m: 2,
@@ -159,7 +191,7 @@ export default function SelectAutoWidth() {
         </Select>
       </FormControl>
 
-      <FormControl
+      {/* <FormControl
         sx={{
           m: 2,
           minWidth: 100,
@@ -201,7 +233,7 @@ export default function SelectAutoWidth() {
           <MenuItem value={9}>9</MenuItem>
           <MenuItem value={10}>10</MenuItem>
         </Select>
-      </FormControl>
+      </FormControl> */}
 
       <FormControl
         sx={{

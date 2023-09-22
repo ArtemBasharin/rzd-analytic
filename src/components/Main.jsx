@@ -116,18 +116,14 @@ function Main() {
         // spaceBetween={50}
         slidesPerView={1}
         onSlideChange={(swiper) => {
-          console.log("slide change", swiper.activeIndex);
           let activeSlideIndex = swiper.activeIndex;
-          // setActiveSlideIndex(swiper.activeIndex);
           if (activeSlideIndex === 0) dispatch(setToolPalette("analyze"));
           if (activeSlideIndex >= 1 && activeSlideIndex <= 3)
             dispatch(setToolPalette("groupedChart"));
           if (activeSlideIndex === 4) dispatch(setToolPalette("stacked"));
           if (activeSlideIndex === 5) dispatch(setToolPalette("sankey"));
         }}
-        onSwiper={(swiper) => {
-          console.log(swiper);
-        }}
+        onSwiper={(swiper) => {}}
       >
         <SwiperSlide>
           <h2 className="section-title">
