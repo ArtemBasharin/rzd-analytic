@@ -2,6 +2,12 @@
   display: flex;
 }
 
-.datePicker {
+.datePicker_input {
   margin: auto 5px;
+  padding: 7px;
+  height: 30px;
+  border: 1px solid rgb(57, 83, 139);
+  border-radius: 7px;
+  color: red !important;
+  background-color: transparent !important;
 }

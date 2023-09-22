@@ -9,14 +9,17 @@ import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
 let date = new Date();
 let arrSource = testArr;
 let initialStartDate = new Date(date.getFullYear(), 7, 1);
+
 let initialEndDate = new Date(
   new Date(date.getFullYear(), date.getMonth(), 1) - 1
 );
+
 let initialCustomCalendar = getCustomCalendar(
   5,
   initialStartDate,
   initialEndDate
 );
+
 let initialToolPalette = {
   kind: "analyze",
   yearVisibility: "block",
@@ -34,6 +37,18 @@ let originToolPalette = {
   daysInGroupVisibility: "block",
 };
 
+let initialPattern = () => {
+  let period = date.getMonth();
+  let pattern = "";
+  if (period < 10) {
+    return (pattern = "0" + period);
+  } else {
+    return (pattern = period.toString());
+  }
+};
+
+console.log("initialPattern", initialPattern());
+
 let initialMinvalue = 0;
 
 const filtersSlice = createSlice({
@@ -50,12 +65,12 @@ const filtersSlice = createSlice({
     // dateEnd: new Date(`${date.getFullYear()}-${date.getMonth()}-00T23:59:59`),
     dateEnd: initialEndDate,
     customCalendar: initialCustomCalendar,
-    regexpPattern: "01",
+    regexpPattern: initialPattern(),
     analyzeState: getAnalyze(
       arrSource,
       date.getFullYear() - 1,
       date.getFullYear(),
-      "01"
+      initialPattern()
     ),
     stackedArrState: getStackedArr(
       arrSource,

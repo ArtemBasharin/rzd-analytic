@@ -50,35 +50,32 @@ const DateRangePicker = () => {
 
   return (
     <div className="datePicker-container">
-      <div className="datePicker">
-        <label>От: </label>
-        <DatePicker
-          selected={dateStart}
-          onChange={(date) => handleDateChange(date, true)}
-          selectsStart
-          startDate={dateStart}
-          endDate={dateEnd}
-          placeholderText="Начало периода"
-          className="datePicker"
-          isClearable={true}
-          dateFormat="dd/MM/yy"
-        />
-      </div>
+      <DatePicker
+        selected={dateStart}
+        onChange={(date) => handleDateChange(date, true)}
+        selectsStart
+        startDate={dateStart}
+        endDate={dateEnd}
+        placeholderText="Начало периода"
+        wrapperClassName="datePicker_input"
+        isClearable={true}
+        dateFormat="dd/MM/yy"
+      ></DatePicker>
+      <label className="input-label">От: </label>
+      <label className="input-label">До: </label>
+      <DatePicker
+        selected={dateEnd}
+        onChange={(date) => handleDateChange(date, false)}
+        selectsEnd
+        startDate={dateStart}
+        endDate={dateEnd}
+        minDate={dateStart}
+        placeholderText="Начало периода"
+        isClearable={true}
+        dateFormat="dd/MM/yy"
+        wrapperClassName="datePicker_input"
+      />
 
-      <div className="datePicker">
-        <label>До: </label>
-        <DatePicker
-          selected={dateEnd}
-          onChange={(date) => handleDateChange(date, false)}
-          selectsEnd
-          startDate={dateStart}
-          endDate={dateEnd}
-          minDate={dateStart}
-          placeholderText="Начало периода"
-          isClearable={true}
-          dateFormat="dd/MM/yy"
-        />
-      </div>
       <FormControl
         sx={{
           m: 1,

@@ -63,10 +63,6 @@ export default function SelectAutoWidth() {
     dispatch(setPattern(period));
   };
 
-  const handleChangeMinValue = (event) => {
-    dispatch(setMinValue(event.target.value));
-  };
-
   const handleChangeFromYear = (event) => {
     dispatch(setPastYear(event.target.value));
   };
@@ -190,50 +186,6 @@ export default function SelectAutoWidth() {
           <MenuItem value={2023}>2023</MenuItem>
         </Select>
       </FormControl>
-
-      {/* <FormControl
-        sx={{
-          m: 2,
-          minWidth: 100,
-          color: "#fff",
-          borderColor: "#fff",
-          display: `${toolPalette.minValueVisibility}`,
-        }}
-      >
-        <InputLabel
-          id="select-minvalue-label"
-          sx={{
-            color: "#fff",
-          }}
-        >
-          Минимум
-        </InputLabel>
-        <Select
-          labelId="select-minvalue-label"
-          id="select-minvalue"
-          value={minValue}
-          onChange={handleChangeMinValue}
-          autoWidth
-          label="Минимум"
-          sx={{
-            color: "#fff",
-            minWidth: 50,
-          }}
-        >
-          <MenuItem value={minValue}></MenuItem>
-          <MenuItem value={0}>0</MenuItem>
-          <MenuItem value={1}>1</MenuItem>
-          <MenuItem value={2}>2</MenuItem>
-          <MenuItem value={3}>3</MenuItem>
-          <MenuItem value={4}>4</MenuItem>
-          <MenuItem value={5}>5</MenuItem>
-          <MenuItem value={6}>6</MenuItem>
-          <MenuItem value={7}>7</MenuItem>
-          <MenuItem value={8}>8</MenuItem>
-          <MenuItem value={9}>9</MenuItem>
-          <MenuItem value={10}>10</MenuItem>
-        </Select>
-      </FormControl> */}
 
       <FormControl
         sx={{
