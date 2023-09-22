@@ -52,7 +52,40 @@ export const getSankeyArr = (srcArray, dateStart, dateEnd, minValue) => {
     }
   });
 
-  console.log(result);
+  console.log("result", result);
+
+  const uniqueUnits = [];
+
+  result.forEach((obj) => {
+    const index = uniqueUnits.findIndex(
+      (item) => item.guiltyUnit === obj.guiltyUnit
+    );
+
+    if (index === -1) {
+      uniqueUnits.push({ ...obj });
+    } else {
+      uniqueUnits[index].totalDuration += obj.totalDuration;
+      uniqueUnits[index].freightDuration += obj.freightDuration;
+      uniqueUnits[index].passDuration += obj.passDuration;
+      uniqueUnits[index].subDuration += obj.subDuration;
+      uniqueUnits[index].otherDuration += obj.otherDuration;
+    }
+  });
+
+  console.log("uniqueUnits", uniqueUnits);
+
+  let unnecessaryUnits = [];
+  uniqueUnits.forEach((el) => {
+    el.totalDuration > minValue && unnecessaryUnits.push(el.guiltyUnit);
+  });
+
+  console.log("unnecessaryUnits", unnecessaryUnits);
+  const filteredArr = result.filter((element) =>
+    unnecessaryUnits.length === 0
+      ? true
+      : unnecessaryUnits.includes(element.guiltyUnit)
+  );
+  console.log("filteredArr", filteredArr);
 
   const keys = ["guiltyUnit", "failReason", "failCategory", "failKind"];
   let index = -1;
@@ -62,7 +95,7 @@ export const getSankeyArr = (srcArray, dateStart, dateEnd, minValue) => {
   const links = [];
 
   for (const k of keys) {
-    for (const d of result) {
+    for (const d of filteredArr) {
       const key = [k, d[k]];
       if (nodeByKey.has(key)) continue;
       const node = { name: d[k] };
@@ -77,8 +110,7 @@ export const getSankeyArr = (srcArray, dateStart, dateEnd, minValue) => {
     const b = keys[i];
     const prefix = keys.slice(0, i + 1);
     const linkByKey = new d3.InternMap([], JSON.stringify);
-    console.log("result", result);
-    for (const d of result) {
+    for (const d of filteredArr) {
       const names = prefix.map((k) => d[k]);
       const value = d.totalDuration || 1; /////////// here need to use selector for choose quantity, duration,
       let link = linkByKey.get(names);

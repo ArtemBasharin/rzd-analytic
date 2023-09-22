@@ -34,13 +34,15 @@ let originToolPalette = {
   daysInGroupVisibility: "block",
 };
 
+let initialMinvalue = 0;
+
 const filtersSlice = createSlice({
   name: "filters",
   initialState: {
     pageWidth: window.innerWidth,
     pageHeight: window.innerHeight,
     sourceState: [],
-    minValue: 1,
+    minValue: initialMinvalue,
     daysInGroup: 5,
     currentYear: date.getFullYear(),
     pastYear: date.getFullYear() - 1,
@@ -61,17 +63,34 @@ const filtersSlice = createSlice({
       initialEndDate,
       initialCustomCalendar
     ),
-    sankeyArrState: getSankeyArr(arrSource, initialStartDate, initialEndDate),
+    sankeyArrState: getSankeyArr(
+      arrSource,
+      initialStartDate,
+      initialEndDate,
+      initialMinvalue
+    ),
     toolPalette: initialToolPalette,
   },
 
   reducers: {
     increment(state) {
       state.minValue = state.minValue + 1;
+      state.sankeyArrState = getSankeyArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.minValue
+      );
     },
 
     decrement(state) {
       state.minValue = state.minValue - 1;
+      state.sankeyArrState = getSankeyArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.minValue
+      );
     },
 
     setPattern(state, action) {
