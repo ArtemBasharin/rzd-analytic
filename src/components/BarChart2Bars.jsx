@@ -4,9 +4,12 @@ import * as d3 from "d3";
 import "../App.css";
 import descendArrow from "../images/descendArrow.svg";
 import increaseArrow from "../images/increaseArrow.svg";
+import { useSelector } from "react-redux";
 
 const BarChart2Bars = (props) => {
   const svgRef2 = useRef();
+  d3.selectAll(".chartItem").selectAll("g").remove();
+  const minValue = useSelector((state) => state.filters.minValue);
 
   useEffect(() => {
     let resData = props.stats;
@@ -169,7 +172,7 @@ const BarChart2Bars = (props) => {
       .attr("y", function () {
         return y(d3.max([resData[0].value, resData[1].value])) - 50; //find tallest bar and set y-position of text
       });
-  }, [props.stats, props.config, props.yMax, props.width]);
+  }, [props.stats, props.config, props.yMax, props.width, minValue]);
   return (
     <svg id={`id${props.config}`} className="chartItem" ref={svgRef2}></svg>
   );

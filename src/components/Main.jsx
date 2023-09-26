@@ -15,7 +15,7 @@ import { setToolPalette } from "../redux/filtersSlice";
 
 function Main() {
   //clear old svg
-  d3.selectAll("g").remove();
+  // d3.selectAll("g").remove();
 
   let maxYear = useSelector((state) => state.filters.currentYear);
   let srcArr = useSelector((state) => state.filters.analyzeState);

@@ -6,6 +6,21 @@ import testArr from "../data-preprocessors/dummyArr";
 import { getCustomCalendar } from "../data-preprocessors/getCustomCalendar";
 import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
 
+const filterUnits = (arr, actionPayload) => {
+  let tempArr = new Set();
+  console.log(actionPayload);
+  arr.forEach((el) => tempArr.add(el));
+  if (actionPayload.checked) {
+    console.log("checked", actionPayload.value);
+    tempArr.add(actionPayload.value);
+  } else {
+    console.log("not checked", actionPayload.value);
+    tempArr.delete(actionPayload.value);
+  }
+  console.log("state.sankeyCheckedUnits", tempArr);
+  return Array.from(tempArr);
+};
+
 let date = new Date();
 let arrSource = testArr;
 let initialStartDate = new Date(date.getFullYear(), 7, 1);
@@ -26,6 +41,7 @@ let initialToolPalette = {
   minValueVisibility: "none",
   periodVisibility: "block",
   datePickerVisibility: "none",
+  unitsListVisibility: "none",
 };
 
 let originToolPalette = {
@@ -35,21 +51,26 @@ let originToolPalette = {
   periodVisibility: "block",
   datePickerVisibility: "block",
   daysInGroupVisibility: "block",
+  unitsListVisibility: "block",
 };
 
 let initialPattern = () => {
   let period = date.getMonth();
-  let pattern = "";
   if (period < 10) {
-    return (pattern = "0" + period);
+    return "0" + period;
   } else {
-    return (pattern = period.toString());
+    return period.toString();
   }
 };
 
-console.log("initialPattern", initialPattern());
-
 let initialMinvalue = 0;
+
+let initialSankeyState = getSankeyArr(
+  arrSource,
+  initialStartDate,
+  initialEndDate,
+  initialMinvalue
+);
 
 const filtersSlice = createSlice({
   name: "filters",
@@ -78,16 +99,35 @@ const filtersSlice = createSlice({
       initialEndDate,
       initialCustomCalendar
     ),
-    sankeyArrState: getSankeyArr(
-      arrSource,
-      initialStartDate,
-      initialEndDate,
-      initialMinvalue
-    ),
+    sankeyArrState: initialSankeyState,
     toolPalette: initialToolPalette,
+    checkedUnits: initialSankeyState.uniqueUnitsToolPanel,
   },
 
   reducers: {
+    setSourceState(state, action) {
+      state.sourceState = action.payload;
+      state.analyzeState = getAnalyze(
+        state.sourceState,
+        state.pastYear,
+        state.currentYear,
+        state.regexpPattern
+      );
+      state.stackedArrState = getStackedArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        current(state.customCalendar)
+      );
+      state.sankeyArrState = getSankeyArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.minValue
+      );
+      state.checkedUnits = state.sankeyArrState.uniqueUnitsToolPanel;
+    },
+
     increment(state) {
       state.minValue = state.minValue + 1;
       state.sankeyArrState = getSankeyArr(
@@ -160,56 +200,15 @@ const filtersSlice = createSlice({
       );
     },
 
-    setSourceState(state, action) {
-      state.sourceState = action.payload;
-      // console.log("setSourceState", state.sourceState);
-      state.analyzeState = getAnalyze(
-        state.sourceState,
-        state.pastYear,
-        state.currentYear,
-        state.regexpPattern
-      );
-      // console.log("customCalendar", state.customCalendar);
-      state.stackedArrState = getStackedArr(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd,
-        current(state.customCalendar)
-      );
-      state.sankeyArrState = getSankeyArr(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd
-      );
-    },
-
     setDateStart(state, action) {
       if (action.payload) state.dateStart = action.payload;
-      // console.log("setDateStart", state.customCalendar);
-      // state.stackedArrState = getStackedArr(
-      //   state.sourceState,
-      //   state.dateStart,
-      //   state.dateEnd,
-      //   state.customCalendar
-      // );
     },
 
     setDateEnd(state, action) {
       if (action.payload) state.dateEnd = action.payload;
-      // console.log("setDateEnd", state.customCalendar);
-      // state.stackedArrState = getStackedArr(
-      //   state.sourceState,
-      //   state.dateStart,
-      //   action.payload,
-      //   state.customCalendar
-      // );
     },
 
     setCustomCalendar(state) {
-      // console.log("setCustomCalendar", state.customCalendar);
-      // console.log("setCustomCalendar state.daysInGroup", state.daysInGroup);
-      // console.log("setCustomCalendar state.dateStart", state.dateStart);
-      // console.log("setCustomCalendar state.dateEnd", state.dateEnd);
       state.customCalendar = getCustomCalendar(
         state.daysInGroup,
         state.dateStart,
@@ -224,11 +223,9 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd
       );
-      // console.log("setDaysInGroup", state.customCalendar);
     },
 
     setSankeyArrState(state) {
-      console.log("setSankeyArrState", state.sourceState);
       state.sankeyArrState = getSankeyArr(
         state.sourceState,
         state.dateStart,
@@ -236,6 +233,7 @@ const filtersSlice = createSlice({
         state.minValue
       );
     },
+
     setToolPalette(state, action) {
       state.toolPalette = originToolPalette;
       if (action.payload === "analyze") {
@@ -243,11 +241,13 @@ const filtersSlice = createSlice({
         state.toolPalette.datePickerVisibility = "none";
         state.toolPalette.minValueVisibility = "none";
         state.toolPalette.daysInGroupVisibility = "none";
+        state.toolPalette.unitsList = "none";
       }
       if (action.payload === "groupedChart") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
         state.toolPalette.datePickerVisibility = "none";
         state.toolPalette.daysInGroupVisibility = "none";
+        state.toolPalette.unitsListVisibility = "none";
       }
       if (action.payload === "stacked") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
@@ -261,7 +261,19 @@ const filtersSlice = createSlice({
         state.toolPalette.periodVisibility = "none";
         state.toolPalette.daysInGroupVisibility = "none";
       }
-      console.log("state.toolPalette", state.toolPalette);
+    },
+
+    setCheckedUnits(state, action) {
+      console.log(action);
+      state.checkedUnits = filterUnits([...state.checkedUnits], action.payload);
+      console.log("state.checkedUnits", state.checkedUnits);
+      state.sankeyArrState = getSankeyArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.minValue,
+        state.checkedUnits
+      );
     },
   },
 });
@@ -283,4 +295,5 @@ export const {
   setCustomCalendar,
   setSankeyArrState,
   setToolPalette,
+  setCheckedUnits,
 } = filtersSlice.actions;

@@ -12,7 +12,13 @@ import {
   failReason,
 } from "../config/config";
 
-export const getSankeyArr = (srcArray, dateStart, dateEnd, minValue) => {
+export const getSankeyArr = (
+  srcArray,
+  dateStart,
+  dateEnd,
+  minValue,
+  uncheckedUnits
+) => {
   // console.log("dateEnd", dateEnd);
   // console.log("dateStart", dateStart);
   console.log("srcArray", srcArray);
@@ -72,8 +78,6 @@ export const getSankeyArr = (srcArray, dateStart, dateEnd, minValue) => {
     }
   });
 
-  console.log("uniqueUnits", uniqueUnits);
-
   let unnecessaryUnits = [];
   uniqueUnits.forEach((el) => {
     el.totalDuration > minValue && unnecessaryUnits.push(el.guiltyUnit);
@@ -87,6 +91,27 @@ export const getSankeyArr = (srcArray, dateStart, dateEnd, minValue) => {
   );
   console.log("filteredArr", filteredArr);
 
+  let tempSet = new Set();
+  filteredArr.forEach((el) => tempSet.add(el.guiltyUnit));
+  let uniqueUnitsToolPanel = Array.from(tempSet);
+  console.log("uniqueUnitsKeys", uniqueUnitsToolPanel);
+
+  const filterUncheckedUnits = (srcArr, uncheckedArr) => {
+    let result = [];
+    srcArr.forEach((el) => {
+      uncheckedArr.includes(el.guiltyUnit) && result.push(el);
+    });
+    return result;
+  };
+
+  let filteredArrByUncheckedUnits = [];
+  uncheckedUnits !== undefined
+    ? (filteredArrByUncheckedUnits = filterUncheckedUnits(
+        filteredArr,
+        uncheckedUnits
+      ))
+    : (filteredArrByUncheckedUnits = filteredArr);
+
   const keys = ["guiltyUnit", "failReason", "failCategory", "failKind"];
   let index = -1;
   const nodes = [];
@@ -95,7 +120,7 @@ export const getSankeyArr = (srcArray, dateStart, dateEnd, minValue) => {
   const links = [];
 
   for (const k of keys) {
-    for (const d of filteredArr) {
+    for (const d of filteredArrByUncheckedUnits) {
       const key = [k, d[k]];
       if (nodeByKey.has(key)) continue;
       const node = { name: d[k] };
@@ -110,7 +135,7 @@ export const getSankeyArr = (srcArray, dateStart, dateEnd, minValue) => {
     const b = keys[i];
     const prefix = keys.slice(0, i + 1);
     const linkByKey = new d3.InternMap([], JSON.stringify);
-    for (const d of filteredArr) {
+    for (const d of filteredArrByUncheckedUnits) {
       const names = prefix.map((k) => d[k]);
       const value = d.totalDuration || 1; /////////// here need to use selector for choose quantity, duration,
       let link = linkByKey.get(names);
@@ -128,5 +153,5 @@ export const getSankeyArr = (srcArray, dateStart, dateEnd, minValue) => {
       linkByKey.set(names, link);
     }
   }
-  return { nodes, links };
+  return { nodes, links, uniqueUnitsToolPanel };
 };

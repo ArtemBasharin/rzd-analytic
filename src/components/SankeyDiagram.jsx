@@ -8,9 +8,11 @@ import { useEffect } from "react";
 const SankeyDiagram = () => {
   const svgRef6 = useRef();
   let sankeyArr = useSelector((state) => state.filters.sankeyArrState);
+  let checkedUnits = useSelector((state) => state.filters.checkedUnits);
 
   useEffect(() => {
     let resData = sankeyArr;
+    d3.select("#id22").selectAll("g").remove();
 
     // set the dimensions and margins of the graph
     const margin = { top: 20, right: 100, bottom: 30, left: 100 },
@@ -26,7 +28,7 @@ const SankeyDiagram = () => {
       .attr("height", height + margin.top + margin.bottom)
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    svg.selectAll("g").remove();
+    // svg.select("#id22").selectAll("g").remove();
 
     svg.append("g");
 

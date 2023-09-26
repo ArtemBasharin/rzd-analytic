@@ -39,6 +39,10 @@
   color: inherit;
 }
 
+.tools_text-button {
+  padding: 10px;
+}
+
 .input-label {
   font-size: 12px;
   position: absolute;

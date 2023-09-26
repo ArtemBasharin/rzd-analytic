@@ -4,6 +4,8 @@
 @import url("./styles/controls.css");
 @import url("./styles/dropzoneparser.css");
 @import url("./styles/chart.css");
+@import url("./styles/dropdownlist.css");
+@import url("./styles/chartloader.css");
 
 body {
   margin: 0;

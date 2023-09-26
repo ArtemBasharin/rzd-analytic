@@ -1,0 +1,76 @@
+.loader {
+  display: flex;
+  width: 120px;
+  align-items: flex-end;
+  height: 120px;
+}
+.loader__part {
+  width: calc(25% - 4px);
+  margin: 0 2px;
+  height: 30px;
+  transform-origin: 50% 100%;
+  background: rgba(255, 255, 255, 0.4);
+}
+.loader__part--1 {
+  height: 100%;
+  animation: chart-animation 4s infinite;
+}
+.loader__part--2 {
+  height: 62%;
+  animation: chart-animation 5s infinite;
+}
+.loader__part--3 {
+  height: 72%;
+  animation: chart-animation 6s infinite;
+}
+.loader__part--4 {
+  height: 83%;
+  animation: chart-animation 7s infinite;
+}
+
+@keyframes chart-animation {
+  0% {
+    transform: scaleY(0.7);
+    opacity: 0.7;
+  }
+  10% {
+    transform: scaleY(0.2);
+    opacity: 0.2;
+  }
+  20% {
+    transform: scaleY(0.9);
+    opacity: 0.9;
+  }
+  30% {
+    transform: scaleY(0.5);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scaleY(0.6);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scaleY(0.9);
+    opacity: 0.9;
+  }
+  60% {
+    transform: scaleY(0.8);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scaleY(0.2);
+    opacity: 0.2;
+  }
+  80% {
+    transform: scaleY(0.9);
+    opacity: 0.5;
+  }
+  90% {
+    transform: scaleY(0.6);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scaleY(0.7);
+    opacity: 0.7;
+  }
+}

@@ -21,7 +21,7 @@ export default function ButtonAppBar() {
           </Typography>
           <Controls />
           <DropZoneParser />
-          <Button color="inherit">Login</Button>
+          <Button color="inherit">Войти</Button>
         </Toolbar>
       </AppBar>
     </Box>

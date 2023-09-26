@@ -1,8 +1,11 @@
 import React, { useRef, useEffect } from "react";
 import * as d3 from "d3";
+import { useSelector } from "react-redux";
 
 const BarGroupedLine = (props) => {
   const svgRef3 = useRef();
+  const minValue = useSelector((state) => state.filters.minValue);
+
   let currentYear = props.maxYear;
 
   useEffect(() => {
@@ -11,10 +14,7 @@ const BarGroupedLine = (props) => {
         if (arr[i][currentYear] < minValue) return i;
       }
     };
-    let resData = props.stats.slice(
-      0,
-      findTrimIndex(props.stats, props.minValue)
-    );
+    let resData = props.stats.slice(0, findTrimIndex(props.stats, minValue));
 
     let amountOfLabels = resData.length;
     // console.log("amountOfLabels", amountOfLabels);
@@ -342,7 +342,7 @@ const BarGroupedLine = (props) => {
     props.id,
     props.maxYear,
     currentYear,
-    props.minValue,
+    minValue,
   ]);
 
   return (

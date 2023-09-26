@@ -1,11 +1,15 @@
 import React, { useRef, useEffect } from "react";
 import * as d3 from "d3";
 import { similarColors } from "../config/config";
+import { useSelector } from "react-redux";
 // import { interpolateRainbow } from "d3-scale-chromatic";
 // import chroma from "chroma-js";
 
 const StackedAreaDiagram = (props) => {
   const svgRef5 = useRef();
+  const minValue = useSelector((state) => state.filters.minValue);
+  d3.select("#id21").selectAll("g").remove();
+
   useEffect(() => {
     // console.log("StackedAreaDiagram load", props.src.length);
 
@@ -158,7 +162,7 @@ const StackedAreaDiagram = (props) => {
       })
       .attr("text-anchor", "left")
       .style("alignment-baseline", "middle");
-  }, [props.src]);
+  }, [props.src, minValue]);
 
   return (
     <svg

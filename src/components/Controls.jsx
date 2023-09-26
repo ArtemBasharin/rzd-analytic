@@ -13,9 +13,9 @@ import {
   increment,
   decrement,
 } from "../redux/filtersSlice";
-// import { getViolationsArray } from "./requests";
 import axios from "axios";
 import DateRangePicker from "./DatePicker";
+import DropdownMenu from "./DropDownList";
 
 let date = new Date();
 
@@ -31,13 +31,11 @@ const getPastMonth = () => {
 let period = getPastMonth();
 
 export default function SelectAutoWidth() {
-  // const pattern = useSelector((state) => state.filters.regexpPattern);
   const minValue = useSelector((state) => state.filters.minValue);
   const pastYear = useSelector((state) => state.filters.pastYear);
   const currentYear = useSelector((state) => state.filters.currentYear);
-  // const sourceState = useSelector((state) => state.filters.sourceState);
-  // const stackedArrState = useSelector((state) => state.filters.stackedArrState);
   const toolPalette = useSelector((state) => state.filters.toolPalette);
+
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -49,7 +47,6 @@ export default function SelectAutoWidth() {
     axios
       .get("/violations", { params })
       .then(function (res) {
-        // console.log("controls", res.data);
         dispatch(setSourceState(res.data));
       })
       .catch(function (error) {
@@ -81,6 +78,8 @@ export default function SelectAutoWidth() {
 
   return (
     <div style={{ display: "flex", alignItems: "center" }}>
+      <DropdownMenu key={"dropdown-menu"} />
+
       <div style={{ display: `${toolPalette.minValueVisibility}` }}>
         <div className="tools divider">
           <button
@@ -97,7 +96,7 @@ export default function SelectAutoWidth() {
             className="tools tools_square tools_plus"
             onClick={handleIncrement}
           ></button>
-          <span className="input-label">показать не менее</span>
+          <span className="input-label">Скрыть менее</span>
         </div>
       </div>
       <FormControl
@@ -106,6 +105,7 @@ export default function SelectAutoWidth() {
           minWidth: 100,
           color: "#fff",
           borderColor: "#fff",
+          borderRadius: "7px",
           display: `${toolPalette.yearVisibility}`,
         }}
       >
@@ -115,7 +115,7 @@ export default function SelectAutoWidth() {
             color: "#fff",
           }}
         >
-          c
+          Прошлый
         </InputLabel>
         <Select
           labelId="select-fromyear-label"
@@ -158,7 +158,7 @@ export default function SelectAutoWidth() {
             color: "#fff",
           }}
         >
-          до
+          Текущий
         </InputLabel>
         <Select
           labelId="select-toyear-label"
