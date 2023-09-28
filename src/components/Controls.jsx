@@ -15,7 +15,9 @@ import {
 } from "../redux/filtersSlice";
 import axios from "axios";
 import DateRangePicker from "./DatePicker";
-import DropdownMenu from "./DropDownList";
+import DropdownUnits from "./DropdownUnits";
+import DropdownPastYear from "./DropdownPastYear";
+import DropdownCurrentYear from "./DropdownCurrentYear";
 
 let date = new Date();
 
@@ -32,8 +34,6 @@ let period = getPastMonth();
 
 export default function SelectAutoWidth() {
   const minValue = useSelector((state) => state.filters.minValue);
-  const pastYear = useSelector((state) => state.filters.pastYear);
-  const currentYear = useSelector((state) => state.filters.currentYear);
   const toolPalette = useSelector((state) => state.filters.toolPalette);
 
   const dispatch = useDispatch();
@@ -60,14 +60,6 @@ export default function SelectAutoWidth() {
     dispatch(setPattern(period));
   };
 
-  const handleChangeFromYear = (event) => {
-    dispatch(setPastYear(event.target.value));
-  };
-
-  const handleChangeToYear = (event) => {
-    dispatch(setCurrentYear(event.target.value));
-  };
-
   const handleIncrement = () => {
     dispatch(increment());
   };
@@ -77,10 +69,10 @@ export default function SelectAutoWidth() {
   };
 
   return (
-    <div style={{ display: "flex", alignItems: "center" }}>
-      <DropdownMenu key={"dropdown-menu"} />
+    <div className="controls-container">
+      <DropdownUnits key={"dropdown-menu"} />
 
-      <div style={{ display: `${toolPalette.minValueVisibility}` }}>
+      {toolPalette.minValueVisibility === "block" && (
         <div className="tools divider">
           <button
             className="tools tools_square tools_minus"
@@ -98,98 +90,14 @@ export default function SelectAutoWidth() {
           ></button>
           <span className="input-label">Скрыть менее</span>
         </div>
-      </div>
-      <FormControl
-        sx={{
-          m: 2,
-          minWidth: 100,
-          color: "#fff",
-          borderColor: "#fff",
-          borderRadius: "7px",
-          display: `${toolPalette.yearVisibility}`,
-        }}
-      >
-        <InputLabel
-          id="select-fromyear-label"
-          sx={{
-            color: "#fff",
-          }}
-        >
-          Прошлый
-        </InputLabel>
-        <Select
-          labelId="select-fromyear-label"
-          id="select-fromyear"
-          value={pastYear}
-          onChange={handleChangeFromYear}
-          autoWidth
-          label="Минимум"
-          sx={{
-            color: "#fff",
-            minWidth: 50,
-          }}
-        >
-          <MenuItem value={pastYear}></MenuItem>
-          <MenuItem value={2013}>2013</MenuItem>
-          <MenuItem value={2014}>2014</MenuItem>
-          <MenuItem value={2015}>2015</MenuItem>
-          <MenuItem value={2016}>2016</MenuItem>
-          <MenuItem value={2017}>2017</MenuItem>
-          <MenuItem value={2018}>2018</MenuItem>
-          <MenuItem value={2019}>2019</MenuItem>
-          <MenuItem value={2020}>2020</MenuItem>
-          <MenuItem value={2021}>2021</MenuItem>
-          <MenuItem value={2022}>2022</MenuItem>
-        </Select>
-      </FormControl>
+      )}
+
+      {toolPalette.yearVisibility === "block" && <DropdownPastYear />}
+      {toolPalette.yearVisibility === "block" && <DropdownCurrentYear />}
 
       <FormControl
         sx={{
-          m: 2,
-          minWidth: 100,
-          color: "#fff",
-          borderColor: "#fff",
-          display: `${toolPalette.yearVisibility}`,
-        }}
-      >
-        <InputLabel
-          id="select-toyear-label"
-          sx={{
-            color: "#fff",
-          }}
-        >
-          Текущий
-        </InputLabel>
-        <Select
-          labelId="select-toyear-label"
-          id="select-toyear"
-          value={currentYear}
-          onChange={handleChangeToYear}
-          autoWidth
-          label="Минимум"
-          sx={{
-            color: "#fff",
-            minWidth: 50,
-          }}
-        >
-          <MenuItem value={currentYear}></MenuItem>
-          <MenuItem value={2013}>2013</MenuItem>
-          <MenuItem value={2014}>2014</MenuItem>
-          <MenuItem value={2015}>2015</MenuItem>
-          <MenuItem value={2016}>2016</MenuItem>
-          <MenuItem value={2017}>2017</MenuItem>
-          <MenuItem value={2018}>2018</MenuItem>
-          <MenuItem value={2019}>2019</MenuItem>
-          <MenuItem value={2020}>2020</MenuItem>
-          <MenuItem value={2021}>2021</MenuItem>
-          <MenuItem value={2022}>2022</MenuItem>
-          <MenuItem value={2023}>2023</MenuItem>
-        </Select>
-      </FormControl>
-
-      <FormControl
-        sx={{
-          m: 2,
+          m: 0,
           minWidth: 100,
           color: "#fff",
           borderColor: "#fff",

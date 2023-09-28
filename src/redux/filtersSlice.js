@@ -242,6 +242,7 @@ const filtersSlice = createSlice({
         state.toolPalette.minValueVisibility = "none";
         state.toolPalette.daysInGroupVisibility = "none";
         state.toolPalette.unitsList = "none";
+        state.toolPalette.unitsListVisibility = "none";
       }
       if (action.payload === "groupedChart") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };

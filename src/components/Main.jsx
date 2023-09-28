@@ -1,5 +1,5 @@
 import React from "react";
-import * as d3 from "d3";
+// import * as d3 from "d3";
 import { useDispatch, useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Scrollbar, A11y } from "swiper/modules";

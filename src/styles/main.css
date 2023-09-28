@@ -4,6 +4,8 @@
   margin: 90px 0 0 0;
   overflow-x: hidden;
   overflow-y: hidden;
+  position: absolute;
+  z-index: 1;
 }
 
 .section-title {

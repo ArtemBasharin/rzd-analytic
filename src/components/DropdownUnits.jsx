@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCheckedUnits } from "../redux/filtersSlice";
+import { CSSTransition } from "react-transition-group";
 
-const DropdownMenu = () => {
+const DropdownUnits = () => {
   const options = useSelector(
     (state) => state.filters.sankeyArrState.uniqueUnitsToolPanel
   );
@@ -41,7 +42,12 @@ const DropdownMenu = () => {
       <button onClick={handleToggle} className="tools tools_text-button">
         Подразделения
       </button>
-      {isOpen && (
+      <CSSTransition
+        in={isOpen}
+        timeout={100}
+        classNames="dropdown"
+        unmountOnExit
+      >
         <ul className="list">
           {options.map((option) => (
             <li className="list_element" key={"li-" + option}>
@@ -59,9 +65,9 @@ const DropdownMenu = () => {
             </li>
           ))}
         </ul>
-      )}
+      </CSSTransition>
     </div>
   );
 };
 
-export default DropdownMenu;
+export default DropdownUnits;

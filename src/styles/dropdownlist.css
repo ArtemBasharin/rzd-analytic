@@ -1,5 +1,6 @@
 .list_container {
   position: relative;
+  z-index: 999;
 }
 
 .list {
@@ -12,9 +13,12 @@
   background-color: #fff;
   padding: 10px;
   border: 1px solid #ccc;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);
   border-radius: 4px;
   font-size: 12px;
+  z-index: 999;
+  overflow: hidden;
 }
 
 .list_element {
@@ -29,4 +33,28 @@
 
 .list_input {
   margin-right: 5px;
+}
+
+.list_input_big {
+  font-size: 14px;
+  margin-top: 3px;
+}
+
+.dropdown-enter {
+  max-height: 0;
+  overflow: hidden;
+}
+
+.dropdown-enter-active {
+  max-height: 200px;
+  transition: max-height 0.3s ease;
+}
+
+.dropdown-exit {
+  max-height: 200px;
+}
+
+.dropdown-exit-active {
+  max-height: 0;
+  transition: max-height 0.3s ease;
 }

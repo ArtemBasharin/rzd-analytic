@@ -1,29 +1,23 @@
 import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
+// import AppBar from "@mui/material/AppBar";
+// import Box from "@mui/material/Box";
+// import Toolbar from "@mui/material/Toolbar";
+// import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 // import IconButton from "@mui/material/IconButton";
 // import MenuIcon from "@mui/icons-material/Menu";
 import DropZoneParser from "./DropZoneParser";
 import Controls from "./Controls";
-import SwipeableTemporaryDrawer from "./Drawer";
+// import SwipeableTemporaryDrawer from "./Drawer";
 
 export default function ButtonAppBar() {
   return (
-    <Box sx={{ width: "100%" }}>
-      <AppBar position="fixed">
-        <Toolbar>
-          <SwipeableTemporaryDrawer />
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            My statistics
-          </Typography>
-          <Controls />
-          <DropZoneParser />
-          <Button color="inherit">Войти</Button>
-        </Toolbar>
-      </AppBar>
-    </Box>
+    <nav className="navbar">
+      <Controls />
+      <div className="right-section">
+        <DropZoneParser />
+        <Button color="inherit">Войти</Button>
+      </div>
+    </nav>
   );
 }

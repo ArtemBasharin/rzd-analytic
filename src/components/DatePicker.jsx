@@ -1,9 +1,8 @@
 import React from "react";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import "../styles/datePicker-container.css";
+
 import {
-  Button,
+  // Button,
   FormControl,
   // FormHelperText,
   InputAdornment,
@@ -17,7 +16,7 @@ import {
   setCustomCalendar,
   setSankeyArrState,
 } from "../redux/filtersSlice";
-// import FilterAltOutlinedIcon from "@mui/icons-material/FilterAltOutlined";
+import { red } from "@mui/material/colors";
 
 const DateRangePicker = () => {
   const dateStart = useSelector((state) => state.filters.dateStart);
@@ -25,56 +24,56 @@ const DateRangePicker = () => {
   const daysInGroup = useSelector((state) => state.filters.daysInGroup);
   const toolPalette = useSelector((state) => state.filters.toolPalette);
   const dispatch = useDispatch();
-  console.log("DateRangePicker");
-
-  // const [dateStart, setDateStart] = useState(null);
-  // const [dateEnd, setDateEnd] = useState(null);
 
   const handleDateChange = (date, isStart) => {
     if (isStart) {
-      console.log("isStart");
       dispatch(setDateStart(date));
+      dispatch(setCustomCalendar());
+      dispatch(setSankeyArrState());
     } else {
       dispatch(setDateEnd(date));
+      dispatch(setCustomCalendar());
+      dispatch(setSankeyArrState());
     }
   };
 
-  const handleSubmit = () => {
-    const dateRange = { start: dateStart, end: dateEnd };
-    dispatch(setCustomCalendar());
-    dispatch(setSankeyArrState());
-    console.log("dateRange", dateRange);
-  };
-
-  console.log("datepicker", dateStart, dateEnd);
+  // const handleSubmit = () => {
+  //   dispatch(setCustomCalendar());
+  //   dispatch(setSankeyArrState());
+  // };
 
   return (
-    <div className="datePicker-container">
-      <DatePicker
-        selected={dateStart}
-        onChange={(date) => handleDateChange(date, true)}
-        selectsStart
-        startDate={dateStart}
-        endDate={dateEnd}
-        placeholderText="Начало периода"
-        wrapperClassName="datePicker_input"
-        isClearable={true}
-        dateFormat="dd/MM/yy"
-      ></DatePicker>
-      <label className="input-label">От: </label>
-      <label className="input-label">До: </label>
-      <DatePicker
-        selected={dateEnd}
-        onChange={(date) => handleDateChange(date, false)}
-        selectsEnd
-        startDate={dateStart}
-        endDate={dateEnd}
-        minDate={dateStart}
-        placeholderText="Начало периода"
-        isClearable={true}
-        dateFormat="dd/MM/yy"
-        wrapperClassName="datePicker_input"
-      />
+    <>
+      <div className="datePicker-container">
+        <DatePicker
+          selected={dateStart}
+          onChange={(date) => handleDateChange(date, true)}
+          selectsStart
+          startDate={dateStart}
+          endDate={dateEnd}
+          placeholderText="Начало периода"
+          // wrapperClassName="datePicker_input"
+          isClearable={true}
+          dateFormat="dd/MM/yy"
+        />
+        <label className="input-label">От: </label>
+      </div>
+      <div className="datePicker-container">
+        <DatePicker
+          selected={dateEnd}
+          onChange={(date) => handleDateChange(date, false)}
+          selectsEnd
+          startDate={dateStart}
+          endDate={dateEnd}
+          minDate={dateStart}
+          placeholderText="Начало периода"
+          isClearable={true}
+          dateFormat="dd/MM/yy"
+          style={{ color: red }}
+          // wrapperClassName="datePicker_input"
+        />
+        <label className="input-label">До: </label>
+      </div>
 
       <FormControl
         sx={{
@@ -94,10 +93,7 @@ const DateRangePicker = () => {
           }}
         />
       </FormControl>
-      <Button onClick={handleSubmit} color="inherit">
-        Ok
-      </Button>
-    </div>
+    </>
   );
 };
 
