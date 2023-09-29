@@ -6,7 +6,6 @@
 @import url("./styles/chart.css");
 @import url("./styles/dropdownlist.css");
 @import url("./styles/chartloader.css");
-@import url("../node_modules/react-datepicker/dist/react-datepicker.css");
 @import url("../src/styles/datePicker.css");
 
 body {

@@ -7,8 +7,8 @@ import { useSelector, useDispatch } from "react-redux";
 import {
   setPattern,
   setMinValue,
-  setPastYear,
-  setCurrentYear,
+  // setPastYear,
+  // setCurrentYear,
   setSourceState,
   increment,
   decrement,
@@ -153,7 +153,8 @@ export default function SelectAutoWidth() {
           <MenuItem value={"10-12"}>IV квартал</MenuItem>
         </Select>
       </FormControl>
-      {toolPalette.datePickerVisibility !== "none" ? <DateRangePicker /> : ""}
+      <DateRangePicker />
+      {/* {toolPalette.datePickerVisibility === "none" && <DateRangePicker />} */}
     </div>
   );
 }
