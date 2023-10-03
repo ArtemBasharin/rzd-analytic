@@ -2,14 +2,13 @@ import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setCheckedUnits } from "../redux/filtersSlice";
 import { CSSTransition } from "react-transition-group";
+import { TiArrowSortedDown } from "react-icons/ti";
 
 const DropdownUnits = () => {
   const options = useSelector(
     (state) => state.filters.sankeyArrState.uniqueUnitsToolPanel
   );
   const checkedUnits = useSelector((state) => state.filters.checkedUnits);
-  const toolPalette = useSelector((state) => state.filters.toolPalette);
-
   const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -34,13 +33,12 @@ const DropdownUnits = () => {
   }, []);
 
   return (
-    <div
-      className="list_container"
-      style={{ display: `${toolPalette.unitsListVisibility}` }}
-      ref={dropdownRef}
-    >
+    <div className="list_container" ref={dropdownRef}>
       <button onClick={handleToggle} className="tools tools_text-button">
         Подразделения
+        <TiArrowSortedDown
+          className={`tools_dropdown-icon${isOpen ? "_rotate" : ""}`}
+        />
       </button>
       <CSSTransition
         in={isOpen}
@@ -48,7 +46,7 @@ const DropdownUnits = () => {
         classNames="dropdown"
         unmountOnExit
       >
-        <ul className="list">
+        <ul className="list list_units">
           {options.map((option) => (
             <li className="list_element" key={"li-" + option}>
               <label key={option} className="list_label">

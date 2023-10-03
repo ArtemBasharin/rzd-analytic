@@ -37,21 +37,21 @@ let initialCustomCalendar = getCustomCalendar(
 
 let initialToolPalette = {
   kind: "analyze",
-  yearVisibility: "block",
-  minValueVisibility: "none",
-  periodVisibility: "block",
-  datePickerVisibility: "none",
-  unitsListVisibility: "none",
+  yearVisibility: true,
+  minValueVisibility: false,
+  periodVisibility: true,
+  datePickerVisibility: false,
+  unitsListVisibility: false,
 };
 
 let originToolPalette = {
   kind: "",
-  yearVisibility: "block",
-  minValueVisibility: "block",
-  periodVisibility: "block",
-  datePickerVisibility: "block",
-  daysInGroupVisibility: "block",
-  unitsListVisibility: "block",
+  yearVisibility: true,
+  minValueVisibility: true,
+  periodVisibility: true,
+  datePickerVisibility: true,
+  daysInGroupVisibility: true,
+  unitsListVisibility: true,
 };
 
 let initialPattern = () => {
@@ -148,6 +148,37 @@ const filtersSlice = createSlice({
       );
     },
 
+    incrementDaysIngroup(state) {
+      state.daysInGroup = state.daysInGroup + 1;
+      state.customCalendar = getCustomCalendar(
+        state.daysInGroup,
+        state.dateStart,
+        state.dateEnd
+      );
+      state.stackedArrState = getStackedArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.customCalendar
+      );
+      console.log("state.customCalendar", state.stackedArrState);
+    },
+
+    decrementDaysIngroup(state) {
+      state.daysInGroup = state.daysInGroup - 1;
+      state.customCalendar = getCustomCalendar(
+        state.daysInGroup,
+        state.dateStart,
+        state.dateEnd
+      );
+      state.stackedArrState = getStackedArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.customCalendar
+      );
+    },
+
     setPattern(state, action) {
       let period = action.payload;
       let pattern = "";
@@ -161,6 +192,7 @@ const filtersSlice = createSlice({
         }
         pattern = resultArr.join("|");
       }
+      console.log(pattern);
       state.regexpPattern = pattern;
       state.analyzeState = getAnalyze(
         state.sourceState,
@@ -238,29 +270,29 @@ const filtersSlice = createSlice({
       state.toolPalette = originToolPalette;
       if (action.payload === "analyze") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
-        state.toolPalette.datePickerVisibility = "none";
-        state.toolPalette.minValueVisibility = "none";
-        state.toolPalette.daysInGroupVisibility = "none";
-        state.toolPalette.unitsList = "none";
-        state.toolPalette.unitsListVisibility = "none";
+        state.toolPalette.datePickerVisibility = false;
+        state.toolPalette.minValueVisibility = false;
+        state.toolPalette.daysInGroupVisibility = false;
+        state.toolPalette.unitsList = false;
+        state.toolPalette.unitsListVisibility = false;
       }
       if (action.payload === "groupedChart") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
-        state.toolPalette.datePickerVisibility = "none";
-        state.toolPalette.daysInGroupVisibility = "none";
-        state.toolPalette.unitsListVisibility = "none";
+        state.toolPalette.datePickerVisibility = false;
+        state.toolPalette.daysInGroupVisibility = false;
+        state.toolPalette.unitsListVisibility = false;
       }
       if (action.payload === "stacked") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
-        state.toolPalette.yearVisibility = "none";
-        state.toolPalette.minValueVisibility = "none";
-        state.toolPalette.periodVisibility = "none";
+        state.toolPalette.yearVisibility = false;
+        state.toolPalette.minValueVisibility = false;
+        state.toolPalette.periodVisibility = false;
       }
       if (action.payload === "sankey") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
-        state.toolPalette.yearVisibility = "none";
-        state.toolPalette.periodVisibility = "none";
-        state.toolPalette.daysInGroupVisibility = "none";
+        state.toolPalette.yearVisibility = false;
+        state.toolPalette.periodVisibility = false;
+        state.toolPalette.daysInGroupVisibility = false;
       }
     },
 
@@ -283,6 +315,8 @@ export default filtersSlice.reducer;
 export const {
   increment,
   decrement,
+  incrementDaysIngroup,
+  decrementDaysIngroup,
   setPattern,
   setMinValue,
   setAnalyzeState,

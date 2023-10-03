@@ -1,14 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
-import "react-modern-calendar-datepicker/lib/DatePicker.css";
-import { Calendar } from "react-modern-calendar-datepicker";
-
-import {
-  // Button,
-  FormControl,
-  // FormHelperText,
-  InputAdornment,
-  OutlinedInput,
-} from "@mui/material";
+import { DayPicker } from "react-day-picker";
+import { ru } from "date-fns/locale";
+import "react-day-picker/dist/style.css";
+import { CSSTransition } from "react-transition-group";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -17,94 +11,130 @@ import {
   setCustomCalendar,
   setSankeyArrState,
 } from "../redux/filtersSlice";
-import { CSSTransition } from "react-transition-group";
 
 const DateRangePicker = () => {
-  const itemRef = useRef(null);
+  const calendarEndRef = useRef(null);
+  const calendarStartRef = useRef(null);
 
   const dateStart = useSelector((state) => state.filters.dateStart);
   const dateEnd = useSelector((state) => state.filters.dateEnd);
-  const daysInGroup = useSelector((state) => state.filters.daysInGroup);
-  const toolPalette = useSelector((state) => state.filters.toolPalette);
   const dispatch = useDispatch();
 
-  const handleDateStart = () => {
-    dispatch(setDateStart(dateStart));
+  const handleDateStart = (e) => {
+    console.log(e);
+    dispatch(setDateStart(e));
     dispatch(setCustomCalendar());
     dispatch(setSankeyArrState());
     console.log(dateStart);
+    setIsOpenStart(false);
   };
 
-  const handleDateEnd = () => {
-    // dispatch(setDateEnd(dateEnd));
-    // dispatch(setCustomCalendar());
-    // dispatch(setSankeyArrState());
+  const handleDateEnd = (e) => {
+    console.log(e);
+    dispatch(setDateEnd(e));
+    dispatch(setCustomCalendar());
+    dispatch(setSankeyArrState());
     console.log(dateEnd);
-  };
-  // const [selectedDay, setSelectedDay] = useState(null);
-
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleToggle = () => {
-    setIsOpen(!isOpen);
+    setIsOpenEnd(false);
   };
 
-  const handleClickOutside = (event) => {
-    if (itemRef.current && !itemRef.current.contains(event.target)) {
-      setIsOpen(false);
+  const [isOpenStart, setIsOpenStart] = useState(false);
+  const handleToggleStart = () => {
+    setIsOpenStart(!isOpenStart);
+  };
+
+  const [isOpenEnd, setIsOpenEnd] = useState(false);
+  const handleToggleEnd = () => {
+    setIsOpenEnd(!isOpenEnd);
+  };
+
+  const handleClickOutsideStart = (event) => {
+    if (
+      calendarStartRef.current &&
+      !calendarStartRef.current.contains(event.target)
+    ) {
+      setIsOpenStart(false);
+    }
+  };
+
+  const handleClickOutsideEnd = (event) => {
+    if (
+      calendarEndRef.current &&
+      !calendarEndRef.current.contains(event.target)
+    ) {
+      setIsOpenEnd(false);
     }
   };
 
   useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutsideStart);
+    document.addEventListener("mousedown", handleClickOutsideEnd);
+
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutsideStart);
+      document.removeEventListener("mousedown", handleClickOutsideEnd);
     };
   }, []);
 
-  const [selectedDay, setSelectedDay] = useState(null);
-
   return (
     <>
-      <div className="datePicker-container">
-        <button onClick={handleToggle} className="tools tools_text-button">
-          Дата
+      <div className="list_container" ref={calendarStartRef}>
+        <button
+          onClick={handleToggleStart}
+          className="tools tools_text-button list_element_year "
+        >
+          {`${dateStart.getDate()}/${
+            dateStart.getMonth() + 1
+          }/${dateStart.getFullYear()}`}
         </button>
+        <span className="input-label">От:</span>
         <CSSTransition
-          in={isOpen}
+          in={isOpenStart}
           timeout={100}
           classNames="dropdown"
-          // nodeRef={itemRef}
+          // nodeRef={calendarStartRef}
           unmountOnExit
         >
-          <div
-            className="list"
-            // ref={itemRef}
-            key={"responsive-calendarFrom-cont"}
-          >
-            <Calendar
-              value={selectedDay}
-              onChange={setSelectedDay}
-              calendarClassName="responsive-calendar" // added this
-              key={"responsive-calendarFrom"}
-              shouldHighlightWeekends
-            />
-          </div>
+          <DayPicker
+            mode="single"
+            selected={dateStart}
+            onSelect={handleDateStart}
+            key={"datepickerstart"}
+            className="calendar_container"
+            locale={ru}
+            defaultMonth={dateStart}
+          />
         </CSSTransition>
-
-        <span className="input-label">От:</span>
       </div>
-      {/* <div className="datePicker-container">
-        <DatePicker
-          value={dateEnd}
-          onChange={handleDateEnd}
-          formatInputText={"дата"}
-          key={"datepickerend"} // format value
-          // inputClassName="my-custom-input" // custom class
-          // shouldHighlightWeekends
-        />
-        <label className="input-label">До: </label>
-      </div> */}
+
+      <div className="list_container" ref={calendarEndRef}>
+        <button
+          onClick={handleToggleEnd}
+          className="tools tools_text-button list_element_year "
+        >
+          {`${dateEnd.getDate()}/${
+            dateEnd.getMonth() + 1
+          }/${dateEnd.getFullYear()}`}
+        </button>
+        <span className="input-label">До:</span>
+        <CSSTransition
+          in={isOpenEnd}
+          timeout={100}
+          classNames="dropdown"
+          // nodeRef={calendarEndRef}
+          unmountOnExit
+        >
+          <DayPicker
+            mode="single"
+            selected={dateEnd}
+            onSelect={handleDateEnd}
+            key={"datepickerend"}
+            className="calendar_container"
+            locale={ru}
+            defaultMonth={dateEnd}
+          />
+        </CSSTransition>
+      </div>
 
       {/* <FormControl
         sx={{

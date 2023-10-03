@@ -7,6 +7,7 @@
 @import url("./styles/dropdownlist.css");
 @import url("./styles/chartloader.css");
 @import url("../src/styles/datePicker.css");
+@import url("../src/styles/drawermenu.css");
 
 body {
   margin: 0;
