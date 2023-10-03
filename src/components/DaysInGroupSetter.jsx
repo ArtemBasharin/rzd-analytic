@@ -7,7 +7,7 @@ import {
   setDaysInGroup,
 } from "../redux/filtersSlice";
 
-const DaysInGroup = () => {
+const DaysInGroupSetter = () => {
   const daysInGroup = useSelector((state) => state.filters.daysInGroup);
   const dispatch = useDispatch();
 
@@ -40,4 +40,4 @@ const DaysInGroup = () => {
   );
 };
 
-export default DaysInGroup;
+export default DaysInGroupSetter;

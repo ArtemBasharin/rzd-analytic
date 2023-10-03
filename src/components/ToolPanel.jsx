@@ -6,11 +6,11 @@ import DateRangePicker from "./DatePicker";
 import DropdownUnits from "./DropdownUnits";
 import DropdownPastYear from "./DropdownPastYear";
 import DropdownCurrentYear from "./DropdownCurrentYear";
-import DaysInGroup from "./DaysInGroup";
+import DaysInGroupSetter from "./DaysInGroupSetter";
 import MinValueSetter from "./MinValueSetter";
 import PeriodSetter from "./PeriodSetter";
 
-export default function SelectAutoWidth() {
+const ToolPanel = () => {
   const toolPalette = useSelector((state) => state.filters.toolPalette);
   const dispatch = useDispatch();
   let date = new Date();
@@ -39,8 +39,9 @@ export default function SelectAutoWidth() {
       {toolPalette.yearVisibility && <DropdownPastYear />}
       {toolPalette.yearVisibility && <DropdownCurrentYear />}
       {toolPalette.periodVisibility && <PeriodSetter />}
-      {toolPalette.daysInGroupVisibility && <DaysInGroup />}
+      {toolPalette.daysInGroupVisibility && <DaysInGroupSetter />}
       {toolPalette.datePickerVisibility && <DateRangePicker />}
     </div>
   );
-}
+};
+export default ToolPanel;
