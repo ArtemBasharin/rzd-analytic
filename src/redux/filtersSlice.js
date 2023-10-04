@@ -63,7 +63,7 @@ let initialPattern = () => {
   }
 };
 
-let initialMinvalue = 0;
+let initialMinvalue = 1;
 
 let initialSankeyState = getSankeyArr(
   arrSource,
@@ -139,6 +139,7 @@ const filtersSlice = createSlice({
     },
 
     decrement(state) {
+      console.log(state.minValue);
       state.minValue = state.minValue - 1;
       state.sankeyArrState = getSankeyArr(
         state.sourceState,
@@ -146,6 +147,7 @@ const filtersSlice = createSlice({
         state.dateEnd,
         state.minValue
       );
+      console.log(state.sankeyArrState);
     },
 
     incrementDaysIngroup(state) {

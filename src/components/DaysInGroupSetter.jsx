@@ -16,7 +16,7 @@ const DaysInGroupSetter = () => {
   };
 
   const handleDecrement = () => {
-    dispatch(decrementDaysIngroup());
+    daysInGroup > 1 && dispatch(decrementDaysIngroup());
   };
 
   return (
@@ -28,6 +28,7 @@ const DaysInGroupSetter = () => {
       <input
         className="tools_square "
         type="text"
+        min={1}
         value={daysInGroup}
         onChange={(e) => dispatch(setDaysInGroup(Number(e.target.value)))}
       />

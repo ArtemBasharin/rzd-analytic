@@ -11,7 +11,11 @@ const MinValueSetter = () => {
   };
 
   const handleDecrement = () => {
-    dispatch(decrement());
+    if (minValue > 0) dispatch(decrement());
+  };
+
+  const handleChangeValue = (e) => {
+    if (minValue > 0) dispatch(setMinValue(Number(e.target.value)));
   };
 
   return (
@@ -23,8 +27,9 @@ const MinValueSetter = () => {
       <input
         className="tools_square "
         type="text"
+        min="0"
         value={minValue}
-        onChange={(e) => dispatch(setMinValue(Number(e.target.value)))}
+        onChange={(e) => handleChangeValue(e)}
       />
       <button
         className="tools tools_square tools_plus"

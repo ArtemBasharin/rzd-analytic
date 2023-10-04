@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSourceState } from "../redux/filtersSlice";
 import axios from "axios";
@@ -9,12 +9,12 @@ import DropdownCurrentYear from "./DropdownCurrentYear";
 import DaysInGroupSetter from "./DaysInGroupSetter";
 import MinValueSetter from "./MinValueSetter";
 import PeriodSetter from "./PeriodSetter";
-import { CSSTransition, SwitchTransition } from "react-transition-group";
+import { CSSTransition } from "react-transition-group";
 
 const ToolPanel = () => {
   const toolPalette = useSelector((state) => state.filters.toolPalette);
   const dispatch = useDispatch();
-  const ref = useRef();
+  // const ref = useRef();
   let date = new Date();
 
   useEffect(() => {
