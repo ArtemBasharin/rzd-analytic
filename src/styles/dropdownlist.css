@@ -51,15 +51,15 @@
 }
 
 .dropdown-enter-active {
-  max-height: auto;
-  transition: max-height 0.5s ease-out;
+  max-height: 500px;
+  transition: max-height 0.5s ease;
 }
 
 .dropdown-exit {
-  max-height: auto;
+  max-height: 500px;
 }
 
 .dropdown-exit-active {
   max-height: 0;
-  transition: max-height 0.3s ease;
+  transition: max-height 0.5s ease;
 }

@@ -90,7 +90,7 @@ const DateRangePicker = () => {
         <span className="input-label">От:</span>
         <CSSTransition
           in={isOpenStart}
-          timeout={100}
+          timeout={300}
           classNames="dropdown"
           // nodeRef={calendarStartRef}
           unmountOnExit
@@ -119,7 +119,7 @@ const DateRangePicker = () => {
         <span className="input-label">До:</span>
         <CSSTransition
           in={isOpenEnd}
-          timeout={100}
+          timeout={300}
           classNames="dropdown"
           // nodeRef={calendarEndRef}
           unmountOnExit

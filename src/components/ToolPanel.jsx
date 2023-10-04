@@ -44,9 +44,7 @@ const ToolPanel = () => {
         // nodeRef={ref}
         unmountOnExit
       >
-        <div>
-          <DropdownUnits />
-        </div>
+        <DropdownUnits />
       </CSSTransition>
       <CSSTransition
         in={toolPalette.minValueVisibility}
