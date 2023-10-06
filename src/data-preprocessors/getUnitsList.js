@@ -11,15 +11,13 @@ export const getUnitsList = (arr) => {
   arr.forEach((element) => {
     result.add(element[key]);
   });
-  let result1 = Array.from(result);
+  let result2 = Array.from(result);
   let result3 = [];
-  result1.forEach((element) => {
+  result2.forEach((element) => {
     result3.push({
       guiltyUnit: element,
-      stackedChecked: true,
-      sankeyChecked: true,
-      stackedIsDisabled: false,
-      sankeyIsDisabled: false,
+      checked: true,
+      isDisabled: false,
     });
   });
   console.log(result3);

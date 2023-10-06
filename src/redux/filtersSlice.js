@@ -110,15 +110,17 @@ const filtersSlice = createSlice({
     stackedArrState: initialStackedState,
     sankeyArrState: initialSankeyState,
     toolPalette: initialToolPalette,
-    checkedUnits: initialCheckedUnits,
+    stackedCheckList: initialCheckedUnits,
+    sankeyCheckList: initialCheckedUnits,
   },
 
   reducers: {
     setSourceState(state, action) {
       state.sourceState = action.payload;
-      state.checkedUnits = getUnitsList(action.payload);
       console.log("state.sourceState", state.sourceState);
-      console.log("state.checkedUnits", state.checkedUnits);
+
+      state.stackedCheckList = getUnitsList(action.payload);
+      state.sankeyCheckList = getUnitsList(action.payload);
 
       state.analyzeState = getAnalyze(
         state.sourceState,
@@ -126,12 +128,13 @@ const filtersSlice = createSlice({
         state.currentYear,
         state.regexpPattern
       );
+
       state.stackedArrState = getStackedArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
-        state.checkedUnits
+        state.stackedCheckList
       );
 
       let sankeyArr = getSankeyArr(
@@ -139,11 +142,11 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.minValue,
-        state.checkedUnits
+        state.sankeyCheckList
       );
 
       state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
-      state.checkedUnits = sankeyArr.unitsList;
+      state.sankeyCheckList = sankeyArr.unitsList;
     },
 
     increment(state) {
@@ -318,7 +321,7 @@ const filtersSlice = createSlice({
 
     setCheckedUnits(state, action) {
       console.log(action.payload);
-
+      
       const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
         console.log(current(searchValue), newCheckedValue);
         const updatedArray = array.map((item) => {
@@ -339,6 +342,8 @@ const filtersSlice = createSlice({
         action.payload.guiltyUnit,
         action.payload.checked
       );
+
+
 
       console.log("state.checkedUnits", state.checkedUnits);
       state.stackedArrState = getStackedArr(

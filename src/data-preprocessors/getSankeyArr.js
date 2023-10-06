@@ -99,8 +99,7 @@ export const getSankeyArr = (
   let checkedUnitsSimpleArray = [];
   if (unitsList)
     unitsList.forEach(
-      (el) =>
-        el.sankeyChecked === true && checkedUnitsSimpleArray.push(el.guiltyUnit)
+      (el) => el.checked === true && checkedUnitsSimpleArray.push(el.guiltyUnit)
     );
   console.log("checkedUnitsSimpleArray", checkedUnitsSimpleArray);
 

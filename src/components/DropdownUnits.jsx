@@ -8,7 +8,11 @@ const DropdownUnits = () => {
   // const options = useSelector(
   //   (state) => state.filters.sankeyArrState.uniqueUnitsToolPanel
   // );
-  const unitsCheckList = useSelector((state) => state.filters.checkedUnits);
+  const stackedCheckList = useSelector(
+    (state) => state.filters.stackedCheckList
+  );
+  const sankeyCheckList = useSelector((state) => state.filters.sankeyCheckList);
+
   const toolPalette = useSelector((state) => state.filters.toolPalette);
 
   const dispatch = useDispatch();
@@ -49,9 +53,9 @@ const DropdownUnits = () => {
         unmountOnExit
       >
         <ul className="list list_units">
-          {unitsCheckList.map((option) => (
-            <li className="list_element" key={"li-" + option.guiltyUnit}>
-              {toolPalette.kind === "stacked" && (
+          {toolPalette.kind === "stacked" &&
+            stackedCheckList.map((option) => (
+              <li className="list_element" key={"li-" + option.guiltyUnit}>
                 <label
                   key={option.guiltyUnit + toolPalette.kind}
                   className="list_label"
@@ -62,6 +66,7 @@ const DropdownUnits = () => {
                     value={option.guiltyUnit}
                     // defaultChecked="true"
                     checked={option.stackedChecked}
+                    disabled={option.stackedIsDisabled}
                     onChange={(e) =>
                       dispatch(
                         setCheckedUnits({
@@ -70,13 +75,15 @@ const DropdownUnits = () => {
                         })
                       )
                     }
-                    disabled={option.stackedIsDisabled}
                   />
                   {option.guiltyUnit}
                 </label>
-              )}
+              </li>
+            ))}
 
-              {toolPalette.kind === "sankey" && (
+          {toolPalette.kind === "sankey" &&
+            sankeyCheckList.map((option) => (
+              <li className="list_element" key={"li-" + option.guiltyUnit}>
                 <label
                   key={option.guiltyUnit + toolPalette.kind}
                   className="list_label"
@@ -87,21 +94,20 @@ const DropdownUnits = () => {
                     value={option.guiltyUnit}
                     // defaultChecked="true"
                     checked={option.sankeyChecked}
+                    disabled={option.sankeyIsDisabled}
                     onChange={(e) =>
                       dispatch(
-                        setCheckedUnits({
+                        setSankeyCheckList({
                           guiltyUnit: e.target.value,
                           checked: e.target.sankeyChecked,
                         })
                       )
                     }
-                    disabled={option.sankeyIsDisabled}
                   />
                   {option.guiltyUnit}
                 </label>
-              )}
-            </li>
-          ))}
+              </li>
+            ))}
         </ul>
       </CSSTransition>
     </div>

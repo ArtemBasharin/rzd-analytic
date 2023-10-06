@@ -21,7 +21,7 @@ function Main() {
   const srcArr = useSelector((state) => state.filters.analyzeState);
   const originArr = useSelector((state) => state.filters.stackedArrState);
   const minValue = useSelector((state) => state.filters.minValue);
-  const checkedUnits = useSelector((state) => state.filters.checkedUnits);
+  const checkedUnits = useSelector((state) => state.filters.stackedCheckList);
 
   const dispatch = useDispatch();
 
