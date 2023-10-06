@@ -5,34 +5,30 @@ import { getStackedArr } from "../data-preprocessors/getStackedArr";
 import testArr from "../data-preprocessors/dummyArr";
 import { getCustomCalendar } from "../data-preprocessors/getCustomCalendar";
 import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
+import { getUnitsList } from "../data-preprocessors/getUnitsList";
 
-const filterUnits = (arr, actionPayload) => {
-  let tempArr = new Set();
-  console.log(actionPayload);
-  arr.forEach((el) => tempArr.add(el));
-  if (actionPayload.checked) {
-    console.log("checked", actionPayload.value);
-    tempArr.add(actionPayload.value);
-  } else {
-    console.log("not checked", actionPayload.value);
-    tempArr.delete(actionPayload.value);
-  }
-  console.log("state.sankeyCheckedUnits", tempArr);
-  return Array.from(tempArr);
-};
+// const filterUnits = (arr, actionPayload) => {
+//   let tempArr = new Set();
+//   console.log(actionPayload);
+//   arr.forEach((el) => tempArr.add(el));
+//   if (actionPayload.checked) {
+//     console.log("checked", actionPayload.value);
+//     tempArr.add(actionPayload.value);
+//   } else {
+//     console.log("not checked", actionPayload.value);
+//     tempArr.delete(actionPayload.value);
+//   }
+//   console.log("state.sankeyCheckedUnits", tempArr);
+//   return Array.from(tempArr);
+// };
 
 let date = new Date();
 let arrSource = testArr;
+let initialMinvalue = 1;
+let initialDaysInGroup = 1;
 let initialStartDate = new Date(date.getFullYear(), 7, 1);
-
 let initialEndDate = new Date(
   new Date(date.getFullYear(), date.getMonth(), 1) - 1
-);
-
-let initialCustomCalendar = getCustomCalendar(
-  5,
-  initialStartDate,
-  initialEndDate
 );
 
 let initialToolPalette = {
@@ -54,6 +50,12 @@ let originToolPalette = {
   unitsListVisibility: true,
 };
 
+let initialCustomCalendar = getCustomCalendar(
+  initialDaysInGroup,
+  initialStartDate,
+  initialEndDate
+);
+
 let initialPattern = () => {
   let period = date.getMonth();
   if (period < 10) {
@@ -63,15 +65,32 @@ let initialPattern = () => {
   }
 };
 
-let initialMinvalue = 1;
+let initialCheckedUnits = getUnitsList(arrSource);
+
+let initialAnalyzeState = getAnalyze(
+  arrSource,
+  date.getFullYear() - 1,
+  date.getFullYear(),
+  initialPattern()
+);
+
+let initialStackedState = getStackedArr(
+  arrSource,
+  new Date(date.getFullYear() - 1, 0, 1),
+  initialEndDate,
+  initialCustomCalendar,
+  initialCheckedUnits
+);
 
 let initialSankeyState = getSankeyArr(
   arrSource,
   initialStartDate,
   initialEndDate,
-  initialMinvalue
+  initialMinvalue,
+  initialCheckedUnits
 );
 
+////////////////////////////////////////////////////////////////////////////////
 const filtersSlice = createSlice({
   name: "filters",
   initialState: {
@@ -79,7 +98,7 @@ const filtersSlice = createSlice({
     pageHeight: window.innerHeight,
     sourceState: [],
     minValue: initialMinvalue,
-    daysInGroup: 5,
+    daysInGroup: initialDaysInGroup,
     currentYear: date.getFullYear(),
     pastYear: date.getFullYear() - 1,
     dateStart: initialStartDate,
@@ -87,26 +106,20 @@ const filtersSlice = createSlice({
     dateEnd: initialEndDate,
     customCalendar: initialCustomCalendar,
     regexpPattern: initialPattern(),
-    analyzeState: getAnalyze(
-      arrSource,
-      date.getFullYear() - 1,
-      date.getFullYear(),
-      initialPattern()
-    ),
-    stackedArrState: getStackedArr(
-      arrSource,
-      new Date(date.getFullYear() - 1, 0, 1),
-      initialEndDate,
-      initialCustomCalendar
-    ),
+    analyzeState: initialAnalyzeState,
+    stackedArrState: initialStackedState,
     sankeyArrState: initialSankeyState,
     toolPalette: initialToolPalette,
-    checkedUnits: initialSankeyState.uniqueUnitsToolPanel,
+    checkedUnits: initialCheckedUnits,
   },
 
   reducers: {
     setSourceState(state, action) {
       state.sourceState = action.payload;
+      state.checkedUnits = getUnitsList(action.payload);
+      console.log("state.sourceState", state.sourceState);
+      console.log("state.checkedUnits", state.checkedUnits);
+
       state.analyzeState = getAnalyze(
         state.sourceState,
         state.pastYear,
@@ -117,15 +130,20 @@ const filtersSlice = createSlice({
         state.sourceState,
         state.dateStart,
         state.dateEnd,
-        current(state.customCalendar)
+        state.customCalendar,
+        state.checkedUnits
       );
-      state.sankeyArrState = getSankeyArr(
+
+      let sankeyArr = getSankeyArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
-        state.minValue
+        state.minValue,
+        state.checkedUnits
       );
-      state.checkedUnits = state.sankeyArrState.uniqueUnitsToolPanel;
+
+      state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
+      state.checkedUnits = sankeyArr.unitsList;
     },
 
     increment(state) {
@@ -299,15 +317,43 @@ const filtersSlice = createSlice({
     },
 
     setCheckedUnits(state, action) {
-      console.log(action);
-      state.checkedUnits = filterUnits([...state.checkedUnits], action.payload);
+      console.log(action.payload);
+
+      const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
+        console.log(current(searchValue), newCheckedValue);
+        const updatedArray = array.map((item) => {
+          if (item.guiltyUnit === searchValue) {
+            return {
+              ...item,
+              checked: newCheckedValue,
+            };
+          }
+          return item;
+        });
+
+        return updatedArray;
+      };
+
+      state.checkedUnits = updateCheckedProperty(
+        ...state.checkedUnits,
+        action.payload.guiltyUnit,
+        action.payload.checked
+      );
+
       console.log("state.checkedUnits", state.checkedUnits);
+      state.stackedArrState = getStackedArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.customCalendar,
+        current(state.checkedUnits)
+      );
       state.sankeyArrState = getSankeyArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
         state.minValue,
-        state.checkedUnits
+        current(state.checkedUnits)
       );
     },
   },

@@ -1,19 +1,21 @@
 import React, { useRef, useEffect } from "react";
 import * as d3 from "d3";
-import { similarColors } from "../config/config";
+// import { similarColors } from "../config/config";
 import { useSelector } from "react-redux";
 // import { interpolateRainbow } from "d3-scale-chromatic";
 // import chroma from "chroma-js";
 
 const StackedAreaDiagram = (props) => {
+  // console.log("StackedAreaDiagram");
   const svgRef5 = useRef();
   const minValue = useSelector((state) => state.filters.minValue);
+  const period = useSelector((state) => state.filters.regexpPattern);
+
   d3.select("#id21").selectAll("g").remove();
 
   useEffect(() => {
-    // console.log("StackedAreaDiagram load", props.src.length);
-
     let resData = props.src;
+    // console.log("StackedAreaDiagram load", props.src);
 
     // set the dimensions and margins of the graph
     const margin = { top: 20, right: 160, bottom: 30, left: 100 },
@@ -34,7 +36,12 @@ const StackedAreaDiagram = (props) => {
 
     // List of groups = header of the csv files
     // console.log("resData", resData);
-    const keys = Object.keys(resData[0]).slice(1);
+
+    // const keys = Object.keys(resData[0]).slice(1);
+
+    // let keys = props.keys;
+    let keys = [];
+    props.keys.forEach((el) => keys.push(el.guiltyUnit));
     // console.log("keys", keys);
 
     // Add X axis
@@ -78,7 +85,7 @@ const StackedAreaDiagram = (props) => {
       // .scalePow()
       // .exponent(5.1)
       .scaleLinear()
-      .domain([0, props.yMax + 50])
+      .domain([0, props.yMax * 1.05])
       .range([height, 0]);
     svg.append("g").call(d3.axisLeft(y));
 
@@ -86,7 +93,8 @@ const StackedAreaDiagram = (props) => {
     // const colorPalette = d3.schemeCategory10;
 
     // color palette
-    const color = d3.scaleOrdinal().domain(keys).range(similarColors);
+    // const color = d3.scaleOrdinal().domain(keys).range(similarColors);
+    const color = d3.scaleOrdinal().domain(keys).range(d3.schemeSet2);
 
     // if you'll need to use chromatic colors
     // const color = d3
@@ -129,11 +137,11 @@ const StackedAreaDiagram = (props) => {
       );
 
     // Add one circle in the legend for each name.
-    let newKeys = [];
-    if (keys.length > 46) newKeys = keys.slice(0, 46);
+    // let newKeys = [];
+    // keys.length > 46 ? (newKeys = keys.slice(0, 46)) : (newKeys = keys);
     svg
       .selectAll("mydots")
-      .data(newKeys)
+      .data(keys)
       .enter()
       .append("circle")
       .attr("cx", width - 180)
@@ -148,7 +156,7 @@ const StackedAreaDiagram = (props) => {
     // Add text in the legend for each name.
     svg
       .selectAll("mylabels")
-      .data(newKeys)
+      .data(keys)
       .enter()
       .append("text")
       .attr("x", width - 160)
@@ -162,7 +170,7 @@ const StackedAreaDiagram = (props) => {
       })
       .attr("text-anchor", "left")
       .style("alignment-baseline", "middle");
-  }, [props.src, minValue]);
+  }, [props.src, minValue, period, props.yMax, props.keys]);
 
   return (
     <svg

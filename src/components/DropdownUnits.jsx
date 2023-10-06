@@ -5,10 +5,12 @@ import { CSSTransition } from "react-transition-group";
 import { TiArrowSortedDown } from "react-icons/ti";
 
 const DropdownUnits = () => {
-  const options = useSelector(
-    (state) => state.filters.sankeyArrState.uniqueUnitsToolPanel
-  );
-  const checkedUnits = useSelector((state) => state.filters.checkedUnits);
+  // const options = useSelector(
+  //   (state) => state.filters.sankeyArrState.uniqueUnitsToolPanel
+  // );
+  const unitsCheckList = useSelector((state) => state.filters.checkedUnits);
+  const toolPalette = useSelector((state) => state.filters.toolPalette);
+
   const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -47,19 +49,57 @@ const DropdownUnits = () => {
         unmountOnExit
       >
         <ul className="list list_units">
-          {options.map((option) => (
-            <li className="list_element" key={"li-" + option}>
-              <label key={option} className="list_label">
-                <input
-                  className="list_input"
-                  type="checkbox"
-                  value={option}
-                  defaultChecked="true"
-                  checked={checkedUnits.includes(option)}
-                  onChange={(e) => dispatch(setCheckedUnits(e.target))}
-                />
-                {option}
-              </label>
+          {unitsCheckList.map((option) => (
+            <li className="list_element" key={"li-" + option.guiltyUnit}>
+              {toolPalette.kind === "stacked" && (
+                <label
+                  key={option.guiltyUnit + toolPalette.kind}
+                  className="list_label"
+                >
+                  <input
+                    className="list_input"
+                    type="checkbox"
+                    value={option.guiltyUnit}
+                    // defaultChecked="true"
+                    checked={option.stackedChecked}
+                    onChange={(e) =>
+                      dispatch(
+                        setCheckedUnits({
+                          guiltyUnit: e.target.value,
+                          checked: e.target.stackedChecked,
+                        })
+                      )
+                    }
+                    disabled={option.stackedIsDisabled}
+                  />
+                  {option.guiltyUnit}
+                </label>
+              )}
+
+              {toolPalette.kind === "sankey" && (
+                <label
+                  key={option.guiltyUnit + toolPalette.kind}
+                  className="list_label"
+                >
+                  <input
+                    className="list_input"
+                    type="checkbox"
+                    value={option.guiltyUnit}
+                    // defaultChecked="true"
+                    checked={option.sankeyChecked}
+                    onChange={(e) =>
+                      dispatch(
+                        setCheckedUnits({
+                          guiltyUnit: e.target.value,
+                          checked: e.target.sankeyChecked,
+                        })
+                      )
+                    }
+                    disabled={option.sankeyIsDisabled}
+                  />
+                  {option.guiltyUnit}
+                </label>
+              )}
             </li>
           ))}
         </ul>

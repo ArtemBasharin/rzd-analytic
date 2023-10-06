@@ -17,10 +17,11 @@ function Main() {
   //clear old svg
   // d3.selectAll("g").remove();
 
-  let maxYear = useSelector((state) => state.filters.currentYear);
-  let srcArr = useSelector((state) => state.filters.analyzeState);
-  let originArr = useSelector((state) => state.filters.stackedArrState);
-  let minValue = useSelector((state) => state.filters.minValue);
+  const maxYear = useSelector((state) => state.filters.currentYear);
+  const srcArr = useSelector((state) => state.filters.analyzeState);
+  const originArr = useSelector((state) => state.filters.stackedArrState);
+  const minValue = useSelector((state) => state.filters.minValue);
+  const checkedUnits = useSelector((state) => state.filters.checkedUnits);
 
   const dispatch = useDispatch();
 
@@ -202,6 +203,7 @@ function Main() {
           <StackedAreaDiagram
             src={originArr.unitedDatesResult}
             yMax={originArr.yMax}
+            keys={checkedUnits}
           />
         </SwiperSlide>
 

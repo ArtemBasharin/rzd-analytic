@@ -49,7 +49,7 @@ const SankeyDiagram = () => {
       links: resData.links.map((d) => ({ ...d })),
     });
 
-    console.log("nodes", nodes);
+    // console.log("nodes", nodes);
 
     svg
       .append("g")

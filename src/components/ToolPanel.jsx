@@ -22,7 +22,7 @@ const ToolPanel = () => {
       "fromYear": date.getFullYear() - 1,
       "toYear": date.getFullYear(),
     };
-
+    console.log("params", params);
     axios
       .get("/violations", { params })
       .then(function (res) {
@@ -38,6 +38,7 @@ const ToolPanel = () => {
   return (
     <div className="controls-container">
       <CSSTransition
+        // in={toolPalette.unitsListVisibility}
         in={toolPalette.unitsListVisibility}
         timeout={timeout}
         classNames="fade"
