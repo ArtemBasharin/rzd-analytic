@@ -10,6 +10,7 @@ const StackedAreaDiagram = (props) => {
   const svgRef5 = useRef();
   const minValue = useSelector((state) => state.filters.minValue);
   const period = useSelector((state) => state.filters.regexpPattern);
+  const checkList = useSelector((state) => state.filters.stackedCheckList);
 
   d3.select("#id21").selectAll("g").remove();
 
@@ -133,6 +134,8 @@ const StackedAreaDiagram = (props) => {
           .y1(function (d) {
             return y(d[1]);
           })
+          // .curve(d3.curveCardinal.tension(0.8))
+          // .curve(d3.curveStep)
           .curve(d3.curveBumpX)
       );
 
@@ -170,7 +173,7 @@ const StackedAreaDiagram = (props) => {
       })
       .attr("text-anchor", "left")
       .style("alignment-baseline", "middle");
-  }, [props.src, minValue, period, props.yMax, props.keys]);
+  }, [props.src, minValue, period, props.yMax, props.keys, checkList]);
 
   return (
     <svg

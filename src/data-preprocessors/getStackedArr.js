@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import cloneDeep from "lodash.clonedeep";
 
 import {
   startTime,
@@ -77,7 +78,7 @@ export const getStackedArr = (
       guiltyUnit: el[guiltyUnit],
     })
   );
-  // console.log("summedDurationsList", summedDurationsList);
+  console.log("summedDurationsList", summedDurationsList);
 
   let result = [];
   let units = new Set();
@@ -144,10 +145,40 @@ export const getStackedArr = (
   let deletedEmptyDatesArr = unitedDatesResult.filter(
     (el) => Object.keys(el).length !== 1
   );
+  console.log("deletedEmptyDatesArr", deletedEmptyDatesArr);
 
-  // console.log("deletedEmptyDatesArr", deletedEmptyDatesArr);
   const keysArr = Object.keys(deletedEmptyDatesArr[0]).slice(1);
+  console.log("keysArr", keysArr);
 
-  // console.log("untidyList", deletedEmptyDatesArr, yMax);
-  return { unitedDatesResult: deletedEmptyDatesArr, yMax: yMax, keys: keysArr };
+  //////////////////////////// stacked checklist section ////////////////////////////
+
+  let unitsListAsSet = new Set();
+  summedDurationsList.forEach((el) => unitsListAsSet.add(el.guiltyUnit));
+  let unitsListAsArr = Array.from(unitsListAsSet); // new list array
+
+  console.log("unitsListAsArr", unitsListAsArr);
+  console.log("unitsList", unitsList);
+
+  let removedOldUnitsChecklist = unitsList.filter((el) =>
+    unitsListAsArr.includes(el.guiltyUnit)
+  );
+  console.log("removedOldUnitsChecklist", removedOldUnitsChecklist);
+
+  // unitsList.forEach(el => {
+  //   unitsListAsArr.includes(el.guiltyUnit) && removedOldUnitsChecklist.push(el)
+  // });
+
+  // for (let i = 0; i < updatedUnitsChecklist.length; i++) {
+  //   const el = updatedUnitsChecklist[i];
+  //   if (!unitsListAsArr.includes(el.guiltyUnit)) el.isDisabled = true;
+  // }
+  // console.log("checkedUnitsSimpleArray", checkedUnitsSimpleArray);
+  // console.log("updatedUnitsChecklist", updatedUnitsChecklist);
+
+  return {
+    unitedDatesResult: deletedEmptyDatesArr,
+    yMax: yMax,
+    keys: keysArr,
+    unitsList: removedOldUnitsChecklist,
+  };
 };

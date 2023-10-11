@@ -1,20 +1,16 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setCheckedUnits } from "../redux/filtersSlice";
+import { setSankeyCheckList, setStackedCheckList } from "../redux/filtersSlice";
 import { CSSTransition } from "react-transition-group";
 import { TiArrowSortedDown } from "react-icons/ti";
 
 const DropdownUnits = () => {
-  // const options = useSelector(
-  //   (state) => state.filters.sankeyArrState.uniqueUnitsToolPanel
-  // );
   const stackedCheckList = useSelector(
     (state) => state.filters.stackedCheckList
   );
   const sankeyCheckList = useSelector((state) => state.filters.sankeyCheckList);
-
   const toolPalette = useSelector((state) => state.filters.toolPalette);
-
+  const customCalendar = useSelector((state) => state.filters.customCalendar);
   const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -36,7 +32,7 @@ const DropdownUnits = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [customCalendar]);
 
   return (
     <div className="list_container" ref={dropdownRef}>
@@ -65,13 +61,13 @@ const DropdownUnits = () => {
                     type="checkbox"
                     value={option.guiltyUnit}
                     // defaultChecked="true"
-                    checked={option.stackedChecked}
-                    disabled={option.stackedIsDisabled}
+                    checked={option.checked}
+                    disabled={option.isDisabled}
                     onChange={(e) =>
                       dispatch(
-                        setCheckedUnits({
+                        setStackedCheckList({
                           guiltyUnit: e.target.value,
-                          checked: e.target.stackedChecked,
+                          checked: e.target.checked,
                         })
                       )
                     }
@@ -93,13 +89,13 @@ const DropdownUnits = () => {
                     type="checkbox"
                     value={option.guiltyUnit}
                     // defaultChecked="true"
-                    checked={option.sankeyChecked}
-                    disabled={option.sankeyIsDisabled}
+                    checked={option.checked}
+                    disabled={option.isDisabled}
                     onChange={(e) =>
                       dispatch(
                         setSankeyCheckList({
                           guiltyUnit: e.target.value,
-                          checked: e.target.sankeyChecked,
+                          checked: e.target.checked,
                         })
                       )
                     }

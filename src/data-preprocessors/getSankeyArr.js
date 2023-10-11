@@ -22,7 +22,7 @@ export const getSankeyArr = (
   // console.log("dateEnd", dateEnd);
   // console.log("dateStart", dateStart);
   // console.log("srcArray", srcArray);
-  console.log("unitsList", unitsList);
+  // console.log("unitsList", unitsList);
 
   const calcTotalDurationValue = (obj) => {
     let freightDur,
@@ -76,13 +76,13 @@ export const getSankeyArr = (
       srcArrayMergedByUniqueUnits[index].otherDuration += obj.otherDuration;
     }
   });
-  console.log("srcArrayMergedByUniqueUnits", srcArrayMergedByUniqueUnits);
+  // console.log("srcArrayMergedByUniqueUnits", srcArrayMergedByUniqueUnits);
 
   let srcArrayFilteredByMinValueTool = [];
   srcArrayMergedByUniqueUnits.forEach((el) => {
     el.totalDuration > minValue && srcArrayFilteredByMinValueTool.push(el);
   });
-  console.log("srcArrayFilteredByMinValueTool", srcArrayFilteredByMinValueTool);
+  // console.log("srcArrayFilteredByMinValueTool", srcArrayFilteredByMinValueTool);
 
   // const filteredArr = result.filter((element) =>
   // filteredByMinValueUnits.length === 0
@@ -101,7 +101,7 @@ export const getSankeyArr = (
     unitsList.forEach(
       (el) => el.checked === true && checkedUnitsSimpleArray.push(el.guiltyUnit)
     );
-  console.log("checkedUnitsSimpleArray", checkedUnitsSimpleArray);
+  // console.log("checkedUnitsSimpleArray", checkedUnitsSimpleArray);
 
   let srcArrayFilteredByCheckedUnits = [];
   if (unitsList)
@@ -111,7 +111,7 @@ export const getSankeyArr = (
         srcArrayFilteredByCheckedUnits.push(el)
     );
   else srcArrayFilteredByCheckedUnits = srcArrayFilteredByMinValueTool;
-  console.log("srcArrayFilteredByCheckedUnits", srcArrayFilteredByCheckedUnits);
+  // console.log("srcArrayFilteredByCheckedUnits", srcArrayFilteredByCheckedUnits);
 
   const keys = ["guiltyUnit", "failReason", "failCategory", "failKind"];
   let index = -1;
@@ -155,24 +155,25 @@ export const getSankeyArr = (
     }
   }
 
+  //////////////////////////// sankey checklist section ////////////////////////////
+
   let unitsListAsSet = new Set();
   srcArrayFilteredByMinValueTool.forEach((el) =>
     unitsListAsSet.add(el.guiltyUnit)
   );
   let unitsListAsArr = Array.from(unitsListAsSet);
 
-  let updatedUnitsChecklist = [...unitsList];
-  for (let i = 0; i < updatedUnitsChecklist.length; i++) {
-    const el = updatedUnitsChecklist[i];
-    if (!unitsListAsArr.includes(el.guiltyUnit)) el.sankeyIsDisabled = true;
-  }
+  let removedOldUnitsChecklist = unitsList.filter((el) =>
+    unitsListAsArr.includes(el.guiltyUnit)
+  );
+  // console.log("removedOldUnitsChecklist", removedOldUnitsChecklist);
 
-  console.log("checkedUnitsSimpleArray", checkedUnitsSimpleArray);
+  // console.log("checkedUnitsSimpleArray", checkedUnitsSimpleArray);
 
-  console.log("{ nodes, links }", {
-    nodes: nodes,
-    links: links,
-    unitsList: updatedUnitsChecklist,
-  });
-  return { nodes: nodes, links: links, unitsList: updatedUnitsChecklist };
+  // console.log("{ nodes, links }", {
+  //   nodes: nodes,
+  //   links: links,
+  //   unitsList: removedOldUnitsChecklist,
+  // });
+  return { nodes: nodes, links: links, unitsList: removedOldUnitsChecklist };
 };

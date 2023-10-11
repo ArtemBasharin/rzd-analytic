@@ -6,6 +6,7 @@ import testArr from "../data-preprocessors/dummyArr";
 import { getCustomCalendar } from "../data-preprocessors/getCustomCalendar";
 import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
 import { getUnitsList } from "../data-preprocessors/getUnitsList";
+import cloneDeep from "lodash.clonedeep";
 
 // const filterUnits = (arr, actionPayload) => {
 //   let tempArr = new Set();
@@ -65,7 +66,11 @@ let initialPattern = () => {
   }
 };
 
-let initialCheckedUnits = getUnitsList(arrSource);
+let initialCheckedUnits = getUnitsList(
+  arrSource,
+  initialStartDate,
+  initialEndDate
+);
 
 let initialAnalyzeState = getAnalyze(
   arrSource,
@@ -117,10 +122,18 @@ const filtersSlice = createSlice({
   reducers: {
     setSourceState(state, action) {
       state.sourceState = action.payload;
-      console.log("state.sourceState", state.sourceState);
 
-      state.stackedCheckList = getUnitsList(action.payload);
-      state.sankeyCheckList = getUnitsList(action.payload);
+      state.stackedCheckList = getUnitsList(
+        action.payload,
+        state.dateStart,
+        state.dateEnd
+      );
+      state.sankeyCheckList = getUnitsList(
+        action.payload,
+        state.dateStart,
+        state.dateEnd
+      );
+      console.log("state.sankeyCheckList", state.sankeyCheckList);
 
       state.analyzeState = getAnalyze(
         state.sourceState,
@@ -129,12 +142,12 @@ const filtersSlice = createSlice({
         state.regexpPattern
       );
 
-      state.stackedArrState = getStackedArr(
+      let stackedArr = getStackedArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
-        state.stackedCheckList
+        cloneDeep(state.stackedCheckList)
       );
 
       let sankeyArr = getSankeyArr(
@@ -145,6 +158,8 @@ const filtersSlice = createSlice({
         state.sankeyCheckList
       );
 
+      state.stackedArrState = stackedArr;
+      state.stackedCheckList = stackedArr.unitsList;
       state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
       state.sankeyCheckList = sankeyArr.unitsList;
     },
@@ -160,7 +175,7 @@ const filtersSlice = createSlice({
     },
 
     decrement(state) {
-      console.log(state.minValue);
+      // console.log(current(state.minValue));
       state.minValue = state.minValue - 1;
       state.sankeyArrState = getSankeyArr(
         state.sourceState,
@@ -168,7 +183,7 @@ const filtersSlice = createSlice({
         state.dateEnd,
         state.minValue
       );
-      console.log(state.sankeyArrState);
+      // console.log(state.sankeyArrState);
     },
 
     incrementDaysIngroup(state) {
@@ -257,6 +272,34 @@ const filtersSlice = createSlice({
 
     setDateStart(state, action) {
       if (action.payload) state.dateStart = action.payload;
+
+      state.customCalendar = getCustomCalendar(
+        state.daysInGroup,
+        state.dateStart,
+        state.dateEnd
+      );
+
+      state.stackedCheckList = getUnitsList(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd
+      );
+
+      state.stackedArrState = getStackedArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.customCalendar,
+        state.stackedCheckList
+      );
+
+      state.sankeyArrState = getSankeyArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.minValue,
+        state.sankeyCheckList
+      );
     },
 
     setDateEnd(state, action) {
@@ -285,7 +328,8 @@ const filtersSlice = createSlice({
         state.sourceState,
         state.dateStart,
         state.dateEnd,
-        state.minValue
+        state.minValue,
+        state.sankeyCheckList
       );
     },
 
@@ -319,12 +363,40 @@ const filtersSlice = createSlice({
       }
     },
 
-    setCheckedUnits(state, action) {
-      console.log(action.payload);
-      
+    setStackedCheckList(state, action) {
       const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
-        console.log(current(searchValue), newCheckedValue);
-        const updatedArray = array.map((item) => {
+        let clonedArr = cloneDeep(array);
+        let updatedArray = clonedArr.map((item) => {
+          if (item.guiltyUnit === searchValue) {
+            return {
+              ...item,
+              checked: newCheckedValue,
+            };
+          }
+          return item;
+        });
+        return updatedArray;
+      };
+
+      state.stackedCheckList = updateCheckedProperty(
+        state.stackedCheckList,
+        action.payload.guiltyUnit,
+        action.payload.checked
+      );
+
+      state.stackedArrState = getStackedArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.customCalendar,
+        state.stackedCheckList
+      );
+    },
+
+    setSankeyCheckList(state, action) {
+      const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
+        let cloneArr = cloneDeep(array);
+        const updatedArray = cloneArr.map((item) => {
           if (item.guiltyUnit === searchValue) {
             return {
               ...item,
@@ -337,28 +409,20 @@ const filtersSlice = createSlice({
         return updatedArray;
       };
 
-      state.checkedUnits = updateCheckedProperty(
-        ...state.checkedUnits,
+      state.sankeyCheckList = updateCheckedProperty(
+        state.sankeyCheckList,
         action.payload.guiltyUnit,
         action.payload.checked
       );
 
+      console.log("state.sankeyCheckList", state.sankeyCheckList);
 
-
-      console.log("state.checkedUnits", state.checkedUnits);
-      state.stackedArrState = getStackedArr(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd,
-        state.customCalendar,
-        current(state.checkedUnits)
-      );
       state.sankeyArrState = getSankeyArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
         state.minValue,
-        current(state.checkedUnits)
+        state.sankeyCheckList
       );
     },
   },
@@ -383,5 +447,6 @@ export const {
   setCustomCalendar,
   setSankeyArrState,
   setToolPalette,
-  setCheckedUnits,
+  setStackedCheckList,
+  setSankeyCheckList,
 } = filtersSlice.actions;

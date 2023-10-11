@@ -1,6 +1,9 @@
-import { guiltyUnit } from "../config/config";
-export const getUnitsList = (arr) => {
+import { guiltyUnit, startTime } from "../config/config";
+export const getUnitsList = (arr, start, end) => {
   let result = new Set();
+  let startDate = new Date(start);
+  let endDate = new Date(end);
+
   let key = "";
   if (Object.keys(arr[0]).includes("guiltyUnit")) {
     key = "guiltyUnit";
@@ -8,8 +11,11 @@ export const getUnitsList = (arr) => {
   if (Object.keys(arr[0]).includes(guiltyUnit)) {
     key = guiltyUnit;
   }
+  console.log(typeof startDate, endDate);
   arr.forEach((element) => {
-    result.add(element[key]);
+    let date = new Date(element[startTime]);
+    // console.log(date);
+    if (date >= startDate && date <= endDate) result.add(element[key]);
   });
   let result2 = Array.from(result);
   let result3 = [];

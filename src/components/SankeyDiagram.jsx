@@ -8,7 +8,7 @@ import { useEffect } from "react";
 const SankeyDiagram = () => {
   const svgRef6 = useRef();
   let sankeyArr = useSelector((state) => state.filters.sankeyArrState);
-  let checkedUnits = useSelector((state) => state.filters.checkedUnits);
+  let checkedUnits = useSelector((state) => state.filters.sankeyCheckList);
 
   useEffect(() => {
     let resData = sankeyArr;
@@ -97,7 +97,7 @@ const SankeyDiagram = () => {
       .append("tspan")
       .attr("fill-opacity", 0.7)
       .text((d) => ` (${d.value.toLocaleString()})`);
-  }, [sankeyArr]);
+  }, [sankeyArr, checkedUnits]);
 
   return (
     <svg
