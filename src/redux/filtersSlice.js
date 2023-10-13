@@ -8,21 +8,6 @@ import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
 import { getUnitsList } from "../data-preprocessors/getUnitsList";
 import cloneDeep from "lodash.clonedeep";
 
-// const filterUnits = (arr, actionPayload) => {
-//   let tempArr = new Set();
-//   console.log(actionPayload);
-//   arr.forEach((el) => tempArr.add(el));
-//   if (actionPayload.checked) {
-//     console.log("checked", actionPayload.value);
-//     tempArr.add(actionPayload.value);
-//   } else {
-//     console.log("not checked", actionPayload.value);
-//     tempArr.delete(actionPayload.value);
-//   }
-//   console.log("state.sankeyCheckedUnits", tempArr);
-//   return Array.from(tempArr);
-// };
-
 let date = new Date();
 let arrSource = testArr;
 let initialMinvalue = 1;
@@ -128,12 +113,12 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd
       );
+
       state.sankeyCheckList = getUnitsList(
         action.payload,
         state.dateStart,
         state.dateEnd
       );
-      console.log("state.sankeyCheckList", state.sankeyCheckList);
 
       state.analyzeState = getAnalyze(
         state.sourceState,
@@ -147,7 +132,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
-        cloneDeep(state.stackedCheckList)
+        state.stackedCheckList
       );
 
       let sankeyArr = getSankeyArr(
@@ -166,24 +151,32 @@ const filtersSlice = createSlice({
 
     increment(state) {
       state.minValue = state.minValue + 1;
-      state.sankeyArrState = getSankeyArr(
+
+      let sankeyArr = getSankeyArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
-        state.minValue
+        state.minValue,
+        state.sankeyCheckList
       );
+
+      state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
+      state.sankeyCheckList = sankeyArr.unitsList;
     },
 
     decrement(state) {
-      // console.log(current(state.minValue));
-      state.minValue = state.minValue - 1;
-      state.sankeyArrState = getSankeyArr(
+      if (state.minValue > 0) state.minValue = state.minValue - 1;
+
+      let sankeyArr = getSankeyArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
-        state.minValue
+        state.minValue,
+        state.sankeyCheckList
       );
-      // console.log(state.sankeyArrState);
+
+      state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
+      state.sankeyCheckList = sankeyArr.unitsList;
     },
 
     incrementDaysIngroup(state) {
@@ -197,9 +190,9 @@ const filtersSlice = createSlice({
         state.sourceState,
         state.dateStart,
         state.dateEnd,
-        state.customCalendar
+        state.customCalendar,
+        state.stackedCheckList
       );
-      console.log("state.customCalendar", state.stackedArrState);
     },
 
     decrementDaysIngroup(state) {
@@ -213,7 +206,8 @@ const filtersSlice = createSlice({
         state.sourceState,
         state.dateStart,
         state.dateEnd,
-        state.customCalendar
+        state.customCalendar,
+        state.stackedCheckList
       );
     },
 
@@ -395,8 +389,9 @@ const filtersSlice = createSlice({
 
     setSankeyCheckList(state, action) {
       const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
-        let cloneArr = cloneDeep(array);
-        const updatedArray = cloneArr.map((item) => {
+        // let cloneArr = cloneDeep(array);
+        // const updatedArray = cloneArr.map((item) => {
+        const updatedArray = array.map((item) => {
           if (item.guiltyUnit === searchValue) {
             return {
               ...item,
@@ -415,7 +410,7 @@ const filtersSlice = createSlice({
         action.payload.checked
       );
 
-      console.log("state.sankeyCheckList", state.sankeyCheckList);
+      // console.log("state.sankeyCheckList", state.sankeyCheckList);
 
       state.sankeyArrState = getSankeyArr(
         state.sourceState,

@@ -11,6 +11,8 @@ const DropdownUnits = () => {
   const sankeyCheckList = useSelector((state) => state.filters.sankeyCheckList);
   const toolPalette = useSelector((state) => state.filters.toolPalette);
   const customCalendar = useSelector((state) => state.filters.customCalendar);
+  let sankeyArr = useSelector((state) => state.filters.sankeyArrState);
+
   const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -32,7 +34,7 @@ const DropdownUnits = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [customCalendar]);
+  }, []);
 
   return (
     <div className="list_container" ref={dropdownRef}>

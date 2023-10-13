@@ -38,6 +38,14 @@ const ToolPanel = () => {
   return (
     <div className="controls-container">
       <CSSTransition
+        in={toolPalette.minValueVisibility}
+        timeout={timeout}
+        classNames="fade"
+        unmountOnExit
+      >
+        <MinValueSetter />
+      </CSSTransition>
+      <CSSTransition
         // in={toolPalette.unitsListVisibility}
         in={toolPalette.unitsListVisibility}
         timeout={timeout}
@@ -46,14 +54,6 @@ const ToolPanel = () => {
         unmountOnExit
       >
         <DropdownUnits />
-      </CSSTransition>
-      <CSSTransition
-        in={toolPalette.minValueVisibility}
-        timeout={timeout}
-        classNames="fade"
-        unmountOnExit
-      >
-        <MinValueSetter />
       </CSSTransition>
       <CSSTransition
         in={toolPalette.yearVisibility}

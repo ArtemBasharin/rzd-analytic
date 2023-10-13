@@ -1,13 +1,14 @@
 import React, { useRef, useEffect } from "react";
+import { useSelector } from "react-redux";
 import * as d3 from "d3";
 // import { similarColors } from "../config/config";
-import { useSelector } from "react-redux";
 // import { interpolateRainbow } from "d3-scale-chromatic";
 // import chroma from "chroma-js";
 
 const StackedAreaDiagram = (props) => {
   // console.log("StackedAreaDiagram");
   const svgRef5 = useRef();
+  const stackedArrState = useSelector((state) => state.filters.stackedArrState);
   const minValue = useSelector((state) => state.filters.minValue);
   const period = useSelector((state) => state.filters.regexpPattern);
   const checkList = useSelector((state) => state.filters.stackedCheckList);
@@ -15,8 +16,8 @@ const StackedAreaDiagram = (props) => {
   d3.select("#id21").selectAll("g").remove();
 
   useEffect(() => {
-    let resData = props.src;
-    // console.log("StackedAreaDiagram load", props.src);
+    let resData = stackedArrState.arr;
+    // console.log("StackedAreaDiagram load", resData);
 
     // set the dimensions and margins of the graph
     const margin = { top: 20, right: 160, bottom: 30, left: 100 },
@@ -40,10 +41,10 @@ const StackedAreaDiagram = (props) => {
 
     // const keys = Object.keys(resData[0]).slice(1);
 
-    // let keys = props.keys;
-    let keys = [];
-    props.keys.forEach((el) => keys.push(el.guiltyUnit));
-    // console.log("keys", keys);
+    let keys = stackedArrState.keys;
+    // let keys = [];
+    // stackedArrState.keys.forEach((el) => keys.push(el.guiltyUnit));
+    // console.log("keys", stackedArrState.keys);
 
     // Add X axis
     const x = d3
@@ -86,7 +87,7 @@ const StackedAreaDiagram = (props) => {
       // .scalePow()
       // .exponent(5.1)
       .scaleLinear()
-      .domain([0, props.yMax * 1.05])
+      .domain([0, stackedArrState.yMax * 1.05])
       .range([height, 0]);
     svg.append("g").call(d3.axisLeft(y));
 
@@ -173,7 +174,14 @@ const StackedAreaDiagram = (props) => {
       })
       .attr("text-anchor", "left")
       .style("alignment-baseline", "middle");
-  }, [props.src, minValue, period, props.yMax, props.keys, checkList]);
+  }, [
+    stackedArrState.arr,
+    minValue,
+    period,
+    stackedArrState.yMax,
+    stackedArrState.keys,
+    checkList,
+  ]);
 
   return (
     <svg

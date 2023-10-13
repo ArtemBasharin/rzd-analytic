@@ -12,6 +12,7 @@ const SankeyDiagram = () => {
 
   useEffect(() => {
     let resData = sankeyArr;
+    console.log("sankey loaded");
     d3.select("#id22").selectAll("g").remove();
 
     // set the dimensions and margins of the graph

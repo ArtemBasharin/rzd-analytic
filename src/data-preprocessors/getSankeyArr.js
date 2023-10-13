@@ -163,17 +163,16 @@ export const getSankeyArr = (
   );
   let unitsListAsArr = Array.from(unitsListAsSet);
 
-  let removedOldUnitsChecklist = unitsList.filter((el) =>
+  unitsList.forEach((el) =>
     unitsListAsArr.includes(el.guiltyUnit)
+      ? (el.isDisabled = false)
+      : (el.isDisabled = true)
   );
-  // console.log("removedOldUnitsChecklist", removedOldUnitsChecklist);
+  // console.log("markedOldUnitsChecklist", markedOldUnitsChecklist);
 
   // console.log("checkedUnitsSimpleArray", checkedUnitsSimpleArray);
 
-  // console.log("{ nodes, links }", {
-  //   nodes: nodes,
-  //   links: links,
-  //   unitsList: removedOldUnitsChecklist,
-  // });
-  return { nodes: nodes, links: links, unitsList: removedOldUnitsChecklist };
+  // console.log("markedOldUnitsChecklist", unitsList);
+
+  return { nodes: nodes, links: links, unitsList: unitsList };
 };

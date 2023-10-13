@@ -11,7 +11,8 @@ const MinValueSetter = () => {
   };
 
   const handleDecrement = () => {
-    if (minValue > 0) dispatch(decrement());
+    dispatch(decrement());
+    console.log(minValue, minValue > 0);
   };
 
   const handleChangeValue = (e) => {
