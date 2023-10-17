@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 const BarGroupedLine = (props) => {
   const svgRef3 = useRef();
   const minValue = useSelector((state) => state.filters.minValue);
+  const dateStart = useSelector((state) => state.filters.dateStart);
+  const dateEnd = useSelector((state) => state.filters.dateEnd);
 
   let currentYear = props.maxYear;
 
@@ -343,6 +345,8 @@ const BarGroupedLine = (props) => {
     props.maxYear,
     currentYear,
     minValue,
+    dateStart,
+    dateEnd,
   ]);
 
   return (

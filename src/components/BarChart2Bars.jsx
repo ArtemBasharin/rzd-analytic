@@ -1,15 +1,16 @@
 import React, { useRef, useEffect } from "react";
+import { useSelector } from "react-redux";
 import * as d3 from "d3";
-
-import "../App.css";
+// import "../App.css";
 import descendArrow from "../images/descendArrow.svg";
 import increaseArrow from "../images/increaseArrow.svg";
-import { useSelector } from "react-redux";
 
 const BarChart2Bars = (props) => {
-  const svgRef2 = useRef();
   d3.selectAll(".chartItem").selectAll("g").remove();
+  const svgRef2 = useRef();
   const minValue = useSelector((state) => state.filters.minValue);
+  const dateStart = useSelector((state) => state.filters.dateStart);
+  const dateEnd = useSelector((state) => state.filters.dateEnd);
 
   useEffect(() => {
     let resData = props.stats;
@@ -172,7 +173,15 @@ const BarChart2Bars = (props) => {
       .attr("y", function () {
         return y(d3.max([resData[0].value, resData[1].value])) - 50; //find tallest bar and set y-position of text
       });
-  }, [props.stats, props.config, props.yMax, props.width, minValue]);
+  }, [
+    props.stats,
+    props.config,
+    props.yMax,
+    props.width,
+    minValue,
+    dateStart,
+    dateEnd,
+  ]);
   return (
     <svg id={`id${props.config}`} className="chartItem" ref={svgRef2}></svg>
   );

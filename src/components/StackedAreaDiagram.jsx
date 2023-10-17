@@ -6,12 +6,14 @@ import * as d3 from "d3";
 // import chroma from "chroma-js";
 
 const StackedAreaDiagram = (props) => {
-  // console.log("StackedAreaDiagram");
+  console.log("Stacked loaded");
   const svgRef5 = useRef();
   const stackedArrState = useSelector((state) => state.filters.stackedArrState);
   const minValue = useSelector((state) => state.filters.minValue);
   const period = useSelector((state) => state.filters.regexpPattern);
   const checkList = useSelector((state) => state.filters.stackedCheckList);
+  const dateStart = useSelector((state) => state.filters.dateStart);
+  const dateEnd = useSelector((state) => state.filters.dateEnd);
 
   d3.select("#id21").selectAll("g").remove();
 
@@ -181,6 +183,8 @@ const StackedAreaDiagram = (props) => {
     stackedArrState.yMax,
     stackedArrState.keys,
     checkList,
+    dateStart,
+    dateEnd,
   ]);
 
   return (

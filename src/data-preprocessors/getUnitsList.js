@@ -11,7 +11,7 @@ export const getUnitsList = (arr, start, end) => {
   if (Object.keys(arr[0]).includes(guiltyUnit)) {
     key = guiltyUnit;
   }
-  console.log(typeof startDate, endDate);
+  // console.log(typeof startDate, endDate);
   arr.forEach((element) => {
     let date = new Date(element[startTime]);
     // console.log(date);
@@ -26,6 +26,6 @@ export const getUnitsList = (arr, start, end) => {
       isDisabled: false,
     });
   });
-  console.log(result3);
+  // console.log(result3);
   return result3;
 };

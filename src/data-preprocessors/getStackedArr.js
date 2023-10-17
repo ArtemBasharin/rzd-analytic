@@ -145,7 +145,8 @@ export const getStackedArr = (
   let deletedEmptyDatesArr = unitedDatesResult.filter(
     (el) => Object.keys(el).length !== 1
   );
-  // console.log("deletedEmptyDatesArr", deletedEmptyDatesArr);
+  console.log("deletedEmptyDatesArr", deletedEmptyDatesArr);
+  // if (deletedEmptyDatesArr.length < 2) => show loader
 
   const keysArr = Object.keys(deletedEmptyDatesArr[0]).slice(1);
   // console.log("keysArr", keysArr);

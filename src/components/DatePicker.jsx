@@ -5,12 +5,7 @@ import "react-day-picker/dist/style.css";
 import { CSSTransition } from "react-transition-group";
 
 import { useDispatch, useSelector } from "react-redux";
-import {
-  setDateStart,
-  setDateEnd,
-  setCustomCalendar,
-  setSankeyArrState,
-} from "../redux/filtersSlice";
+import { setDateStart, setDateEnd } from "../redux/filtersSlice";
 
 const DateRangePicker = () => {
   const calendarEndRef = useRef(null);
@@ -23,8 +18,8 @@ const DateRangePicker = () => {
   const handleDateStart = (e) => {
     console.log(e);
     dispatch(setDateStart(e));
-    dispatch(setCustomCalendar());
-    dispatch(setSankeyArrState());
+    // dispatch(setCustomCalendar());
+    // dispatch(setSankeyArrState());
     console.log(dateStart);
     setIsOpenStart(false);
   };
@@ -32,8 +27,8 @@ const DateRangePicker = () => {
   const handleDateEnd = (e) => {
     console.log(e);
     dispatch(setDateEnd(e));
-    dispatch(setCustomCalendar());
-    dispatch(setSankeyArrState());
+    // dispatch(setCustomCalendar());
+    // dispatch(setSankeyArrState());
     console.log(dateEnd);
     setIsOpenEnd(false);
   };

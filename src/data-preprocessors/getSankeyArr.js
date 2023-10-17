@@ -19,10 +19,6 @@ export const getSankeyArr = (
   minValue,
   unitsList
 ) => {
-  // console.log("dateEnd", dateEnd);
-  // console.log("dateStart", dateStart);
-  // console.log("srcArray", srcArray);
-  // console.log("unitsList", unitsList);
 
   const calcTotalDurationValue = (obj) => {
     let freightDur,

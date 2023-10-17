@@ -1,76 +1,129 @@
 .loader {
-  display: flex;
-  width: 120px;
-  align-items: flex-end;
-  height: 120px;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100px;
+  height: 100px;
+  margin: auto;
 }
-.loader__part {
-  width: calc(25% - 4px);
-  margin: 0 2px;
-  height: 30px;
-  transform-origin: 50% 100%;
-  background: rgba(255, 255, 255, 0.4);
+.loader div {
+  width: 20px;
+  height: 20px;
+  float: left;
+  animation: color_bitch 1s infinite ease;
+  border-radius: 50%;
 }
-.loader__part--1 {
-  height: 100%;
-  animation: chart-animation 4s infinite;
+.loader div:nth-child(1) {
+  animation-delay: 0.2s;
+  animation-duration: 0.2s;
 }
-.loader__part--2 {
-  height: 62%;
-  animation: chart-animation 5s infinite;
+.loader div:nth-child(2) {
+  animation-delay: 0.4s;
+  animation-duration: 0.4s;
 }
-.loader__part--3 {
-  height: 72%;
-  animation: chart-animation 6s infinite;
+.loader div:nth-child(3) {
+  animation-delay: 0.6s;
+  animation-duration: 0.6s;
 }
-.loader__part--4 {
-  height: 83%;
-  animation: chart-animation 7s infinite;
+.loader div:nth-child(4) {
+  animation-delay: 0.8s;
+  animation-duration: 0.8s;
+}
+.loader div:nth-child(5) {
+  animation-delay: 1s;
+  animation-duration: 1s;
+}
+.loader div:nth-child(6) {
+  animation-delay: 1.2s;
+  animation-duration: 1.2s;
+}
+.loader div:nth-child(7) {
+  animation-delay: 1.4s;
+  animation-duration: 1.4s;
+}
+.loader div:nth-child(8) {
+  animation-delay: 1.6s;
+  animation-duration: 1.6s;
+}
+.loader div:nth-child(9) {
+  animation-delay: 1.8s;
+  animation-duration: 1.8s;
+}
+.loader div:nth-child(10) {
+  animation-delay: 2s;
+  animation-duration: 2s;
+}
+.loader div:nth-child(11) {
+  animation-delay: 2.2s;
+  animation-duration: 2.2s;
+}
+.loader div:nth-child(12) {
+  animation-delay: 2.4s;
+  animation-duration: 2.4s;
+}
+.loader div:nth-child(13) {
+  animation-delay: 2.6s;
+  animation-duration: 2.6s;
+}
+.loader div:nth-child(14) {
+  animation-delay: 2.8s;
+  animation-duration: 2.8s;
+}
+.loader div:nth-child(15) {
+  animation-delay: 3s;
+  animation-duration: 3s;
+}
+.loader div:nth-child(16) {
+  animation-delay: 3.2s;
+  animation-duration: 3.2s;
+}
+.loader div:nth-child(17) {
+  animation-delay: 3.4s;
+  animation-duration: 3.4s;
+}
+.loader div:nth-child(18) {
+  animation-delay: 3.6s;
+  animation-duration: 3.6s;
+}
+.loader div:nth-child(19) {
+  animation-delay: 3.8s;
+  animation-duration: 3.8s;
+}
+.loader div:nth-child(20) {
+  animation-delay: 4s;
+  animation-duration: 4s;
+}
+.loader div:nth-child(21) {
+  animation-delay: 4.2s;
+  animation-duration: 4.2s;
+}
+.loader div:nth-child(22) {
+  animation-delay: 4.4s;
+  animation-duration: 4.4s;
+}
+.loader div:nth-child(23) {
+  animation-delay: 4.6s;
+  animation-duration: 4.6s;
+}
+.loader div:nth-child(24) {
+  animation-delay: 4.8s;
+  animation-duration: 4.8s;
+}
+.loader div:nth-child(25) {
+  animation-delay: 5s;
+  animation-duration: 5s;
 }
 
-@keyframes chart-animation {
+@keyframes color_bitch {
   0% {
-    transform: scaleY(0.7);
-    opacity: 0.7;
-  }
-  10% {
-    transform: scaleY(0.2);
-    opacity: 0.2;
-  }
-  20% {
-    transform: scaleY(0.9);
-    opacity: 0.9;
-  }
-  30% {
-    transform: scaleY(0.5);
-    opacity: 0.5;
-  }
-  40% {
-    transform: scaleY(0.6);
-    opacity: 0.6;
+    background: transparent;
   }
   50% {
-    transform: scaleY(0.9);
-    opacity: 0.9;
-  }
-  60% {
-    transform: scaleY(0.8);
-    opacity: 0.8;
-  }
-  70% {
-    transform: scaleY(0.2);
-    opacity: 0.2;
-  }
-  80% {
-    transform: scaleY(0.9);
-    opacity: 0.5;
-  }
-  90% {
-    transform: scaleY(0.6);
-    opacity: 0.6;
+    background: #f47371;
   }
   100% {
-    transform: scaleY(0.7);
-    opacity: 0.7;
+    background: transparent;
   }
 }

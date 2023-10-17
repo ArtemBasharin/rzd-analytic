@@ -22,7 +22,6 @@ const ToolPanel = () => {
       "fromYear": date.getFullYear() - 1,
       "toYear": date.getFullYear(),
     };
-    console.log("params", params);
     axios
       .get("/violations", { params })
       .then(function (res) {

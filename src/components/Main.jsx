@@ -12,6 +12,8 @@ import BarGroupedLine from "./BarGroupedLine";
 import StackedAreaDiagram from "./StackedAreaDiagram";
 import SankeyDiagram from "./SankeyDiagram";
 import { setToolPalette } from "../redux/filtersSlice";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "./ErrorFallback";
 
 function Main() {
   //clear old svg
@@ -195,16 +197,17 @@ function Main() {
             minValue={minValue}
           />
         </SwiperSlide>
-
         <SwiperSlide>
           <h2 className="section-title">
             Соотношение потерь по подразделениям за период
           </h2>
-          <StackedAreaDiagram
-            src={originArr.unitedDatesResult}
-            yMax={originArr.yMax}
-            keys={checkedUnits}
-          />
+          <ErrorBoundary FallbackComponent={ErrorFallback}>
+            <StackedAreaDiagram
+              src={originArr.unitedDatesResult}
+              yMax={originArr.yMax}
+              keys={checkedUnits}
+            />
+          </ErrorBoundary>
         </SwiperSlide>
 
         <SwiperSlide>

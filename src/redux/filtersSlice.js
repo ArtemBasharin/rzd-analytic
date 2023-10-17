@@ -1,4 +1,4 @@
-import { createSlice, current } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { getAnalyze } from "../data-preprocessors/combiner";
 import { getStackedArr } from "../data-preprocessors/getStackedArr";
 // import { testArr } from "../test/test";
@@ -80,6 +80,13 @@ let initialSankeyState = getSankeyArr(
   initialCheckedUnits
 );
 
+let initialLoaderShow = {
+  analyze: false,
+  grouped: false,
+  stacked: false,
+  sankey: false,
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 const filtersSlice = createSlice({
   name: "filters",
@@ -92,7 +99,6 @@ const filtersSlice = createSlice({
     currentYear: date.getFullYear(),
     pastYear: date.getFullYear() - 1,
     dateStart: initialStartDate,
-    // dateEnd: new Date(`${date.getFullYear()}-${date.getMonth()}-00T23:59:59`),
     dateEnd: initialEndDate,
     customCalendar: initialCustomCalendar,
     regexpPattern: initialPattern(),
@@ -102,6 +108,7 @@ const filtersSlice = createSlice({
     toolPalette: initialToolPalette,
     stackedCheckList: initialCheckedUnits,
     sankeyCheckList: initialCheckedUnits,
+    loaderShow: initialLoaderShow,
   },
 
   reducers: {
@@ -298,6 +305,34 @@ const filtersSlice = createSlice({
 
     setDateEnd(state, action) {
       if (action.payload) state.dateEnd = action.payload;
+      console.log(state.dateEnd);
+      state.customCalendar = getCustomCalendar(
+        state.daysInGroup,
+        state.dateStart,
+        state.dateEnd
+      );
+
+      state.stackedCheckList = getUnitsList(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd
+      );
+
+      state.stackedArrState = getStackedArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.customCalendar,
+        state.stackedCheckList
+      );
+
+      state.sankeyArrState = getSankeyArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.minValue,
+        state.sankeyCheckList
+      );
     },
 
     setCustomCalendar(state) {
