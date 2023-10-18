@@ -13,11 +13,14 @@ let date = new Date();
 let arrSource = testArr;
 let initialMinvalue = 1;
 let initialDaysInGroup = 1;
-let initialStartDate = new Date(date.getFullYear(), 7, 1);
-let initialEndDate = new Date(
-  new Date(date.getFullYear(), date.getMonth(), 1) - 1
-);
+let initialEndDate = new Date(getCutoffDates(arrSource).max);
+let initialStartDate = () => {
+  let previousMonthDate = new Date(initialEndDate);
+  previousMonthDate.setMonth(previousMonthDate.getMonth() - 1);
+  return previousMonthDate;
+};
 
+console.log(initialEndDate, initialStartDate());
 let initialToolPalette = {
   kind: "analyze",
   yearVisibility: true,
@@ -39,12 +42,12 @@ let originToolPalette = {
 
 let initialCustomCalendar = getCustomCalendar(
   initialDaysInGroup,
-  initialStartDate,
+  initialStartDate(),
   initialEndDate
 );
 
 let initialPattern = () => {
-  let period = date.getMonth();
+  let period = initialStartDate().getMonth();
   if (period < 10) {
     return "0" + period;
   } else {
@@ -54,7 +57,7 @@ let initialPattern = () => {
 
 let initialCheckedUnits = getUnitsList(
   arrSource,
-  initialStartDate,
+  initialStartDate(),
   initialEndDate
 );
 
@@ -67,7 +70,7 @@ let initialAnalyzeState = getAnalyze(
 
 let initialStackedState = getStackedArr(
   arrSource,
-  new Date(date.getFullYear() - 1, 0, 1),
+  initialStartDate(),
   initialEndDate,
   initialCustomCalendar,
   initialCheckedUnits
@@ -75,7 +78,7 @@ let initialStackedState = getStackedArr(
 
 let initialSankeyState = getSankeyArr(
   arrSource,
-  initialStartDate,
+  initialStartDate(),
   initialEndDate,
   initialMinvalue,
   initialCheckedUnits
@@ -99,7 +102,7 @@ const filtersSlice = createSlice({
     daysInGroup: initialDaysInGroup,
     currentYear: date.getFullYear(),
     pastYear: date.getFullYear() - 1,
-    dateStart: initialStartDate,
+    dateStart: initialStartDate(),
     dateEnd: initialEndDate,
     customCalendar: initialCustomCalendar,
     regexpPattern: initialPattern(),

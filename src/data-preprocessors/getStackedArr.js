@@ -17,7 +17,7 @@ export const getStackedArr = (
   customCalendar,
   unitsList
 ) => {
-  // console.log("customCalendar", customCalendar);
+  console.log("customCalendar", customCalendar);
   // console.log("dateEnd", dateEnd);
   // console.log("dateStart", dateStart);
   // console.log("srcArray", srcArray);
@@ -108,7 +108,7 @@ export const getStackedArr = (
   }
 
   result.sort((a, b) => a.date - b.date);
-  // console.log("result2", result);
+  console.log("result2", result);
 
   let unitedDatesResult = [];
   for (let i = 0; i < customCalendar.length - 1; i++) {
@@ -145,7 +145,7 @@ export const getStackedArr = (
   let deletedEmptyDatesArr = unitedDatesResult.filter(
     (el) => Object.keys(el).length !== 1
   );
-  console.log("deletedEmptyDatesArr", deletedEmptyDatesArr);
+  // console.log("deletedEmptyDatesArr", deletedEmptyDatesArr);
   // if (deletedEmptyDatesArr.length < 2) => show loader
 
   const keysArr = Object.keys(deletedEmptyDatesArr[0]).slice(1);
