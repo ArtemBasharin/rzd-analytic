@@ -5,14 +5,14 @@ import { setCurrentYear } from "../redux/filtersSlice";
 import { CSSTransition } from "react-transition-group";
 
 const DropdownCurrentYear = () => {
-  const minYear = new Date(useSelector((state) => state.filters.minCutoffDate));
-  const maxYear = new Date(useSelector((state) => state.filters.maxCutoffDate));
+  const minDate = new Date(useSelector((state) => state.filters.minCutoffDate));
+  const maxDate = new Date(useSelector((state) => state.filters.maxCutoffDate));
   const currentYear = useSelector((state) => state.filters.currentYear);
   const dispatch = useDispatch();
 
   const getOptions = () => {
     const arr = [];
-    for (let i = minYear.getFullYear(); i <= maxYear.getFullYear(); i++) {
+    for (let i = minDate.getFullYear(); i <= maxDate.getFullYear(); i++) {
       arr.push(i);
     }
     return arr;

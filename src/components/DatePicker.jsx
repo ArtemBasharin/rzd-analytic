@@ -6,6 +6,7 @@ import { CSSTransition } from "react-transition-group";
 
 import { useDispatch, useSelector } from "react-redux";
 import { setDateStart, setDateEnd } from "../redux/filtersSlice";
+import cloneDeep from "lodash.clonedeep";
 
 const DateRangePicker = () => {
   const calendarEndRef = useRef(null);
@@ -13,7 +14,16 @@ const DateRangePicker = () => {
 
   const dateStart = useSelector((state) => state.filters.dateStart);
   const dateEnd = useSelector((state) => state.filters.dateEnd);
+  const minDate = new Date(useSelector((state) => state.filters.minCutoffDate));
+  const maxDate = new Date(useSelector((state) => state.filters.maxCutoffDate));
   const dispatch = useDispatch();
+
+  let previousMonthDate = cloneDeep(maxDate);
+  previousMonthDate.setMonth(previousMonthDate.getMonth() - 1);
+
+  console.log(minDate);
+  console.log(previousMonthDate);
+  console.log(maxDate);
 
   const handleDateStart = (e) => {
     console.log(e);
@@ -78,9 +88,9 @@ const DateRangePicker = () => {
           onClick={handleToggleStart}
           className="tools tools_text-button list_element_year "
         >
-          {`${dateStart.getDate()}/${
-            dateStart.getMonth() + 1
-          }/${dateStart.getFullYear()}`}
+          {`${previousMonthDate.getDate()}/${
+            previousMonthDate.getMonth() + 1
+          }/${previousMonthDate.getFullYear()}`}
         </button>
         <span className="input-label">От:</span>
         <CSSTransition
@@ -92,12 +102,14 @@ const DateRangePicker = () => {
         >
           <DayPicker
             mode="single"
-            selected={dateStart}
+            selected={previousMonthDate}
             onSelect={handleDateStart}
             key={"datepickerstart"}
             className="calendar_container"
             locale={ru}
-            defaultMonth={dateStart}
+            defaultMonth={previousMonthDate}
+            fromDate={minDate}
+            toDate={maxDate}
           />
         </CSSTransition>
       </div>
@@ -107,9 +119,9 @@ const DateRangePicker = () => {
           onClick={handleToggleEnd}
           className="tools tools_text-button list_element_year "
         >
-          {`${dateEnd.getDate()}/${
-            dateEnd.getMonth() + 1
-          }/${dateEnd.getFullYear()}`}
+          {`${maxDate.getDate()}/${
+            maxDate.getMonth() + 1
+          }/${maxDate.getFullYear()}`}
         </button>
         <span className="input-label">До:</span>
         <CSSTransition
@@ -121,12 +133,14 @@ const DateRangePicker = () => {
         >
           <DayPicker
             mode="single"
-            selected={dateEnd}
+            selected={maxDate}
             onSelect={handleDateEnd}
             key={"datepickerend"}
             className="calendar_container"
             locale={ru}
-            defaultMonth={dateEnd}
+            defaultMonth={maxDate}
+            fromDate={minDate}
+            toDate={maxDate}
           />
         </CSSTransition>
       </div>
