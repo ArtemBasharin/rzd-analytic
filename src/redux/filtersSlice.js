@@ -6,6 +6,7 @@ import testArr from "../data-preprocessors/dummyArr";
 import { getCustomCalendar } from "../data-preprocessors/getCustomCalendar";
 import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
 import { getUnitsList } from "../data-preprocessors/getUnitsList";
+import { getCutoffDates } from "../data-preprocessors/getCutoffDates";
 import cloneDeep from "lodash.clonedeep";
 
 let date = new Date();
@@ -109,6 +110,8 @@ const filtersSlice = createSlice({
     stackedCheckList: initialCheckedUnits,
     sankeyCheckList: initialCheckedUnits,
     loaderShow: initialLoaderShow,
+    minCutoffDate: getCutoffDates(arrSource).min,
+    maxCutoffDate: getCutoffDates(arrSource).max,
   },
 
   reducers: {
