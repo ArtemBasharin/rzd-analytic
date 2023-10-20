@@ -8,6 +8,7 @@
 @import url("./styles/chartloader.css");
 @import url("../src/styles/datePicker.css");
 @import url("../src/styles/drawermenu.css");
+@import url("../src/styles/popup.css");
 
 body {
   margin: 0;
