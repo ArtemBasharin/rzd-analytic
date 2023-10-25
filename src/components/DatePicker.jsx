@@ -3,10 +3,8 @@ import { DayPicker } from "react-day-picker";
 import { ru } from "date-fns/locale";
 import "react-day-picker/dist/style.css";
 import { CSSTransition } from "react-transition-group";
-
 import { useDispatch, useSelector } from "react-redux";
 import { setDateStart, setDateEnd } from "../redux/filtersSlice";
-// import cloneDeep from "lodash.clonedeep";
 
 const DateRangePicker = () => {
   const calendarEndRef = useRef(null);
@@ -16,6 +14,8 @@ const DateRangePicker = () => {
   const dateEnd = useSelector((state) => state.filters.dateEnd);
   const minDate = new Date(useSelector((state) => state.filters.minCutoffDate));
   const maxDate = new Date(useSelector((state) => state.filters.maxCutoffDate));
+  // const popup = useSelector((state) => state.filters.popup);
+
   const dispatch = useDispatch();
 
   console.log(minDate);
@@ -141,25 +141,6 @@ const DateRangePicker = () => {
           />
         </CSSTransition>
       </div>
-
-      {/* <FormControl
-        sx={{
-          m: 1,
-          width: "15ch",
-          display: `${toolPalette.daysInGroupVisibility}`,
-        }}
-        variant="outlined"
-      >
-        <OutlinedInput
-          id="outlined-adornment-weight"
-          value={daysInGroup}
-          endAdornment={<InputAdornment position="end">сут</InputAdornment>}
-          aria-describedby="outlined-weight-helper-text"
-          inputProps={{
-            "aria-label": "weight",
-          }}
-        />
-      </FormControl> */}
     </>
   );
 };

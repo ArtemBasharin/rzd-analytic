@@ -11,7 +11,7 @@ import cloneDeep from "lodash.clonedeep";
 
 let date = new Date();
 let arrSource = testArr;
-let initialMinvalue = 1;
+let initialMinvalue = 0;
 let initialDaysInGroup = 1;
 let initialEndDate = new Date(getCutoffDates(arrSource).max);
 let initialStartDate = () => {
@@ -42,8 +42,8 @@ let originToolPalette = {
 
 let initialCustomCalendar = getCustomCalendar(
   initialDaysInGroup,
-  initialStartDate(),
-  initialEndDate
+  initialStartDate().setHours(0, 0, 0),
+  initialEndDate.setHours(0, 0, 0)
 );
 
 let initialPattern = () => {
@@ -115,6 +115,11 @@ const filtersSlice = createSlice({
     loaderShow: initialLoaderShow,
     minCutoffDate: getCutoffDates(arrSource).min,
     maxCutoffDate: getCutoffDates(arrSource).max,
+    popup: {
+      isOpened: false,
+      status: "fail",
+      message: "Что-то пошло не так",
+    },
   },
 
   reducers: {
@@ -278,67 +283,100 @@ const filtersSlice = createSlice({
     },
 
     setDateStart(state, action) {
-      if (action.payload) state.dateStart = action.payload;
+      console.log(action.payload);
+      console.log(state.dateEnd);
 
-      state.customCalendar = getCustomCalendar(
-        state.daysInGroup,
-        state.dateStart,
-        state.dateEnd
-      );
+      if (action.payload >= state.dateEnd) {
+        state.popup.isOpened = true;
+        state.popup.message = "Начальная дата равна или больше конечной";
+        state.loaderShow = {
+          ...state.loaderShow,
+          stacked: true,
+          sankey: true,
+        };
+      } else {
+        state.loaderShow = initialLoaderShow;
+        state.dateStart = action.payload;
+        state.customCalendar = getCustomCalendar(
+          state.daysInGroup,
+          state.dateStart,
+          state.dateEnd
+        );
 
-      state.stackedCheckList = getUnitsList(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd
-      );
+        state.stackedCheckList = getUnitsList(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd
+        );
+        console.log(state.stackedCheckList);
 
-      state.stackedArrState = getStackedArr(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd,
-        state.customCalendar,
-        state.stackedCheckList
-      );
+        if (state.stackedCheckList.length > 0) {
+          state.loaderShow = initialLoaderShow;
+          state.stackedArrState = getStackedArr(
+            state.sourceState,
+            state.dateStart,
+            state.dateEnd,
+            state.customCalendar,
+            state.stackedCheckList
+          );
 
-      state.sankeyArrState = getSankeyArr(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd,
-        state.minValue,
-        state.sankeyCheckList
-      );
+          state.sankeyArrState = getSankeyArr(
+            state.sourceState,
+            state.dateStart,
+            state.dateEnd,
+            state.minValue,
+            state.sankeyCheckList
+          );
+        } else {
+          state.loaderShow = {
+            ...state.loaderShow,
+            stacked: true,
+            sankey: true,
+          };
+        }
+      }
     },
 
     setDateEnd(state, action) {
-      if (action.payload) state.dateEnd = action.payload;
-      console.log(state.dateEnd);
-      state.customCalendar = getCustomCalendar(
-        state.daysInGroup,
-        state.dateStart,
-        state.dateEnd
-      );
+      if (action.payload <= state.dateStart) {
+        state.popup.isOpened = true;
+        state.popup.message = "Конечная дата равна или меньше начальной";
+        state.loaderShow = {
+          ...state.loaderShow,
+          stacked: true,
+          sankey: true,
+        };
+      } else {
+        state.loaderShow = initialLoaderShow;
+        state.dateEnd = action.payload;
+        state.customCalendar = getCustomCalendar(
+          state.daysInGroup,
+          state.dateStart,
+          state.dateEnd
+        );
 
-      state.stackedCheckList = getUnitsList(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd
-      );
+        state.stackedCheckList = getUnitsList(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd
+        );
 
-      state.stackedArrState = getStackedArr(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd,
-        state.customCalendar,
-        state.stackedCheckList
-      );
+        state.stackedArrState = getStackedArr(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.customCalendar,
+          state.stackedCheckList
+        );
 
-      state.sankeyArrState = getSankeyArr(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd,
-        state.minValue,
-        state.sankeyCheckList
-      );
+        state.sankeyArrState = getSankeyArr(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.minValue,
+          state.sankeyCheckList
+        );
+      }
     },
 
     setCustomCalendar(state) {
@@ -461,6 +499,10 @@ const filtersSlice = createSlice({
         state.sankeyCheckList
       );
     },
+
+    setPopup(state, action) {
+      state.popup.isOpened = action.payload;
+    },
   },
 });
 
@@ -485,4 +527,5 @@ export const {
   setToolPalette,
   setStackedCheckList,
   setSankeyCheckList,
+  setPopup,
 } = filtersSlice.actions;

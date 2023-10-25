@@ -12,8 +12,9 @@ import BarGroupedLine from "./BarGroupedLine";
 import StackedAreaDiagram from "./StackedAreaDiagram";
 import SankeyDiagram from "./SankeyDiagram";
 import { setToolPalette } from "../redux/filtersSlice";
-import { ErrorBoundary } from "react-error-boundary";
-import { ErrorFallback } from "./ErrorFallback";
+import { Loader } from "./Loader";
+// import { ErrorBoundary } from "react-error-boundary";
+// import { ErrorFallback, Loader } from "./Loader";
 
 function Main() {
   //clear old svg
@@ -24,10 +25,11 @@ function Main() {
   const originArr = useSelector((state) => state.filters.stackedArrState);
   const minValue = useSelector((state) => state.filters.minValue);
   const checkedUnits = useSelector((state) => state.filters.stackedCheckList);
-
+  const isLoader = useSelector((state) => state.filters.loaderShow);
   const dispatch = useDispatch();
 
   let areaWidth = window.innerWidth;
+  let areaHeight = window.innerHeight;
 
   //section of charts with fails counting
   let chartFailsWidth = 1920 / 7 - 20;
@@ -198,23 +200,29 @@ function Main() {
           />
         </SwiperSlide>
         <SwiperSlide>
-          <h2 className="section-title">
-            Соотношение потерь по подразделениям за период
-          </h2>
-          <ErrorBoundary FallbackComponent={ErrorFallback}>
-            <StackedAreaDiagram
-              src={originArr.unitedDatesResult}
-              yMax={originArr.yMax}
-              keys={checkedUnits}
-            />
-          </ErrorBoundary>
+          <div className="slide" style={{ height: areaHeight - 120 }}>
+            <h2 className="section-title">
+              Соотношение потерь по подразделениям за период
+            </h2>
+            {isLoader.stacked ? (
+              <Loader />
+            ) : (
+              <StackedAreaDiagram
+                src={originArr.unitedDatesResult}
+                yMax={originArr.yMax}
+                keys={checkedUnits}
+              />
+            )}
+          </div>
         </SwiperSlide>
 
         <SwiperSlide>
-          <h2 className="section-title">
-            Аналитика причастности подразделений к причинам нарушений
-          </h2>
-          <SankeyDiagram />
+          <div className="slide" style={{ height: areaHeight - 120 }}>
+            <h2 className="section-title">
+              Аналитика причастности подразделений к причинам нарушений
+            </h2>
+            {isLoader.stacked ? <Loader /> : <SankeyDiagram />}
+          </div>
         </SwiperSlide>
       </Swiper>
     </div>

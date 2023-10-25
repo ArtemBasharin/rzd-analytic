@@ -30,10 +30,12 @@
   color: black;
   margin-bottom: 5px;
   width: max-content;
+  cursor: pointer;
 }
 
 .list_label {
   display: inline-block;
+  cursor: pointer;
 }
 
 .list_input {
