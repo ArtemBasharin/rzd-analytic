@@ -172,7 +172,11 @@ const StackedAreaDiagram = (props) => {
       .attr("font-size", "12px")
       .style("fill", "#000")
       .text(function (d) {
-        return "- " + d;
+        if (d.length >= 36) {
+          return "- " + d.substr(0, 35) + " ...";
+        } else {
+          return "- " + d;
+        }
       })
       .attr("text-anchor", "left")
       .style("alignment-baseline", "middle");

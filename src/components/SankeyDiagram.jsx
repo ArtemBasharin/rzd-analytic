@@ -89,7 +89,17 @@ const SankeyDiagram = () => {
     //   "text-shadow",
     //   "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000"
     // )
-    .text((d) => d.name)
+    // .text(function (d) {
+    //   console.log(d.name.length);
+    //   return d.name;
+    // })
+    .text(function (d) {
+      if (d.name && d.name.length >= 80) {
+        return d.name.substr(0, 80) + " ...";
+      } else {
+        return d.name;
+      }
+    })
     .append("tspan")
     .attr("fill-opacity", 0.7)
     .text((d) => ` (${d.value.toLocaleString()})`);
