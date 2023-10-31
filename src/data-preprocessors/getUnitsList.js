@@ -74,17 +74,22 @@ export const getUnitsList = (arr, _, __, customCalendar) => {
   const cutDecimals = (total) => {
     const decimals = () => {
       let res = "";
-      if (Math.round(total) < 0.1) {
+      let val = Math.round(total);
+      if (val < 1) {
         res = 2;
-      } else {
-        res = Math.floor(total).toString().length;
+      }
+      if (val >= 1 && val < 100) {
+        res = 1;
+      }
+      if (val >= 100) {
+        res = 0;
       }
       return res;
     };
 
     const toRound = (value) => {
       let dec = Math.pow(10, decimals());
-      return Math.round(Number(value.toFixed(30)) * dec) / dec;
+      return Math.round(Number(value.toFixed(3)) * dec) / dec;
     };
 
     // console.log(Number(total.toFixed(2)));
@@ -102,9 +107,11 @@ export const getUnitsList = (arr, _, __, customCalendar) => {
         return currentSum;
       },
       0);
-      return (el.value = cutDecimals(res));
+      return (el.value = res);
     })
     .filter((el) => el.value !== 0);
+
+  listItems.map((el) => (el.value = cutDecimals(el.value)));
 
   listItems.sort(function (a, b) {
     return b.value - a.value;
