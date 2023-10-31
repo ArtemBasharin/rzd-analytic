@@ -99,7 +99,7 @@ const DropdownUnits = () => {
                     }
                     style={{ accentColor: option.checkboxColor }}
                   />
-                  {option.guiltyUnit}
+                  {option.guiltyUnit}, ({option.value} ч)
                 </label>
               </li>
             ))}

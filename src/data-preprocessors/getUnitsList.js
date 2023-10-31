@@ -71,6 +71,26 @@ export const getUnitsList = (arr, _, __, customCalendar) => {
 
   // console.log(listItems);
 
+  const cutDecimals = (total) => {
+    const decimals = () => {
+      let res = "";
+      if (Math.round(total) < 0.1) {
+        res = 2;
+      } else {
+        res = Math.floor(total).toString().length;
+      }
+      return res;
+    };
+
+    const toRound = (value) => {
+      let dec = Math.pow(10, decimals());
+      return Math.round(Number(value.toFixed(30)) * dec) / dec;
+    };
+
+    // console.log(Number(total.toFixed(2)));
+    return toRound(total);
+  };
+
   listItems
     .map((el) => {
       let res = summedDurationsList.reduce(function (
@@ -82,7 +102,7 @@ export const getUnitsList = (arr, _, __, customCalendar) => {
         return currentSum;
       },
       0);
-      return (el.value = res);
+      return (el.value = cutDecimals(res));
     })
     .filter((el) => el.value !== 0);
 
