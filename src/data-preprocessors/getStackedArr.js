@@ -1,5 +1,4 @@
 import * as d3 from "d3";
-// import cloneDeep from "lodash.clonedeep";
 
 import {
   startTime,
@@ -10,14 +9,8 @@ import {
   guiltyUnit,
 } from "../config/config";
 
-export const getStackedArr = (
-  srcArray,
-  dateStart,
-  dateEnd,
-  customCalendar,
-  unitsList
-) => {
-  console.log("customCalendar", customCalendar);
+export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
+  // console.log("customCalendar", customCalendar);
   // console.log("dateEnd", dateEnd);
   // console.log("dateStart", dateStart);
   // console.log("srcArray", srcArray);
@@ -72,7 +65,6 @@ export const getStackedArr = (
   let summedDurationsList = [];
   filteredArrByUncheckedUnits.forEach((el) =>
     summedDurationsList.push({
-      // violationDate: Date.parse(el[startTime]),
       violationDate: setHHMMSStoZero(el[startTime]),
       totalDuration: calcTotalDuration(el),
       guiltyUnit: el[guiltyUnit],
@@ -83,6 +75,7 @@ export const getStackedArr = (
   let result = [];
   let units = new Set();
   let dates = new Set();
+
   // Collect unique units and dates
   for (let obj of summedDurationsList) {
     units.add(obj.guiltyUnit);
@@ -108,7 +101,7 @@ export const getStackedArr = (
   }
 
   result.sort((a, b) => a.date - b.date);
-  console.log("result2", result);
+  // console.log("result2", result);
 
   let unitedDatesResult = [];
   for (let i = 0; i < customCalendar.length - 1; i++) {
@@ -146,40 +139,9 @@ export const getStackedArr = (
     (el) => Object.keys(el).length !== 1
   );
   // console.log("deletedEmptyDatesArr", deletedEmptyDatesArr);
-  // if (deletedEmptyDatesArr.length < 2) => show loader
-
-  const keysArr = Object.keys(deletedEmptyDatesArr[0]).slice(1);
-  // console.log("keysArr", keysArr);
-
-  //////////////////////////// stacked checklist section ////////////////////////////
-
-  let unitsListAsSet = new Set();
-  summedDurationsList.forEach((el) => unitsListAsSet.add(el.guiltyUnit));
-  let unitsListAsArr = Array.from(unitsListAsSet); // new list array
-
-  // console.log("unitsListAsArr", unitsListAsArr);
-  // console.log("unitsList", unitsList);
-
-  let removedOldUnitsChecklist = unitsList.filter((el) =>
-    unitsListAsArr.includes(el.guiltyUnit)
-  );
-  // console.log("removedOldUnitsChecklist", removedOldUnitsChecklist);
-
-  // unitsList.forEach(el => {
-  //   unitsListAsArr.includes(el.guiltyUnit) && removedOldUnitsChecklist.push(el)
-  // });
-
-  // for (let i = 0; i < updatedUnitsChecklist.length; i++) {
-  //   const el = updatedUnitsChecklist[i];
-  //   if (!unitsListAsArr.includes(el.guiltyUnit)) el.isDisabled = true;
-  // }
-  // console.log("checkedUnitsSimpleArray", checkedUnitsSimpleArray);
-  // console.log("updatedUnitsChecklist", updatedUnitsChecklist);
 
   return {
     arr: deletedEmptyDatesArr,
     yMax: yMax,
-    keys: keysArr,
-    unitsList: removedOldUnitsChecklist,
   };
 };

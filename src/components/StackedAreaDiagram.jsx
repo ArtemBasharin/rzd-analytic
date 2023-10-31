@@ -5,8 +5,8 @@ import * as d3 from "d3";
 // import { interpolateRainbow } from "d3-scale-chromatic";
 // import chroma from "chroma-js";
 
-const StackedAreaDiagram = (props) => {
-  console.log("Stacked loaded");
+const StackedAreaDiagram = () => {
+  // console.log("Stacked loaded");
   const svgRef5 = useRef();
   const stackedArrState = useSelector((state) => state.filters.stackedArrState);
   const minValue = useSelector((state) => state.filters.minValue);
@@ -14,6 +14,8 @@ const StackedAreaDiagram = (props) => {
   const checkList = useSelector((state) => state.filters.stackedCheckList);
   const dateStart = useSelector((state) => state.filters.dateStart);
   const dateEnd = useSelector((state) => state.filters.dateEnd);
+  // console.log("stackedArrState", stackedArrState);
+  // console.log("checkList", checkList);
 
   d3.select("#id21").selectAll("g").remove();
 
@@ -35,25 +37,25 @@ const StackedAreaDiagram = (props) => {
       .append("g")
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    // Parse the Data
-    // d3.csv("https://raw.githubusercontent.com/holtzy/data_to_viz/master/Example_dataset/5_OneCatSevNumOrdered_wide.csv").then( function(data) {
+    let keys = [];
+    let colorArr = [];
+    // console.log("keys", keys);
 
-    // List of groups = header of the csv files
-    // console.log("resData", resData);
+    // collect colors in right order from checklist checkboxes
+    checkList.forEach((el) => {
+      if (el.checked) {
+        keys.push(el);
+        colorArr.push(el.checkboxColor);
+      }
+    });
 
-    // const keys = Object.keys(resData[0]).slice(1);
-
-    let keys = stackedArrState.keys;
-    // let keys = [];
-    // stackedArrState.keys.forEach((el) => keys.push(el.guiltyUnit));
-    // console.log("keys", stackedArrState.keys);
+    // console.log("colorArr", colorArr);
 
     // Add X axis
     const x = d3
       .scaleLinear()
       .domain(
         d3.extent(resData, function (d) {
-          //   console.log("xd", d.date);
           return d.date;
         })
       )
@@ -98,7 +100,8 @@ const StackedAreaDiagram = (props) => {
 
     // color palette
     // const color = d3.scaleOrdinal().domain(keys).range(similarColors);
-    const color = d3.scaleOrdinal().domain(keys).range(d3.schemeSet2);
+    // const color = d3.scaleOrdinal().domain(keys).range(d3.schemeSet2);
+    // color array goes from checklist
 
     // if you'll need to use chromatic colors
     // const color = d3
@@ -106,19 +109,24 @@ const StackedAreaDiagram = (props) => {
     //   .interpolator(d3.interpolateRdBu)
     //   .domain([0, keys.length]);
 
-    //stack the data?
-    const stackedData = d3.stack().keys(keys)(resData);
+    //stack the data
+    let arrFromKeys = keys.map((el) => {
+      return el.guiltyUnit;
+    });
+
+    console.log("keys", keys);
+    console.log("colorArr", colorArr);
+    console.log("arrFromKeys", arrFromKeys);
+
+    const color = d3.scaleOrdinal().domain(arrFromKeys).range(colorArr);
+    const stackedData = d3.stack().keys(arrFromKeys)(resData);
+    // console.log("stackedData", stackedData);
 
     // Show the areas
     svg
       .selectAll("mylayers")
       .data(stackedData)
       .join("path")
-      // for chromatic colors
-      // .style("fill", function (d) {
-      //   console.log(color(d.index));
-      //   return color(d.index);
-      // })
       .style("fill", function (d) {
         return color(d.key);
       })
@@ -155,8 +163,8 @@ const StackedAreaDiagram = (props) => {
         return i * 15;
       })
       .attr("r", 7)
-      .style("fill", function (d) {
-        return color(d);
+      .style("fill", function (d, i) {
+        return color(i);
       });
 
     // Add text in the legend for each name.
@@ -172,10 +180,10 @@ const StackedAreaDiagram = (props) => {
       .attr("font-size", "12px")
       .style("fill", "#000")
       .text(function (d) {
-        if (d.length >= 36) {
-          return "- " + d.substr(0, 35) + " ...";
+        if (d.guiltyUnit.length >= 36) {
+          return "- " + d.guiltyUnit.substr(0, 35) + ` ... ${d.value} ч)`;
         } else {
-          return "- " + d;
+          return "- " + d.guiltyUnit + ` (${d.value} ч)`;
         }
       })
       .attr("text-anchor", "left")
@@ -189,6 +197,7 @@ const StackedAreaDiagram = (props) => {
     checkList,
     dateStart,
     dateEnd,
+    // colorArr,
   ]);
 
   return (

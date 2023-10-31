@@ -10,9 +10,6 @@ const DropdownUnits = () => {
   );
   const sankeyCheckList = useSelector((state) => state.filters.sankeyCheckList);
   const toolPalette = useSelector((state) => state.filters.toolPalette);
-  const customCalendar = useSelector((state) => state.filters.customCalendar);
-  let sankeyArr = useSelector((state) => state.filters.sankeyArrState);
-
   const dispatch = useDispatch();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -62,7 +59,6 @@ const DropdownUnits = () => {
                     className="list_input"
                     type="checkbox"
                     value={option.guiltyUnit}
-                    // defaultChecked="true"
                     checked={option.checked}
                     disabled={option.isDisabled}
                     onChange={(e) =>
@@ -73,8 +69,9 @@ const DropdownUnits = () => {
                         })
                       )
                     }
+                    style={{ accentColor: option.checkboxColor }}
                   />
-                  {option.guiltyUnit}
+                  {option.guiltyUnit}, ({option.value} ч)
                 </label>
               </li>
             ))}
@@ -90,7 +87,6 @@ const DropdownUnits = () => {
                     className="list_input"
                     type="checkbox"
                     value={option.guiltyUnit}
-                    // defaultChecked="true"
                     checked={option.checked}
                     disabled={option.isDisabled}
                     onChange={(e) =>
@@ -101,6 +97,7 @@ const DropdownUnits = () => {
                         })
                       )
                     }
+                    style={{ accentColor: option.checkboxColor }}
                   />
                   {option.guiltyUnit}
                 </label>

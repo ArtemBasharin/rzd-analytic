@@ -7,11 +7,17 @@ import { useSelector } from "react-redux";
 const SankeyDiagram = () => {
   const svgRef6 = useRef();
   let sankeyArr = useSelector((state) => state.filters.sankeyArrState);
-  // let checkedUnits = useSelector((state) => state.filters.sankeyCheckList);
-
-  // useEffect(() => {
+  let checkList = useSelector((state) => state.filters.sankeyCheckList);
   let resData = sankeyArr;
-  console.log("sankey loaded");
+
+  let colorArr = [];
+
+  checkList.forEach((el) => {
+    if (el.checked) colorArr.push(el.checkboxColor);
+  });
+  // console.log("colorArr", colorArr);
+
+  let color = d3.scaleOrdinal(colorArr);
   d3.select("#id22").selectAll("g").remove();
 
   // set the dimensions and margins of the graph
@@ -28,7 +34,7 @@ const SankeyDiagram = () => {
 
   svg.append("g");
 
-  const color = d3.scaleOrdinal(d3.schemeSet2);
+  // const color2 = d3.scaleOrdinal(d3.schemeSet2);
 
   const sankeyGenerator = sankey()
     .nodeSort(null)
@@ -59,6 +65,7 @@ const SankeyDiagram = () => {
     .append("title")
     .text((d) => `${d.name}\n${d.value.toLocaleString()}`);
 
+  //draw tooltips
   svg
     .append("g")
     .attr("fill", "none")
@@ -103,7 +110,6 @@ const SankeyDiagram = () => {
     .append("tspan")
     .attr("fill-opacity", 0.7)
     .text((d) => ` (${d.value.toLocaleString()})`);
-  // }, [sankeyArr, checkedUnits]);
 
   return (
     <svg

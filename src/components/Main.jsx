@@ -204,15 +204,7 @@ function Main() {
             <h2 className="section-title">
               Соотношение потерь по подразделениям за период
             </h2>
-            {isLoader.stacked ? (
-              <Loader />
-            ) : (
-              <StackedAreaDiagram
-                src={originArr.unitedDatesResult}
-                yMax={originArr.yMax}
-                keys={checkedUnits}
-              />
-            )}
+            {isLoader.stacked ? <Loader /> : <StackedAreaDiagram />}
           </div>
         </SwiperSlide>
 

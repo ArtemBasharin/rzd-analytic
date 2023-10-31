@@ -19,7 +19,6 @@ export const getSankeyArr = (
   minValue,
   unitsList
 ) => {
-
   const calcTotalDurationValue = (obj) => {
     let freightDur,
       passDur,
@@ -76,7 +75,7 @@ export const getSankeyArr = (
 
   let srcArrayFilteredByMinValueTool = [];
   srcArrayMergedByUniqueUnits.forEach((el) => {
-    el.totalDuration > minValue && srcArrayFilteredByMinValueTool.push(el);
+    el.totalDuration >= minValue && srcArrayFilteredByMinValueTool.push(el);
   });
   // console.log("srcArrayFilteredByMinValueTool", srcArrayFilteredByMinValueTool);
 

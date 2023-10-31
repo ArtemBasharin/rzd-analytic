@@ -1,3 +1,5 @@
+import * as d3 from "d3";
+
 let startTime = "Начало отказа",
   failCategory = "Категория отказа",
   failKind = "Вид технологического нарушения",
@@ -30,7 +32,22 @@ function generateStylishColors(count) {
   return colors;
 }
 
-let similarColors = generateStylishColors(70);
+let similarColors = generateStylishColors(100);
+
+let colors = [];
+
+for (let i = 0; i < 100; i++) {
+  const color = (i) => {
+    if (i < d3.schemeSet2.length) {
+      return d3.schemeSet2[i];
+    } else {
+      return similarColors[i];
+    }
+  };
+  colors.push(color(i));
+}
+
+// console.log("colors", colors);
 
 export {
   startTime,
@@ -48,4 +65,6 @@ export {
   otherDelayed,
   otherDuration,
   similarColors,
+  generateStylishColors,
+  colors,
 };

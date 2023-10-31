@@ -1,13 +1,27 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, current } from "@reduxjs/toolkit";
 import { getAnalyze } from "../data-preprocessors/combiner";
 import { getStackedArr } from "../data-preprocessors/getStackedArr";
-// import { testArr } from "../test/test";
 import testArr from "../data-preprocessors/dummyArr";
 import { getCustomCalendar } from "../data-preprocessors/getCustomCalendar";
 import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
 import { getUnitsList } from "../data-preprocessors/getUnitsList";
 import { getCutoffDates } from "../data-preprocessors/getCutoffDates";
-import cloneDeep from "lodash.clonedeep";
+// import cloneDeep from "lodash.clonedeep";
+
+const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
+  const updatedArray = array.map((item) => {
+    console.log(item.guiltyUnit === searchValue);
+    if (item.guiltyUnit === searchValue) {
+      return {
+        ...item,
+        checked: newCheckedValue,
+      };
+    }
+    return item;
+  });
+
+  return updatedArray;
+};
 
 let date = new Date();
 let arrSource = testArr;
@@ -20,7 +34,6 @@ let initialStartDate = () => {
   return previousMonthDate;
 };
 
-console.log(initialEndDate, initialStartDate());
 let initialToolPalette = {
   kind: "analyze",
   yearVisibility: true,
@@ -58,7 +71,8 @@ let initialPattern = () => {
 let initialCheckedUnits = getUnitsList(
   arrSource,
   initialStartDate(),
-  initialEndDate
+  initialEndDate,
+  initialCustomCalendar
 );
 
 let initialAnalyzeState = getAnalyze(
@@ -117,8 +131,8 @@ const filtersSlice = createSlice({
     maxCutoffDate: getCutoffDates(arrSource).max,
     popup: {
       isOpened: false,
-      status: "fail",
-      message: "Что-то пошло не так",
+      status: "",
+      message: "",
     },
   },
 
@@ -129,13 +143,15 @@ const filtersSlice = createSlice({
       state.stackedCheckList = getUnitsList(
         action.payload,
         state.dateStart,
-        state.dateEnd
+        state.dateEnd,
+        state.customCalendar
       );
 
       state.sankeyCheckList = getUnitsList(
         action.payload,
         state.dateStart,
-        state.dateEnd
+        state.dateEnd,
+        state.customCalendar
       );
 
       state.analyzeState = getAnalyze(
@@ -162,7 +178,6 @@ const filtersSlice = createSlice({
       );
 
       state.stackedArrState = stackedArr;
-      state.stackedCheckList = stackedArr.unitsList;
       state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
       state.sankeyCheckList = sankeyArr.unitsList;
     },
@@ -308,7 +323,6 @@ const filtersSlice = createSlice({
           state.dateStart,
           state.dateEnd
         );
-        console.log(state.stackedCheckList);
 
         if (state.stackedCheckList.length > 0) {
           state.loaderShow = initialLoaderShow;
@@ -437,20 +451,6 @@ const filtersSlice = createSlice({
     },
 
     setStackedCheckList(state, action) {
-      const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
-        let clonedArr = cloneDeep(array);
-        let updatedArray = clonedArr.map((item) => {
-          if (item.guiltyUnit === searchValue) {
-            return {
-              ...item,
-              checked: newCheckedValue,
-            };
-          }
-          return item;
-        });
-        return updatedArray;
-      };
-
       state.stackedCheckList = updateCheckedProperty(
         state.stackedCheckList,
         action.payload.guiltyUnit,
@@ -467,29 +467,11 @@ const filtersSlice = createSlice({
     },
 
     setSankeyCheckList(state, action) {
-      const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
-        // let cloneArr = cloneDeep(array);
-        // const updatedArray = cloneArr.map((item) => {
-        const updatedArray = array.map((item) => {
-          if (item.guiltyUnit === searchValue) {
-            return {
-              ...item,
-              checked: newCheckedValue,
-            };
-          }
-          return item;
-        });
-
-        return updatedArray;
-      };
-
       state.sankeyCheckList = updateCheckedProperty(
         state.sankeyCheckList,
         action.payload.guiltyUnit,
         action.payload.checked
       );
-
-      // console.log("state.sankeyCheckList", state.sankeyCheckList);
 
       state.sankeyArrState = getSankeyArr(
         state.sourceState,

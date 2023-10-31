@@ -14,29 +14,16 @@ const DateRangePicker = () => {
   const dateEnd = useSelector((state) => state.filters.dateEnd);
   const minDate = new Date(useSelector((state) => state.filters.minCutoffDate));
   const maxDate = new Date(useSelector((state) => state.filters.maxCutoffDate));
-  // const popup = useSelector((state) => state.filters.popup);
 
   const dispatch = useDispatch();
 
-  console.log(minDate);
-  console.log(dateStart);
-  console.log(maxDate);
-
   const handleDateStart = (e) => {
-    console.log(e);
     dispatch(setDateStart(e));
-    // dispatch(setCustomCalendar());
-    // dispatch(setSankeyArrState());
-    console.log(dateStart);
     setIsOpenStart(false);
   };
 
   const handleDateEnd = (e) => {
-    console.log(e);
     dispatch(setDateEnd(e));
-    // dispatch(setCustomCalendar());
-    // dispatch(setSankeyArrState());
-    console.log(dateEnd);
     setIsOpenEnd(false);
   };
 
