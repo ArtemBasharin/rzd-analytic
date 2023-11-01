@@ -2,22 +2,13 @@ import React, { useRef } from "react";
 import * as d3 from "d3";
 import { sankey, sankeyLinkHorizontal } from "d3-sankey";
 import { useSelector } from "react-redux";
-// import { similarColors } from "../config/config";
 
 const SankeyDiagram = () => {
   const svgRef6 = useRef();
-  let sankeyArr = useSelector((state) => state.filters.sankeyArrState);
+  let resData = useSelector((state) => state.filters.sankeyArrState);
   let checkList = useSelector((state) => state.filters.sankeyCheckList);
-  let resData = sankeyArr;
+  console.log("resData", resData);
 
-  let colorArr = [];
-
-  checkList.forEach((el) => {
-    if (el.checked) colorArr.push(el.checkboxColor);
-  });
-  // console.log("colorArr", colorArr);
-
-  let color = d3.scaleOrdinal(colorArr);
   d3.select("#id22").selectAll("g").remove();
 
   // set the dimensions and margins of the graph
@@ -52,6 +43,20 @@ const SankeyDiagram = () => {
   });
 
   // console.log("nodes", nodes);
+  let arrFromKeys = [];
+  links.forEach((el) => {
+    arrFromKeys.push(el.names[0]);
+  });
+
+  console.log("arrFromKeys", arrFromKeys);
+  let colorArr = [];
+
+  checkList.forEach((el) => {
+    if (el.checked) colorArr.push(el.checkboxColor);
+  });
+  // console.log("colorArr", colorArr);
+  // let color = d3.scaleOrdinal(colorArr);
+  // const color = d3.scaleOrdinal().domain(arrFromKeys).range(colorArr);
 
   svg
     .append("g")
@@ -73,7 +78,9 @@ const SankeyDiagram = () => {
     .data(links)
     .join("path")
     .attr("d", sankeyLinkHorizontal())
-    .attr("stroke", (d) => color(d.names[0]))
+    .attr("stroke", function (d) {
+      return checkList.find((el) => el.guiltyUnit === d.names[0]).checkboxColor;
+    })
     .attr("stroke-width", (d) => d.width)
     .style("mix-blend-mode", "multiply")
     .append("title")

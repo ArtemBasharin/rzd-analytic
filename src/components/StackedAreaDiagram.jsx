@@ -1,9 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import * as d3 from "d3";
-// import { similarColors } from "../config/config";
-// import { interpolateRainbow } from "d3-scale-chromatic";
-// import chroma from "chroma-js";
 
 const StackedAreaDiagram = () => {
   // console.log("Stacked loaded");
@@ -14,14 +11,11 @@ const StackedAreaDiagram = () => {
   const checkList = useSelector((state) => state.filters.stackedCheckList);
   const dateStart = useSelector((state) => state.filters.dateStart);
   const dateEnd = useSelector((state) => state.filters.dateEnd);
-  // console.log("stackedArrState", stackedArrState);
-  // console.log("checkList", checkList);
 
   d3.select("#id21").selectAll("g").remove();
 
   useEffect(() => {
     let resData = stackedArrState.arr;
-    // console.log("StackedAreaDiagram load", resData);
 
     // set the dimensions and margins of the graph
     const margin = { top: 20, right: 160, bottom: 30, left: 100 },
@@ -95,28 +89,14 @@ const StackedAreaDiagram = () => {
       .range([height, 0]);
     svg.append("g").call(d3.axisLeft(y));
 
-    // // Палитра из d3.schemeCategory10
-    // const colorPalette = d3.schemeCategory10;
-
-    // color palette
-    // const color = d3.scaleOrdinal().domain(keys).range(similarColors);
-    // const color = d3.scaleOrdinal().domain(keys).range(d3.schemeSet2);
-    // color array goes from checklist
-
-    // if you'll need to use chromatic colors
-    // const color = d3
-    //   .scaleSequential()
-    //   .interpolator(d3.interpolateRdBu)
-    //   .domain([0, keys.length]);
-
     //stack the data
     let arrFromKeys = keys.map((el) => {
       return el.guiltyUnit;
     });
 
-    console.log("keys", keys);
-    console.log("colorArr", colorArr);
-    console.log("arrFromKeys", arrFromKeys);
+    // console.log("keys", keys);
+    // console.log("colorArr", colorArr);
+    // console.log("arrFromKeys", arrFromKeys);
 
     const color = d3.scaleOrdinal().domain(arrFromKeys).range(colorArr);
     const stackedData = d3.stack().keys(arrFromKeys)(resData);
@@ -151,11 +131,11 @@ const StackedAreaDiagram = () => {
       );
 
     // Add one circle in the legend for each name.
-    // let newKeys = [];
-    // keys.length > 46 ? (newKeys = keys.slice(0, 46)) : (newKeys = keys);
+    let newKeys = [];
+    keys.length > 46 ? (newKeys = keys.slice(0, 46)) : (newKeys = keys);
     svg
       .selectAll("mydots")
-      .data(keys)
+      .data(newKeys)
       .enter()
       .append("circle")
       .attr("cx", width - 180)
@@ -170,7 +150,7 @@ const StackedAreaDiagram = () => {
     // Add text in the legend for each name.
     svg
       .selectAll("mylabels")
-      .data(keys)
+      .data(newKeys)
       .enter()
       .append("text")
       .attr("x", width - 160)

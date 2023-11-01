@@ -179,7 +179,7 @@ const filtersSlice = createSlice({
 
       state.stackedArrState = stackedArr;
       state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
-      state.sankeyCheckList = sankeyArr.unitsList;
+      // state.sankeyCheckList = sankeyArr.unitsList;
     },
 
     increment(state) {
@@ -321,7 +321,8 @@ const filtersSlice = createSlice({
         state.stackedCheckList = getUnitsList(
           state.sourceState,
           state.dateStart,
-          state.dateEnd
+          state.dateEnd,
+          state.customCalendar
         );
 
         if (state.stackedCheckList.length > 0) {
@@ -363,6 +364,7 @@ const filtersSlice = createSlice({
       } else {
         state.loaderShow = initialLoaderShow;
         state.dateEnd = action.payload;
+
         state.customCalendar = getCustomCalendar(
           state.daysInGroup,
           state.dateStart,
@@ -372,7 +374,8 @@ const filtersSlice = createSlice({
         state.stackedCheckList = getUnitsList(
           state.sourceState,
           state.dateStart,
-          state.dateEnd
+          state.dateEnd,
+          state.customCalendar
         );
 
         state.stackedArrState = getStackedArr(

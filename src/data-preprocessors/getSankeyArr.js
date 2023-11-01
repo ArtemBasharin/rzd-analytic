@@ -19,6 +19,7 @@ export const getSankeyArr = (
   minValue,
   unitsList
 ) => {
+  // console.log("srcArray", srcArray);
   const calcTotalDurationValue = (obj) => {
     let freightDur,
       passDur,
@@ -53,14 +54,17 @@ export const getSankeyArr = (
       });
     }
   });
-  // console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
+  console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
 
   let srcArrayMergedByUniqueUnits = [];
   srcArrayInDatesFrame.forEach((obj) => {
     const index = srcArrayMergedByUniqueUnits.findIndex(
-      (item) => item.guiltyUnit === obj.guiltyUnit
+      (item) =>
+        item.guiltyUnit === obj.guiltyUnit &&
+        item.failReason === obj.failReason &&
+        item.failCategory === obj.failCategory &&
+        item.failKind === obj.failKind
     );
-
     if (index === -1) {
       srcArrayMergedByUniqueUnits.push({ ...obj });
     } else {
@@ -71,7 +75,7 @@ export const getSankeyArr = (
       srcArrayMergedByUniqueUnits[index].otherDuration += obj.otherDuration;
     }
   });
-  // console.log("srcArrayMergedByUniqueUnits", srcArrayMergedByUniqueUnits);
+  console.log("srcArrayMergedByUniqueUnits", srcArrayMergedByUniqueUnits);
 
   let srcArrayFilteredByMinValueTool = [];
   srcArrayMergedByUniqueUnits.forEach((el) => {
@@ -152,22 +156,26 @@ export const getSankeyArr = (
 
   //////////////////////////// sankey checklist section ////////////////////////////
 
-  let unitsListAsSet = new Set();
-  srcArrayFilteredByMinValueTool.forEach((el) =>
-    unitsListAsSet.add(el.guiltyUnit)
-  );
-  let unitsListAsArr = Array.from(unitsListAsSet);
+  // let unitsListAsSet = new Set();
+  // srcArrayFilteredByMinValueTool.forEach((el) =>
+  //   unitsListAsSet.add(el.guiltyUnit)
+  // );
+  // let unitsListAsArr = Array.from(unitsListAsSet);
 
-  unitsList.forEach((el) =>
-    unitsListAsArr.includes(el.guiltyUnit)
-      ? (el.isDisabled = false)
-      : (el.isDisabled = true)
-  );
+  // unitsList.forEach((el) =>
+  //   unitsListAsArr.includes(el.guiltyUnit)
+  //     ? (el.isDisabled = false)
+  //     : (el.isDisabled = true)
+  // );
   // console.log("markedOldUnitsChecklist", markedOldUnitsChecklist);
 
   // console.log("checkedUnitsSimpleArray", checkedUnitsSimpleArray);
 
   // console.log("markedOldUnitsChecklist", unitsList);
 
-  return { nodes: nodes, links: links, unitsList: unitsList };
+  return {
+    nodes: nodes,
+    links: links,
+    // unitsList: unitsList
+  };
 };
