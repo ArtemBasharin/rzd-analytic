@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import * as d3 from "d3";
 import { sankey, sankeyLinkHorizontal } from "d3-sankey";
 import { useSelector } from "react-redux";
+import { cutDecimals } from "../config/config";
 
 const SankeyDiagram = () => {
   const svgRef6 = useRef();
@@ -52,7 +53,7 @@ const SankeyDiagram = () => {
     .attr("height", (d) => d.y1 - d.y0)
     .attr("width", (d) => d.x1 - d.x0)
     .append("title")
-    .text((d) => `${d.name}\n${d.value.toLocaleString()}`);
+    .text((d) => `${d.name}\n${cutDecimals(d.value)}`);
 
   //draw tooltips
   svg
@@ -100,7 +101,7 @@ const SankeyDiagram = () => {
     })
     .append("tspan")
     .attr("fill-opacity", 0.7)
-    .text((d) => ` (${d.value.toLocaleString()})`);
+    .text((d) => ` (${cutDecimals(d.value)})`);
 
   return (
     <svg

@@ -325,6 +325,13 @@ const filtersSlice = createSlice({
           state.customCalendar
         );
 
+        state.sankeyCheckList = getUnitsList(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.customCalendar
+        );
+
         if (state.stackedCheckList.length > 0) {
           state.loaderShow = initialLoaderShow;
           state.stackedArrState = getStackedArr(
@@ -372,6 +379,13 @@ const filtersSlice = createSlice({
         );
 
         state.stackedCheckList = getUnitsList(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.customCalendar
+        );
+
+        state.sankeyCheckList = getUnitsList(
           state.sourceState,
           state.dateStart,
           state.dateEnd,

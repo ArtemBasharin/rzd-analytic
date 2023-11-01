@@ -7,6 +7,7 @@ import {
   subDuration,
   otherDuration,
   similarColors,
+  cutDecimals,
 } from "../config/config";
 
 export const getUnitsList = (arr, _, __, customCalendar) => {
@@ -70,31 +71,6 @@ export const getUnitsList = (arr, _, __, customCalendar) => {
   }
 
   // console.log(listItems);
-
-  const cutDecimals = (total) => {
-    const decimals = () => {
-      let res = "";
-      let val = Math.round(total);
-      if (val < 1) {
-        res = 2;
-      }
-      if (val >= 1 && val < 100) {
-        res = 1;
-      }
-      if (val >= 100) {
-        res = 0;
-      }
-      return res;
-    };
-
-    const toRound = (value) => {
-      let dec = Math.pow(10, decimals());
-      return Math.round(Number(value.toFixed(3)) * dec) / dec;
-    };
-
-    // console.log(Number(total.toFixed(2)));
-    return toRound(total);
-  };
 
   listItems
     .map((el) => {
