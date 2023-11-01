@@ -11,11 +11,11 @@ import {
 
 export const getUnitsList = (arr, _, __, customCalendar) => {
   let result = new Set();
-  console.log(customCalendar);
+  // console.log(customCalendar);
   let startDate = new Date(d3.min(customCalendar));
   let endDate = new Date(d3.max(customCalendar));
   let cutoffByDatesArr = [];
-  console.log(arr);
+  // console.log(arr);
 
   let key = "";
   if (Object.keys(arr[0]).includes("guiltyUnit")) {
@@ -130,6 +130,6 @@ export const getUnitsList = (arr, _, __, customCalendar) => {
 
   ////////////////
 
-  console.log("listItems", listItems);
+  // console.log("listItems", listItems);
   return listItems;
 };

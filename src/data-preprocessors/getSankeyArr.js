@@ -11,6 +11,7 @@ import {
   failKind,
   failReason,
 } from "../config/config";
+import cloneDeep from "lodash.clonedeep";
 
 export const getSankeyArr = (
   srcArray,
@@ -19,7 +20,6 @@ export const getSankeyArr = (
   minValue,
   unitsList
 ) => {
-  // console.log("srcArray", srcArray);
   const calcTotalDurationValue = (obj) => {
     let freightDur,
       passDur,
@@ -54,16 +54,12 @@ export const getSankeyArr = (
       });
     }
   });
-  console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
+  // console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
 
   let srcArrayMergedByUniqueUnits = [];
   srcArrayInDatesFrame.forEach((obj) => {
     const index = srcArrayMergedByUniqueUnits.findIndex(
-      (item) =>
-        item.guiltyUnit === obj.guiltyUnit &&
-        item.failReason === obj.failReason &&
-        item.failCategory === obj.failCategory &&
-        item.failKind === obj.failKind
+      (item) => item.guiltyUnit === obj.guiltyUnit
     );
     if (index === -1) {
       srcArrayMergedByUniqueUnits.push({ ...obj });
@@ -75,25 +71,42 @@ export const getSankeyArr = (
       srcArrayMergedByUniqueUnits[index].otherDuration += obj.otherDuration;
     }
   });
-  console.log("srcArrayMergedByUniqueUnits", srcArrayMergedByUniqueUnits);
+  // console.log("srcArrayMergedByUniqueUnits", srcArrayMergedByUniqueUnits);
+
+  let unitsArrFilteredByMinValueTool = [];
+  srcArrayMergedByUniqueUnits.forEach((el) => {
+    el.totalDuration >= minValue &&
+      unitsArrFilteredByMinValueTool.push(el.guiltyUnit);
+  });
+
+  let srcArrayMergedDurations = [];
+  srcArrayInDatesFrame.forEach((obj) => {
+    const index = srcArrayMergedDurations.findIndex(
+      (item) =>
+        item.guiltyUnit === obj.guiltyUnit &&
+        item.failReason === obj.failReason &&
+        item.failCategory === obj.failCategory &&
+        item.failKind === obj.failKind
+    );
+    if (index === -1) {
+      srcArrayMergedDurations.push({ ...obj });
+    } else {
+      srcArrayMergedDurations[index].totalDuration += obj.totalDuration;
+      srcArrayMergedDurations[index].freightDuration += obj.freightDuration;
+      srcArrayMergedDurations[index].passDuration += obj.passDuration;
+      srcArrayMergedDurations[index].subDuration += obj.subDuration;
+      srcArrayMergedDurations[index].otherDuration += obj.otherDuration;
+    }
+  });
+  // console.log("srcArrayMergedDurations", srcArrayMergedDurations);
 
   let srcArrayFilteredByMinValueTool = [];
-  srcArrayMergedByUniqueUnits.forEach((el) => {
-    el.totalDuration >= minValue && srcArrayFilteredByMinValueTool.push(el);
+  srcArrayMergedDurations.forEach((el) => {
+    unitsArrFilteredByMinValueTool.includes(el.guiltyUnit) &&
+      srcArrayFilteredByMinValueTool.push(el);
   });
+
   // console.log("srcArrayFilteredByMinValueTool", srcArrayFilteredByMinValueTool);
-
-  // const filteredArr = result.filter((element) =>
-  // filteredByMinValueUnits.length === 0
-  //     ? true
-  //     : filteredByMinValueUnits.includes(element.guiltyUnit)
-  // );
-  // console.log("filteredArr", filteredArr);
-
-  // let tempSet = new Set();
-  // filteredArr.forEach((el) => tempSet.add(el.guiltyUnit));
-  // let uniqueUnitsToolPanel = Array.from(tempSet);
-  // console.log("uniqueUnitsKeys", uniqueUnitsToolPanel);
 
   let checkedUnitsSimpleArray = [];
   if (unitsList)
@@ -154,28 +167,24 @@ export const getSankeyArr = (
     }
   }
 
-  //////////////////////////// sankey checklist section ////////////////////////////
+  ////////// sankey checklist section (need to mark disabled elements)////////////
 
-  // let unitsListAsSet = new Set();
-  // srcArrayFilteredByMinValueTool.forEach((el) =>
-  //   unitsListAsSet.add(el.guiltyUnit)
-  // );
-  // let unitsListAsArr = Array.from(unitsListAsSet);
-
-  // unitsList.forEach((el) =>
-  //   unitsListAsArr.includes(el.guiltyUnit)
-  //     ? (el.isDisabled = false)
-  //     : (el.isDisabled = true)
-  // );
-  // console.log("markedOldUnitsChecklist", markedOldUnitsChecklist);
-
-  // console.log("checkedUnitsSimpleArray", checkedUnitsSimpleArray);
-
-  // console.log("markedOldUnitsChecklist", unitsList);
+  let unitsListAsSet = new Set();
+  srcArrayFilteredByMinValueTool.forEach((el) =>
+    unitsListAsSet.add(el.guiltyUnit)
+  );
+  let unitsListAsArr = Array.from(unitsListAsSet);
+  let unitsListNew = cloneDeep(unitsList);
+  unitsListNew.forEach((el) =>
+    unitsListAsArr.includes(el.guiltyUnit)
+      ? (el.isDisabled = false)
+      : (el.isDisabled = true)
+  );
+  // console.log("markedOldUnitsChecklist", unitsListNew);
 
   return {
     nodes: nodes,
     links: links,
-    // unitsList: unitsList
+    disabledUnitsList: unitsListNew,
   };
 };

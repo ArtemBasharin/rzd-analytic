@@ -7,7 +7,7 @@ const SankeyDiagram = () => {
   const svgRef6 = useRef();
   let resData = useSelector((state) => state.filters.sankeyArrState);
   let checkList = useSelector((state) => state.filters.sankeyCheckList);
-  console.log("resData", resData);
+  // console.log("resData", resData);
 
   d3.select("#id22").selectAll("g").remove();
 
@@ -25,8 +25,6 @@ const SankeyDiagram = () => {
 
   svg.append("g");
 
-  // const color2 = d3.scaleOrdinal(d3.schemeSet2);
-
   const sankeyGenerator = sankey()
     .nodeSort(null)
     .linkSort(null)
@@ -43,20 +41,6 @@ const SankeyDiagram = () => {
   });
 
   // console.log("nodes", nodes);
-  let arrFromKeys = [];
-  links.forEach((el) => {
-    arrFromKeys.push(el.names[0]);
-  });
-
-  console.log("arrFromKeys", arrFromKeys);
-  let colorArr = [];
-
-  checkList.forEach((el) => {
-    if (el.checked) colorArr.push(el.checkboxColor);
-  });
-  // console.log("colorArr", colorArr);
-  // let color = d3.scaleOrdinal(colorArr);
-  // const color = d3.scaleOrdinal().domain(arrFromKeys).range(colorArr);
 
   svg
     .append("g")

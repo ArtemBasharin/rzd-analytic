@@ -194,7 +194,7 @@ const filtersSlice = createSlice({
       );
 
       state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
-      state.sankeyCheckList = sankeyArr.unitsList;
+      state.sankeyCheckList = sankeyArr.disabledUnitsList;
     },
 
     decrement(state) {
@@ -209,7 +209,7 @@ const filtersSlice = createSlice({
       );
 
       state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
-      state.sankeyCheckList = sankeyArr.unitsList;
+      state.sankeyCheckList = sankeyArr.disabledUnitsList;
     },
 
     incrementDaysIngroup(state) {
