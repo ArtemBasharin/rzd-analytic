@@ -10,7 +10,6 @@ import { getCutoffDates } from "../data-preprocessors/getCutoffDates";
 
 const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
   const updatedArray = array.map((item) => {
-    console.log(item.guiltyUnit === searchValue);
     if (item.guiltyUnit === searchValue) {
       return {
         ...item,
@@ -194,7 +193,7 @@ const filtersSlice = createSlice({
       );
 
       state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
-      state.sankeyCheckList = sankeyArr.disabledUnitsList;
+      state.sankeyCheckList = sankeyArr.unitsList;
     },
 
     decrement(state) {
@@ -209,7 +208,7 @@ const filtersSlice = createSlice({
       );
 
       state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
-      state.sankeyCheckList = sankeyArr.disabledUnitsList;
+      state.sankeyCheckList = sankeyArr.unitsList;
     },
 
     incrementDaysIngroup(state) {
@@ -298,8 +297,8 @@ const filtersSlice = createSlice({
     },
 
     setDateStart(state, action) {
-      console.log(action.payload);
-      console.log(state.dateEnd);
+      // console.log(action.payload);
+      // console.log(state.dateEnd);
 
       if (action.payload >= state.dateEnd) {
         state.popup.isOpened = true;
@@ -490,13 +489,26 @@ const filtersSlice = createSlice({
         action.payload.checked
       );
 
-      state.sankeyArrState = getSankeyArr(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd,
-        state.minValue,
-        state.sankeyCheckList
-      );
+      if (state.sankeyCheckList.findIndex((el) => el.checked === true) === -1) {
+        state.loaderShow = {
+          ...state.loaderShow,
+          sankey: true,
+        };
+      } else {
+        state.loaderShow = {
+          ...state.loaderShow,
+          sankey: false,
+        };
+
+        state.sankeyArrState = getSankeyArr(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.minValue,
+          state.sankeyCheckList
+        );
+        console.log(state.sankeyArrState);
+      }
     },
 
     setPopup(state, action) {

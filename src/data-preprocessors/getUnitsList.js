@@ -10,11 +10,13 @@ import {
   cutDecimals,
 } from "../config/config";
 
-export const getUnitsList = (arr, _, __, customCalendar) => {
+export const getUnitsList = (arr, startDate, endDate, customCalendar) => {
   let result = new Set();
   // console.log(customCalendar);
-  let startDate = new Date(d3.min(customCalendar));
-  let endDate = new Date(d3.max(customCalendar));
+  // let startDate = new Date(d3.min(customCalendar));
+  // let endDate = new Date(d3.max(customCalendar));
+  // let startDate = new Date(d3.min(customCalendar));
+  // let endDate = new Date(d3.max(customCalendar));
   let cutoffByDatesArr = [];
   // console.log(arr);
 

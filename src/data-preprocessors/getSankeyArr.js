@@ -1,4 +1,5 @@
 import * as d3 from "d3";
+import cloneDeep from "lodash.clonedeep";
 
 import {
   startTime,
@@ -11,7 +12,6 @@ import {
   failKind,
   failReason,
 } from "../config/config";
-import cloneDeep from "lodash.clonedeep";
 
 export const getSankeyArr = (
   srcArray,
@@ -20,6 +20,7 @@ export const getSankeyArr = (
   minValue,
   unitsList
 ) => {
+  console.log(dateStart, dateEnd);
   const calcTotalDurationValue = (obj) => {
     let freightDur,
       passDur,
@@ -150,7 +151,7 @@ export const getSankeyArr = (
     const linkByKey = new d3.InternMap([], JSON.stringify);
     for (const d of srcArrayFilteredByCheckedUnits) {
       const names = prefix.map((k) => d[k]);
-      const value = d.totalDuration || 1; /////////// here need to use selector for choose quantity, duration,
+      const value = d.totalDuration || 0; /////////// here need to use selector for choose quantity, duration,
       let link = linkByKey.get(names);
       if (link) {
         link.value += value;
@@ -180,11 +181,15 @@ export const getSankeyArr = (
       ? (el.isDisabled = false)
       : (el.isDisabled = true)
   );
-  // console.log("markedOldUnitsChecklist", unitsListNew);
+  console.log("gets", {
+    nodes: nodes,
+    links: links,
+    unitsList: unitsListNew,
+  });
 
   return {
     nodes: nodes,
     links: links,
-    disabledUnitsList: unitsListNew,
+    unitsList: unitsListNew,
   };
 };

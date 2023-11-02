@@ -213,7 +213,7 @@ function Main() {
             <h2 className="section-title">
               Аналитика причастности подразделений к причинам нарушений
             </h2>
-            {isLoader.stacked ? <Loader /> : <SankeyDiagram />}
+            {isLoader.sankey ? <Loader /> : <SankeyDiagram />}
           </div>
         </SwiperSlide>
       </Swiper>

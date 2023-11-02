@@ -1,7 +1,7 @@
 const Loader = () => {
   return (
-    <div class="flexbox">
-      <div class="nb-spinner"></div>
+    <div className="flexbox">
+      <div className="nb-spinner"></div>
     </div>
   );
 };
