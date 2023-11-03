@@ -1,12 +1,13 @@
-import { createSlice, current } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
+// import { current } from "@reduxjs/toolkit";
+// import cloneDeep from "lodash.clonedeep";
 import { getAnalyze } from "../data-preprocessors/combiner";
 import { getStackedArr } from "../data-preprocessors/getStackedArr";
-import testArr from "../data-preprocessors/dummyArr";
 import { getCustomCalendar } from "../data-preprocessors/getCustomCalendar";
 import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
 import { getUnitsList } from "../data-preprocessors/getUnitsList";
 import { getCutoffDates } from "../data-preprocessors/getCutoffDates";
-// import cloneDeep from "lodash.clonedeep";
+import dummyArr from "../data-preprocessors/dummyArr";
 
 const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
   const updatedArray = array.map((item) => {
@@ -23,7 +24,7 @@ const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
 };
 
 let date = new Date();
-let arrSource = testArr;
+let arrSource = dummyArr;
 let initialMinvalue = 0;
 let initialDaysInGroup = 1;
 let initialEndDate = new Date(getCutoffDates(arrSource).max);
@@ -133,6 +134,7 @@ const filtersSlice = createSlice({
       status: "",
       message: "",
     },
+    allCheckedCheckList: { stacked: true, sankey: true },
   },
 
   reducers: {
@@ -297,9 +299,6 @@ const filtersSlice = createSlice({
     },
 
     setDateStart(state, action) {
-      // console.log(action.payload);
-      // console.log(state.dateEnd);
-
       if (action.payload >= state.dateEnd) {
         state.popup.isOpened = true;
         state.popup.message = "Начальная дата равна или больше конечной";
@@ -511,6 +510,102 @@ const filtersSlice = createSlice({
       }
     },
 
+    invertCheckList(state, action) {
+      if (action.payload === "stacked") {
+        state.stackedCheckList.map((el) =>
+          el.checked ? (el.checked = false) : (el.checked = true)
+        );
+        state.stackedArrState = getStackedArr(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.customCalendar,
+          state.stackedCheckList
+        );
+      }
+
+      if (action.payload === "sankey") {
+        state.sankeyCheckList.map((el) =>
+          el.checked ? (el.checked = false) : (el.checked = true)
+        );
+
+        if (
+          state.sankeyCheckList.findIndex((el) => el.checked === true) === -1
+        ) {
+          state.loaderShow = {
+            ...state.loaderShow,
+            sankey: true,
+          };
+        } else {
+          state.loaderShow = {
+            ...state.loaderShow,
+            sankey: false,
+          };
+        }
+        state.sankeyArrState = getSankeyArr(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.minValue,
+          state.sankeyCheckList
+        );
+      }
+    },
+
+    checkAllCheckList(state, action) {
+      if (action.payload === "stacked") {
+        state.stackedCheckList.map((el) =>
+          state.allCheckedCheckList.stacked
+            ? (el.checked = false)
+            : (el.checked = true)
+        );
+        state.allCheckedCheckList.stacked
+          ? (state.allCheckedCheckList.stacked = false)
+          : (state.allCheckedCheckList.stacked = true);
+
+        state.stackedArrState = getStackedArr(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.customCalendar,
+          state.stackedCheckList
+        );
+      }
+
+      if (action.payload === "sankey") {
+        state.sankeyCheckList.map((el) =>
+          state.allCheckedCheckList.sankey
+            ? (el.checked = false)
+            : (el.checked = true)
+        );
+        state.allCheckedCheckList.sankey
+          ? (state.allCheckedCheckList.sankey = false)
+          : (state.allCheckedCheckList.sankey = true);
+
+        if (
+          state.sankeyCheckList.findIndex((el) => el.checked === true) === -1
+        ) {
+          state.loaderShow = {
+            ...state.loaderShow,
+            sankey: true,
+          };
+        } else {
+          state.loaderShow = {
+            ...state.loaderShow,
+            sankey: false,
+          };
+        }
+
+        state.sankeyArrState = getSankeyArr(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.minValue,
+          state.sankeyCheckList
+        );
+      }
+    },
+
     setPopup(state, action) {
       state.popup.isOpened = action.payload;
     },
@@ -539,4 +634,6 @@ export const {
   setStackedCheckList,
   setSankeyCheckList,
   setPopup,
+  checkAllCheckList,
+  invertCheckList,
 } = filtersSlice.actions;

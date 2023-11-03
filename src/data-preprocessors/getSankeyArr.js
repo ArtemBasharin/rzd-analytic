@@ -20,7 +20,7 @@ export const getSankeyArr = (
   minValue,
   unitsList
 ) => {
-  console.log(dateStart, dateEnd);
+  // console.log(dateStart, dateEnd);
   const calcTotalDurationValue = (obj) => {
     let freightDur,
       passDur,
@@ -181,11 +181,11 @@ export const getSankeyArr = (
       ? (el.isDisabled = false)
       : (el.isDisabled = true)
   );
-  console.log("gets", {
-    nodes: nodes,
-    links: links,
-    unitsList: unitsListNew,
-  });
+  // console.log("gets", {
+  //   nodes: nodes,
+  //   links: links,
+  //   unitsList: unitsListNew,
+  // });
 
   return {
     nodes: nodes,

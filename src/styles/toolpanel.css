@@ -18,7 +18,7 @@
   position: relative;
   /* margin: auto; */
   height: 48px;
-  border: 1px solid rgb(57, 83, 139);
+  border: 1px solid rgb(35, 93, 201);
   border-radius: 7px;
   color: white;
   background-color: transparent;
@@ -67,6 +67,20 @@
 
 .tools_dropdown-icon_rotate {
   transform: rotate(180deg);
+}
+
+.tools_dropdown-button {
+  height: 25px;
+  margin-bottom: 5px;
+  background-color: #008fe2;
+  border-radius: 4px;
+  color: white;
+}
+
+.tools_buttons-container {
+  display: grid;
+  gap: 5px;
+  grid-template-columns: 1fr 1fr;
 }
 
 .input-label {
