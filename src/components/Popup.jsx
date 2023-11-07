@@ -7,12 +7,6 @@ const Popup = () => {
   const popup = useSelector((state) => state.filters.popup);
   const dispatch = useDispatch();
 
-  const handleClickOutside = (event) => {
-    if (popupRef.current && !popupRef.current.contains(event.target)) {
-      dispatch(setPopup(false));
-    }
-  };
-
   const handleOnClose = (event) => {
     if (popupRef.current && popupRef.current.contains(event.target)) {
       dispatch(setPopup(false));
@@ -20,11 +14,16 @@ const Popup = () => {
   };
 
   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (popupRef.current && !popupRef.current.contains(event.target)) {
+        dispatch(setPopup(false));
+      }
+    };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [dispatch]);
 
   return (
     <div className="popup popup_opened">

@@ -27,16 +27,15 @@ const DropdownPastYear = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleClickOutside = (event) => {
-    if (
-      dropdownPastYearRef.current &&
-      !dropdownPastYearRef.current.contains(event.target)
-    ) {
-      setIsOpen(false);
-    }
-  };
-
   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownPastYearRef.current &&
+        !dropdownPastYearRef.current.contains(event.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -67,6 +66,7 @@ const DropdownPastYear = () => {
               key={option + "li"}
               onClick={() => {
                 dispatch(setPastYear(option));
+                handleToggle();
               }}
             >
               {option}

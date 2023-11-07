@@ -27,16 +27,15 @@ const DropdownCurrentYear = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleClickOutside = (event) => {
-    if (
-      dropdownCurrentYearRef.current &&
-      !dropdownCurrentYearRef.current.contains(event.target)
-    ) {
-      setIsOpen(false);
-    }
-  };
-
   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        dropdownCurrentYearRef.current &&
+        !dropdownCurrentYearRef.current.contains(event.target)
+      ) {
+        setIsOpen(false);
+      }
+    };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -67,6 +66,7 @@ const DropdownCurrentYear = () => {
               key={option + "li"}
               onClick={() => {
                 dispatch(setCurrentYear(option));
+                handleToggle();
               }}
             >
               {option}
