@@ -302,6 +302,7 @@ const filtersSlice = createSlice({
       if (action.payload >= state.dateEnd) {
         state.popup.isOpened = true;
         state.popup.message = "Начальная дата равна или больше конечной";
+        state.popup.status = "fail";
         state.loaderShow = {
           ...state.loaderShow,
           stacked: true,
@@ -361,6 +362,7 @@ const filtersSlice = createSlice({
       if (action.payload <= state.dateStart) {
         state.popup.isOpened = true;
         state.popup.message = "Конечная дата равна или меньше начальной";
+        state.popup.status = "fail";
         state.loaderShow = {
           ...state.loaderShow,
           stacked: true,

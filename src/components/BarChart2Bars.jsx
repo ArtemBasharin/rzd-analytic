@@ -6,7 +6,6 @@ import descendArrow from "../images/descendArrow.svg";
 import increaseArrow from "../images/increaseArrow.svg";
 
 const BarChart2Bars = (props) => {
-  d3.selectAll(".chartItem").selectAll("g").remove();
   const svgRef2 = useRef();
   const minValue = useSelector((state) => state.filters.minValue);
   const dateStart = useSelector((state) => state.filters.dateStart);
