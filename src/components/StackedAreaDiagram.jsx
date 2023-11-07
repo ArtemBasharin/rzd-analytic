@@ -18,9 +18,12 @@ const StackedAreaDiagram = () => {
     let resData = stackedArrState.arr;
 
     // set the dimensions and margins of the graph
-    const margin = { top: 20, right: 160, bottom: 30, left: 100 },
-      width = 1900 - margin.left - margin.right,
+    const margin = { top: 20, right: 160, bottom: 80, left: 100 },
+      width = 1920 - margin.left - margin.right,
       height = 710 - margin.top - margin.bottom;
+
+    let datesArr = [];
+    resData.forEach((el) => datesArr.push(el.date));
 
     // append the svg object to the body of the page
     const svg = d3
@@ -54,6 +57,8 @@ const StackedAreaDiagram = () => {
         })
       )
       .range([0, width - 200]);
+    console.log(resData);
+    // let ticksAmount = resData.length
 
     function convertUnixToDate(unixDate) {
       const date = new Date(unixDate); // Умножаем на 1000, т.к. в Unix время указывается в миллисекундах
@@ -74,10 +79,18 @@ const StackedAreaDiagram = () => {
       .call(
         d3
           .axisBottom(x)
-          .ticks(10)
+          .tickValues(datesArr)
+          // .ticks(resData.length)
           .tickFormat(function (d) {
+            console.log(convertUnixToDate(d));
             return convertUnixToDate(d);
           })
+      )
+      .selectAll("text")
+      .attr("text-anchor", "end")
+      .attr(
+        "transform",
+        `translate(-3,5)rotate(${Math.atan(-1 * datesArr.length) * 30})`
       );
 
     // Add Y axis
@@ -93,10 +106,6 @@ const StackedAreaDiagram = () => {
     let arrFromKeys = keys.map((el) => {
       return el.guiltyUnit;
     });
-
-    // console.log("keys", keys);
-    // console.log("colorArr", colorArr);
-    // console.log("arrFromKeys", arrFromKeys);
 
     const color = d3.scaleOrdinal().domain(arrFromKeys).range(colorArr);
     const stackedData = d3.stack().keys(arrFromKeys)(resData);
@@ -177,7 +186,6 @@ const StackedAreaDiagram = () => {
     checkList,
     dateStart,
     dateEnd,
-    // colorArr,
   ]);
 
   return (

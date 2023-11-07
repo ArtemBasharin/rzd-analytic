@@ -27,13 +27,12 @@ const DropdownUnits = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleClickOutside = (event) => {
-    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-      setIsOpen(false);
-    }
-  };
-
   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -41,7 +40,7 @@ const DropdownUnits = () => {
   }, []);
 
   return (
-    <div className="list_container" ref={dropdownRef}>
+    <div className="list_container">
       <button onClick={handleToggle} className="tools tools_text-button">
         Подразделения
         <TiArrowSortedDown
@@ -54,7 +53,7 @@ const DropdownUnits = () => {
         classNames="dropdown"
         unmountOnExit
       >
-        <ul className="list list_units">
+        <ul className="list list_units" ref={dropdownRef}>
           <div className="tools_buttons-container">
             <button
               className="tools tools_dropdown-button"

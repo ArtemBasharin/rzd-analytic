@@ -120,6 +120,7 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
       }
     });
   }
+  console.log("unitedDatesResult", unitedDatesResult);
 
   let yMaxArr = [];
   unitedDatesResult.forEach((el) => {
@@ -131,17 +132,21 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
     }
     yMaxArr.push(acc);
   });
-  // console.log("unitedDatesResult", unitedDatesResult);
 
   let yMax = d3.max(yMaxArr);
 
-  let deletedEmptyDatesArr = unitedDatesResult.filter(
-    (el) => Object.keys(el).length !== 1
+  let unitsAsArr = Array.from(units);
+  unitedDatesResult.map((el) =>
+    Object.keys(el).length === 1
+      ? unitsAsArr.forEach((unit) => (el[unit] = 0))
+      : el
   );
-  // console.log("deletedEmptyDatesArr", deletedEmptyDatesArr);
+
+  // console.log(Array.from(units));
+  console.log("filledByZeroValues", unitedDatesResult);
 
   return {
-    arr: deletedEmptyDatesArr,
+    arr: unitedDatesResult,
     yMax: yMax,
   };
 };

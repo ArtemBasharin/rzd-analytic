@@ -95,15 +95,15 @@ const SankeyDiagram = () => {
       //   return d.name;
       // })
       .text(function (d) {
-        if (d.name && d.name.length >= 80) {
-          return d.name.substr(0, 80) + " ...";
+        if (d.name && d.name.length >= 74) {
+          return d.name.substr(0, 74) + " ...";
         } else {
           return d.name;
         }
       })
       .append("tspan")
       .attr("fill-opacity", 0.7)
-      .text((d) => ` (${cutDecimals(d.value)})`);
+      .text((d) => ` (${cutDecimals(d.value)} ч)`);
   }, [resData, checkList]);
 
   return (

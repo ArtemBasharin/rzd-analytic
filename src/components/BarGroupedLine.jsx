@@ -9,6 +9,7 @@ const BarGroupedLine = (props) => {
   const dateEnd = useSelector((state) => state.filters.dateEnd);
 
   let currentYear = props.maxYear;
+  d3.select(`#id${props.id}`).selectAll("g").remove();
 
   useEffect(() => {
     const findTrimIndex = (arr, minValue) => {
@@ -43,8 +44,8 @@ const BarGroupedLine = (props) => {
     const groups = resData.map((d) => {
       return d.label;
     });
+
     // sort method put on to start yearLabels keys, then slice all keys except years
-    // console.log("resData[0]", resData[0]);
     const subgroups = Object.keys(resData[0]).sort().slice(0, -2);
     const svg = d3
       .select(`#id${props.id}`) //temp id comes outside
