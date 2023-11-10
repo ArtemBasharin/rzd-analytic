@@ -57,7 +57,7 @@ const StackedAreaDiagram = () => {
         })
       )
       .range([0, width - 200]);
-    console.log(resData);
+    // console.log(resData);
     // let ticksAmount = resData.length
 
     function convertUnixToDate(unixDate) {
@@ -82,7 +82,6 @@ const StackedAreaDiagram = () => {
           .tickValues(datesArr)
           // .ticks(resData.length)
           .tickFormat(function (d) {
-            console.log(convertUnixToDate(d));
             return convertUnixToDate(d);
           })
       )

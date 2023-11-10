@@ -8,6 +8,7 @@ import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
 import { getUnitsList } from "../data-preprocessors/getUnitsList";
 import { getCutoffDates } from "../data-preprocessors/getCutoffDates";
 import dummyArr from "../data-preprocessors/dummyArr";
+import { getRidgelineArr } from "../data-preprocessors/getRidgelineArr";
 
 const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
   const updatedArray = array.map((item) => {
@@ -98,11 +99,20 @@ let initialSankeyState = getSankeyArr(
   initialCheckedUnits
 );
 
+let initialRidgelineArrState = getRidgelineArr(
+  arrSource,
+  initialStartDate(),
+  initialEndDate,
+  initialCustomCalendar,
+  initialCheckedUnits
+);
+
 let initialLoaderShow = {
   analyze: false,
   grouped: false,
   stacked: false,
   sankey: false,
+  ridgeline: false,
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -123,9 +133,11 @@ const filtersSlice = createSlice({
     analyzeState: initialAnalyzeState,
     stackedArrState: initialStackedState,
     sankeyArrState: initialSankeyState,
+    ridgelineArrState: initialRidgelineArrState,
     toolPalette: initialToolPalette,
     stackedCheckList: initialCheckedUnits,
     sankeyCheckList: initialCheckedUnits,
+    ridgelineCheckList: initialCheckedUnits,
     loaderShow: initialLoaderShow,
     minCutoffDate: getCutoffDates(arrSource).min,
     maxCutoffDate: getCutoffDates(arrSource).max,
@@ -134,7 +146,7 @@ const filtersSlice = createSlice({
       status: "",
       message: "",
     },
-    allCheckedCheckList: { stacked: true, sankey: true },
+    allCheckedCheckList: { stacked: true, sankey: true, ridgeline: true },
   },
 
   reducers: {
@@ -155,6 +167,13 @@ const filtersSlice = createSlice({
         state.customCalendar
       );
 
+      state.ridgelineCheckList = getUnitsList(
+        action.payload,
+        state.dateStart,
+        state.dateEnd,
+        state.customCalendar
+      );
+
       state.analyzeState = getAnalyze(
         state.sourceState,
         state.pastYear,
@@ -162,7 +181,7 @@ const filtersSlice = createSlice({
         state.regexpPattern
       );
 
-      let stackedArr = getStackedArr(
+      state.stackedArrState = getStackedArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
@@ -178,9 +197,17 @@ const filtersSlice = createSlice({
         state.sankeyCheckList
       );
 
-      state.stackedArrState = stackedArr;
       state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
       // state.sankeyCheckList = sankeyArr.unitsList;
+
+      state.ridgelineArrState = getRidgelineArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.customCalendar,
+        state.stackedCheckList
+      );
+      console.log(state.ridgelineArrState);
     },
 
     increment(state) {
@@ -330,31 +357,39 @@ const filtersSlice = createSlice({
           state.dateEnd,
           state.customCalendar
         );
+      }
 
-        if (state.stackedCheckList.length > 0) {
-          state.loaderShow = initialLoaderShow;
-          state.stackedArrState = getStackedArr(
-            state.sourceState,
-            state.dateStart,
-            state.dateEnd,
-            state.customCalendar,
-            state.stackedCheckList
-          );
+      if (state.stackedCheckList.length > 0) {
+        state.loaderShow = initialLoaderShow;
+        state.stackedArrState = getStackedArr(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.customCalendar,
+          state.stackedCheckList
+        );
 
-          state.sankeyArrState = getSankeyArr(
-            state.sourceState,
-            state.dateStart,
-            state.dateEnd,
-            state.minValue,
-            state.sankeyCheckList
-          );
-        } else {
-          state.loaderShow = {
-            ...state.loaderShow,
-            stacked: true,
-            sankey: true,
-          };
-        }
+        state.sankeyArrState = getSankeyArr(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.minValue,
+          state.sankeyCheckList
+        );
+
+        state.ridgelineArrState = getRidgelineArr(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.customCalendar,
+          state.stackedCheckList
+        );
+      } else {
+        state.loaderShow = {
+          ...state.loaderShow,
+          stacked: true,
+          sankey: true,
+        };
       }
     },
 
@@ -391,7 +426,10 @@ const filtersSlice = createSlice({
           state.dateEnd,
           state.customCalendar
         );
+      }
 
+      if (state.stackedCheckList.length > 0) {
+        state.loaderShow = initialLoaderShow;
         state.stackedArrState = getStackedArr(
           state.sourceState,
           state.dateStart,
@@ -407,6 +445,20 @@ const filtersSlice = createSlice({
           state.minValue,
           state.sankeyCheckList
         );
+
+        state.ridgelineArrState = getRidgelineArr(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.customCalendar,
+          state.stackedCheckList
+        );
+      } else {
+        state.loaderShow = {
+          ...state.loaderShow,
+          stacked: true,
+          sankey: true,
+        };
       }
     },
 
@@ -465,6 +517,11 @@ const filtersSlice = createSlice({
         state.toolPalette.periodVisibility = false;
         state.toolPalette.daysInGroupVisibility = false;
       }
+      if (action.payload === "ridgeline") {
+        state.toolPalette = { ...state.toolPalette, kind: action.payload };
+        state.toolPalette.yearVisibility = false;
+        state.toolPalette.periodVisibility = false;
+      }
     },
 
     setStackedCheckList(state, action) {
@@ -509,6 +566,37 @@ const filtersSlice = createSlice({
           state.sankeyCheckList
         );
         console.log(state.sankeyArrState);
+      }
+    },
+
+    setRidgelineCheckList(state, action) {
+      state.ridgelineCheckList = updateCheckedProperty(
+        state.ridgelineCheckList,
+        action.payload.guiltyUnit,
+        action.payload.checked
+      );
+
+      if (
+        state.ridgelineCheckList.findIndex((el) => el.checked === true) === -1
+      ) {
+        state.loaderShow = {
+          ...state.loaderShow,
+          ridgeline: true,
+        };
+      } else {
+        state.loaderShow = {
+          ...state.loaderShow,
+          ridgeline: false,
+        };
+
+        state.ridgelineArrState = getRidgelineArr(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.minValue,
+          state.ridgelineCheckList
+        );
+        // console.log(state.ridgelineArrState);
       }
     },
 
@@ -606,6 +694,39 @@ const filtersSlice = createSlice({
           state.sankeyCheckList
         );
       }
+
+      if (action.payload === "ridgeline") {
+        state.ridgelineCheckList.map((el) =>
+          state.allCheckedCheckList.ridgeline
+            ? (el.checked = false)
+            : (el.checked = true)
+        );
+        state.allCheckedCheckList.ridgeline
+          ? (state.allCheckedCheckList.ridgeline = false)
+          : (state.allCheckedCheckList.ridgeline = true);
+
+        if (
+          state.ridgelineCheckList.findIndex((el) => el.checked === true) === -1
+        ) {
+          state.loaderShow = {
+            ...state.loaderShow,
+            ridgeline: true,
+          };
+        } else {
+          state.loaderShow = {
+            ...state.loaderShow,
+            ridgeline: false,
+          };
+        }
+
+        state.ridgelineArrState = getRidgelineArr(
+          state.sourceState,
+          state.dateStart,
+          state.dateEnd,
+          state.minValue,
+          state.ridgelineCheckList
+        );
+      }
     },
 
     setPopup(state, action) {
@@ -635,6 +756,7 @@ export const {
   setToolPalette,
   setStackedCheckList,
   setSankeyCheckList,
+  setRidgelineCheckList,
   setPopup,
   checkAllCheckList,
   invertCheckList,

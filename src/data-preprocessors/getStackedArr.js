@@ -14,7 +14,7 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
   // console.log("dateEnd", dateEnd);
   // console.log("dateStart", dateStart);
   // console.log("srcArray", srcArray);
-  // console.log("unitsList", unitsList);
+  console.log("unitsList", unitsList);
 
   const filterCheckedUnits = (srcArr, units) => {
     let result = [];
@@ -120,7 +120,7 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
       }
     });
   }
-  console.log("unitedDatesResult", unitedDatesResult);
+  // console.log("unitedDatesResult", unitedDatesResult);
 
   let yMaxArr = [];
   unitedDatesResult.forEach((el) => {
@@ -143,7 +143,7 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
   );
 
   // console.log(Array.from(units));
-  console.log("filledByZeroValues", unitedDatesResult);
+  // console.log("filledByZeroValues", unitedDatesResult);
 
   return {
     arr: unitedDatesResult,

@@ -18,6 +18,7 @@ import SankeyDiagram from "./SankeyDiagram";
 import { setToolPalette } from "../redux/filtersSlice";
 import { Loader } from "./Loader";
 import AnalyzeSection from "./AnalyzeSection";
+import RidgelineDiagram from "./RidgelineDiagramm";
 
 function Main() {
   console.time("Main");
@@ -31,6 +32,7 @@ function Main() {
 
   let areaWidth = window.innerWidth;
   let areaHeight = window.innerHeight;
+  console.log("areaHeight", areaHeight);
 
   const paramsGroupedSection = {
     id: 15, //this prop need to create unique #id svg elements
@@ -66,6 +68,7 @@ function Main() {
             dispatch(setToolPalette("groupedChart"));
           if (activeSlideIndex === 4) dispatch(setToolPalette("stacked"));
           if (activeSlideIndex === 5) dispatch(setToolPalette("sankey"));
+          if (activeSlideIndex === 6) dispatch(setToolPalette("ridgeline"));
         }}
         onSwiper={(swiper) => {}}
       >
@@ -166,6 +169,21 @@ function Main() {
                     Аналитика причастности подразделений к причинам нарушений
                   </h2>
                   {showLoader.sankey ? <Loader /> : <SankeyDiagram />}
+                </div>
+              </>
+            )
+          }
+        </SwiperSlide>
+
+        <SwiperSlide>
+          {({ isActive }) =>
+            isActive && (
+              <>
+                <div className="slide" style={{ height: areaHeight }}>
+                  <h2 className="section-title">
+                    Аналитика причастности подразделений к причинам нарушений
+                  </h2>
+                  {showLoader.sankey ? <Loader /> : <RidgelineDiagram />}
                 </div>
               </>
             )

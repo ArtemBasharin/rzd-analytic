@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   checkAllCheckList,
   invertCheckList,
+  setRidgelineCheckList,
   setSankeyCheckList,
   setStackedCheckList,
 } from "../redux/filtersSlice";
@@ -14,6 +15,9 @@ const DropdownUnits = () => {
     (state) => state.filters.stackedCheckList
   );
   const sankeyCheckList = useSelector((state) => state.filters.sankeyCheckList);
+  const ridgelineCheckList = useSelector(
+    (state) => state.filters.ridgelineCheckList
+  );
   const allChecked = useSelector((state) => state.filters.allCheckedCheckList);
   const toolPalette = useSelector((state) => state.filters.toolPalette);
 
@@ -121,6 +125,35 @@ const DropdownUnits = () => {
                         })
                       )
                     }
+                    style={{ accentColor: option.checkboxColor }}
+                  />
+                  {option.guiltyUnit}, ({option.value} ч)
+                </label>
+              </li>
+            ))}
+
+          {toolPalette.kind === "ridgeline" &&
+            ridgelineCheckList.map((option) => (
+              <li className="list_element" key={"li-" + option.guiltyUnit}>
+                <label
+                  key={option.guiltyUnit + toolPalette.kind}
+                  className="list_label"
+                >
+                  <input
+                    className="list_input"
+                    type="checkbox"
+                    value={option.guiltyUnit}
+                    checked={option.checked}
+                    disabled={option.isDisabled}
+                    onChange={(e) => {
+                      console.log(e.target);
+                      dispatch(
+                        setRidgelineCheckList({
+                          guiltyUnit: e.target.value,
+                          checked: e.target.checked,
+                        })
+                      );
+                    }}
                     style={{ accentColor: option.checkboxColor }}
                   />
                   {option.guiltyUnit}, ({option.value} ч)
