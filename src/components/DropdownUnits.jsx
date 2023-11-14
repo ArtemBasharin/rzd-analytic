@@ -146,7 +146,7 @@ const DropdownUnits = () => {
                     checked={option.checked}
                     disabled={option.isDisabled}
                     onChange={(e) => {
-                      console.log(e.target);
+                      // console.log(e.target);
                       dispatch(
                         setRidgelineCheckList({
                           guiltyUnit: e.target.value,

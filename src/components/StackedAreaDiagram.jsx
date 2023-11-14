@@ -95,9 +95,9 @@ const StackedAreaDiagram = () => {
     // Add Y axis
     const y = d3
       // .scalePow()
-      // .exponent(5.1)
+      // .exponent(0.5)
       .scaleLinear()
-      .domain([0, stackedArrState.yMax * 1.05])
+      .domain([0, stackedArrState.yMax])
       .range([height, 0]);
     svg.append("g").call(d3.axisLeft(y));
 

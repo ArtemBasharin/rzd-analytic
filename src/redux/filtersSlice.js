@@ -6,7 +6,10 @@ import { getStackedArr } from "../data-preprocessors/getStackedArr";
 import { getCustomCalendar } from "../data-preprocessors/getCustomCalendar";
 import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
 import { getUnitsList } from "../data-preprocessors/getUnitsList";
-import { getCutoffDates } from "../data-preprocessors/getCutoffDates";
+import {
+  getCutoffDates,
+  getStartDate,
+} from "../data-preprocessors/getCutoffDates";
 import dummyArr from "../data-preprocessors/dummyArr";
 import { getRidgelineArr } from "../data-preprocessors/getRidgelineArr";
 
@@ -28,12 +31,10 @@ let date = new Date();
 let arrSource = dummyArr;
 let initialMinvalue = 0;
 let initialDaysInGroup = 1;
-let initialEndDate = new Date(getCutoffDates(arrSource).max);
-let initialStartDate = () => {
-  let previousMonthDate = new Date(initialEndDate);
-  previousMonthDate.setMonth(previousMonthDate.getMonth() - 1);
-  return previousMonthDate;
-};
+let cutoffDates = getCutoffDates(arrSource);
+let initialEndDate = new Date(cutoffDates.max).setHours(23, 59, 59);
+let initialStartDate = getStartDate(initialEndDate);
+console.log(initialEndDate, initialStartDate);
 
 let initialToolPalette = {
   kind: "analyze",
@@ -56,12 +57,12 @@ let originToolPalette = {
 
 let initialCustomCalendar = getCustomCalendar(
   initialDaysInGroup,
-  initialStartDate().setHours(0, 0, 0),
-  initialEndDate.setHours(0, 0, 0)
+  initialStartDate,
+  initialEndDate
 );
 
 let initialPattern = () => {
-  let period = initialStartDate().getMonth();
+  let period = initialStartDate.getMonth();
   if (period < 10) {
     return "0" + period;
   } else {
@@ -71,7 +72,7 @@ let initialPattern = () => {
 
 let initialCheckedUnits = getUnitsList(
   arrSource,
-  initialStartDate(),
+  initialStartDate,
   initialEndDate,
   initialCustomCalendar
 );
@@ -85,7 +86,7 @@ let initialAnalyzeState = getAnalyze(
 
 let initialStackedState = getStackedArr(
   arrSource,
-  initialStartDate(),
+  initialStartDate,
   initialEndDate,
   initialCustomCalendar,
   initialCheckedUnits
@@ -93,7 +94,7 @@ let initialStackedState = getStackedArr(
 
 let initialSankeyState = getSankeyArr(
   arrSource,
-  initialStartDate(),
+  initialStartDate,
   initialEndDate,
   initialMinvalue,
   initialCheckedUnits
@@ -101,7 +102,7 @@ let initialSankeyState = getSankeyArr(
 
 let initialRidgelineArrState = getRidgelineArr(
   arrSource,
-  initialStartDate(),
+  initialStartDate,
   initialEndDate,
   initialCustomCalendar,
   initialCheckedUnits
@@ -126,7 +127,7 @@ const filtersSlice = createSlice({
     daysInGroup: initialDaysInGroup,
     currentYear: date.getFullYear(),
     pastYear: date.getFullYear() - 1,
-    dateStart: initialStartDate(),
+    dateStart: initialStartDate,
     dateEnd: initialEndDate,
     customCalendar: initialCustomCalendar,
     regexpPattern: initialPattern(),
@@ -139,8 +140,8 @@ const filtersSlice = createSlice({
     sankeyCheckList: initialCheckedUnits,
     ridgelineCheckList: initialCheckedUnits,
     loaderShow: initialLoaderShow,
-    minCutoffDate: getCutoffDates(arrSource).min,
-    maxCutoffDate: getCutoffDates(arrSource).max,
+    minCutoffDate: cutoffDates.min,
+    maxCutoffDate: cutoffDates.max,
     popup: {
       isOpened: false,
       status: "",
@@ -152,27 +153,27 @@ const filtersSlice = createSlice({
   reducers: {
     setSourceState(state, action) {
       state.sourceState = action.payload;
+      let cutoffDates = getCutoffDates(state.sourceState);
+      state.minCutoffDate = cutoffDates.min;
+      state.maxCutoffDate = cutoffDates.max;
+      state.dateStart = getStartDate(cutoffDates.max);
+      state.dateEnd = cutoffDates.max;
+      state.customCalendar = getCustomCalendar(
+        state.daysInGroup,
+        state.dateStart,
+        state.dateEnd
+      );
 
-      state.stackedCheckList = getUnitsList(
+      let unitsList = getUnitsList(
         action.payload,
         state.dateStart,
         state.dateEnd,
         state.customCalendar
       );
-
-      state.sankeyCheckList = getUnitsList(
-        action.payload,
-        state.dateStart,
-        state.dateEnd,
-        state.customCalendar
-      );
-
-      state.ridgelineCheckList = getUnitsList(
-        action.payload,
-        state.dateStart,
-        state.dateEnd,
-        state.customCalendar
-      );
+      // console.log("unitsList", unitsList);
+      state.stackedCheckList = unitsList;
+      state.sankeyCheckList = unitsList;
+      state.ridgelineCheckList = unitsList;
 
       state.analyzeState = getAnalyze(
         state.sourceState,
@@ -205,7 +206,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
-        state.stackedCheckList
+        state.ridgelineCheckList
       );
       console.log(state.ridgelineArrState);
     },
@@ -338,25 +339,23 @@ const filtersSlice = createSlice({
       } else {
         state.loaderShow = initialLoaderShow;
         state.dateStart = action.payload;
+
         state.customCalendar = getCustomCalendar(
           state.daysInGroup,
           state.dateStart,
           state.dateEnd
         );
 
-        state.stackedCheckList = getUnitsList(
+        let unitsList = getUnitsList(
           state.sourceState,
           state.dateStart,
           state.dateEnd,
           state.customCalendar
         );
-
-        state.sankeyCheckList = getUnitsList(
-          state.sourceState,
-          state.dateStart,
-          state.dateEnd,
-          state.customCalendar
-        );
+        // console.log("unitsList", unitsList);
+        state.stackedCheckList = unitsList;
+        state.sankeyCheckList = unitsList;
+        state.ridgelineCheckList = unitsList;
       }
 
       if (state.stackedCheckList.length > 0) {
@@ -413,19 +412,16 @@ const filtersSlice = createSlice({
           state.dateEnd
         );
 
-        state.stackedCheckList = getUnitsList(
+        let unitsList = getUnitsList(
           state.sourceState,
           state.dateStart,
           state.dateEnd,
           state.customCalendar
         );
-
-        state.sankeyCheckList = getUnitsList(
-          state.sourceState,
-          state.dateStart,
-          state.dateEnd,
-          state.customCalendar
-        );
+        // console.log("unitsList", unitsList);
+        state.stackedCheckList = unitsList;
+        state.sankeyCheckList = unitsList;
+        state.ridgelineCheckList = unitsList;
       }
 
       if (state.stackedCheckList.length > 0) {

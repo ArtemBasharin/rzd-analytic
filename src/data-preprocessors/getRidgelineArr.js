@@ -77,18 +77,75 @@ export const getRidgelineArr = (srcArray, dateStart, dateEnd, _, unitsList) => {
     })
   );
 
-  summedDurationsList.sort((a, b) => a.date - b.date);
-  // console.log("summedDurationsList", summedDurationsList);
+  function combineData(arr) {
+    const combinedData = arr.reduce((acc, curr) => {
+      const key = curr.date + curr.name;
+      if (acc[key]) {
+        acc[key].value += curr.value;
+      } else {
+        acc[key] = {
+          date: curr.date,
+          value: curr.value,
+          name: curr.name,
+        };
+      }
+      return acc;
+    }, {});
+
+    const result = Object.values(combinedData);
+    return result;
+  }
+
+  let unitedByEqualDatesArr = combineData(summedDurationsList);
+
+  unitedByEqualDatesArr.sort((a, b) => a.date - b.date);
+  // console.log("unitedByEqualDatesArr", unitedByEqualDatesArr);
+
+  const transformArrayWithDates = (arr, startDate, endDate) => {
+    const result = [];
+    const uniqueNames = new Set(arr.map((item) => item.name));
+
+    uniqueNames.forEach((name) => {
+      const nameEntries = arr.filter((item) => item.name === name);
+      const currentDate = new Date(startDate);
+
+      while (currentDate <= new Date(endDate)) {
+        const existingEntry = nameEntries.find(
+          (item) =>
+            new Date(item.date).toDateString() === currentDate.toDateString()
+        );
+        if (existingEntry) {
+          result.push(existingEntry);
+        } else {
+          result.push({
+            date: new Date(currentDate.toISOString()),
+            value: 0,
+            name: name,
+          });
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    });
+
+    return result;
+  };
+
+  let addedEmptyValuesByDate = transformArrayWithDates(
+    unitedByEqualDatesArr,
+    dateStart,
+    dateEnd
+  );
+  console.log("addedEmptyValuesByDate", addedEmptyValuesByDate);
 
   let sortByCheckListArr = [];
   checkedUnitsSimpleArray.forEach((unit) =>
-    summedDurationsList.forEach(
+    addedEmptyValuesByDate.forEach(
       (el) => el.name === unit && sortByCheckListArr.push(el)
     )
   );
 
   let values = [];
-  summedDurationsList.forEach((el) => values.push(el.value));
+  unitedByEqualDatesArr.forEach((el) => values.push(el.value));
   // console.log("values", values);
   let yMax = d3.max(values);
 
@@ -97,7 +154,7 @@ export const getRidgelineArr = (srcArray, dateStart, dateEnd, _, unitsList) => {
   //   arr: summedDurationsList,
   //   yMax: yMax,
   // });
-  console.log("sortByCheckListArr", sortByCheckListArr);
+  // console.log("unitedByEqualDatesArr", unitedByEqualDatesArr);
 
   return {
     arr: sortByCheckListArr,
