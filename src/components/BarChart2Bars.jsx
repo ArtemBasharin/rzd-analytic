@@ -6,7 +6,7 @@ import descendArrow from "../images/descendArrow.svg";
 import increaseArrow from "../images/increaseArrow.svg";
 
 const BarChart2Bars = (props) => {
-  const svgRef2 = useRef();
+  const svgRef2 = useRef(null);
   const minValue = useSelector((state) => state.filters.minValue);
   const dateStart = useSelector((state) => state.filters.dateStart);
   const dateEnd = useSelector((state) => state.filters.dateEnd);
