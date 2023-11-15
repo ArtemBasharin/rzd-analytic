@@ -1,0 +1,22 @@
+.buttons-copy_container {
+  position: absolute;
+  top: 0;
+  left: 10px;
+  z-index: 9999999999;
+}
+.button-copy {
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  display: inline-block;
+  margin-right: 5px;
+  color: var(--main-border-color);
+  background-color: white;
+  height: 30px;
+  width: 55px;
+  border: 2px solid var(--main-border-color);
+  border-radius: 5px;
+}
+.button-copy_icon {
+  margin-right: 2px;
+}

@@ -1,9 +1,14 @@
-import React from "react";
+import React, { useRef } from "react";
+// import * as htmlToImage from "html-to-image";
+// import { toPng, toJpeg, toBlob, toPixelData, toSvg } from "html-to-image";
+// import download from "downloadjs";
 import { useSelector } from "react-redux";
 import * as d3 from "d3";
 import BarChart2Bars from "./BarChart2Bars";
 
 function AnalyzeSection() {
+  const svgRef = useRef(null);
+
   console.time("AnalyzeSection");
   const maxYear = useSelector((state) => state.filters.currentYear);
   const srcArr = useSelector((state) => state.filters.analyzeState);
@@ -78,24 +83,26 @@ function AnalyzeSection() {
   console.timeEnd("AnalyzeSection");
 
   return (
-    <>
-      <h2 className="section-title">
-        Технологические нарушения по виду и характеру
-      </h2>
-      <div className="horizontalSection">{layoutFails}</div>
-      <div className="horizontalSection horizontalSection_group">
-        <div>
-          <h2 className="section-title">Задержано поездов</h2>
-          <div className="horizontalSection">{layoutDelays}</div>
-        </div>
-        <div>
-          <h2 className="section-title">
-            Продолжительность задержек поездов, ч
-          </h2>
-          <div className="horizontalSection">{layoutDurations}</div>
+    <div ref={svgRef}>
+      <div>
+        <h2 className="section-title">
+          Технологические нарушения по виду и характеру
+        </h2>
+        <div className="horizontalSection">{layoutFails}</div>
+        <div className="horizontalSection horizontalSection_group">
+          <div>
+            <h2 className="section-title">Задержано поездов</h2>
+            <div className="horizontalSection">{layoutDelays}</div>
+          </div>
+          <div>
+            <h2 className="section-title">
+              Продолжительность задержек поездов, ч
+            </h2>
+            <div className="horizontalSection">{layoutDurations}</div>
+          </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

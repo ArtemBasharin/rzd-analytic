@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import * as d3 from "d3";
 import { cutDecimals } from "../config/config";
+import { convertUnixToDate } from "../data-preprocessors/getCutoffDates";
 // import { cutDecimals } from "../config/config";
 
 const RidgelineDiagram = () => {
@@ -14,7 +15,7 @@ const RidgelineDiagram = () => {
 
   useEffect(() => {
     // set the dimensions and margins of the graph
-    const margin = { top: 100, right: 30, bottom: 30, left: 50 },
+    const margin = { top: 105, right: 30, bottom: 50, left: 50 },
       width = 1920 - margin.left - margin.right,
       height = 900 - margin.top - margin.bottom;
 
@@ -31,9 +32,10 @@ const RidgelineDiagram = () => {
     const dates = Array.from(
       d3.group(resData.arr, (d) => +new Date(d.date.toString())).keys()
     ).sort(d3.ascending);
-    // console.log(
-    //   "dates",
-    //   dates.map((el) => new Date(el));
+    console.log(
+      "dates",
+      dates.map((el) => new Date(el))
+    );
 
     const series = d3
       .groups(resData.arr, (d) => d.name)
@@ -52,20 +54,33 @@ const RidgelineDiagram = () => {
       });
     console.log("series", series);
 
-    // Specify the chart’s dimensions.
-    // const overlap = 2;
-    //   const width = 928;
-    //   const height = series.length * 17;
-    //   const marginTop = 40;
-    //   const marginRight = 20;
-    //   const marginBottom = 30;
-    //   const marginLeft = 120;
+    // const daysOfWeekRU = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
+    // const monthsRU = [
+    //   "Январь",
+    //   "Февраль",
+    //   "Март",
+    //   "Апрель",
+    //   "Май",
+    //   "Июнь",
+    //   "Июль",
+    //   "Август",
+    //   "Сентябрь",
+    //   "Октябрь",
+    //   "Ноябрь",
+    //   "Декабрь",
+    // ];
 
-    // Create the scales.
+    // const formatDate = d3.timeFormat("%d %b %Y"); // Форматирование даты в формате "день месяца год"
+    // const formatDayOfWeek = (d) => daysOfWeekRU[d.getDay()];
+    // const formatMonth = (d) => monthsRU[d.getMonth()];
+
     const x = d3
-      .scaleTime()
+      .scaleLinear()
       .domain(d3.extent(dates))
       .range([margin.left + 285, width + 25]);
+    // .tickFormat(d3.timeFormat("%d %b %Y")) // Форматирование даты
+    // .tickFormat((d) => daysOfWeekRU[d.getDay()]) // Форматирование дня недели
+    // .tickFormat((d) => monthsRU[d.getMonth()]); // Форматирование месяца
 
     const y = d3
       .scalePoint()
@@ -78,7 +93,7 @@ const RidgelineDiagram = () => {
       // .scaleLinear()
       .scalePow()
       .exponent(0.8)
-      .domain([0, d3.max(series, (d) => d3.max(d.values))])
+      .domain([0, d3.max(series, (d) => d3.max(d.values)) * 1.1])
       // .domain([0, resData.yMax])
       .nice()
       // .range([0, -overlap * y.step()]);
@@ -97,23 +112,26 @@ const RidgelineDiagram = () => {
 
     const line = area.lineY1();
 
-    // Create the SVG container.
-    //   const svg = d3.create("svg")
-    //       .attr("width", width)
-    //       .attr("height", height)
-    //       .attr("viewBox", [0, 0, width, height])
-    //       .attr("style", "max-width: 100%; height: auto;");
-
     // Append the axes.
+    // Calculating the step for displaying signatures
+    const step = Math.ceil(dates.length / 30);
+
+    // Create axis
+    const xAxis = d3
+      .axisBottom(x)
+      .tickSize(0)
+      .tickValues(dates.filter((_, i) => i % step === 0)) // Filter dates according to step
+      .tickFormat(function (d) {
+        return convertUnixToDate(d);
+      });
+
     svg
       .append("g")
       .attr("transform", `translate(0,${height - margin.bottom})`)
-      .call(
-        d3
-          .axisBottom(x)
-          .ticks(width / 80)
-          .tickSizeOuter(0)
-      );
+      .call(xAxis)
+      .selectAll("text")
+      .attr("text-anchor", "end")
+      .attr("transform", "translate(-3,5)rotate(-30)");
 
     svg
       .append("g")

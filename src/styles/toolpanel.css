@@ -18,7 +18,7 @@
   position: relative;
   /* margin: auto; */
   height: 48px;
-  border: 1px solid rgb(35, 93, 201);
+  border: 1px solid var(--main-border-color);
   border-radius: 7px;
   color: white;
   background-color: transparent;
@@ -72,7 +72,7 @@
 .tools_dropdown-button {
   height: 25px;
   margin-bottom: 5px;
-  background-color: #008fe2;
+  background-color: var(--main-bg-color);
   border-radius: 4px;
   color: white;
 }
@@ -89,7 +89,7 @@
   top: -8px;
   left: 10px;
   padding: 0 5px;
-  background-color: #15a7fc;
+  background-color: var(--main-bg-color);
   color: white;
 }
 

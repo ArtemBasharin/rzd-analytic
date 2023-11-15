@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import * as d3 from "d3";
+import { convertUnixToDate } from "../data-preprocessors/getCutoffDates";
 
 const StackedAreaDiagram = () => {
   // console.log("Stacked loaded");
@@ -18,9 +19,9 @@ const StackedAreaDiagram = () => {
     let resData = stackedArrState.arr;
 
     // set the dimensions and margins of the graph
-    const margin = { top: 20, right: 160, bottom: 80, left: 100 },
+    const margin = { top: 20, right: 160, bottom: 50, left: 100 },
       width = 1920 - margin.left - margin.right,
-      height = 710 - margin.top - margin.bottom;
+      height = 770 - margin.top - margin.bottom;
 
     let datesArr = [];
     resData.forEach((el) => datesArr.push(el.date));
@@ -58,39 +59,28 @@ const StackedAreaDiagram = () => {
       )
       .range([0, width - 200]);
     // console.log(resData);
-    // let ticksAmount = resData.length
 
-    function convertUnixToDate(unixDate) {
-      const date = new Date(unixDate); // Умножаем на 1000, т.к. в Unix время указывается в миллисекундах
-      const day = date.getDate(); // Получаем день месяца
-      const month = date.getMonth() + 1; // Получаем номер месяца (начиная с 0)
-      const year = date.getFullYear(); // Получаем год
+    // Append the axes.
+    // Calculating the step for displaying signatures
+    const step = Math.ceil(datesArr.length / 30);
 
-      // Форматируем день и месяц, добавляя ноль если число состоит из одной цифры
-      const formattedDay = day.toString().padStart(2, "0");
-      const formattedMonth = month.toString().padStart(2, "0");
-      // console.log("unix", `${formattedDay}-${formattedMonth}-${year}`);
-      return `${formattedDay}-${formattedMonth}-${year}`;
-    }
+    // Create axis
+    const xAxis = d3
+      .axisBottom(x)
+      .tickSize(0)
+      .tickValues(datesArr.filter((_, i) => i % step === 0)) // Filter dates according to step
+      .tickFormat(function (d) {
+        return convertUnixToDate(d);
+      });
 
     svg
       .append("g")
-      .attr("transform", `translate(0, ${height})`)
-      .call(
-        d3
-          .axisBottom(x)
-          .tickValues(datesArr)
-          // .ticks(resData.length)
-          .tickFormat(function (d) {
-            return convertUnixToDate(d);
-          })
-      )
+      .attr("transform", `translate(0,${height})`)
+      .call(xAxis)
       .selectAll("text")
       .attr("text-anchor", "end")
-      .attr(
-        "transform",
-        `translate(-3,5)rotate(${Math.atan(-1 * datesArr.length) * 30})`
-      );
+      .attr("transform", "translate(-3,5)rotate(-30)");
+    // `translate(-3,5)rotate(${Math.atan(-1 * datesArr.length) * 30})`
 
     // Add Y axis
     const y = d3
@@ -192,8 +182,8 @@ const StackedAreaDiagram = () => {
       id={`id21`}
       className="chartItem stackedChart"
       ref={svgRef5}
-      width={1900}
-      height={900}
+      width={1920}
+      height={1080}
     ></svg>
   );
 };

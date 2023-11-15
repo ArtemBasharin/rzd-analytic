@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: space-between;
   color: white;
-  background-color: #008fe2;
+  background-color: var(--main-bg-color);
   gap: 7px;
   padding: 0;
   z-index: 999;

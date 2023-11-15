@@ -1,5 +1,5 @@
-import React, { useEffect, useReducer, useRef, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import { setPattern } from "../redux/filtersSlice";
 import { CSSTransition } from "react-transition-group";
 import { TiArrowSortedDown } from "react-icons/ti";

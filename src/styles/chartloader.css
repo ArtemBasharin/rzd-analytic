@@ -29,7 +29,7 @@
   height: 400px;
   margin: 0;
   background: transparent;
-  border-top: 6px solid #007ccf;
+  border-top: 6px solid var(--main-bg-color);
   border-right: 6px solid transparent;
   border-radius: 50%;
   -webkit-animation: 6s spin linear infinite;

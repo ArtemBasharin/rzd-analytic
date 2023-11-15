@@ -23,11 +23,11 @@ div.calendar_container {
 }
 .my-selected:not([enabled]) {
   font-weight: bold;
-  border: 2px solid blue;
+  border: 2px solid var(--main-bg-color);
 }
 .my-selected:hover:not([disabled]) {
-  border-color: blue;
-  color: blue;
+  border-color: var(--main-bg-color);
+  color: var(--main-bg-color);
 }
 .my-today {
   font-weight: bold;

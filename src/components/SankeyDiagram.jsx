@@ -13,7 +13,7 @@ const SankeyDiagram = () => {
 
   useEffect(() => {
     // set the dimensions and margins of the graph
-    const margin = { top: 20, right: 100, bottom: 30, left: 100 },
+    const margin = { top: 20, right: 100, bottom: 0, left: 100 },
       width = 1920 - margin.left - margin.right,
       height = 751 - margin.top - margin.bottom;
 

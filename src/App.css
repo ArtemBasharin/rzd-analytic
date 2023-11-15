@@ -9,6 +9,12 @@
 @import url("../src/styles/datePicker.css");
 @import url("../src/styles/drawermenu.css");
 @import url("../src/styles/popup.css");
+@import url("../src/styles/downloadbuttons.css");
+
+:root {
+  --main-bg-color: #2979ff;
+  --main-border-color: #186db3;
+}
 
 body {
   margin: 0;
