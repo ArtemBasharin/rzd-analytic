@@ -1,8 +1,8 @@
 import * as d3 from "d3";
 import { startTime, failCategory, failKind } from "../config/config";
 
-export const getArrFails = (srcArray, pastYear, currentYear) => {
-  const totalFailsCounter = (src) => {
+export const getArrFails = (srcArray: any[], pastYear: number, currentYear: number) => {
+  const totalFailsCounter = (src: any[]) => {
     let pastYearCount = 0;
     let currentYearCount = 0;
     src.forEach((el) => {
@@ -19,7 +19,7 @@ export const getArrFails = (srcArray, pastYear, currentYear) => {
   };
 
   //counting number of fails with conditions
-  const failsCounter = (src, name, prop, chartname) => {
+  const failsCounter = (src: any[], name: string, prop: string, chartname: string) => {
     let pastYearCount = 0;
     let currentYearCount = 0;
     src.forEach((element) => {
@@ -81,8 +81,8 @@ export const getArrFails = (srcArray, pastYear, currentYear) => {
   );
 
   //find max value for d3.scales element
-  const findMaxValue = (array) => {
-    let values = [];
+  const findMaxValue = (array: any[]) => {
+    let values: number[] = [];
     array.flat().forEach((e) => values.push(e.value));
     return d3.max(values);
   };

@@ -18,10 +18,10 @@ import {
 // import { initialData } from "../DropZoneParser";
 // import dummyArr from "./dummyArr"
 
-export function getAnalyze(sourceArr, pastYear, currentYear, pattern) {
+export function getAnalyze(sourceArr: any[], pastYear: number, currentYear: number, pattern: string) {
   // console.time("getAnalyze");
   // console.log("dummyArr" ,dummyArr)
-  const setUndefinedFactsToZero = (arr) => {
+  const setUndefinedFactsToZero = (arr: any[]) => {
     // eslint-disable-next-line
     arr.map((el) => {
       if (!el[freightDelayed]) el[freightDelayed] = 0;
@@ -36,7 +36,7 @@ export function getAnalyze(sourceArr, pastYear, currentYear, pattern) {
     return arr;
   };
 
-  const filterByMonth = (arr, regexpPattern) => {
+  const filterByMonth = (arr: any[], regexpPattern: string) => {
     let regexp = new RegExp(`[-](${regexpPattern})[-]`, "g");
     // console.log(regexp);
     // console.log(arr[0][startTime], arr[0][startTime].search(regexp));
