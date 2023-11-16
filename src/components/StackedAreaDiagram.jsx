@@ -4,7 +4,6 @@ import * as d3 from "d3";
 import { convertUnixToDate } from "../data-preprocessors/getCutoffDates";
 
 const StackedAreaDiagram = () => {
-  // console.log("Stacked loaded");
   const svgRef5 = useRef();
   const stackedArrState = useSelector((state) => state.filters.stackedArrState);
   const minValue = useSelector((state) => state.filters.minValue);
@@ -17,6 +16,7 @@ const StackedAreaDiagram = () => {
 
   useEffect(() => {
     let resData = stackedArrState.arr;
+    console.log("resData", resData);
 
     // set the dimensions and margins of the graph
     const margin = { top: 20, right: 160, bottom: 50, left: 100 },

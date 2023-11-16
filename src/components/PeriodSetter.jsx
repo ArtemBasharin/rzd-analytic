@@ -1,21 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setPattern } from "../redux/filtersSlice";
 import { CSSTransition } from "react-transition-group";
 import { TiArrowSortedDown } from "react-icons/ti";
 
-let date = new Date();
-
-let initialValue = () => {
-  let period = date.getMonth();
-  if (period < 10) {
-    return "0" + period;
-  } else {
-    return period.toString();
-  }
-};
-
 const PeriodSetter = () => {
+  let period = useSelector((state) => state.filters.regexpPattern);
   const dispatch = useDispatch();
 
   const periodList = [
@@ -48,7 +38,7 @@ const PeriodSetter = () => {
   ];
 
   const [isOpen, setIsOpen] = useState(false);
-  const [period, setPeriod] = useState(initialValue());
+  // const [period, setPeriod] = useState(initialValue);
 
   const dropdownPeriodRef = useRef(null);
 
@@ -95,7 +85,7 @@ const PeriodSetter = () => {
               className={`list_element list_input_big ${option + "li"}`}
               key={option.value}
               onClick={() => {
-                setPeriod(option.value);
+                // setPeriod(option.value);
                 dispatch(setPattern(option.value));
                 setIsOpen(false);
               }}

@@ -28,19 +28,22 @@ const BarGroupedLine = (props) => {
         props.stats.forEach((element) => {
           if (element.label) arr.push(element.label.length);
         });
-        return d3.max(arr) / 2;
+        return d3.max(arr);
       } else return 0;
     };
+
+    let rotationAngle = -40;
 
     const margin = {
         top: 50,
         right: 100,
-        bottom: 210 + getMaxLabelLength() * 1.5,
-        left: 130 + getMaxLabelLength() * 1.5,
+        bottom: 300,
+        left: 50 + getMaxLabelLength(),
       },
-      width = props.width - margin.left - margin.right,
-      height =
-        window.innerHeight - margin.bottom - margin.top - margin.bottom + 150;
+    width = props.width - margin.left - margin.right,
+    height =
+        window.innerHeight - margin.bottom - margin.top -80;
+    
     const groups = resData.map((d) => {
       return d.label;
     });
@@ -57,7 +60,7 @@ const BarGroupedLine = (props) => {
 
     // Add X axis
     const x = d3.scaleBand().domain(groups).range([0, width]).padding([0.2]);
-    let rotationAngle = -45;
+    
     svg
       .append("g")
       .data(resData)
@@ -69,7 +72,7 @@ const BarGroupedLine = (props) => {
       .attr("font-size", function (d) {
         return `${(1 - amountOfLabels / 100) * 12}px`; // ${(1 - amountOfLabels / 10) * 10}px
       })
-      .call(wrap, margin.bottom / Math.sin(90 + rotationAngle)); //text wrap, instead x.bandwidth() pasted margin.bottom
+      .call(wrap, margin.bottom); //text wrap, instead x.bandwidth() pasted margin.bottom
 
     // Add Y axis
     const y = d3
@@ -355,8 +358,8 @@ const BarGroupedLine = (props) => {
       id={`id${props.id}`}
       className="chartItem groupedChart"
       ref={svgRef3}
-      width={props.width}
-      height={window.innerHeight - 90}
+      width={window.innerWidth}
+      height={window.innerHeight}
     ></svg>
   );
 };

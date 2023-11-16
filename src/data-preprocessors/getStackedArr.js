@@ -13,7 +13,7 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
   // console.log("customCalendar", customCalendar);
   // console.log("dateEnd", dateEnd);
   // console.log("dateStart", dateStart);
-  // console.log("srcArray", srcArray);
+  console.log("srcArray", srcArray);
   // console.log("unitsList", unitsList);
 
   const filterCheckedUnits = (srcArr, units) => {
@@ -27,7 +27,7 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
     unitsList.forEach(
       (el) => el.checked === true && checkedUnitsSimpleArray.push(el.guiltyUnit)
     );
-  // console.log("checkedUnits", checkedUnitsSimpleArray);
+  console.log("checkedUnits", checkedUnitsSimpleArray);
 
   let filteredArrByUncheckedUnits = [];
   if (unitsList)
@@ -70,7 +70,7 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
       guiltyUnit: el[guiltyUnit],
     })
   );
-  // console.log("summedDurationsList", summedDurationsList);
+  console.log("summedDurationsList", summedDurationsList);
 
   let result = [];
   let units = new Set();
@@ -86,7 +86,7 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
   for (let date of dates) {
     let obj = { date };
     for (let guiltyUnit of units) {
-      obj[guiltyUnit.toString()] = 0;
+      obj[guiltyUnit] = 0;
     }
     result.push(obj);
   }

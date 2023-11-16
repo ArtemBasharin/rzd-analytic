@@ -28,8 +28,7 @@ const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
 };
 
 const getRegexpPattern = (date) => {
-  console.log(date);
-  let period = new Date(date).getMonth();
+  let period = new Date(date).getMonth() + 1;
   if (period < 10) {
     return "0" + period;
   } else {
@@ -156,6 +155,7 @@ const filtersSlice = createSlice({
   reducers: {
     setSourceState(state, action) {
       state.sourceState = action.payload;
+      console.log("state.sourceState", state.sourceState);
       let cutoffDates = getCutoffDates(state.sourceState);
       state.minCutoffDate = cutoffDates.min;
       state.maxCutoffDate = cutoffDates.max;
@@ -166,7 +166,8 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd
       );
-      state.regexpPattern = getRegexpPattern(state.dateStart);
+
+      state.regexpPattern = getRegexpPattern(state.dateEnd);
 
       let unitsList = getUnitsList(
         action.payload,
@@ -174,7 +175,6 @@ const filtersSlice = createSlice({
         state.dateEnd,
         state.customCalendar
       );
-      // console.log("unitsList", unitsList);
       state.stackedCheckList = unitsList;
       state.sankeyCheckList = unitsList;
       state.ridgelineCheckList = unitsList;

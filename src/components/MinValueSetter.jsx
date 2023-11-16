@@ -12,7 +12,7 @@ const MinValueSetter = () => {
 
   const handleDecrement = () => {
     dispatch(decrement());
-    console.log(minValue, minValue > 0);
+    // console.log(minValue, minValue > 0);
   };
 
   const handleChangeValue = (e) => {
