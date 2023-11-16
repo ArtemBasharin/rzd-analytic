@@ -45,7 +45,7 @@ const failKindsList = [
   "Прочие причины",
 ];
 
-const getRandomizedValue = (min, max) => {
+const getRandomizedValue = (min: number, max: number) => {
   return Math.round(Math.random() * (max - min) + min);
 };
 
@@ -70,7 +70,7 @@ const generateElement = () =>
     "Вид технологического нарушения": failKindsList[getRandomizedValue(0, 3)],
   });
 
-let testArr = [];
+let testArr: any[] = [];
 for (let i = 0; i < 2000; ++i) {
   generateElement();
 }

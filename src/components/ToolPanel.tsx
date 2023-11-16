@@ -9,10 +9,11 @@ import DropdownCurrentYear from "./DropdownCurrentYear";
 import DaysInGroupSetter from "./DaysInGroupSetter";
 import MinValueSetter from "./MinValueSetter";
 import PeriodSetter from "./PeriodSetter";
-import { CSSTransition } from "react-transition-group";
+import dummyArr from "../data-preprocessors/dummyArr";
+const { CSSTransition } = require("react-transition-group");
 
 const ToolPanel = () => {
-  const toolPalette = useSelector((state) => state.filters.toolPalette);
+  const toolPalette = useSelector((state: any) => state.filters.toolPalette);
   const dispatch = useDispatch();
   // const ref = useRef();
   let date = new Date();
@@ -29,6 +30,7 @@ const ToolPanel = () => {
       })
       .catch(function (error) {
         console.log("axios.get error:", error);
+        dispatch(setSourceState(dummyArr));
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
