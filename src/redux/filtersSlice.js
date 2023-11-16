@@ -27,6 +27,16 @@ const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
   return updatedArray;
 };
 
+const getRegexpPattern = (date) => {
+  console.log(date);
+  let period = new Date(date).getMonth();
+  if (period < 10) {
+    return "0" + period;
+  } else {
+    return period.toString();
+  }
+};
+
 let date = new Date();
 let arrSource = dummyArr;
 let initialMinvalue = 0;
@@ -34,7 +44,7 @@ let initialDaysInGroup = 1;
 let cutoffDates = getCutoffDates(arrSource);
 let initialEndDate = new Date(cutoffDates.max).setHours(23, 59, 59);
 let initialStartDate = getStartDate(initialEndDate);
-console.log(initialEndDate, initialStartDate);
+// console.log(initialEndDate, initialStartDate);
 
 let initialToolPalette = {
   kind: "analyze",
@@ -61,14 +71,7 @@ let initialCustomCalendar = getCustomCalendar(
   initialEndDate
 );
 
-let initialPattern = () => {
-  let period = initialStartDate.getMonth();
-  if (period < 10) {
-    return "0" + period;
-  } else {
-    return period.toString();
-  }
-};
+let initialPattern = getRegexpPattern(initialEndDate);
 
 let initialCheckedUnits = getUnitsList(
   arrSource,
@@ -81,7 +84,7 @@ let initialAnalyzeState = getAnalyze(
   arrSource,
   date.getFullYear() - 1,
   date.getFullYear(),
-  initialPattern()
+  initialPattern
 );
 
 let initialStackedState = getStackedArr(
@@ -130,7 +133,7 @@ const filtersSlice = createSlice({
     dateStart: initialStartDate,
     dateEnd: initialEndDate,
     customCalendar: initialCustomCalendar,
-    regexpPattern: initialPattern(),
+    regexpPattern: initialPattern,
     analyzeState: initialAnalyzeState,
     stackedArrState: initialStackedState,
     sankeyArrState: initialSankeyState,
@@ -163,6 +166,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd
       );
+      state.regexpPattern = getRegexpPattern(state.dateStart);
 
       let unitsList = getUnitsList(
         action.payload,
@@ -208,7 +212,7 @@ const filtersSlice = createSlice({
         state.customCalendar,
         state.ridgelineCheckList
       );
-      console.log(state.ridgelineArrState);
+      // console.log(state.ridgelineArrState);
     },
 
     increment(state) {

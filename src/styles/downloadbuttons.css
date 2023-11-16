@@ -10,11 +10,11 @@
   font-weight: bold;
   display: inline-block;
   margin-right: 5px;
-  color: var(--main-border-color);
+  color: rgb(5,111,173);
   background-color: white;
   height: 30px;
   width: 55px;
-  border: 2px solid var(--main-border-color);
+  border: 2px solid rgb(5,111,173);
   border-radius: 5px;
 }
 .button-copy_icon {

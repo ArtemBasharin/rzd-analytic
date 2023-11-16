@@ -13,7 +13,10 @@
 
 :root {
   --main-bg-color: #2979ff;
-  --main-border-color: #186db3;
+  --main-border-color: #005397;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+  "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+  sans-serif;
 }
 
 body {

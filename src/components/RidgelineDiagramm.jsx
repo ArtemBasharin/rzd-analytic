@@ -147,7 +147,7 @@ const RidgelineDiagram = () => {
       .attr("font-weight", "600")
       .attr("text-anchor", "end")
       .text(function (d) {
-        console.log(d);
+        // console.log(d);
         if (d.guiltyUnit.length >= 36) {
           return d.guiltyUnit.substr(0, 36) + " ...";
         } else {

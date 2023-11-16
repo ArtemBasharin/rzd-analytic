@@ -1,16 +1,15 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import * as d3 from "d3";
 // import "../App.css";
 import descendArrow from "../images/descendArrow.svg";
 import increaseArrow from "../images/increaseArrow.svg";
+import transparentArrow from "../images/transparentArrow.svg";
 
 const BarChart2Bars = (props) => {
-  const svgRef2 = useRef(null);
   const minValue = useSelector((state) => state.filters.minValue);
   const dateStart = useSelector((state) => state.filters.dateStart);
   const dateEnd = useSelector((state) => state.filters.dateEnd);
-
   useEffect(() => {
     let resData = props.stats;
     const margin = { top: 80, right: 5, bottom: 50, left: 5 },
@@ -131,7 +130,7 @@ const BarChart2Bars = (props) => {
     };
     const setTextAndArrowKind = () => {
       if (resData[0].value > resData[1].value) arrowKind = descendArrow;
-      if (resData[0].value === resData[1].value) arrowKind = "";
+      if (resData[0].value === resData[1].value) arrowKind = transparentArrow;
       if (resData[0].value < resData[1].value) arrowKind = increaseArrow;
       if (
         resData[0].value === resData[1].value ||
@@ -146,7 +145,7 @@ const BarChart2Bars = (props) => {
     let compareTitle = svg.selectAll("compareTitle").data(resData).enter();
     compareTitle
       .append("text")
-      .text(createComparisonText())
+      .text(createComparisonText)
       .attr("x", function () {
         return width / 2;
       })
@@ -163,7 +162,9 @@ const BarChart2Bars = (props) => {
     let compareArrow = svg.selectAll("compareArrow").data(resData).enter();
     compareArrow
       .append("image")
-      .attr("href", arrowKind)
+      .attr("href", function () {
+        return arrowKind;
+      })
       .attr("width", 30)
       .attr("height", 30)
       .attr("x", function () {
@@ -181,8 +182,6 @@ const BarChart2Bars = (props) => {
     dateStart,
     dateEnd,
   ]);
-  return (
-    <svg id={`id${props.config}`} className="chartItem" ref={svgRef2}></svg>
-  );
+  return <svg id={`id${props.config}`} className="chartItem"></svg>;
 };
 export default BarChart2Bars;

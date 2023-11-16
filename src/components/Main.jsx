@@ -22,7 +22,7 @@ import RidgelineDiagram from "./RidgelineDiagramm";
 import DownloadButtons from "./DownloadButtons";
 
 function Main() {
-  console.time("Main");
+  // console.time("Main");
   const downloadRef = useRef(null);
   const maxYear = useSelector((state) => state.filters.currentYear);
   const srcArr = useSelector((state) => state.filters.analyzeState);
@@ -34,7 +34,7 @@ function Main() {
 
   let areaWidth = window.innerWidth;
   let areaHeight = window.innerHeight;
-  console.log("areaHeight", areaHeight);
+  // console.log("areaHeight", areaHeight);
 
   const paramsGroupedSection = {
     id: 15, //this prop need to create unique #id svg elements
@@ -50,7 +50,7 @@ function Main() {
     id: 16, //this prop need to create unique #id svg elements
     width: areaWidth,
   };
-  console.timeEnd("Main");
+  // console.timeEnd("Main");
 
   return (
     <div className="main">

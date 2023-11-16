@@ -5,19 +5,18 @@ import { FaDownload } from "react-icons/fa6";
 function DownloadButtons(props) {
   function downloadElementAsSVG() {
     const selectedElement = props.reference.current;
-    if (selectedElement) {
-      htmlToImage
-        .toSvg(selectedElement)
-        .then(function (dataUrl) {
-          const link = document.createElement("a");
-          link.download = "slide.svg";
-          link.href = dataUrl;
-          link.click();
-        })
-        .catch(function (error) {
-          console.error("Failed to save the image: ", error);
-        });
-    }
+    console.log(selectedElement);
+    htmlToImage
+      .toSvg(selectedElement)
+      .then(function (dataUrl) {
+        const link = document.createElement("a");
+        link.download = "slide.svg";
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch(function (error) {
+        console.error("Failed to save the image: ", error);
+      });
   }
 
   function downloadElementAsPNG() {

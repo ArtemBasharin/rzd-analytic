@@ -135,7 +135,7 @@ export const getRidgelineArr = (srcArray, dateStart, dateEnd, _, unitsList) => {
     dateStart,
     dateEnd
   );
-  console.log("addedEmptyValuesByDate", addedEmptyValuesByDate);
+  // console.log("addedEmptyValuesByDate", addedEmptyValuesByDate);
 
   let sortByCheckListArr = [];
   checkedUnitsSimpleArray.forEach((unit) =>

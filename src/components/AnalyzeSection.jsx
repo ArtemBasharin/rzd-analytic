@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React from "react";
 // import * as htmlToImage from "html-to-image";
 // import { toPng, toJpeg, toBlob, toPixelData, toSvg } from "html-to-image";
 // import download from "downloadjs";
@@ -7,18 +7,21 @@ import * as d3 from "d3";
 import BarChart2Bars from "./BarChart2Bars";
 
 function AnalyzeSection() {
-  const svgRef = useRef(null);
-
-  console.time("AnalyzeSection");
+  // console.time("AnalyzeSection");
   const maxYear = useSelector((state) => state.filters.currentYear);
   const srcArr = useSelector((state) => state.filters.analyzeState);
+  d3.selectAll(".chartItem").selectAll("g").remove();
+  d3.selectAll(".chartItem").selectAll("text").remove();
+
+  // d3.selectAll("compareTitle").remove();
+  // d3.selectAll("compareArrow").remove();
+
   // const originArr = useSelector((state) => state.filters.stackedArrState);
   // const checkedUnits = useSelector((state) => state.filters.stackedCheckList);
   //   const showLoader = useSelector((state) => state.filters.loaderShow);
   const areaWidth = window.innerWidth;
   //   const areaHeight = window.innerHeight;
 
-  d3.selectAll(".chartItem").selectAll("g").remove();
   //section of charts with fails counting
   let chartFailsWidth = 1920 / 7 - 20;
   if (areaWidth < 1920) chartFailsWidth = areaWidth / 7 - 30;
@@ -80,10 +83,10 @@ function AnalyzeSection() {
     );
   });
 
-  console.timeEnd("AnalyzeSection");
+  // console.timeEnd("AnalyzeSection");
 
   return (
-    <div ref={svgRef}>
+    <div>
       <div>
         <h2 className="section-title">
           Технологические нарушения по виду и характеру

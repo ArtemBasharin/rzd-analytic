@@ -14,7 +14,7 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
   // console.log("dateEnd", dateEnd);
   // console.log("dateStart", dateStart);
   // console.log("srcArray", srcArray);
-  console.log("unitsList", unitsList);
+  // console.log("unitsList", unitsList);
 
   const filterCheckedUnits = (srcArr, units) => {
     let result = [];
