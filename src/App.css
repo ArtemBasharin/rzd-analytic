@@ -1,5 +1,20 @@
-body {
-  margin: 0;
+@import url("./styles/normalize.css");
+@import url("./styles/main.css");
+@import url("./styles/navbar.css");
+@import url("./styles/toolpanel.css");
+@import url("./styles/dropzoneparser.css");
+@import url("./styles/chart.css");
+@import url("./styles/dropdownlist.css");
+@import url("./styles/chartloader.css");
+@import url("../src/styles/datePicker.css");
+@import url("../src/styles/drawermenu.css");
+@import url("../src/styles/popup.css");
+@import url("../src/styles/downloadbuttons.css");
+@import url("../src/styles/report.css");
+
+:root {
+  --main-bg-color: #2979ff;
+  --main-border-color: #005397;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
@@ -7,67 +22,16 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+body {
+  margin: 0;
+
+  overflow: hidden;
 }
 
 .App {
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   max-width: 1920px;
   margin: auto;
-}
-
-.dropzone {
-  font-size: 17px;
-  background: rgba(255, 255, 255, 0);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  margin: 13px;
-  padding: 15px;
-  cursor: pointer;
-  height: 10px;
-  width: 135px;
-  border: 3px dashed rgb(255, 255, 255);
-  border-radius: 10px;
-  outline: none;
-}
-
-.dropzoneReject {
-  border: 2px dashed #ff3333;
-  background: #ffa3a3;
-}
-
-.dropzoneAccept {
-  border: 2px dashed green;
-  background: hsl(123, 100%, 93%);
-}
-
-.horizontalSection {
-  /* padding: 0 30px; */
-  width: 100%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.horizontalSection_group {
-  flex-wrap: nowrap;
-  /* padding: 0 30px; */
-}
-
-.chartItem {
-  position: relative;
-}
-.Main {
-  max-width: 1920px;
-  margin: 90px auto;
 }

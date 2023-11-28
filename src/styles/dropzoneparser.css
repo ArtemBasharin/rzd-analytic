@@ -1,0 +1,26 @@
+.dropzone {
+  font-size: 17px;
+  background: rgba(255, 255, 255, 0);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin: 13px;
+  padding: 0 15px;
+  cursor: pointer;
+  height: 48px;
+  width: 135px;
+  border: 3px dashed rgb(255, 255, 255);
+  border-radius: 10px;
+  outline: none;
+}
+
+.dropzoneReject {
+  border: 2px dashed #ff3333;
+  background: #ffa3a3;
+}
+
+.dropzoneAccept {
+  border: 2px dashed green;
+  background: hsl(123, 100%, 93%);
+}

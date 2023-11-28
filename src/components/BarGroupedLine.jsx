@@ -1,10 +1,15 @@
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import * as d3 from "d3";
-import "../App.css";
+import { useSelector } from "react-redux";
 
 const BarGroupedLine = (props) => {
   const svgRef3 = useRef();
+  const minValue = useSelector((state) => state.filters.minValue);
+  const dateStart = useSelector((state) => state.filters.dateStart);
+  const dateEnd = useSelector((state) => state.filters.dateEnd);
+
   let currentYear = props.maxYear;
+  d3.select(`#id${props.id}`).selectAll("g").remove();
 
   useEffect(() => {
     const findTrimIndex = (arr, minValue) => {
@@ -12,19 +17,37 @@ const BarGroupedLine = (props) => {
         if (arr[i][currentYear] < minValue) return i;
       }
     };
-    let resData = props.stats.slice(
-      0,
-      findTrimIndex(props.stats, props.minValue)
-    );
+    let resData = props.stats.slice(0, findTrimIndex(props.stats, minValue));
 
-    const margin = { top: 50, right: 100, bottom: 250, left: 180 },
+    let amountOfLabels = resData.length;
+    // console.log("amountOfLabels", amountOfLabels);
+
+    const getMaxLabelLength = () => {
+      if (props.stats[0].label) {
+        let arr = [];
+        props.stats.forEach((element) => {
+          if (element.label) arr.push(element.label.length);
+        });
+        return d3.max(arr);
+      } else return 0;
+    };
+
+    let rotationAngle = -40;
+
+    const margin = {
+        top: 50,
+        right: 100,
+        bottom: 300,
+        left: 80 + getMaxLabelLength(),
+      },
       width = props.width - margin.left - margin.right,
-      height = 0.45 * width - margin.top - margin.bottom;
+      height = window.innerHeight - margin.bottom - margin.top - 80;
+
     const groups = resData.map((d) => {
       return d.label;
     });
+
     // sort method put on to start yearLabels keys, then slice all keys except years
-    // console.log("resData[0]", resData[0]);
     const subgroups = Object.keys(resData[0]).sort().slice(0, -2);
     const svg = d3
       .select(`#id${props.id}`) //temp id comes outside
@@ -36,15 +59,19 @@ const BarGroupedLine = (props) => {
 
     // Add X axis
     const x = d3.scaleBand().domain(groups).range([0, width]).padding([0.2]);
+
     svg
       .append("g")
       .data(resData)
       .attr("transform", `translate(0, ${height})`)
       .call(d3.axisBottom(x).tickSize(0))
       .selectAll("text")
-      .attr("transform", `translate(-3,5)rotate(-35)`)
+      .attr("transform", `translate(-3,5)rotate(${rotationAngle})`)
       .attr("text-anchor", "end")
-      .call(wrap, x.bandwidth() * 2.7); //temporary text wrap is off
+      .attr("font-size", function (d) {
+        return `${(1 - amountOfLabels / 100) * 12}px`; // ${(1 - amountOfLabels / 10) * 10}px
+      })
+      .call(wrap, margin.bottom); //text wrap, instead x.bandwidth() pasted margin.bottom
 
     // Add Y axis
     const y = d3
@@ -114,6 +141,7 @@ const BarGroupedLine = (props) => {
       .attr("filter", "drop-shadow(1px -1px 3px rgb(0 0 0 / 0.2))");
 
     // draw labels
+    let yArrBarLabels = [];
     svg
       .append("g")
       .selectAll("g")
@@ -128,23 +156,36 @@ const BarGroupedLine = (props) => {
       })
       .join("text")
       .attr("x", (d) => xSubgroup(d.key) + xSubgroup.bandwidth() / 2)
-      .attr("y", (d) => y(d.value) - 5)
-
+      .attr("y", function (d) {
+        yArrBarLabels.push(y(d.value) - 5);
+        return y(d.value) - 5;
+      })
       .text((d) => height - y(d.value))
       .attr("font-family", "roboto")
       .attr("font-size", "10px")
-      .attr("font-weight", "700")
+      .attr("font-weight", "900")
       .attr("fill", "#000")
       .attr("text-anchor", "middle")
       .attr("fill", "#000")
-      .text((d) => d.value);
+      .text(function (d) {
+        if (d.value >= 100) {
+          return Math.round(d.value);
+        } else {
+          return Math.round(d.value * 10) / 10;
+        }
+      });
+
+    //create array of y coordinates of labels of current year bars
+    yArrBarLabels = yArrBarLabels.filter(
+      (item) => yArrBarLabels.indexOf(item) % 2 !== 0
+    );
 
     // draw simple pareto line
     svg
       .append("path")
       .datum(resData)
       .attr("fill", "none")
-      .attr("stroke", "rgba(128,0,0,0.5")
+      .attr("stroke", "rgba(128,0,0,0.5)")
       .attr("stroke-dasharray", "15 8")
       .attr("stroke-width", 2)
       .attr(
@@ -159,9 +200,11 @@ const BarGroupedLine = (props) => {
           .y(function (d) {
             return yP(d.valueP);
           })
+          .curve(d3.curveBasis)
       );
 
     // draw pareto line labels
+    let testarr = [];
     svg
       .append("g")
       .selectAll("textLabels")
@@ -178,8 +221,32 @@ const BarGroupedLine = (props) => {
       .attr("x", function (d) {
         return x(d.label) + xSubgroup.bandwidth() * (subgroups.length - 0.5);
       })
-      .attr("y", function (d) {
-        return yP(d.valueP);
+      .attr("y", function (d, i) {
+        testarr.push(yArrBarLabels[i] - yP(d.valueP));
+        // if pareto label on backgroung of the bar make it white
+        if (yArrBarLabels[i] - yP(d.valueP) < 0) {
+          d3.select(this)
+            .style("fill", "white")
+            .style(
+              "text-shadow",
+              "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000"
+            );
+        }
+        // if pareto label is first or near by barlabel make it white
+        if (
+          (i === 0) | (yArrBarLabels[i] - yP(d.valueP) > -30) &&
+          yArrBarLabels[i] - yP(d.valueP) < 0
+        ) {
+          d3.select(this)
+            .style("fill", "white")
+            .style(
+              "text-shadow",
+              "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000"
+            );
+          return yP(d.valueP) + 25;
+        } else {
+          return yP(d.valueP);
+        }
       })
       .text(function (d) {
         return d.valueP;
@@ -213,7 +280,7 @@ const BarGroupedLine = (props) => {
         let word,
           line = [];
         let lineNumber = 0,
-          lineHeight = 1.1; // ems
+          lineHeight = 1; // ems
         let y = text.attr("y"),
           dy = parseFloat(text.attr("dy"));
         let tspan = text
@@ -249,13 +316,13 @@ const BarGroupedLine = (props) => {
       .attr("cx", width - 110)
       .attr("cy", function (d, i) {
         return 140 + i * 35;
-      }) // 100 is where the first dot appears. 25 is the distance between dots
+      }) // 140 is where the first dot appears. 35 is the distance between dots
       .attr("r", 15)
       .style("fill", function (d) {
         return color(d);
       });
 
-    // Add one dot in the legend for each name.
+    // Add text in the legend for each name.
     svg
       .selectAll("mylabels")
       .data(subgroups)
@@ -264,13 +331,14 @@ const BarGroupedLine = (props) => {
       .attr("x", width - 90)
       .attr("y", function (d, i) {
         return 140 + i * 35;
-      }) // 100 is where the first dot appears. 25 is the distance between dots
+      }) // 140 is where the first dot appears. 35 is the distance between dots
       .style("fill", "#000")
       .text(function (d) {
         return "- " + d + " год";
       })
       .attr("text-anchor", "left")
       .style("alignment-baseline", "middle");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     props.stats,
     props.config,
@@ -279,7 +347,9 @@ const BarGroupedLine = (props) => {
     props.id,
     props.maxYear,
     currentYear,
-    props.minValue,
+    minValue,
+    dateStart,
+    dateEnd,
   ]);
 
   return (
@@ -287,8 +357,8 @@ const BarGroupedLine = (props) => {
       id={`id${props.id}`}
       className="chartItem groupedChart"
       ref={svgRef3}
-      width={props.width}
-      height={800}
+      width={window.innerWidth}
+      height={window.innerHeight}
     ></svg>
   );
 };

@@ -1,18 +1,20 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect } from "react";
+import { useSelector } from "react-redux";
 import * as d3 from "d3";
-
-import "../App.css";
+// import "../App.css";
 import descendArrow from "../images/descendArrow.svg";
 import increaseArrow from "../images/increaseArrow.svg";
+import transparentArrow from "../images/transparentArrow.svg";
 
 const BarChart2Bars = (props) => {
-  const svgRef2 = useRef();
-
+  const minValue = useSelector((state) => state.filters.minValue);
+  const dateStart = useSelector((state) => state.filters.dateStart);
+  const dateEnd = useSelector((state) => state.filters.dateEnd);
   useEffect(() => {
     let resData = props.stats;
-    const margin = { top: 100, right: 5, bottom: 50, left: 5 },
+    const margin = { top: 80, right: 5, bottom: 50, left: 5 },
       width = props.width - margin.left - margin.right,
-      height = 400 - margin.top - margin.bottom;
+      height = 350 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     const svg = d3
@@ -23,6 +25,7 @@ const BarChart2Bars = (props) => {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     let x = d3.map(resData, (d) => d.label);
+    // console.log("x", x);
 
     // X axis: scale and draw
     let X = d3
@@ -48,22 +51,7 @@ const BarChart2Bars = (props) => {
     const color = d3
       .scaleOrdinal()
       .domain(x)
-      .range([
-        "rgb(175,180,116)",
-        "rgb(5,111,173)",
-        "rgb(175,180,116)",
-        "rgb(5,111,173)",
-
-        "#fdb462",
-        "#b3de69",
-        "#fccde5",
-        "#d9d9d9",
-        "#bc80bd",
-
-        "#ccebc5",
-        "rgb(175,180,116)",
-        "rgb(5,111,173)",
-      ]);
+      .range(["rgb(175,180,116)", "rgb(5,111,173)"]);
 
     //draw bars
     bars
@@ -78,14 +66,14 @@ const BarChart2Bars = (props) => {
       .attr("height", function (d) {
         return height - y(d.value);
       })
-      .attr("fill", (d) => color(d))
+      .attr("fill", (d) => color(d.label))
       .attr("filter", "drop-shadow(1px -1px 3px rgb(0 0 0 / 0.2))");
 
     //draw labels
     bars
       .append("text")
       .text(function (d) {
-        return d.value;
+        return Math.round(d.value * 100) / 100;
       })
       .attr("x", function (d) {
         return X(d.label) + X.bandwidth() / 2;
@@ -142,7 +130,7 @@ const BarChart2Bars = (props) => {
     };
     const setTextAndArrowKind = () => {
       if (resData[0].value > resData[1].value) arrowKind = descendArrow;
-      if (resData[0].value === resData[1].value) arrowKind = "";
+      if (resData[0].value === resData[1].value) arrowKind = transparentArrow;
       if (resData[0].value < resData[1].value) arrowKind = increaseArrow;
       if (
         resData[0].value === resData[1].value ||
@@ -157,7 +145,7 @@ const BarChart2Bars = (props) => {
     let compareTitle = svg.selectAll("compareTitle").data(resData).enter();
     compareTitle
       .append("text")
-      .text(createComparisonText())
+      .text(createComparisonText)
       .attr("x", function () {
         return width / 2;
       })
@@ -174,7 +162,9 @@ const BarChart2Bars = (props) => {
     let compareArrow = svg.selectAll("compareArrow").data(resData).enter();
     compareArrow
       .append("image")
-      .attr("href", arrowKind)
+      .attr("href", function () {
+        return arrowKind;
+      })
       .attr("width", 30)
       .attr("height", 30)
       .attr("x", function () {
@@ -183,9 +173,15 @@ const BarChart2Bars = (props) => {
       .attr("y", function () {
         return y(d3.max([resData[0].value, resData[1].value])) - 50; //find tallest bar and set y-position of text
       });
-  }, [props.stats, props.config, props.yMax, props.width]);
-  return (
-    <svg id={`id${props.config}`} className="chartItem" ref={svgRef2}></svg>
-  );
+  }, [
+    props.stats,
+    props.config,
+    props.yMax,
+    props.width,
+    minValue,
+    dateStart,
+    dateEnd,
+  ]);
+  return <svg id={`id${props.config}`} className="chartItem"></svg>;
 };
 export default BarChart2Bars;
