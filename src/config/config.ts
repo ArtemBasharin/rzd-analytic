@@ -15,7 +15,7 @@ let startTime = "Начало отказа",
   otherDelayed = "Количество прочих поездов(по месту)",
   otherDuration = "Время прочих поездов(по месту)";
 
-function generateStylishColors(count) {
+function generateStylishColors(count: number) {
   var colors = [];
   var hueStep = 360 / count;
   var baseHue = Math.floor(Math.random() * 360);
@@ -37,7 +37,7 @@ let similarColors = generateStylishColors(100);
 let colors = [];
 
 for (let i = 0; i < 100; i++) {
-  const color = (i) => {
+  const color = (i: number) => {
     if (i < d3.schemeSet2.length) {
       return d3.schemeSet2[i];
     } else {
@@ -49,9 +49,9 @@ for (let i = 0; i < 100; i++) {
 
 // console.log("colors", colors);
 
-const cutDecimals = (total) => {
+const cutDecimals = (total: number) => {
   const decimals = () => {
-    let res = "";
+    let res: number = 0;
     let val = Math.round(total);
     if (val < 1) {
       res = 2;
@@ -65,7 +65,7 @@ const cutDecimals = (total) => {
     return res;
   };
 
-  const toRound = (value) => {
+  const toRound = (value: number) => {
     let dec = Math.pow(10, decimals());
     return Math.round(Number(value.toFixed(3)) * dec) / dec;
   };

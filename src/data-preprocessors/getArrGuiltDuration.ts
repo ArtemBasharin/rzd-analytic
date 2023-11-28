@@ -1,27 +1,34 @@
 import * as d3 from "d3";
-import { startTime, guiltyUnit } from "../config/config";
+import {
+  startTime,
+  guiltyUnit,
+  freightDuration,
+  passDuration,
+  subDuration,
+  otherDuration,
+} from "../config/config";
 
-export const getArrGuilt = (srcArray) => {
-  const maxYearKey = (arr) => {
-    let maxKeyArr = [];
-    Object.keys(arr[0]).forEach((el2) => {
+export const getArrGuiltDuration = (srcArray: any[]) => {
+  const maxYearKey = (arr: any[]) => {
+    let maxKeyArr: any[] = [];
+    Object.keys(arr[0]).forEach((el2: any) => {
       if (!isNaN(el2)) maxKeyArr.push(el2);
     });
     return d3.max(maxKeyArr);
   };
 
-  function byField(field) {
-    return (a, b) => (a[field] < b[field] ? 1 : -1);
+  function byField(field: number) {
+    return (a: string, b: string) => (a[field] < b[field] ? 1 : -1);
   }
 
-  const yearFilter = (el) => {
+  const yearFilter = (el: any) => {
     return Number(el[startTime].slice(0, 4));
   };
 
-  const createGuiltsArray = (src) => {
+  const createGuiltsArray = (src: any[]) => {
     //accumulate values from source
     const subUnitsAsMap = new Map();
-    let uniqueYearLabelsArr = [];
+    let uniqueYearLabelsArr: number[] = [];
     for (let i = 0; i < src.length; i += 1) {
       const unit = src[i][guiltyUnit];
       const year = yearFilter(src[i]);
@@ -29,18 +36,26 @@ export const getArrGuilt = (srcArray) => {
       const currentItem = {
         yearLabel: year,
         label: unit,
-        value: 1,
+        value:
+          src[i][freightDuration] +
+          src[i][passDuration] +
+          src[i][subDuration] +
+          src[i][otherDuration],
       };
       if (subUnitsAsMap.has(year + "-" + unit)) {
         let existedItem = subUnitsAsMap.get(year + "-" + unit);
-        existedItem.value += 1;
+        existedItem.value +=
+          src[i][freightDuration] +
+          src[i][passDuration] +
+          src[i][subDuration] +
+          src[i][otherDuration];
       } else {
         subUnitsAsMap.set(year + "-" + unit, currentItem);
       }
     }
 
     //unite items with same key [subUnit]
-    let transitArr = [...subUnitsAsMap.values()];
+    let transitArr = Array.from(subUnitsAsMap.values());
     const subResult = new Map();
     for (let i = 0; i < transitArr.length; i += 1) {
       const currentItem = transitArr[i].label;
@@ -57,7 +72,7 @@ export const getArrGuilt = (srcArray) => {
     }
 
     //find items with not nonexistent yearLabel and assign zero-value to it
-    let result = [...subResult.values()];
+    let result = Array.from(subResult.values());
     uniqueYearLabelsArr.sort();
     for (let i = 0; i < uniqueYearLabelsArr.length; i++) {
       // eslint-disable-next-line array-callback-return
@@ -74,22 +89,22 @@ export const getArrGuilt = (srcArray) => {
   let sourceGuiltyArray = createGuiltsArray(srcArray);
   // let maxYear = maxYearKey(sourceGuiltyArray);
 
-  let yMaxGroupsArr = [];
-  sourceGuiltyArray.forEach((el) => {
-    Object.values(el).forEach((el2) => {
+  let yMaxGroupsArr: number[] = [];
+  sourceGuiltyArray.forEach((el: any) => {
+    Object.values(el).forEach((el2: any) => {
       if (!isNaN(el2)) yMaxGroupsArr.push(el2);
     });
   });
 
   let yMaxGroups = d3.max(yMaxGroupsArr);
 
-  const arrayByField = (src) => {
-    let result = [];
+  const arrayByField = (src: any[]) => {
+    let result: any[] = [];
     src.forEach((el) => result.push(el[maxYearKey(src)]));
     return result;
   };
 
-  const paretoArrayGen = (src) => {
+  const paretoArrayGen = (src: any[]) => {
     let result = [];
     let totalSum = arrayByField(src).reduce((sum, current) => {
       result.push(sum);

@@ -2,8 +2,14 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setMinValue, increment, decrement } from "../redux/filtersSlice";
 
+interface RootState {
+  filters: {
+    minValue: number;
+  };
+}
+
 const MinValueSetter = () => {
-  const minValue = useSelector((state) => state.filters.minValue);
+  const minValue = useSelector((state: RootState) => state.filters.minValue);
   const dispatch = useDispatch();
 
   const handleIncrement = () => {
@@ -15,8 +21,8 @@ const MinValueSetter = () => {
     // console.log(minValue, minValue > 0);
   };
 
-  const handleChangeValue = (e) => {
-    if (minValue > 0) dispatch(setMinValue(Number(e.target.value)));
+  const handleChangeValue = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (minValue >= 0) dispatch(setMinValue(Number(e.target.value)));
   };
 
   return (

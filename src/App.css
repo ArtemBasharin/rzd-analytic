@@ -10,20 +10,21 @@
 @import url("../src/styles/drawermenu.css");
 @import url("../src/styles/popup.css");
 @import url("../src/styles/downloadbuttons.css");
+@import url("../src/styles/report.css");
 
 :root {
   --main-bg-color: #2979ff;
   --main-border-color: #005397;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-  "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-  sans-serif;
--webkit-font-smoothing: antialiased;
--moz-osx-font-smoothing: grayscale;
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
   margin: 0;
- 
+
   overflow: hidden;
 }
 

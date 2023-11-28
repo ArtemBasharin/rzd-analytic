@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import * as d3 from "d3";
 import { useSelector } from "react-redux";
 
@@ -38,12 +38,11 @@ const BarGroupedLine = (props) => {
         top: 50,
         right: 100,
         bottom: 300,
-        left: 50 + getMaxLabelLength(),
+        left: 80 + getMaxLabelLength(),
       },
-    width = props.width - margin.left - margin.right,
-    height =
-        window.innerHeight - margin.bottom - margin.top -80;
-    
+      width = props.width - margin.left - margin.right,
+      height = window.innerHeight - margin.bottom - margin.top - 80;
+
     const groups = resData.map((d) => {
       return d.label;
     });
@@ -60,7 +59,7 @@ const BarGroupedLine = (props) => {
 
     // Add X axis
     const x = d3.scaleBand().domain(groups).range([0, width]).padding([0.2]);
-    
+
     svg
       .append("g")
       .data(resData)

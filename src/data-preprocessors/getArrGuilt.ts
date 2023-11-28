@@ -1,46 +1,46 @@
 import * as d3 from "d3";
-import { startTime, failReason } from "../config/config";
+import { startTime, guiltyUnit } from "../config/config";
 
-export const getArrReasons = (srcArray) => {
-  const yearFilter = (el) => {
-    return Number(el[startTime].slice(0, 4));
-  };
-
-  const maxYearKey = (arr) => {
-    let maxKeyArr = [];
-    Object.keys(arr[0]).forEach((el2) => {
+export const getArrGuilt = (srcArray: any[]) => {
+  const maxYearKey = (arr: any[]) => {
+    let maxKeyArr: any[] = [];
+    Object.keys(arr[0]).forEach((el2: any) => {
       if (!isNaN(el2)) maxKeyArr.push(el2);
     });
     return d3.max(maxKeyArr);
   };
 
-  function byField(field) {
-    return (a, b) => (a[field] < b[field] ? 1 : -1);
+  function byField(field: number) {
+    return (a: string, b: string) => (a[field] < b[field] ? 1 : -1);
   }
 
-  const createReasonsArray = (src) => {
+  const yearFilter = (el: any) => {
+    return Number(el[startTime].slice(0, 4));
+  };
+
+  const createGuiltsArray = (src: any[]) => {
     //accumulate values from source
-    const reasonsAsMap = new Map();
-    let uniqueYearLabelsArr = [];
+    const subUnitsAsMap = new Map();
+    let uniqueYearLabelsArr: number[] = [];
     for (let i = 0; i < src.length; i += 1) {
-      const reason = src[i][failReason];
+      const unit = src[i][guiltyUnit];
       const year = yearFilter(src[i]);
       if (!uniqueYearLabelsArr.includes(year)) uniqueYearLabelsArr.push(year);
       const currentItem = {
         yearLabel: year,
-        label: reason,
+        label: unit,
         value: 1,
       };
-      if (reasonsAsMap.has(year + "-" + reason)) {
-        let existedItem = reasonsAsMap.get(year + "-" + reason);
+      if (subUnitsAsMap.has(year + "-" + unit)) {
+        let existedItem = subUnitsAsMap.get(year + "-" + unit);
         existedItem.value += 1;
       } else {
-        reasonsAsMap.set(year + "-" + reason, currentItem);
+        subUnitsAsMap.set(year + "-" + unit, currentItem);
       }
     }
 
-    //unite items with same key [reason]
-    let transitArr = [...reasonsAsMap.values()];
+    //unite items with same key [subUnit]
+    let transitArr = Array.from(subUnitsAsMap.values());
     const subResult = new Map();
     for (let i = 0; i < transitArr.length; i += 1) {
       const currentItem = transitArr[i].label;
@@ -57,38 +57,39 @@ export const getArrReasons = (srcArray) => {
     }
 
     //find items with not nonexistent yearLabel and assign zero-value to it
-    let result = [...subResult.values()];
+    let result = Array.from(subResult.values());
     uniqueYearLabelsArr.sort();
     for (let i = 0; i < uniqueYearLabelsArr.length; i++) {
       // eslint-disable-next-line array-callback-return
       result.map(function (el) {
-        if (!el[uniqueYearLabelsArr[i]])
+        if (!el[uniqueYearLabelsArr[i]]) {
           return (el[uniqueYearLabelsArr[i]] = 0);
+        }
       });
     }
 
     return result.sort(byField(maxYearKey(result)));
   };
 
-  let sourceReasonsArray = createReasonsArray(srcArray);
-  //   let maxYearReasons = maxYearKey(sourceReasonsArray);
+  let sourceGuiltyArray = createGuiltsArray(srcArray);
+  // let maxYear = maxYearKey(sourceGuiltyArray);
 
-  let yMaxGroupsArr = [];
-  sourceReasonsArray.forEach((el) => {
-    Object.values(el).forEach((el2) => {
+  let yMaxGroupsArr: number[] = [];
+  sourceGuiltyArray.forEach((el: any) => {
+    Object.values(el).forEach((el2: any) => {
       if (!isNaN(el2)) yMaxGroupsArr.push(el2);
     });
   });
 
-  let yMaxReasons = d3.max(yMaxGroupsArr);
+  let yMaxGroups = d3.max(yMaxGroupsArr);
 
-  const arrayByField = (src) => {
-    let result = [];
+  const arrayByField = (src: any[]) => {
+    let result: number[] = [];
     src.forEach((el) => result.push(el[maxYearKey(src)]));
     return result;
   };
 
-  const paretoArrayGen = (src) => {
+  const paretoArrayGen = (src: any[]) => {
     let result = [];
     let totalSum = arrayByField(src).reduce((sum, current) => {
       result.push(sum);
@@ -98,9 +99,10 @@ export const getArrReasons = (srcArray) => {
     return result.map((el) => Math.round((el / totalSum) * 1000) / 10);
   };
 
-  let paretoArray = paretoArrayGen(sourceReasonsArray);
-  for (let i = 0; i < sourceReasonsArray.length; i += 1) {
-    sourceReasonsArray[i].valueP = paretoArray[i];
+  let paretoArray = paretoArrayGen(sourceGuiltyArray);
+  for (let i = 0; i < sourceGuiltyArray.length; i += 1) {
+    sourceGuiltyArray[i].valueP = paretoArray[i];
   }
-  return { arr: sourceReasonsArray, y: yMaxReasons };
+
+  return { arr: sourceGuiltyArray, y: yMaxGroups };
 };

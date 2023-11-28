@@ -19,7 +19,8 @@ import { setToolPalette } from "../redux/filtersSlice";
 import { Loader } from "./Loader";
 import AnalyzeSection from "./AnalyzeSection";
 import RidgelineDiagram from "./RidgelineDiagramm";
-import DownloadButtons from "./DownloadButtons";
+import DownloadButtons from "./ToolDownloadButtons";
+import TextReportTemplatePeriod from "./TextReportTemplatePeriod";
 
 function Main() {
   // console.time("Main");
@@ -72,6 +73,7 @@ function Main() {
           if (activeSlideIndex === 4) dispatch(setToolPalette("stacked"));
           if (activeSlideIndex === 5) dispatch(setToolPalette("sankey"));
           if (activeSlideIndex === 6) dispatch(setToolPalette("ridgeline"));
+          if (activeSlideIndex === 7) dispatch(setToolPalette("report"));
         }}
         onSwiper={(swiper) => {}}
       >
@@ -215,6 +217,27 @@ function Main() {
                   ) : (
                     <div id="selectedElementId" ref={downloadRef}>
                       <RidgelineDiagram />
+                    </div>
+                  )}
+                </div>
+              </>
+            )
+          }
+        </SwiperSlide>
+
+        <SwiperSlide>
+          {({ isActive }) =>
+            isActive && (
+              <>
+                <div className="slide" style={{ height: areaHeight }}>
+                  <h2 className="section-title">
+                    Аналитика причастности подразделений к причинам нарушений
+                  </h2>
+                  {showLoader.sankey ? (
+                    <Loader />
+                  ) : (
+                    <div id="text_report" ref={downloadRef}>
+                      <TextReportTemplatePeriod />
                     </div>
                   )}
                 </div>

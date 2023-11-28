@@ -1,28 +1,24 @@
 import axios from "axios";
-
-// let date = new Date();
+import dummyArr from "../data-preprocessors/dummyArr";
 
 axios.defaults.baseURL = "http://localhost:3001";
 axios.defaults.timeout = 120000;
 
-const getViolationsArray = (params) => {
+const getViolationsArray = (startDate, endDate) => {
+  let params = {
+    "fromYear": new Date(startDate).getFullYear() - 1,
+    "toYear": new Date(endDate).getFullYear(),
+  };
+
   axios
-    .get(
-      "/violations",
-      { params }
-      // {
-      //   method: "GET",
-      //   headers: { "Content-Type": "application/json" },
-      // }
-    )
+    .get("/violations", { params })
     .then(function (res) {
-      console.log("DB length is now:", res.data.length);
-      // console.log(res);
+      return res.data;
     })
     .catch(function (error) {
       console.log("axios.get error:", error);
-    })
-    .finally(function () {});
+      return dummyArr;
+    });
 };
 
 const postViolationsArray = (arr) => {

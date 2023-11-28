@@ -2,14 +2,14 @@ import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import * as d3 from "d3";
 import { cutDecimals } from "../config/config";
-import { convertUnixToDate } from "../data-preprocessors/getCutoffDates";
+import { convertUnixToDate } from "../config/functions";
 // import { cutDecimals } from "../config/config";
 
 const RidgelineDiagram = () => {
   const svgRef7 = useRef();
   let resData = useSelector((state) => state.filters.ridgelineArrState);
   let checkList = useSelector((state) => state.filters.ridgelineCheckList);
-  console.log("checkList", checkList);
+  // console.log("checkList", checkList);
 
   d3.select("#id23").selectAll("g").remove();
 
@@ -32,10 +32,7 @@ const RidgelineDiagram = () => {
     const dates = Array.from(
       d3.group(resData.arr, (d) => +new Date(d.date.toString())).keys()
     ).sort(d3.ascending);
-    console.log(
-      "dates",
-      dates.map((el) => new Date(el))
-    );
+    // console.log("dates", dates.map((el) => new Date(el)));
 
     const series = d3
       .groups(resData.arr, (d) => d.name)
@@ -52,7 +49,7 @@ const RidgelineDiagram = () => {
           }),
         };
       });
-    console.log("series", series);
+    // console.log("series", series);
 
     // const daysOfWeekRU = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
     // const monthsRU = [

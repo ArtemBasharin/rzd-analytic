@@ -3,38 +3,18 @@ import { createSlice } from "@reduxjs/toolkit";
 // import cloneDeep from "lodash.clonedeep";
 import { getAnalyze } from "../data-preprocessors/combiner";
 import { getStackedArr } from "../data-preprocessors/getStackedArr";
-import { getCustomCalendar } from "../data-preprocessors/getCustomCalendar";
+// import { getCustomCalendar } from "../data-preprocessors/getCustomCalendar";
+import dummyArr from "../data-preprocessors/dummyArr";
 import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
+import { getRidgelineArr } from "../data-preprocessors/getRidgelineArr";
 import { getUnitsList } from "../data-preprocessors/getUnitsList";
 import {
   getCutoffDates,
   getStartDate,
-} from "../data-preprocessors/getCutoffDates";
-import dummyArr from "../data-preprocessors/dummyArr";
-import { getRidgelineArr } from "../data-preprocessors/getRidgelineArr";
-
-const updateCheckedProperty = (array, searchValue, newCheckedValue) => {
-  const updatedArray = array.map((item) => {
-    if (item.guiltyUnit === searchValue) {
-      return {
-        ...item,
-        checked: newCheckedValue,
-      };
-    }
-    return item;
-  });
-
-  return updatedArray;
-};
-
-const getRegexpPattern = (date) => {
-  let period = new Date(date).getMonth() + 1;
-  if (period < 10) {
-    return "0" + period;
-  } else {
-    return period.toString();
-  }
-};
+  updateCheckedProperty,
+  getInitialPattern,
+  getCustomCalendar,
+} from "../config/functions";
 
 let date = new Date();
 let arrSource = dummyArr;
@@ -70,7 +50,7 @@ let initialCustomCalendar = getCustomCalendar(
   initialEndDate
 );
 
-let initialPattern = getRegexpPattern(initialEndDate);
+let initialPattern = getInitialPattern(initialEndDate);
 
 let initialCheckedUnits = getUnitsList(
   arrSource,
@@ -155,7 +135,7 @@ const filtersSlice = createSlice({
   reducers: {
     setSourceState(state, action) {
       state.sourceState = action.payload;
-      console.log("state.sourceState", state.sourceState);
+      // console.log("state.sourceState", state.sourceState);
       let cutoffDates = getCutoffDates(state.sourceState);
       state.minCutoffDate = cutoffDates.min;
       state.maxCutoffDate = cutoffDates.max;
@@ -167,7 +147,7 @@ const filtersSlice = createSlice({
         state.dateEnd
       );
 
-      state.regexpPattern = getRegexpPattern(state.dateEnd);
+      state.regexpPattern = getInitialPattern(state.dateEnd);
 
       let unitsList = getUnitsList(
         action.payload,
@@ -175,6 +155,7 @@ const filtersSlice = createSlice({
         state.dateEnd,
         state.customCalendar
       );
+      // console.log(unitsList);
       state.stackedCheckList = unitsList;
       state.sankeyCheckList = unitsList;
       state.ridgelineCheckList = unitsList;
@@ -278,20 +259,7 @@ const filtersSlice = createSlice({
     },
 
     setPattern(state, action) {
-      let period = action.payload;
-      let pattern = "";
-      if (period.length < 3) {
-        pattern = `${period}`;
-      } else {
-        let arr = period.split("-").map((el) => Number(el));
-        let resultArr = [];
-        for (let i = arr[0]; i <= arr[1]; ++i) {
-          i < 10 ? resultArr.push("0" + i) : resultArr.push(i);
-        }
-        pattern = resultArr.join("|");
-      }
-      console.log(pattern);
-      state.regexpPattern = pattern;
+      state.regexpPattern = action.payload;
       state.analyzeState = getAnalyze(
         state.sourceState,
         state.pastYear,
@@ -496,7 +464,6 @@ const filtersSlice = createSlice({
         state.toolPalette.datePickerVisibility = false;
         state.toolPalette.minValueVisibility = false;
         state.toolPalette.daysInGroupVisibility = false;
-        state.toolPalette.unitsList = false;
         state.toolPalette.unitsListVisibility = false;
       }
       if (action.payload === "groupedChart") {
@@ -521,6 +488,10 @@ const filtersSlice = createSlice({
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
         state.toolPalette.yearVisibility = false;
         state.toolPalette.periodVisibility = false;
+      }
+      if (action.payload === "report") {
+        state.toolPalette = { ...state.toolPalette, kind: action.payload };
+        state.toolPalette.daysInGroupVisibility = false;
       }
     },
 

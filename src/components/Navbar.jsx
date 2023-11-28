@@ -1,6 +1,6 @@
 import * as React from "react";
 import Button from "@mui/material/Button";
-import DropZoneParser from "./DropZoneParser";
+import DropZoneParser from "./ToolDropZoneParser";
 import ToolPanel from "./ToolPanel";
 // import DrawerMenu from "./DrawerMenu";
 

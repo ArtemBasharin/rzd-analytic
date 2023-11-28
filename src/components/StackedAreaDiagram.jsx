@@ -1,7 +1,7 @@
 import React, { useRef, useEffect } from "react";
 import { useSelector } from "react-redux";
 import * as d3 from "d3";
-import { convertUnixToDate } from "../data-preprocessors/getCutoffDates";
+import { convertUnixToDate } from "../config/functions";
 
 const StackedAreaDiagram = () => {
   const svgRef5 = useRef();

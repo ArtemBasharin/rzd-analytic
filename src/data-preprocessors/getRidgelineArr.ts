@@ -9,14 +9,20 @@ import {
   guiltyUnit,
 } from "../config/config";
 
-export const getRidgelineArr = (srcArray, dateStart, dateEnd, _, unitsList) => {
+export const getRidgelineArr = (
+  srcArray: any,
+  dateStart: Date,
+  dateEnd: Date,
+  _: string[],
+  unitsList: any[]
+) => {
   // console.log("dateEnd", dateEnd);
   // console.log("dateStart", dateStart);
   // console.log("srcArray", srcArray);
   // console.log("unitsList", unitsList);
 
-  const filterUnits = (srcArr, units) => {
-    let result = [];
+  const filterUnits = (srcArr: any[], units: any[]) => {
+    let result: any[] = [];
     srcArr.forEach((el) => {
       if (
         units.includes(el[guiltyUnit]) &&
@@ -28,7 +34,7 @@ export const getRidgelineArr = (srcArray, dateStart, dateEnd, _, unitsList) => {
     return result;
   };
 
-  let checkedUnitsSimpleArray = [];
+  let checkedUnitsSimpleArray: string[] = [];
   if (unitsList)
     unitsList.forEach(
       (el) => el.checked === true && checkedUnitsSimpleArray.push(el.guiltyUnit)
@@ -44,7 +50,7 @@ export const getRidgelineArr = (srcArray, dateStart, dateEnd, _, unitsList) => {
   else filteredArrByUncheckedUnits = srcArray;
   // console.log("filteredArrByUncheckedUnits", filteredArrByUncheckedUnits);
 
-  const calcTotalDuration = (obj) => {
+  const calcTotalDuration = (obj: any) => {
     let freightDur,
       passDur,
       subDur,
@@ -59,7 +65,7 @@ export const getRidgelineArr = (srcArray, dateStart, dateEnd, _, unitsList) => {
     return total;
   };
 
-  const setHHMMSStoZero = (date) => {
+  const setHHMMSStoZero = (date: string) => {
     var customDate = new Date(date); // произвольная переменная с датой и временем
     customDate.setSeconds(0); // обнуление секунд
     customDate.setMinutes(0); // обнуление минут
@@ -68,8 +74,8 @@ export const getRidgelineArr = (srcArray, dateStart, dateEnd, _, unitsList) => {
     return customDate;
   };
 
-  let summedDurationsList = [];
-  filteredArrByUncheckedUnits.forEach((el) =>
+  let summedDurationsList: any[] = [];
+  filteredArrByUncheckedUnits.forEach((el: any) =>
     summedDurationsList.push({
       date: setHHMMSStoZero(el[startTime]),
       value: calcTotalDuration(el),
@@ -77,7 +83,7 @@ export const getRidgelineArr = (srcArray, dateStart, dateEnd, _, unitsList) => {
     })
   );
 
-  function combineData(arr) {
+  function combineData(arr: any[]) {
     const combinedData = arr.reduce((acc, curr) => {
       const key = curr.date + curr.name;
       if (acc[key]) {
@@ -96,13 +102,17 @@ export const getRidgelineArr = (srcArray, dateStart, dateEnd, _, unitsList) => {
     return result;
   }
 
-  let unitedByEqualDatesArr = combineData(summedDurationsList);
+  let unitedByEqualDatesArr: any[] = combineData(summedDurationsList);
 
-  unitedByEqualDatesArr.sort((a, b) => a.date - b.date);
+  unitedByEqualDatesArr.sort((a: any, b: any) => a.date - b.date);
   // console.log("unitedByEqualDatesArr", unitedByEqualDatesArr);
 
-  const transformArrayWithDates = (arr, startDate, endDate) => {
-    const result = [];
+  const transformArrayWithDates = (
+    arr: any[],
+    startDate: Date,
+    endDate: Date
+  ) => {
+    const result: any[] = [];
     const uniqueNames = new Set(arr.map((item) => item.name));
 
     uniqueNames.forEach((name) => {
@@ -137,14 +147,14 @@ export const getRidgelineArr = (srcArray, dateStart, dateEnd, _, unitsList) => {
   );
   // console.log("addedEmptyValuesByDate", addedEmptyValuesByDate);
 
-  let sortByCheckListArr = [];
+  let sortByCheckListArr: any[] = [];
   checkedUnitsSimpleArray.forEach((unit) =>
     addedEmptyValuesByDate.forEach(
       (el) => el.name === unit && sortByCheckListArr.push(el)
     )
   );
 
-  let values = [];
+  let values: number[] = [];
   unitedByEqualDatesArr.forEach((el) => values.push(el.value));
   // console.log("values", values);
   let yMax = d3.max(values);

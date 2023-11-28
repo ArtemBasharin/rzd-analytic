@@ -1,21 +1,21 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setSourceState } from "../redux/filtersSlice";
 import axios from "axios";
-import DateRangePicker from "./DatePicker";
-import DropdownUnits from "./DropdownUnits";
-import DropdownPastYear from "./DropdownPastYear";
-import DropdownCurrentYear from "./DropdownCurrentYear";
-import DaysInGroupSetter from "./DaysInGroupSetter";
-import MinValueSetter from "./MinValueSetter";
-import PeriodSetter from "./PeriodSetter";
+import DateRangePicker from "./ToolDatePicker";
+import DropdownUnits from "./ToolDropdownUnits";
+import DropdownPastYear from "./ToolDropdownPastYear";
+import DropdownCurrentYear from "./ToolDropdownCurrentYear";
+import DaysInGroupSetter from "./ToolDaysInGroupSetter";
+import MinValueSetter from "./ToolMinValueSetter";
+import PeriodSetter from "./ToolPeriodSetter";
 import dummyArr from "../data-preprocessors/dummyArr";
 const { CSSTransition } = require("react-transition-group");
 
 const ToolPanel = () => {
   const toolPalette = useSelector((state: any) => state.filters.toolPalette);
   const dispatch = useDispatch();
-  // const ref = useRef();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   let date = new Date();
 
   useEffect(() => {
@@ -32,8 +32,7 @@ const ToolPanel = () => {
         console.log("axios.get error:", error);
         dispatch(setSourceState(dummyArr));
       });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [date, dispatch]);
 
   const timeout = 500;
   return (

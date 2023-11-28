@@ -10,14 +10,19 @@ import {
   cutDecimals,
 } from "../config/config";
 
-export const getUnitsList = (arr, startDate, endDate, customCalendar) => {
+export const getUnitsList = (
+  arr: any[],
+  startDate: Date,
+  endDate: Date,
+  customCalendar?: number[]
+) => {
   let result = new Set();
   // console.log(customCalendar);
   // let startDate = new Date(d3.min(customCalendar));
   // let endDate = new Date(d3.max(customCalendar));
   // let startDate = new Date(d3.min(customCalendar));
   // let endDate = new Date(d3.max(customCalendar));
-  let cutoffByDatesArr = [];
+  let cutoffByDatesArr: any[] = [];
   // console.log(arr);
 
   let key = "";
@@ -36,7 +41,7 @@ export const getUnitsList = (arr, startDate, endDate, customCalendar) => {
   });
   // console.log("cutoffByDatesArr", cutoffByDatesArr);
 
-  const calcTotalDuration = (obj) => {
+  const calcTotalDuration = (obj: any) => {
     let freightDur,
       passDur,
       subDur,
@@ -51,7 +56,7 @@ export const getUnitsList = (arr, startDate, endDate, customCalendar) => {
     return total;
   };
 
-  let summedDurationsList = [];
+  let summedDurationsList: any[] = [];
   cutoffByDatesArr.forEach((el) =>
     summedDurationsList.push({
       violationDate: el[startTime],
@@ -61,7 +66,7 @@ export const getUnitsList = (arr, startDate, endDate, customCalendar) => {
   );
   // console.log("getUnitsList", summedDurationsList);
 
-  let listItems = [];
+  let listItems: any[] = [];
   let uniqueNames = Array.from(result);
   for (let i = 0; i < uniqueNames.length; i++) {
     listItems.push({
@@ -96,7 +101,7 @@ export const getUnitsList = (arr, startDate, endDate, customCalendar) => {
   });
 
   for (let i = 0; i < listItems.length; i++) {
-    const color = (i) => {
+    const color = (i: number) => {
       if (i < d3.schemeSet2.length) {
         return d3.schemeSet2[i];
       } else {

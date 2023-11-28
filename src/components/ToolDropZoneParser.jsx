@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 
 import * as XLSX from "xlsx/xlsx.mjs";
-import { postViolationsArray } from "./requests";
+import { postViolationsArray } from "../config/requests";
 import { guiltyUnit, guiltyNew } from "../config/config";
 
 let initialData = [];

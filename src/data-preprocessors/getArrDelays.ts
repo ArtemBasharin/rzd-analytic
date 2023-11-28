@@ -7,9 +7,13 @@ import {
   otherDelayed,
 } from "../config/config";
 
-export const getArrDelays = (srcArray, pastYear, currentYear) => {
+export const getArrDelays = (
+  srcArray: any[],
+  pastYear: number,
+  currentYear: number
+) => {
   //counting number of fails with conditions
-  const delaysCounter = (src, name, chartname) => {
+  const delaysCounter = (src: any[], name: string, chartname: string) => {
     let pastYearCount = 0;
     let currentYearCount = 0;
 
@@ -46,7 +50,7 @@ export const getArrDelays = (srcArray, pastYear, currentYear) => {
   delaysArray.push(delaysCounter(srcArray, otherDelayed, "Прочих"));
 
   //counting number of total delays
-  const totalDelaysCounter = (array) => {
+  const totalDelaysCounter = (array: any[]) => {
     let pastYearCount = 0;
     let currentYearCount = 0;
     let tempArray = array.flat();
@@ -75,8 +79,8 @@ export const getArrDelays = (srcArray, pastYear, currentYear) => {
   delaysArray.push(totalDelaysCounter(delaysArray));
 
   //find max value for d3.scales element
-  const findMaxValue = (array) => {
-    let values = [];
+  const findMaxValue = (array: any[]) => {
+    let values: number[] = [];
     array.flat().forEach((e) => values.push(e.value));
     return d3.max(values);
   };

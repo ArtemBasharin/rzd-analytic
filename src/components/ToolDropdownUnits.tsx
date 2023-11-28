@@ -10,38 +10,56 @@ import {
 import { CSSTransition } from "react-transition-group";
 import { TiArrowSortedDown } from "react-icons/ti";
 
+interface RootState {
+  filters: {
+    stackedCheckList: any[];
+    sankeyCheckList: any[];
+    ridgelineCheckList: any[];
+    allCheckedCheckList: any;
+  };
+}
+
 const DropdownUnits = () => {
   const stackedCheckList = useSelector(
-    (state) => state.filters.stackedCheckList
+    (state: RootState) => state.filters.stackedCheckList
   );
-  const sankeyCheckList = useSelector((state) => state.filters.sankeyCheckList);
+  const sankeyCheckList = useSelector(
+    (state: RootState) => state.filters.sankeyCheckList
+  );
   const ridgelineCheckList = useSelector(
-    (state) => state.filters.ridgelineCheckList
+    (state: RootState) => state.filters.ridgelineCheckList
   );
-  const allChecked = useSelector((state) => state.filters.allCheckedCheckList);
-  const toolPalette = useSelector((state) => state.filters.toolPalette);
+  const allChecked = useSelector(
+    (state: RootState) => state.filters.allCheckedCheckList
+  );
+  const toolPalette = useSelector((state: any) => state.filters.toolPalette);
 
   const dispatch = useDispatch();
 
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLUListElement>(null);
 
   const handleToggle = () => {
-    setIsOpen(!isOpen);
+    setIsOpen((prevIsOpen) => !prevIsOpen);
   };
-
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      console.log(event.target);
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
+
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  }, [isOpen]);
 
   return (
     <div className="list_container">
