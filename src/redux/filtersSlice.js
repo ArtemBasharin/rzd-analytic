@@ -276,6 +276,11 @@ const filtersSlice = createSlice({
         state.currentYear,
         state.regexpPattern
       );
+
+      state.reportSrcState = getReportArr(
+        state.sourceState,
+        state.regexpPattern
+      );
     },
 
     setMinValue(state, action) {
@@ -517,7 +522,10 @@ const filtersSlice = createSlice({
       }
       if (action.payload === "report") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
+        state.toolPalette.yearVisibility = false;
         state.toolPalette.daysInGroupVisibility = false;
+        state.toolPalette.unitsListVisibility = false;
+        state.toolPalette.minValueVisibility = false;
       }
     },
 
