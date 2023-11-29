@@ -3,6 +3,9 @@
   text-align: justify;
   margin: 30px 200px;
   height: auto;
+  white-space: pre-wrap;
+  line-height: 21.5px;
+  text-indent: 42.3px;
 }
 
 #text_report {
@@ -12,12 +15,19 @@
 }
 
 .text_paragraph {
-  text-indent: 40px;
+  text-indent: 42.3px;
   font-size: 14pt;
+  white-space: pre-wrap;
+  text-align: justify;
+  line-height: 21.5px;
 }
 
 .text_inner {
   font-family: "Times New Roman", Times, serif;
+  white-space: pre-wrap;
+  text-align: justify;
+  line-height: 21.5px;
+  text-indent: 42.3px;
 }
 
 .text_unit {

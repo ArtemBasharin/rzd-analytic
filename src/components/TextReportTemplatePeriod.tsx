@@ -6,9 +6,8 @@ import {
   getNumberWithWord,
   getWordOnly,
 } from "../config/functions";
-import { getReportArr } from "../data-preprocessors/getReportArr";
+
 import {
-  startTime,
   freightDelayed,
   passDelayed,
   subDelayed,
@@ -40,6 +39,7 @@ interface RootState {
       reasonsYmax: number;
     };
     regexpPattern: string;
+    reportSrcState: any[];
   };
 }
 
@@ -52,15 +52,9 @@ const varFails: string[] = [
 const varDelay: string[] = ["задержан", "задержано", "задержано"];
 
 const TextReportTemplatePeriod = () => {
-  // const refTextReportAnyDate = useRef();
-  const srcArr = useSelector((state: RootState) => state.filters.sourceState);
   const analyze = useSelector((state: RootState) => state.filters.analyzeState);
-  const pattern = useSelector(
-    (state: RootState) => state.filters.regexpPattern
-  );
+  const arr = useSelector((state: RootState) => state.filters.reportSrcState);
 
-  console.log("analyze", analyze);
-  const arr = getReportArr(srcArr, pattern);
   let currentYear = d3.max(arr.map((el) => el.year));
   let pastYear = currentYear - 1;
 
@@ -73,9 +67,6 @@ const TextReportTemplatePeriod = () => {
     const currentYearUnit: any = currentYearArr.find(
       (objUnit) => objUnit[guiltyUnit] === unit
     );
-    // console.log("unit", unit);
-    // console.log("currentYearArr", currentYearArr);
-    // console.log("currentYearUnit", currentYearUnit);
 
     if (currentYearUnit)
       return (
@@ -138,7 +129,7 @@ const TextReportTemplatePeriod = () => {
     text.push(
       <p className="text_paragraph text_inner">
         {" "}
-        <span className="text_unit">{unit}</span> :{" "}
+        <span className="text_unit">{unit}</span>:{" "}
         {getOneUnitReport(currentYear, unit)} (за аналогичный период прошлого
         года: {getOneUnitReport(pastYear, unit) || "ТН не допущено"}). Причины:{" "}
         {getArrReasons(currentYear, unit)}.

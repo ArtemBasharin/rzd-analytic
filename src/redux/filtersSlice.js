@@ -15,6 +15,7 @@ import {
   getInitialPattern,
   getCustomCalendar,
 } from "../config/functions";
+import { getReportArr } from "../data-preprocessors/getReportArr";
 
 let date = new Date();
 let arrSource = dummyArr;
@@ -130,6 +131,7 @@ const filtersSlice = createSlice({
       message: "",
     },
     allCheckedCheckList: { stacked: true, sankey: true, ridgeline: true },
+    reportSrcState: [],
   },
 
   reducers: {
@@ -194,6 +196,14 @@ const filtersSlice = createSlice({
         state.ridgelineCheckList
       );
       // console.log(state.ridgelineArrState);
+
+      state.reportSrcState = getReportArr(
+        state.sourceState,
+        state.regexpPattern,
+        state.dateStart,
+        state.dateEnd,
+        state.minValue
+      );
     },
 
     increment(state) {
@@ -362,6 +372,14 @@ const filtersSlice = createSlice({
           sankey: true,
         };
       }
+
+      state.reportSrcState = getReportArr(
+        state.sourceState,
+        state.regexpPattern,
+        state.dateStart,
+        state.dateEnd,
+        state.minValue
+      );
     },
 
     setDateEnd(state, action) {
@@ -428,6 +446,14 @@ const filtersSlice = createSlice({
           sankey: true,
         };
       }
+
+      state.reportSrcState = getReportArr(
+        state.sourceState,
+        state.regexpPattern,
+        state.dateStart,
+        state.dateEnd,
+        state.minValue
+      );
     },
 
     setCustomCalendar(state) {
