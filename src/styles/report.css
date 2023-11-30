@@ -41,3 +41,23 @@
 .text_decrease {
   color: #008006;
 }
+
+table,
+th,
+td {
+  border-spacing: 0;
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 5px;
+  text-align: center;
+}
+
+.table_bold{ margin: 30px auto;
+  border: 2px solid black;
+}
+
+.text_header{
+  font-weight: bold;
+}
+
+

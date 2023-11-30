@@ -2,23 +2,14 @@
 import * as d3 from "d3";
 import { useSelector } from "react-redux";
 import {
+  cellComparingPercents,
   getComparisonText,
   getNumberWithWord,
   getWordOnly,
 } from "../config/functions";
 
 import {
-  freightDelayed,
-  passDelayed,
-  subDelayed,
-  otherDelayed,
-  guiltyUnit,
-  freightDuration,
-  passDuration,
-  subDuration,
-  otherDuration,
-  failReason,
-  cutDecimals,
+    cutDecimals,
 } from "../config/config";
 
 interface RootState {
@@ -54,18 +45,19 @@ const varDelay: string[] = ["задержан", "задержано", "заде�
 const TextReportTemplatePeriod = () => {
   const analyze = useSelector((state: RootState) => state.filters.analyzeState);
   const arr = useSelector((state: RootState) => state.filters.reportSrcState);
+  console.log("arr", arr);
 
   let currentYear = d3.max(arr.map((el) => el.year));
   let pastYear = currentYear - 1;
 
   let dictionary: any[] = [];
   let arrForDict = arr.find((obj) => obj.year === currentYear);
-  arrForDict.report.forEach((el: any) => dictionary.push(el[guiltyUnit]));
+  arrForDict.report.forEach((el: any) => dictionary.push(el.guiltyUnit));
 
   const getOneUnitReport = (year: number, unit: string) => {
     const currentYearArr: any[] = arr.find((obj) => obj.year === year).report;
     const currentYearUnit: any = currentYearArr.find(
-      (objUnit) => objUnit[guiltyUnit] === unit
+      (objUnit) => objUnit.guiltyUnit === unit
     );
 
     if (currentYearUnit)
@@ -75,41 +67,41 @@ const TextReportTemplatePeriod = () => {
           {getWordOnly(currentYearUnit.totalDelayed, varDelay, true)}{" "}
           {getNumberWithWord(currentYearUnit.totalDelayed, varTrains)} на{" "}
           {cutDecimals(currentYearUnit.totalDuration)} ч, в том числе,{" "}
-          {currentYearUnit[freightDelayed] > 0
-            ? currentYearUnit[freightDelayed] +
+          {currentYearUnit.freightDelayed > 0
+            ? currentYearUnit.freightDelayed +
               " груз. на " +
-              cutDecimals(currentYearUnit[freightDuration]) +
+              cutDecimals(currentYearUnit.freightDuration) +
               " ч"
             : ""}
-          {currentYearUnit[freightDelayed] > 0 &&
-          (currentYearUnit[passDelayed] > 0 ||
-            currentYearUnit[subDelayed] > 0 ||
-            currentYearUnit[otherDelayed] > 0)
+          {currentYearUnit.freightDelayed > 0 &&
+          (currentYearUnit.passDelayed > 0 ||
+            currentYearUnit.subDelayed > 0 ||
+            currentYearUnit.otherDelayed > 0)
             ? ", "
             : ""}
-          {currentYearUnit[passDelayed] > 0
-            ? currentYearUnit[passDelayed] +
+          {currentYearUnit.passDelayed > 0
+            ? currentYearUnit.passDelayed +
               " пасс. на " +
-              cutDecimals(currentYearUnit[passDuration]) +
+              cutDecimals(currentYearUnit.passDuration) +
               " ч"
             : ""}
-          {currentYearUnit[passDelayed] > 0 &&
-          (currentYearUnit[subDelayed] > 0 || currentYearUnit[otherDelayed] > 0)
+          {currentYearUnit.passDelayed > 0 &&
+          (currentYearUnit.subDelayed > 0 || currentYearUnit.otherDelayed > 0)
             ? ", "
             : ""}
-          {currentYearUnit[subDelayed] > 0
-            ? currentYearUnit[subDelayed] +
+          {currentYearUnit.subDelayed > 0
+            ? currentYearUnit.subDelayed +
               " приг. на " +
-              cutDecimals(currentYearUnit[subDuration]) +
+              cutDecimals(currentYearUnit.subDuration) +
               " ч"
             : ""}
-          {currentYearUnit[subDelayed] > 0 && currentYearUnit[otherDelayed] > 0
+          {currentYearUnit.subDelayed > 0 && currentYearUnit.otherDelayed > 0
             ? ", "
             : ""}
-          {currentYearUnit[otherDelayed] > 0
-            ? currentYearUnit[otherDelayed] +
+          {currentYearUnit.otherDelayed > 0
+            ? currentYearUnit.otherDelayed +
               " проч. на " +
-              cutDecimals(currentYearUnit[otherDuration]) +
+              cutDecimals(currentYearUnit.otherDuration) +
               " ч"
             : ""}
         </span>
@@ -119,9 +111,9 @@ const TextReportTemplatePeriod = () => {
   const getArrReasons = (year: number, unit: string) => {
     const currentYearArr: any[] = arr.find((obj) => obj.year === year).report;
     const currentYearUnit: any = currentYearArr.find(
-      (objUnit) => objUnit[guiltyUnit] === unit
+      (objUnit) => objUnit.guiltyUnit === unit
     );
-    if (currentYearUnit) return `${currentYearUnit[failReason]}`;
+    if (currentYearUnit) return `${currentYearUnit.failReason}`;
   };
 
   let text: any[] = [];
@@ -136,6 +128,41 @@ const TextReportTemplatePeriod = () => {
       </p>
     )
   );
+
+  const getOneRowReport = (unit: string) => {
+    const currentYearArr: any[] = arr.find(
+      (obj) => obj.year === currentYear
+    ).report;
+    const currentYearUnit: any = currentYearArr.find(
+      (objUnit) => objUnit.guiltyUnit === unit
+    );
+
+    const pastYearArr: any[] = arr.find((obj) => obj.year === pastYear).report;
+    const pastYearUnit: any = pastYearArr.find(
+      (objUnit) => objUnit.guiltyUnit === unit
+    );
+console.log("currentYearUnit.guiltyUnit", currentYearUnit)
+let pastYearUnitTotalDuration = pastYearUnit? pastYearUnit.totalDuration : ""
+let currentYearUnitTotalDuration = currentYearUnit ? currentYearUnit.totalDuration: ""
+return (
+      <tr>
+        <td>{unit}</td>
+        <td>{pastYearUnitTotalDuration}</td>
+        <td>{currentYearUnitTotalDuration}</td>
+        {cellComparingPercents(pastYearUnitTotalDuration, currentYearUnitTotalDuration)}
+      </tr>
+    );
+  };
+
+  let dictionaryForTableAsSet: Set<string> = new Set();
+  arr.forEach((el) => {
+    el.report.forEach((el2: any) => dictionaryForTableAsSet.add(el2.guiltyUnit));
+  });
+  let dictionaryForTable: string[] = Array.from(dictionaryForTableAsSet)
+console.log("dictionaryForTable", dictionaryForTable)
+
+let tableLayout: any[] = []
+dictionaryForTable.forEach(el=> tableLayout.push(getOneRowReport(el)))
 
   return (
     <div className="text_container">
@@ -212,6 +239,17 @@ const TextReportTemplatePeriod = () => {
       </p>
 
       <p className="text_paragraph">В том числе: {text.concat("")}</p>
+      <table className="table_bold">
+        <tr className="table_bold text_header">
+          <td>Подразделение</td>
+          <td>2022</td>
+          <td>2023</td>
+          <td>%</td>
+          <td>2022</td>
+          <td>2023</td>
+        </tr>
+{tableLayout}
+      </table>
     </div>
   );
 };

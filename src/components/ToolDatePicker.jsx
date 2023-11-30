@@ -12,7 +12,7 @@ const DateRangePicker = () => {
 
   const dateStart = useSelector((state) => state.filters.dateStart);
   const dateEnd = useSelector((state) => state.filters.dateEnd);
-  console.log(dateEnd);
+  // console.log(dateEnd);
   const minDate = new Date(useSelector((state) => state.filters.minCutoffDate));
   const maxDate = new Date(useSelector((state) => state.filters.maxCutoffDate));
 
@@ -24,7 +24,7 @@ const DateRangePicker = () => {
   };
 
   const handleDateEnd = (e) => {
-    console.log(e);
+    // console.log(e);
     e && dispatch(setDateEnd(e));
     setIsOpenEnd(false);
   };

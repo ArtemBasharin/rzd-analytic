@@ -16,7 +16,7 @@ const StackedAreaDiagram = () => {
 
   useEffect(() => {
     let resData = stackedArrState.arr;
-    console.log("resData", resData);
+    // console.log("resData", resData);
 
     // set the dimensions and margins of the graph
     const margin = { top: 20, right: 160, bottom: 50, left: 100 },

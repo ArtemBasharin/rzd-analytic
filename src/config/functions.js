@@ -88,7 +88,7 @@ export const getComparisonText = (curVal, prevVal) => {
   if (curVal > prevVal) {
     return (
       <span className="text_increase text_inner">
-        , увеличилось на {cutDecimals((curVal / prevVal - 1) * 100)}%
+        увеличилось на {cutDecimals((curVal / prevVal - 1) * 100)}%
       </span>
     );
   } else {
@@ -101,7 +101,7 @@ export const getComparisonText = (curVal, prevVal) => {
     else
       return (
         <span className="text_decrease text_inner">
-          , осталось без изменений
+          осталось без изменений
         </span>
       );
   }
@@ -155,3 +155,18 @@ export const getWordOnly = (number, words_arr, isFirstWord) => {
 export const firstCharToLowerCase = (el) => {
   return el.charAt(0).toLowerCase() + el.slice(1);
 };
+
+export const cellComparingPercents = (pastYearUnitTotalDuration, currentYearUnitTotalDuration)=>{
+  if (pastYearUnitTotalDuration && currentYearUnitTotalDuration) {
+    let result = cutDecimals((currentYearUnitTotalDuration / pastYearUnitTotalDuration - 1)*100)
+    return <td className={result > 0 ? 'text_increase' : 'text_decrease'}>{result > 0 && '+'}{result}%</td>
+  }
+  if (!pastYearUnitTotalDuration && currentYearUnitTotalDuration) {
+    let result = cutDecimals((currentYearUnitTotalDuration))
+    return <td className={'text_increase'}>+{result} ч</td>
+  }
+  if (pastYearUnitTotalDuration && !currentYearUnitTotalDuration) {
+    let result = cutDecimals((pastYearUnitTotalDuration))
+    return <td className={'text_decrease'}>-{result} ч</td>
+  }
+}
