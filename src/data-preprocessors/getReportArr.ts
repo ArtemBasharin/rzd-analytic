@@ -43,9 +43,10 @@ export const getReportArr = (
           (Date.parse(el[startTime]) >= dateStartPastYear.getTime() &&
             Date.parse(el[startTime]) <= dateEndPastYear.getTime())
         ) {
-          srcArrayInDatesFrame.push(
-            {guiltyUnit: el[guiltyUnit],
-              startTime: el[startTime],
+          srcArrayInDatesFrame.push({
+            ID: el["ID отказа"],
+            guiltyUnit: el[guiltyUnit],
+            startTime: el[startTime],
             failReason: el[failReason],
             freightDuration: el[freightDuration] || 0,
             passDuration: el[passDuration] || 0,
@@ -55,36 +56,36 @@ export const getReportArr = (
             passDelayed: el[passDelayed] || 0,
             subDelayed: el[subDelayed] || 0,
             otherDelayed: el[otherDelayed] || 0,
-          }
-          );
+          });
         }
       });
     } else {
       let regexp = new RegExp(`[-](${pattern})[-]`, "g");
       for (let i = 0; i < sourceArr.length; ++i) {
         if (sourceArr[i][startTime].search(regexp) > -1) {
-          srcArrayInDatesFrame.push(
-            {guiltyUnit: sourceArr[i][guiltyUnit],
-              failReason: sourceArr[i][failReason],
-              freightDuration: sourceArr[i][freightDuration] || 0,
-              passDuration: sourceArr[i][passDuration] || 0,
-              subDuration: sourceArr[i][subDuration] || 0,
-              otherDuration: sourceArr[i][otherDuration] || 0,
-              freightDelayed: sourceArr[i][freightDelayed] || 0,
-              passDelayed: sourceArr[i][passDelayed] || 0,
-              subDelayed: sourceArr[i][subDelayed] || 0,
-              otherDelayed: sourceArr[i][otherDelayed] || 0,
-              startTime: sourceArr[i][startTime],
-
-            }
-            );
+          srcArrayInDatesFrame.push({
+            guiltyUnit: sourceArr[i][guiltyUnit],
+            failReason: sourceArr[i][failReason],
+            freightDuration: sourceArr[i][freightDuration] || 0,
+            passDuration: sourceArr[i][passDuration] || 0,
+            subDuration: sourceArr[i][subDuration] || 0,
+            otherDuration: sourceArr[i][otherDuration] || 0,
+            freightDelayed: sourceArr[i][freightDelayed] || 0,
+            passDelayed: sourceArr[i][passDelayed] || 0,
+            subDelayed: sourceArr[i][subDelayed] || 0,
+            otherDelayed: sourceArr[i][otherDelayed] || 0,
+            startTime: sourceArr[i][startTime],
+          });
         }
       }
     }
 
-    return srcArrayInDatesFrame.map((el) => {
-      return { ...el, failReason: firstCharToLowerCase(el.failReason) };
-    });
+    console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
+    return srcArrayInDatesFrame;
+    // .map((el) => {
+    //   if (el.failReason)
+    //     return { ...el, failReason: firstCharToLowerCase(el.failReason) };
+    // });
   };
 
   function aggregateData(inputArray: any[]) {
@@ -119,7 +120,7 @@ export const getReportArr = (
         resultMap.set(key, { ...item, count: 1 });
       }
     });
-// console.log("resultMap",resultMap)
+    // console.log("resultMap",resultMap)
     resultMap.forEach((value) => {
       // delete value._id;
       // delete value["ID отказа"];
@@ -133,16 +134,12 @@ export const getReportArr = (
 
     const resultArray = Array.from(resultMap, ([key, value]) => value);
     resultArray.forEach((el) => {
-      el.totalDelayed =
-      cutDecimals(el.freightDelayed +
-        el.passDelayed +
-        el.subDelayed +
-        el.otherDelayed);
-      el.totalDuration =
-      cutDecimals(el.freightDuration +
-        el.passDuration +
-        el.subDuration +
-        el.otherDuration);
+      el.totalDelayed = cutDecimals(
+        el.freightDelayed + el.passDelayed + el.subDelayed + el.otherDelayed
+      );
+      el.totalDuration = cutDecimals(
+        el.freightDuration + el.passDuration + el.subDuration + el.otherDuration
+      );
     });
 
     resultArray.sort((a, b) => b.count - a.count);
@@ -152,7 +149,7 @@ export const getReportArr = (
   function aggregateDataWithYearAndReport(inputArray: any[]) {
     const resultArray: any[] = [];
 
-    // console.log("inputArray",inputArray)
+    console.log("inputArray", inputArray);
     inputArray.forEach((item: any) => {
       const year = new Date(item.startTime).getFullYear();
       const existingItem = resultArray.find((element) => element.year === year);
@@ -171,6 +168,7 @@ export const getReportArr = (
   }
 
   // console.log(aggregateDataWithYearAndReport(getFilteredByPeriodArr()));
+  // console.log("getFilteredByPeriodArr", getFilteredByPeriodArr());
 
   return aggregateDataWithYearAndReport(getFilteredByPeriodArr());
 };

@@ -2,6 +2,7 @@ import * as React from "react";
 import Button from "@mui/material/Button";
 import DropZoneParser from "./ToolDropZoneParser";
 import ToolPanel from "./ToolPanel";
+import ToolDeleteButton from "./ToolDeleteButton";
 // import DrawerMenu from "./DrawerMenu";
 
 export default function Navbar() {
@@ -12,6 +13,7 @@ export default function Navbar() {
       <ToolPanel />
       <div className="right-section">
         <DropZoneParser />
+        <ToolDeleteButton />
         <Button color="inherit">Войти</Button>
       </div>
     </nav>

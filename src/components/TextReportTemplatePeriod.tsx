@@ -8,9 +8,7 @@ import {
   getWordOnly,
 } from "../config/functions";
 
-import {
-    cutDecimals,
-} from "../config/config";
+import { cutDecimals } from "../config/config";
 
 interface RootState {
   filters: {
@@ -121,7 +119,7 @@ const TextReportTemplatePeriod = () => {
     text.push(
       <p className="text_paragraph text_inner">
         {" "}
-        <span className="text_unit">{unit}</span>:{" "}
+        <span className="text_unit">{unit.replace(/\n/g, " ")}</span>:{" "}
         {getOneUnitReport(currentYear, unit)} (за аналогичный период прошлого
         года: {getOneUnitReport(pastYear, unit) || "ТН не допущено"}). Причины:{" "}
         {getArrReasons(currentYear, unit)}.
@@ -141,28 +139,37 @@ const TextReportTemplatePeriod = () => {
     const pastYearUnit: any = pastYearArr.find(
       (objUnit) => objUnit.guiltyUnit === unit
     );
-console.log("currentYearUnit.guiltyUnit", currentYearUnit)
-let pastYearUnitTotalDuration = pastYearUnit? pastYearUnit.totalDuration : ""
-let currentYearUnitTotalDuration = currentYearUnit ? currentYearUnit.totalDuration: ""
-return (
+    // console.log("currentYearUnit.guiltyUnit", currentYearUnit);
+    let pastYearUnitTotalDuration = pastYearUnit
+      ? pastYearUnit.totalDuration
+      : "";
+    let currentYearUnitTotalDuration = currentYearUnit
+      ? currentYearUnit.totalDuration
+      : "";
+    return (
       <tr>
         <td>{unit}</td>
         <td>{pastYearUnitTotalDuration}</td>
         <td>{currentYearUnitTotalDuration}</td>
-        {cellComparingPercents(pastYearUnitTotalDuration, currentYearUnitTotalDuration)}
+        {cellComparingPercents(
+          pastYearUnitTotalDuration,
+          currentYearUnitTotalDuration
+        )}
       </tr>
     );
   };
 
   let dictionaryForTableAsSet: Set<string> = new Set();
   arr.forEach((el) => {
-    el.report.forEach((el2: any) => dictionaryForTableAsSet.add(el2.guiltyUnit));
+    el.report.forEach((el2: any) =>
+      dictionaryForTableAsSet.add(el2.guiltyUnit)
+    );
   });
-  let dictionaryForTable: string[] = Array.from(dictionaryForTableAsSet)
-console.log("dictionaryForTable", dictionaryForTable)
+  let dictionaryForTable: string[] = Array.from(dictionaryForTableAsSet);
+  console.log("dictionaryForTable", dictionaryForTable);
 
-let tableLayout: any[] = []
-dictionaryForTable.forEach(el=> tableLayout.push(getOneRowReport(el)))
+  let tableLayout: any[] = [];
+  dictionaryForTable.forEach((el) => tableLayout.push(getOneRowReport(el)));
 
   return (
     <div className="text_container">
@@ -248,7 +255,7 @@ dictionaryForTable.forEach(el=> tableLayout.push(getOneRowReport(el)))
           <td>2022</td>
           <td>2023</td>
         </tr>
-{tableLayout}
+        {tableLayout}
       </table>
     </div>
   );

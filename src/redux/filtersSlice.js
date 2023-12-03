@@ -137,7 +137,7 @@ const filtersSlice = createSlice({
   reducers: {
     setSourceState(state, action) {
       state.sourceState = action.payload;
-      // console.log("state.sourceState", state.sourceState);
+      console.log("state.sourceState", state.sourceState);
       let cutoffDates = getCutoffDates(state.sourceState);
       state.minCutoffDate = cutoffDates.min;
       state.maxCutoffDate = cutoffDates.max;

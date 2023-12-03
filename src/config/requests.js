@@ -33,4 +33,16 @@ const postViolationsArray = (arr) => {
     .finally(function () {});
 };
 
-export { getViolationsArray, postViolationsArray };
+const deleteCollection = () => {
+  axios
+    .delete("/violations")
+    .then(function (res) {
+      console.log("post response:", res.data);
+    })
+    .catch(function (error) {
+      console.log("axios.post error:", error);
+    })
+    .finally(function () {});
+};
+
+export { getViolationsArray, postViolationsArray, deleteCollection };

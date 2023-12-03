@@ -50,14 +50,14 @@ td {
   border-collapse: collapse;
   padding: 5px;
   text-align: center;
+  white-space: nowrap;
 }
 
-.table_bold{ margin: 30px auto;
+.table_bold {
+  margin: 30px auto;
   border: 2px solid black;
 }
 
-.text_header{
+.text_header {
   font-weight: bold;
 }
-
-

@@ -39,24 +39,25 @@ function DropZoneParser() {
 
       initialData = resultArray;
 
-      const filterArray = (arr) => {
-        let result = [];
-        arr.forEach((el) => {
-          if (el["ID отказа"] || el["#"]) {
-            if (el[guiltyNew]) {
-              el[guiltyNew] = el[guiltyNew].replace(/З-СИБ$/, "");
-            }
-            if (el[guiltyUnit]) {
-              el[guiltyUnit] = el[guiltyUnit].replace(/З-СИБ$/, "");
-            }
-          }
-          result.push(el);
-        });
-        return result;
-      };
+      // const filterArray = (arr) => {
+      //   let result = [];
+      //   arr.forEach((el) => {
+      //     if (el["ID отказа"] || el["#"]) {
+      //       if (el[guiltyNew]) {
+      //         el[guiltyNew] = el[guiltyNew].replace(/З-СИБ$/, "");
+      //       }
+      //       if (el[guiltyUnit]) {
+      //         el[guiltyUnit] = el[guiltyUnit].replace(/З-СИБ$/, "");
+      //       }
+      //     }
+      //     result.push(el);
+      //   });
+      //   return result;
+      // };
 
-      postViolationsArray(filterArray(resultArray));
-      console.log("resultArray.length is", filterArray(resultArray).length);
+      postViolationsArray(resultArray);
+      // console.log("resultArray.length is", filterArray(resultArray).length);
+      console.log("resultArray.length is", resultArray.length);
     };
   }, []);
 
