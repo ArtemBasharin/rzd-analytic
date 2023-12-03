@@ -81,11 +81,10 @@ export const getReportArr = (
     }
 
     console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
-    return srcArrayInDatesFrame;
-    // .map((el) => {
-    //   if (el.failReason)
-    //     return { ...el, failReason: firstCharToLowerCase(el.failReason) };
-    // });
+    return srcArrayInDatesFrame.map((el) => {
+      if (el.failReason)
+        return { ...el, failReason: firstCharToLowerCase(el.failReason) };
+    });
   };
 
   function aggregateData(inputArray: any[]) {
