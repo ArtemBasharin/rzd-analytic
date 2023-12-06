@@ -3,12 +3,14 @@ import * as d3 from "d3";
 import { useSelector } from "react-redux";
 import {
   cellComparingPercents,
+  defineСategory,
   getComparisonText,
   getNumberWithWord,
   getWordOnly,
+  renameCategory,
 } from "../config/functions";
 
-import { cutDecimals } from "../config/config";
+import { cutDecimals } from "../config/functions";
 
 interface RootState {
   filters: {
@@ -41,9 +43,9 @@ const varFails: string[] = [
 const varDelay: string[] = ["задержан", "задержано", "задержано"];
 
 const TextReportTemplatePeriod = () => {
-  const analyze = useSelector((state: RootState) => state.filters.analyzeState);
+  // const analyze = useSelector((state: RootState) => state.filters.analyzeState);
   const arr = useSelector((state: RootState) => state.filters.reportSrcState);
-  console.log("arr", arr);
+  // console.log("arr", arr);
 
   let currentYear = d3.max(arr.map((el) => el.year));
   let pastYear = currentYear - 1;
@@ -146,17 +148,34 @@ const TextReportTemplatePeriod = () => {
     let currentYearUnitTotalDuration = currentYearUnit
       ? currentYearUnit.totalDuration
       : "";
-    return (
-      <tr>
-        <td>{unit}</td>
-        <td>{pastYearUnitTotalDuration}</td>
-        <td>{currentYearUnitTotalDuration}</td>
-        {cellComparingPercents(
-          pastYearUnitTotalDuration,
-          currentYearUnitTotalDuration
-        )}
-      </tr>
-    );
+    return {
+      layout: (
+        <tr key={unit}>
+          <td className="table_bold_right">{unit}</td>
+          <td>{pastYearUnitTotalDuration}</td>
+          <td className="table_bold_right">{currentYearUnitTotalDuration}</td>
+          {cellComparingPercents(
+            pastYearUnitTotalDuration,
+            currentYearUnitTotalDuration
+          )}
+          <td>
+            {cutDecimals(
+              (pastYearUnitTotalDuration / arr[0].sum.pastYearTotalDurations) *
+                100
+            )}
+          </td>
+          <td>
+            {cutDecimals(
+              (currentYearUnitTotalDuration /
+                arr[1].sum.currentYearTotalDurations) *
+                100
+            )}
+          </td>
+        </tr>
+      ),
+      pastYear: pastYearUnitTotalDuration,
+      currentYear: currentYearUnitTotalDuration,
+    };
   };
 
   let dictionaryForTableAsSet: Set<string> = new Set();
@@ -165,82 +184,171 @@ const TextReportTemplatePeriod = () => {
       dictionaryForTableAsSet.add(el2.guiltyUnit)
     );
   });
+
   let dictionaryForTable: string[] = Array.from(dictionaryForTableAsSet);
-  console.log("dictionaryForTable", dictionaryForTable);
+  // console.log("dictionaryForTable", dictionaryForTable);
 
   let tableLayout: any[] = [];
-  dictionaryForTable.forEach((el) => tableLayout.push(getOneRowReport(el)));
+  let subtotal: any = {
+    PCH: { arr: [], pastValue: 0, currentValue: 0 },
+    SHCH: { arr: [], pastValue: 0, currentValue: 0 },
+    ECH: { arr: [], pastValue: 0, currentValue: 0 },
+    VCHD: { arr: [], pastValue: 0, currentValue: 0 },
+    PMS: { arr: [], pastValue: 0, currentValue: 0 },
+    TCH: { arr: [], pastValue: 0, currentValue: 0 },
+    SLD: { arr: [], pastValue: 0, currentValue: 0 },
+    FPC: { arr: [], pastValue: 0, currentValue: 0 },
+    D: { arr: [], pastValue: 0, currentValue: 0 },
+    OTHER: { arr: [], pastValue: 0, currentValue: 0 },
+  };
+
+  dictionaryForTable.forEach((el: string) => {
+    const category: string = defineСategory(el);
+    // console.log(typeof getOneRowReport(el));
+
+    if (subtotal[category]) {
+      subtotal[category].arr = [
+        ...subtotal[category].arr,
+        getOneRowReport(el).layout,
+      ];
+      subtotal[category].pastValue =
+        subtotal[category].pastValue + Number(getOneRowReport(el).pastYear);
+      subtotal[category].currentValue =
+        subtotal[category].currentValue +
+        Number(getOneRowReport(el).currentYear);
+    } else {
+      subtotal["OTHER"].arr = [
+        ...subtotal["OTHER"].arr,
+        getOneRowReport(el).layout,
+      ];
+      subtotal["OTHER"].pastValue =
+        subtotal["OTHER"].pastValue + Number(getOneRowReport(el).pastYear);
+      subtotal["OTHER"].currentValue =
+        subtotal["OTHER"].currentValue +
+        Number(getOneRowReport(el).currentYear);
+    }
+  });
+
+  for (const key in subtotal) {
+    subtotal[key].arr.length !== 0 &&
+      tableLayout.push(
+        <>
+          {subtotal[key].arr}
+          <tr className="table_bold text_header table_fill" key={subtotal[key]}>
+            <td className="table_bold_right">{renameCategory(key)}</td>
+            <td>{cutDecimals(subtotal[key].pastValue)}</td>
+            <td className="table_bold_right">
+              {" "}
+              {cutDecimals(subtotal[key].currentValue)}
+            </td>
+            {cellComparingPercents(
+              subtotal[key].pastValue,
+              subtotal[key].currentValue
+            )}
+            <td>
+              {cutDecimals(
+                (subtotal[key].pastValue / arr[0].sum.pastYearTotalDurations) *
+                  100
+              )}
+            </td>
+            <td className="table_bold_right">
+              {" "}
+              {cutDecimals(
+                (subtotal[key].currentValue /
+                  arr[1].sum.currentYearTotalDurations) *
+                  100
+              )}
+            </td>
+          </tr>
+        </>
+      );
+  }
+
+  tableLayout.push(
+    <tr className="table_bold text_header table_fill">
+      <td className="table_bold_right">Всего</td>
+      <td>{arr[0].sum.pastYearTotalDurations}</td>
+      <td className="table_bold_right">
+        {arr[1].sum.currentYearTotalDurations}
+      </td>
+      {cellComparingPercents(
+        arr[0].sum.pastYearTotalDurations,
+        arr[1].sum.currentYearTotalDurations
+      )}
+    </tr>
+  );
 
   return (
     <div className="text_container">
       <p className="text_paragraph">
         1. За рассматриваемый период допущено{" "}
-        {getNumberWithWord(analyze.failsArray[0][1].value, varFails)} (далее –
+        {getNumberWithWord(arr[1].sum.currentYearTotalFails, varFails)} (далее –
         ТН), за аналогичный период прошлого года было допущено{" "}
-        {analyze.failsArray[0][0].value} ТН,{" "}
+        {arr[0].sum.pastYearTotalFails} ТН,{" "}
         {getComparisonText(
-          analyze.failsArray[0][1].value,
-          analyze.failsArray[0][0].value
+          arr[1].sum.currentYearTotalFails,
+          arr[0].sum.pastYearTotalFails
         )}
-        . {getWordOnly(analyze.delaysArray[0][1].value, varDelay, true)}{" "}
-        {getNumberWithWord(analyze.delaysArray[0][1].value, varTrains)}, за
+        . {getWordOnly(arr[1].sum.currentYearTotalDelays, varDelay, true)}{" "}
+        {getNumberWithWord(arr[1].sum.currentYearTotalDelays, varTrains)}, за
         аналогичный период прошлого года{" "}
-        {getWordOnly(analyze.delaysArray[0][0].value, varDelay)}{" "}
-        {getNumberWithWord(analyze.delaysArray[0][0].value, varTrains)},{" "}
+        {getWordOnly(arr[0].sum.pastYearTotalDelays, varDelay)}{" "}
+        {getNumberWithWord(arr[0].sum.pastYearTotalDelays, varTrains)},{" "}
         {getComparisonText(
-          analyze.delaysArray[0][1].value,
-          analyze.delaysArray[0][0].value
+          arr[1].sum.currentYearTotalDelays,
+          arr[0].sum.pastYearTotalDelays
         )}
         . Общая продолжительность задержек поездов составила{" "}
-        {analyze.durationsArray[0][1].value} ч, за аналогичный период прошлого
+        {arr[1].sum.currentYearTotalDurations} ч, за аналогичный период прошлого
         года продолжительность задержек составила{" "}
-        {analyze.durationsArray[0][0].value} ч,{" "}
+        {arr[0].sum.pastYearTotalDurations} ч,{" "}
         {getComparisonText(
-          analyze.durationsArray[0][1].value,
-          analyze.durationsArray[0][0].value
+          arr[1].sum.currentYearTotalDurations,
+          arr[0].sum.pastYearTotalDurations
         )}
         .
       </p>
       <p className="text_paragraph">
-        2. Определен тип у {analyze.failsArray[0][1].value} ТН, из них:
+        2. Определен тип у {arr[1].sum.currentYearTotalFails} ТН, из них:
       </p>
 
       <p className="text_paragraph">
-        технического характера – {analyze.failsArray[3][1].value} (в 2022 г. –{" "}
-        {analyze.failsArray[3][0].value}),{" "}
+        технического характера – {arr[1].sum.currentYearTotalTechnical} (в 2022
+        г. – {arr[0].sum.pastYearTotalTechnical}),{" "}
         {getComparisonText(
-          analyze.failsArray[3][1].value,
-          analyze.failsArray[3][0].value
+          arr[1].sum.currentYearTotalTechnical,
+          arr[0].sum.pastYearTotalTechnical
         )}
         ;
       </p>
 
       <p className="text_paragraph">
-        технологического характера – {analyze.failsArray[4][1].value} (в 2022 г.
-        – {analyze.failsArray[4][0].value}),{" "}
+        технологического характера – {arr[1].sum.currentYearTotalTechnological}{" "}
+        (в 2022 г. – {arr[0].sum.pastYearTotalTechnological}),{" "}
         {getComparisonText(
-          analyze.failsArray[4][1].value,
-          analyze.failsArray[4][0].value
+          arr[1].sum.currentYearTotalTechnological,
+          arr[0].sum.pastYearTotalTechnological
         )}
         ;
       </p>
 
       <p className="text_paragraph">
-        особая технологическая необходимость – {analyze.failsArray[5][1].value}{" "}
-        (в 2022 г. – {analyze.failsArray[5][0].value}),{" "}
+        особая технологическая необходимость –{" "}
+        {arr[1].sum.currentYearTotalSpecial} (в 2022 г. –{" "}
+        {arr[0].sum.pastYearTotalSpecial}),{" "}
         {getComparisonText(
-          analyze.failsArray[5][1].value,
-          analyze.failsArray[5][0].value
+          arr[1].sum.currentYearTotalSpecial,
+          arr[0].sum.pastYearTotalSpecial
         )}
         ;
       </p>
 
       <p className="text_paragraph">
-        внешние – {analyze.failsArray[6][1].value} (в 2022 г. –{" "}
-        {analyze.failsArray[6][0].value}),{" "}
+        внешние – {arr[1].sum.currentYearTotalExternal} (в 2022 г. –{" "}
+        {arr[0].sum.pastYearTotalExternal}),{" "}
         {getComparisonText(
-          analyze.failsArray[6][1].value,
-          analyze.failsArray[6][0].value
+          arr[1].sum.currentYearTotalExternal,
+          arr[0].sum.pastYearTotalExternal
         )}
         ;
       </p>
@@ -248,13 +356,31 @@ const TextReportTemplatePeriod = () => {
       <p className="text_paragraph">В том числе: {text.concat("")}</p>
       <table className="table_bold">
         <tr className="table_bold text_header">
-          <td>Подразделение</td>
+          <td rowSpan={2} className="table_bold ">
+            Подразделение
+          </td>
+          <th colSpan={2}>
+            Поездо-часы <br />
+            задержек
+          </th>
+          <th rowSpan={2} className="table_bold ">
+            +/- % (ч) к<br />
+            прошлому <br />
+            году
+          </th>
+          <th colSpan={2}>
+            По отношению к общему
+            <br />
+            количеству поездо-часов, %
+          </th>
+        </tr>
+        <tr className="table_bold text_header">
           <td>2022</td>
           <td>2023</td>
-          <td>%</td>
           <td>2022</td>
           <td>2023</td>
         </tr>
+
         {tableLayout}
       </table>
     </div>

@@ -10,17 +10,38 @@ import {
   subDuration,
   otherDuration,
   failReason,
-  cutDecimals,
+  failKind,
 } from "../config/config";
-import { getDaysBetweenDates, firstCharToLowerCase } from "../config/functions";
+import {
+  getDaysBetweenDates,
+  firstCharToLowerCase,
+  cutDecimals,
+} from "../config/functions";
 
 export const getReportArr = (
   sourceArr: any[],
-  pattern?: string,
-  dateStart?: Date,
-  dateEnd?: Date,
+  dateStart: Date,
+  dateEnd: Date,
   minValue?: number
 ) => {
+  const calcTotalDuration = (obj: any) => {
+    let freightDur = obj[freightDuration] || 0;
+    let passDur = obj[passDuration] || 0;
+    let subDur = obj[subDuration] || 0;
+    let otherDur = obj[otherDuration] || 0;
+    let total = freightDur + passDur + subDur + otherDur;
+    return total;
+  };
+
+  const calcTotalDelayed = (obj: any) => {
+    let freightDel = obj[freightDelayed] || 0;
+    let passDel = obj[passDelayed] || 0;
+    let subDel = obj[subDelayed] || 0;
+    let otherDel = obj[otherDelayed] || 0;
+    let total = freightDel + passDel + subDel + otherDel;
+    return total;
+  };
+
   const getFilteredByPeriodArr = () => {
     let srcArrayInDatesFrame: any[] = [];
 
@@ -48,6 +69,7 @@ export const getReportArr = (
             guiltyUnit: el[guiltyUnit],
             startTime: el[startTime],
             failReason: el[failReason],
+            failKind: el[failKind],
             freightDuration: el[freightDuration] || 0,
             passDuration: el[passDuration] || 0,
             subDuration: el[subDuration] || 0,
@@ -56,31 +78,13 @@ export const getReportArr = (
             passDelayed: el[passDelayed] || 0,
             subDelayed: el[subDelayed] || 0,
             otherDelayed: el[otherDelayed] || 0,
+            totalDelayed: calcTotalDelayed(el),
+            totalDuration: calcTotalDuration(el),
           });
         }
       });
-    } else {
-      let regexp = new RegExp(`[-](${pattern})[-]`, "g");
-      for (let i = 0; i < sourceArr.length; ++i) {
-        if (sourceArr[i][startTime].search(regexp) > -1) {
-          srcArrayInDatesFrame.push({
-            guiltyUnit: sourceArr[i][guiltyUnit],
-            failReason: sourceArr[i][failReason],
-            freightDuration: sourceArr[i][freightDuration] || 0,
-            passDuration: sourceArr[i][passDuration] || 0,
-            subDuration: sourceArr[i][subDuration] || 0,
-            otherDuration: sourceArr[i][otherDuration] || 0,
-            freightDelayed: sourceArr[i][freightDelayed] || 0,
-            passDelayed: sourceArr[i][passDelayed] || 0,
-            subDelayed: sourceArr[i][subDelayed] || 0,
-            otherDelayed: sourceArr[i][otherDelayed] || 0,
-            startTime: sourceArr[i][startTime],
-          });
-        }
-      }
     }
-
-    console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
+    // console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
     return srcArrayInDatesFrame.map((el) => {
       if (el.failReason)
         return { ...el, failReason: firstCharToLowerCase(el.failReason) };
@@ -142,13 +146,84 @@ export const getReportArr = (
     });
 
     resultArray.sort((a, b) => b.count - a.count);
+    // console.log("resultArray", resultArray);
     return resultArray;
   }
+
+  const getSummaryReport = (arr: any[], dateStart: Date, dateEnd: Date) => {
+    let [dateStartCurrentYear, dateEndCurrentYear] = [dateStart, dateEnd];
+    let daysBetweenDates: number = 0;
+    daysBetweenDates = getDaysBetweenDates(dateStart, dateEnd);
+
+    let dateEndPastYear = new Date(dateEndCurrentYear.getTime());
+    dateEndPastYear.setFullYear(dateEndPastYear.getFullYear() - 1);
+
+    let dateStartPastYear = new Date(dateEndPastYear.getTime());
+    dateStartPastYear.setDate(dateStartPastYear.getDate() - daysBetweenDates);
+
+    let summary = arr.reduce(
+      function (acc, curr) {
+        if (
+          Date.parse(curr.startTime) >= dateStartPastYear.getTime() &&
+          Date.parse(curr.startTime) <= dateEndPastYear.getTime()
+        ) {
+          acc.pastYearTotalFails++;
+          acc.pastYearTotalDelays = acc.pastYearTotalDelays + curr.totalDelayed;
+          acc.pastYearTotalDurations =
+            acc.pastYearTotalDurations + curr.totalDuration;
+          curr.failKind === "Нарушение технического вида" &&
+            acc.pastYearTotalTechnical++;
+          curr.failKind === "Технологическое нарушение" &&
+            acc.pastYearTotalTechnological++;
+          curr.failKind === "Особая технологическая необходимость" &&
+            acc.pastYearTotalSpecial++;
+          curr.failKind === "Прочие причины" && acc.pastYearTotalExternal++;
+        }
+
+        if (
+          Date.parse(curr.startTime) >= dateStartCurrentYear.getTime() &&
+          Date.parse(curr.startTime) <= dateEndCurrentYear.getTime()
+        ) {
+          acc.currentYearTotalFails++;
+          acc.currentYearTotalDelays =
+            acc.currentYearTotalDelays + curr.totalDelayed;
+          acc.currentYearTotalDurations =
+            acc.currentYearTotalDurations + curr.totalDuration;
+          curr.failKind === "Нарушение технического вида" &&
+            acc.currentYearTotalTechnical++;
+          curr.failKind === "Технологическое нарушение" &&
+            acc.currentYearTotalTechnological++;
+          curr.failKind === "Особая технологическая необходимость" &&
+            acc.currentYearTotalSpecial++;
+          curr.failKind === "Прочие причины" && acc.currentYearTotalExternal++;
+        }
+
+        return acc;
+      },
+      {
+        pastYearTotalFails: 0,
+        currentYearTotalFails: 0,
+        pastYearTotalDelays: 0,
+        currentYearTotalDelays: 0,
+        pastYearTotalDurations: 0,
+        currentYearTotalDurations: 0,
+        pastYearTotalTechnical: 0,
+        currentYearTotalTechnical: 0,
+        pastYearTotalTechnological: 0,
+        currentYearTotalTechnological: 0,
+        pastYearTotalSpecial: 0,
+        currentYearTotalSpecial: 0,
+        pastYearTotalExternal: 0,
+        currentYearTotalExternal: 0,
+      }
+    );
+    return summary;
+  };
 
   function aggregateDataWithYearAndReport(inputArray: any[]) {
     const resultArray: any[] = [];
 
-    console.log("inputArray", inputArray);
+    // console.log("inputArray", inputArray);
     inputArray.forEach((item: any) => {
       const year = new Date(item.startTime).getFullYear();
       const existingItem = resultArray.find((element) => element.year === year);
@@ -163,11 +238,35 @@ export const getReportArr = (
       item.report = aggregateData(item.report); // Используем функцию aggregateDataWithCount
     });
 
+    let sum = getSummaryReport(inputArray, dateStart, dateEnd);
+    resultArray[0].sum = {
+      pastYearTotalFails: sum.pastYearTotalFails,
+      pastYearTotalDelays: sum.pastYearTotalDelays,
+      pastYearTotalDurations: cutDecimals(sum.pastYearTotalDurations),
+      pastYearTotalTechnical: sum.pastYearTotalTechnical,
+      pastYearTotalTechnological: sum.pastYearTotalTechnological,
+      pastYearTotalSpecial: sum.pastYearTotalSpecial,
+      pastYearTotalExternal: sum.pastYearTotalExternal,
+    };
+    resultArray[1].sum = {
+      currentYearTotalFails: sum.currentYearTotalFails,
+      currentYearTotalDelays: sum.currentYearTotalDelays,
+      currentYearTotalDurations: cutDecimals(sum.currentYearTotalDurations),
+      currentYearTotalTechnical: sum.currentYearTotalTechnical,
+      currentYearTotalTechnological: sum.currentYearTotalTechnological,
+      currentYearTotalSpecial: sum.currentYearTotalSpecial,
+      currentYearTotalExternal: sum.currentYearTotalExternal,
+    };
+
     return resultArray;
   }
 
   // console.log(aggregateDataWithYearAndReport(getFilteredByPeriodArr()));
   // console.log("getFilteredByPeriodArr", getFilteredByPeriodArr());
+  // console.log(
+  //   "getSummaryReport",
+  //   getSummaryReport(getFilteredByPeriodArr(), dateStart, dateEnd)
+  // );
 
   return aggregateDataWithYearAndReport(getFilteredByPeriodArr());
 };

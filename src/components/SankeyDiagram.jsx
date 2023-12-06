@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import { sankey, sankeyLinkHorizontal } from "d3-sankey";
 import { useSelector } from "react-redux";
-import { cutDecimals } from "../config/config";
+import { cutDecimals } from "../config/functions";
 
 const SankeyDiagram = () => {
   const svgRef6 = useRef();

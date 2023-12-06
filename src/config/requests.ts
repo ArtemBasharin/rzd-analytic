@@ -4,7 +4,7 @@ import dummyArr from "../data-preprocessors/dummyArr";
 axios.defaults.baseURL = "http://localhost:3001";
 axios.defaults.timeout = 120000;
 
-const getViolationsArray = (startDate, endDate) => {
+const getViolationsArray = (startDate: string, endDate: string) => {
   let params = {
     "fromYear": new Date(startDate).getFullYear() - 1,
     "toYear": new Date(endDate).getFullYear(),
@@ -21,7 +21,7 @@ const getViolationsArray = (startDate, endDate) => {
     });
 };
 
-const postViolationsArray = (arr) => {
+const postViolationsArray = (arr: any[]) => {
   axios
     .post("/add-bulk-of-violations", arr)
     .then(function (res) {

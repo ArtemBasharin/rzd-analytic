@@ -1,5 +1,5 @@
 import * as d3 from "d3";
-import { cutDecimals, startTime } from "./config";
+import { startTime } from "./config";
 
 export const getCutoffDates = (arr) => {
   let dates = [];
@@ -11,7 +11,7 @@ export const getCutoffDates = (arr) => {
 
 export const getStartDate = (endDate) => {
   let previousMonthDate = new Date(endDate);
-  previousMonthDate.setMonth(previousMonthDate.getMonth() - 1);
+  previousMonthDate.setDate(1);
   return new Date(previousMonthDate.setHours(0, 0, 0));
 };
 
@@ -82,6 +82,31 @@ export const getCustomCalendar = (step, dateStart, dateEnd) => {
   // if (start > end) result.slice(-1);
   // console.log("resultCal", result);
   return result;
+};
+
+export const cutDecimals = (total) => {
+  const decimals = () => {
+    let res = 0;
+    let val = Math.round(total);
+    if (val < 1) {
+      res = 2;
+    }
+    if (val >= 1 && val < 100) {
+      res = 1;
+    }
+    if (val >= 100) {
+      res = 0;
+    }
+    return res;
+  };
+
+  const toRound = (value) => {
+    let dec = Math.pow(10, decimals());
+    return Math.round(Number(value.toFixed(3)) * dec) / dec;
+  };
+
+  // console.log(Number(total.toFixed(2)));
+  return toRound(total);
 };
 
 export const getComparisonText = (curVal, prevVal) => {
@@ -163,7 +188,11 @@ export const cellComparingPercents = (
       (currentYearUnitTotalDuration / pastYearUnitTotalDuration - 1) * 100
     );
     return (
-      <td className={result > 0 ? "text_increase" : "text_decrease"}>
+      <td
+        className={`table_bold_right ${
+          result > 0 ? "text_increase" : "text_decrease"
+        }`}
+      >
         {result > 0 && "+"}
         {result}%
       </td>
@@ -171,10 +200,44 @@ export const cellComparingPercents = (
   }
   if (!pastYearUnitTotalDuration && currentYearUnitTotalDuration) {
     let result = cutDecimals(currentYearUnitTotalDuration);
-    return <td className={"text_increase"}>+{result} ч</td>;
+    return <td className={"table_bold_right text_increase "}>+{result} ч</td>;
   }
   if (pastYearUnitTotalDuration && !currentYearUnitTotalDuration) {
-    let result = cutDecimals(pastYearUnitTotalDuration);
-    return <td className={"text_decrease"}>-{result} ч</td>;
+    // let result = cutDecimals(pastYearUnitTotalDuration);
+    return <td className={"table_bold_right text_decrease"}>-100%</td>;
   }
+};
+
+export const defineСategory = (string) => {
+  if (/\B ПЧ-/gm.test(string) || string.includes("ИЧ КУЛУНДА П")) return "PCH";
+  if (/\B ШЧ-/gm.test(string) || string.includes("ИЧ КУЛУНДА Ш")) return "SHCH";
+  if (/\B ЭЧ-/gm.test(string)) return "ECH";
+  if (/\B ВЧД/gm.test(string)) return "VCHD";
+  if (/\B ПМС-/gm.test(string)) return "PMS";
+  if (/\B ТЧЭ-/gm.test(string)) return "TCH";
+  if (string.includes("ЛокоТех-Сервис") || string.includes("СТМ-Сервис"))
+    return "SLD";
+  if (/\B ЛВЧ-/gm.test(string) || /\B ЛВЧД \B/gm.test(string)) return "FPC";
+  if (
+    /\B ДС\B/gm.test(string) ||
+    /\B ДЦС-/gm.test(string) ||
+    string.includes("З-СИБ, ДЦУП") ||
+    string.includes("З-СИБ, Д")
+  ) {
+    return "D";
+  }
+  return "OTHER";
+};
+
+export const renameCategory = (string) => {
+  if (string === "PCH") return "Итого по П";
+  if (string === "SHCH") return "Итого по Ш";
+  if (string === "ECH") return "Итого по НТЭ";
+  if (string === "VCHD") return "Итого по В";
+  if (string === "PMS") return "Итого по ДРП";
+  if (string === "TCH") return "Итого по Т";
+  if (string === "SLD") return "Итого по сервисным компаниям";
+  if (string === "FPC") return "Итого по ФПК";
+  if (string === "D") return "Итого по Д";
+  if (string === "OTHER") return "Итого по прочим";
 };

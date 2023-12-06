@@ -1,15 +1,21 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setPattern } from "../redux/filtersSlice";
 import { CSSTransition } from "react-transition-group";
 import { TiArrowSortedDown } from "react-icons/ti";
 
+interface RootState {
+  filters: {
+    regexpPattern: string;
+  };
+}
+
 const PeriodSetter = () => {
-  let period = useSelector((state) => state.filters.regexpPattern);
+  let period = useSelector((state: RootState) => state.filters.regexpPattern);
   // console.log(period);
   const dispatch = useDispatch();
 
-  const periodList = [
+  const periodList: any[] = [
     { value: "01", title: "Январь" },
     { value: "02", title: "Февраль" },
     { value: "01|02", title: "2 месяца" },
@@ -41,27 +47,27 @@ const PeriodSetter = () => {
   const [isOpen, setIsOpen] = useState(false);
   // const [period, setPeriod] = useState(initialValue);
 
-  const dropdownPeriodRef = useRef(null);
+  // const dropdownPeriodRef = useRef(null);
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleClickOutside = (event) => {
-    if (
-      dropdownPeriodRef.current &&
-      !dropdownPeriodRef.current.contains(event.target)
-    ) {
-      setIsOpen(false);
-    }
-  };
+  // const handleClickOutside = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (
+  //     dropdownPeriodRef.current &&
+  //     !dropdownPeriodRef.current.contains(e.target)
+  //   ) {
+  //     setIsOpen(false);
+  //   }
+  // };
 
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
+  // useEffect(() => {
+  //   document.addEventListener("mousedown", handleClickOutside);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, []);
   // console.log(periodList.find((el) => el.value === period));
   return (
     <div className="list_container">
@@ -69,7 +75,7 @@ const PeriodSetter = () => {
         className="tools tools_text-button list_element_year tools_text-button_period"
         onClick={handleToggle}
       >
-        {periodList.find((el) => el.value === period).title}
+        {periodList.find((el: any) => el.value === period).title}
         <TiArrowSortedDown
           className={`tools_dropdown-icon${isOpen ? "_rotate" : ""}`}
         />

@@ -1,9 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import * as d3 from "d3";
-import { cutDecimals } from "../config/config";
-import { convertUnixToDate } from "../config/functions";
-// import { cutDecimals } from "../config/config";
+import { convertUnixToDate, cutDecimals } from "../config/functions";
 
 const RidgelineDiagram = () => {
   const svgRef7 = useRef();

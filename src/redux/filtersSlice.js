@@ -137,7 +137,7 @@ const filtersSlice = createSlice({
   reducers: {
     setSourceState(state, action) {
       state.sourceState = action.payload;
-      console.log("state.sourceState", state.sourceState);
+      // console.log("state.sourceState", state.sourceState);
       let cutoffDates = getCutoffDates(state.sourceState);
       state.minCutoffDate = cutoffDates.min;
       state.maxCutoffDate = cutoffDates.max;
@@ -199,9 +199,9 @@ const filtersSlice = createSlice({
 
       state.reportSrcState = getReportArr(
         state.sourceState,
-        state.regexpPattern,
         state.dateStart,
         state.dateEnd,
+        state.regexpPattern,
         state.minValue
       );
     },
@@ -279,6 +279,8 @@ const filtersSlice = createSlice({
 
       state.reportSrcState = getReportArr(
         state.sourceState,
+        state.dateStart,
+        state.dateEnd,
         state.regexpPattern
       );
     },
@@ -380,9 +382,9 @@ const filtersSlice = createSlice({
 
       state.reportSrcState = getReportArr(
         state.sourceState,
-        state.regexpPattern,
         state.dateStart,
         state.dateEnd,
+        state.regexpPattern,
         state.minValue
       );
     },
@@ -454,9 +456,9 @@ const filtersSlice = createSlice({
 
       state.reportSrcState = getReportArr(
         state.sourceState,
-        state.regexpPattern,
         state.dateStart,
         state.dateEnd,
+        state.regexpPattern,
         state.minValue
       );
     },

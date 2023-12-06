@@ -57,6 +57,13 @@ td {
   margin: 30px auto;
   border: 2px solid black;
 }
+.table_bold_right {
+  border-right: 2px solid black;
+}
+
+.table_fill {
+  background-color: lightgray;
+}
 
 .text_header {
   font-weight: bold;
