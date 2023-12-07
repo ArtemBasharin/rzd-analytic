@@ -20,11 +20,11 @@ function AnalyzeSection() {
   // const checkedUnits = useSelector((state) => state.filters.stackedCheckList);
   //   const showLoader = useSelector((state) => state.filters.loaderShow);
   const areaWidth = window.innerWidth;
-  //   const areaHeight = window.innerHeight;
+  const areaHeight = window.innerHeight;
 
   //section of charts with fails counting
-  let chartFailsWidth = 1920 / 7 - 20;
-  if (areaWidth < 1920) chartFailsWidth = areaWidth / 7 - 30;
+  let chartFailsWidth = areaWidth / 7 - 30;
+  let chartsHeight = (areaHeight - 500) / 2;
 
   const paramsFailsSection = {
     ids: [0, 1, 2, 3, 4, 5, 6], //this prop need to create unique #id svg elements
@@ -38,6 +38,7 @@ function AnalyzeSection() {
         stats={srcArr.failsArray[paramsFailsSection.ids.indexOf(item)]}
         config={item}
         width={paramsFailsSection.width}
+        height={chartsHeight}
         yMax={srcArr.failsYmax}
         key={item}
       />
@@ -45,8 +46,7 @@ function AnalyzeSection() {
   });
 
   //section of charts with delays counting
-  let chartDelaysWidth = 1920 / 4 / 2 - 30;
-  if (areaWidth < 1920) chartDelaysWidth = areaWidth / 4 / 2 - 30;
+  let chartDelaysWidth = areaWidth / 4 / 2 - 30;
   const paramsDelaysSection = {
     ids: [7, 8, 9, 10], //this prop need to create unique #id svg elements
     width: chartDelaysWidth,
@@ -58,6 +58,7 @@ function AnalyzeSection() {
         stats={srcArr.delaysArray[paramsDelaysSection.ids.indexOf(item)]}
         config={item}
         width={paramsDelaysSection.width}
+        height={chartsHeight}
         yMax={srcArr.delaysYmax}
         key={item}
         maxYear={maxYear}
@@ -77,6 +78,7 @@ function AnalyzeSection() {
         stats={srcArr.durationsArray[paramsDurationsSection.ids.indexOf(item)]}
         config={item}
         width={paramsDurationsSection.width}
+        height={chartsHeight}
         yMax={srcArr.durationsYmax}
         key={item}
       />

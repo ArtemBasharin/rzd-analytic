@@ -14,7 +14,8 @@ const BarChart2Bars = (props) => {
     let resData = props.stats;
     const margin = { top: 80, right: 5, bottom: 50, left: 5 },
       width = props.width - margin.left - margin.right,
-      height = 350 - margin.top - margin.bottom;
+      // height = 350 - margin.top - margin.bottom;
+      height = props.height;
 
     // append the svg object to the body of the page
     const svg = d3
@@ -178,6 +179,7 @@ const BarChart2Bars = (props) => {
     props.config,
     props.yMax,
     props.width,
+    props.height,
     minValue,
     dateStart,
     dateEnd,

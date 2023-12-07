@@ -25,7 +25,7 @@ const DateRangePicker = () => {
 
   const handleDateEnd = (e) => {
     // console.log(e);
-    e && dispatch(setDateEnd(e));
+    e && dispatch(setDateEnd(new Date(new Date(e).setHours(23, 59, 59))));
     setIsOpenEnd(false);
   };
 

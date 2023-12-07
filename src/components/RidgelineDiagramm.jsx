@@ -14,8 +14,8 @@ const RidgelineDiagram = () => {
   useEffect(() => {
     // set the dimensions and margins of the graph
     const margin = { top: 105, right: 30, bottom: 50, left: 50 },
-      width = 1920 - margin.left - margin.right,
-      height = 900 - margin.top - margin.bottom;
+      width = window.innerWidth - margin.left - margin.right,
+      height = window.innerHeight - 20 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     const svg = d3

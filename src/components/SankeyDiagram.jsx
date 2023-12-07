@@ -13,9 +13,9 @@ const SankeyDiagram = () => {
 
   useEffect(() => {
     // set the dimensions and margins of the graph
-    const margin = { top: 20, right: 100, bottom: 0, left: 100 },
-      width = 1920 - margin.left - margin.right,
-      height = 751 - margin.top - margin.bottom;
+    const margin = { top: 30, right: 60, bottom: 0, left: 60 },
+      width = window.innerWidth - margin.left - margin.right,
+      height = window.innerHeight - 180 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     const svg = d3

@@ -19,9 +19,9 @@ const StackedAreaDiagram = () => {
     // console.log("resData", resData);
 
     // set the dimensions and margins of the graph
-    const margin = { top: 20, right: 160, bottom: 50, left: 100 },
-      width = 1920 - margin.left - margin.right,
-      height = 770 - margin.top - margin.bottom;
+    const margin = { top: 30, right: 170, bottom: 50, left: 100 },
+      width = window.innerWidth - margin.left - margin.right,
+      height = window.innerHeight - 180 - margin.top - margin.bottom;
 
     let datesArr = [];
     resData.forEach((el) => datesArr.push(el.date));

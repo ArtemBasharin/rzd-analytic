@@ -24,6 +24,9 @@ export const getReportArr = (
   dateEnd: Date,
   minValue?: number
 ) => {
+    console.log("dateStart", dateStart);
+    console.log("dateEnd", dateEnd);
+  
   const calcTotalDuration = (obj: any) => {
     let freightDur = obj[freightDuration] || 0;
     let passDur = obj[passDuration] || 0;
@@ -90,6 +93,7 @@ export const getReportArr = (
         return { ...el, failReason: firstCharToLowerCase(el.failReason) };
     });
   };
+  console.log(getFilteredByPeriodArr())
 
   function aggregateData(inputArray: any[]) {
     const resultMap = new Map();
