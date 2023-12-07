@@ -20,7 +20,7 @@ import { Loader } from "./Loader";
 import AnalyzeSection from "./AnalyzeSection";
 import RidgelineDiagram from "./RidgelineDiagramm";
 import DownloadButtons from "./ToolDownloadButtons";
-import TextReportTemplatePeriod from "./TextReportTemplatePeriod";
+import TextReportTemplatePeriod from "./TextReport";
 
 function Main() {
   // console.time("Main");

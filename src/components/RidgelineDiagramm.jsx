@@ -133,24 +133,24 @@ const RidgelineDiagram = () => {
       .attr("transform", `translate(${margin.left + 280},0)`)
       .call(d3.axisLeft(y).tickSize(0).tickPadding(4))
       .selectAll("text")
-      .data(checkList)
+      .data(series)
       .join("text")
       .attr("font-family", "roboto")
       .attr("font-size", function (d) {
-        return (12 - checkList.length / 15).toString();
+        return (12 - series.length / 15).toString();
       })
       .attr("font-weight", "600")
       .attr("text-anchor", "end")
       .text(function (d) {
         // console.log(d);
-        if (d.guiltyUnit.length >= 36) {
-          return d.guiltyUnit.substr(0, 36) + " ...";
+        if (d.name.length >= 36) {
+          return d.name.substr(0, 36) + " ...";
         } else {
-          return d.guiltyUnit;
+          return d.name;
         }
       })
       .append("tspan")
-      .text((d) => ` (${cutDecimals(d.value)} ч)`)
+      .text((d) => ` (${cutDecimals(d3.sum(d.values))} ч)`)
       .call((g) => g.select(".domain").remove());
 
     // Append a layer for each series.
