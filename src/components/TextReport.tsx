@@ -8,9 +8,9 @@ import {
   getNumberWithWord,
   getWordOnly,
   renameCategory,
-} from "../config/functions";
+} from "../utils/functions";
 
-import { cutDecimals } from "../config/functions";
+import { cutDecimals } from "../utils/functions";
 
 interface RootState {
   filters: {
@@ -309,7 +309,12 @@ const TextReportTemplatePeriod = () => {
         .
       </p>
       <p className="text_paragraph">
-        2. Определен тип у {arr[1].sum.currentYearTotalFails} ТН, из них:
+        2. Определен тип у{" "}
+        {arr[1].sum.currentYearTotalTechnical +
+          arr[1].sum.currentYearTotalTechnological +
+          arr[1].sum.currentYearTotalSpecial +
+          arr[1].sum.currentYearTotalExternal}{" "}
+        ТН, из них:
       </p>
 
       <p className="text_paragraph">
@@ -353,7 +358,9 @@ const TextReportTemplatePeriod = () => {
         ;
       </p>
 
-      <p className="text_paragraph">В том числе: {text.concat("")}</p>
+      <p className="text_paragraph">
+        ТН по ответственности подразделений: {text.concat("")}
+      </p>
       <table className="table_bold">
         <tr className="table_bold text_header">
           <td rowSpan={2} className="table_bold ">

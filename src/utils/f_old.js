@@ -6,7 +6,10 @@ export const getCutoffDates = (arr) => {
   arr.forEach((element) => {
     dates.push(element[startTime]);
   });
-  return { min: new Date(new Date(d3.min(dates)).setHours(0, 0, 0)), max: new Date(new Date(d3.max(dates)).setHours(23, 59, 59)) };
+  return {
+    min: new Date(new Date(d3.min(dates)).setHours(0, 0, 0)),
+    max: new Date(new Date(d3.max(dates)).setHours(23, 59, 59)),
+  };
 };
 
 export const getStartDate = (endDate) => {
@@ -116,27 +119,27 @@ export const getComparisonText = (curVal, prevVal) => {
         увеличилось на {cutDecimals((curVal / prevVal - 1) * 100)}%
       </span>
     );
-  } 
-    if (curVal !== 0 && curVal < prevVal)
-      return (
-        <span className="text_decrease text_inner">
-          уменьшилось на {cutDecimals((prevVal / curVal - 1) * 100)}%
-        </span>
-      );
-      if (curVal === prevVal)
-      return (
-        <span className="text_decrease text_inner">осталось без изменений</span>
-      );
-      if (prevVal === 0)
-      return (
-        <span className="text_increase text_inner">увеличилось на {cutDecimals(curVal )}</span>
-      );
-      if (curVal === 0)
-      return (
-        <span className="text_decrease text_inner">
-          уменьшилось на 100%
-        </span>
-      );
+  }
+  if (curVal !== 0 && curVal < prevVal)
+    return (
+      <span className="text_decrease text_inner">
+        уменьшилось на {cutDecimals((prevVal / curVal - 1) * 100)}%
+      </span>
+    );
+  if (curVal === prevVal)
+    return (
+      <span className="text_decrease text_inner">осталось без изменений</span>
+    );
+  if (prevVal === 0)
+    return (
+      <span className="text_increase text_inner">
+        увеличилось на {cutDecimals(curVal)}
+      </span>
+    );
+  if (curVal === 0)
+    return (
+      <span className="text_decrease text_inner">уменьшилось на 100%</span>
+    );
 };
 
 export const getDaysBetweenDates = (date1, date2) => {

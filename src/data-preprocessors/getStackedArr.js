@@ -7,7 +7,7 @@ import {
   subDuration,
   otherDuration,
   guiltyUnit,
-} from "../config/config";
+} from "../utils/config";
 
 export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
   // console.log("customCalendar", customCalendar);
@@ -53,19 +53,10 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
     return total;
   };
 
-  const setHHMMSStoZero = (date) => {
-    var customDate = new Date(date); // произвольная переменная с датой и временем
-    customDate.setSeconds(0); // обнуление секунд
-    customDate.setMinutes(0); // обнуление минут
-    customDate.setHours(0); // обнуление часов
-    return Date.parse(customDate);
-    // return customDate;
-  };
-
   let summedDurationsList = [];
   filteredArrByUncheckedUnits.forEach((el) =>
     summedDurationsList.push({
-      violationDate: setHHMMSStoZero(el[startTime]),
+      violationDate: new Date(new Date(el[startTime]).setHours(0, 0, 0)),
       totalDuration: calcTotalDuration(el),
       guiltyUnit: el[guiltyUnit],
     })

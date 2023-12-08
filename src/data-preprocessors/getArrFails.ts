@@ -1,7 +1,11 @@
 import * as d3 from "d3";
-import { startTime, failCategory, failKind } from "../config/config";
+import { startTime, failCategory, failKind } from "../utils/config";
 
-export const getArrFails = (srcArray: any[], pastYear: number, currentYear: number) => {
+export const getArrFails = (
+  srcArray: any[],
+  pastYear: number,
+  currentYear: number
+) => {
   const totalFailsCounter = (src: any[]) => {
     let pastYearCount = 0;
     let currentYearCount = 0;
@@ -19,7 +23,12 @@ export const getArrFails = (srcArray: any[], pastYear: number, currentYear: numb
   };
 
   //counting number of fails with conditions
-  const failsCounter = (src: any[], name: string, prop: string, chartname: string) => {
+  const failsCounter = (
+    src: any[],
+    name: string,
+    prop: string,
+    chartname: string
+  ) => {
     let pastYearCount = 0;
     let currentYearCount = 0;
     src.forEach((element) => {

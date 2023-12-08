@@ -5,7 +5,7 @@ import {
   passDelayed,
   subDelayed,
   otherDelayed,
-} from "../config/config";
+} from "../utils/config";
 
 export const getArrDelays = (
   srcArray: any[],

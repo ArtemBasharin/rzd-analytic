@@ -5,7 +5,7 @@ import {
   passDuration,
   subDuration,
   otherDuration,
-} from "../config/config";
+} from "../utils/config";
 
 export const getArrDurations = (
   srcArray: any[],

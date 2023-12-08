@@ -1,4 +1,4 @@
-import { deleteCollection } from "../config/requests";
+import { deleteCollection } from "../utils/requests";
 
 const ToolDeleteButton = () => {
   return (

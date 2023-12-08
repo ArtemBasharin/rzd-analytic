@@ -7,8 +7,8 @@ import {
   subDuration,
   otherDuration,
   similarColors,
-} from "../config/config";
-import { cutDecimals } from "../config/functions";
+} from "../utils/config";
+import { cutDecimals } from "../utils/functions";
 
 export const getUnitsList = (
   arr: any[],

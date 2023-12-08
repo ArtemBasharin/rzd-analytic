@@ -11,7 +11,7 @@ import {
   failCategory,
   failKind,
   failReason,
-} from "../config/config";
+} from "../utils/config";
 
 export const getSankeyArr = (
   srcArray,

@@ -6,7 +6,7 @@ import {
   passDuration,
   subDuration,
   otherDuration,
-} from "../config/config";
+} from "../utils/config";
 
 export const getArrGuiltDuration = (srcArray: any[]) => {
   const maxYearKey = (arr: any[]) => {

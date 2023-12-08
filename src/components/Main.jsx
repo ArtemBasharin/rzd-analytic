@@ -21,6 +21,7 @@ import AnalyzeSection from "./AnalyzeSection";
 import RidgelineDiagram from "./RidgelineDiagramm";
 import DownloadButtons from "./ToolDownloadButtons";
 import TextReportTemplatePeriod from "./TextReport";
+// import BarChartRaceDiagram from "./BarChartRace";
 
 function Main() {
   // console.time("Main");
@@ -245,6 +246,25 @@ function Main() {
             )
           }
         </SwiperSlide>
+
+        {/* <SwiperSlide>
+          {({ isActive }) =>
+            isActive && (
+              <>
+                <div className="slide" style={{ height: areaHeight }}>
+                 
+                  {showLoader.sankey ? (
+                    <Loader />
+                  ) : (
+                    <div id="text_report">
+                      <BarChartRaceDiagram />
+                    </div>
+                  )}
+                </div>
+              </>
+            )
+          }
+        </SwiperSlide> */}
       </Swiper>
     </div>
   );

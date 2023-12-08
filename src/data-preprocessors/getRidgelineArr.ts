@@ -7,7 +7,7 @@ import {
   subDuration,
   otherDuration,
   guiltyUnit,
-} from "../config/config";
+} from "../utils/config";
 
 export const getRidgelineArr = (
   srcArray: any,

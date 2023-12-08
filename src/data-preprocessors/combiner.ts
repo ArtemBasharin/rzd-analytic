@@ -1,4 +1,3 @@
-import { startTime } from "../config/config";
 import { getArrFails } from "./getArrFails";
 import { getArrDelays } from "./getArrDelays";
 import { getArrDurations } from "./getArrDurations";
@@ -6,6 +5,7 @@ import { getArrGuilt } from "./getArrGuilt";
 import { getArrGuiltDuration } from "./getArrGuiltDuration";
 import { getArrReasons } from "./getArrReasons";
 import {
+  startTime,
   freightDelayed,
   freightDuration,
   passDelayed,
@@ -14,11 +14,16 @@ import {
   subDuration,
   otherDelayed,
   otherDuration,
-} from "../config/config";
+} from "../utils/config";
 // import { initialData } from "../DropZoneParser";
 // import dummyArr from "./dummyArr"
 
-export function getAnalyze(sourceArr: any[], pastYear: number, currentYear: number, pattern: string) {
+export function getAnalyze(
+  sourceArr: any[],
+  pastYear: number,
+  currentYear: number,
+  pattern: string
+) {
   // console.time("getAnalyze");
   // console.log("dummyArr" ,dummyArr)
   const setUndefinedFactsToZero = (arr: any[]) => {

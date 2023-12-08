@@ -1,9 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-// import { current } from "@reduxjs/toolkit";
-// import cloneDeep from "lodash.clonedeep";
 import { getAnalyze } from "../data-preprocessors/combiner";
 import { getStackedArr } from "../data-preprocessors/getStackedArr";
-// import { getCustomCalendar } from "../data-preprocessors/getCustomCalendar";
 import dummyArr from "../data-preprocessors/dummyArr";
 import { getSankeyArr } from "../data-preprocessors/getSankeyArr";
 import { getRidgelineArr } from "../data-preprocessors/getRidgelineArr";
@@ -14,8 +11,9 @@ import {
   updateCheckedProperty,
   getInitialPattern,
   getCustomCalendar,
-} from "../config/functions";
+} from "../utils/functions";
 import { getReportArr } from "../data-preprocessors/getReportArr";
+// import { getRaceArr } from "../data-preprocessors/getRaceArr";
 
 let date = new Date();
 let arrSource = dummyArr;
@@ -91,6 +89,13 @@ let initialRidgelineArrState = getRidgelineArr(
   initialCheckedUnits
 );
 
+// let initialraceArrState = getRaceArr(
+//   arrSource,
+//   initialStartDate,
+//   initialEndDate,
+//   initialCheckedUnits
+// );
+
 let initialLoaderShow = {
   analyze: false,
   grouped: false,
@@ -118,6 +123,7 @@ const filtersSlice = createSlice({
     stackedArrState: initialStackedState,
     sankeyArrState: initialSankeyState,
     ridgelineArrState: initialRidgelineArrState,
+    // raceArrState: initialraceArrState,
     toolPalette: initialToolPalette,
     stackedCheckList: initialCheckedUnits,
     sankeyCheckList: initialCheckedUnits,
@@ -204,6 +210,12 @@ const filtersSlice = createSlice({
         state.regexpPattern,
         state.minValue
       );
+
+      // state.raceArrState = getRaceArr(
+      //   state.sourceState,
+      //   state.dateStart,
+      //   state.dateEnd
+      // );
     },
 
     increment(state) {
