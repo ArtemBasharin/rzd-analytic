@@ -87,7 +87,7 @@ const RidgelineDiagram = () => {
     const z = d3
       // .scaleLinear()
       .scalePow()
-      .exponent(0.8)
+      .exponent(0.5)
       .domain([0, d3.max(series, (d) => d3.max(d.values)) * 1.1])
       // .domain([0, resData.yMax])
       .nice()

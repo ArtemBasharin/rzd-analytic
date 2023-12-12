@@ -91,6 +91,7 @@ export const getReportArr = (
     return srcArrayInDatesFrame.map((el) => {
       if (el.failReason)
         return { ...el, failReason: firstCharToLowerCase(el.failReason) };
+      return el;
     });
   };
   console.log(getFilteredByPeriodArr());

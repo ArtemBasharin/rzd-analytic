@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Swiper, SwiperSlide } from "swiper/react";
+import * as d3 from "d3";
 import {
   Navigation,
   Pagination,
@@ -32,6 +33,8 @@ function Main() {
   const minValue = useSelector((state) => state.filters.minValue);
   // const checkedUnits = useSelector((state) => state.filters.stackedCheckList);
   const showLoader = useSelector((state) => state.filters.loaderShow);
+  const dateStart = useSelector((state) => state.filters.dateStart);
+  const dateEnd = useSelector((state) => state.filters.dateEnd);
   const dispatch = useDispatch();
 
   let areaWidth = window.innerWidth;
@@ -53,6 +56,9 @@ function Main() {
     width: areaWidth,
   };
   // console.timeEnd("Main");
+
+  const timeFormatY = d3.timeFormat("%0d.%0m.%Y");
+  const timeFormat = d3.timeFormat("%0d.%0m");
 
   return (
     <div className="main">
@@ -169,7 +175,8 @@ function Main() {
               <>
                 <div className="slide" style={{ height: areaHeight - 100 }}>
                   <h2 className="section-title">
-                    Соотношение потерь по подразделениям за период
+                    Соотношение потерь по подразделениям (за период{" "}
+                    {timeFormat(dateStart)}-{timeFormatY(dateEnd)} г.)
                   </h2>
                   {showLoader.stacked ? (
                     <Loader />
@@ -190,7 +197,9 @@ function Main() {
               <>
                 <div className="slide" style={{ height: areaHeight - 70 }}>
                   <h2 className="section-title">
-                    Аналитика причастности подразделений к причинам нарушений
+                    Аналитика причастности подразделений к причинам нарушений{" "}
+                    (за период {timeFormat(dateStart)}-{timeFormatY(dateEnd)}{" "}
+                    г.)
                   </h2>
                   {showLoader.sankey ? (
                     <Loader />
@@ -211,7 +220,9 @@ function Main() {
               <>
                 <div className="slide" style={{ height: areaHeight }}>
                   <h2 className="section-title">
-                    Аналитика причастности подразделений к причинам нарушений
+                    Аналитика причастности подразделений к причинам нарушений{" "}
+                    (за период {timeFormat(dateStart)}-{timeFormatY(dateEnd)}{" "}
+                    г.)
                   </h2>
                   {showLoader.sankey ? (
                     <Loader />
@@ -232,7 +243,9 @@ function Main() {
               <>
                 <div className="slide" style={{ height: areaHeight }}>
                   <h2 className="section-title">
-                    Аналитика причастности подразделений к причинам нарушений
+                    Аналитика причастности подразделений к причинам нарушений{" "}
+                    (за период {timeFormat(dateStart)}-{timeFormatY(dateEnd)}{" "}
+                    г.)
                   </h2>
                   {showLoader.sankey ? (
                     <Loader />
