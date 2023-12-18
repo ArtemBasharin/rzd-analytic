@@ -166,6 +166,17 @@ const StackedAreaDiagram = () => {
       })
       .attr("text-anchor", "left")
       .style("alignment-baseline", "middle");
+
+    // draw axis titles
+    svg
+      .append("text")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("text-anchor", "end")
+      .style("font-size", "11px")
+      .attr("transform", `translate(-45,5)rotate(270)`)
+      .attr("text-anchor", "end")
+      .text("Задержки поездов, ч");
   }, [
     stackedArrState.arr,
     minValue,

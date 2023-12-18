@@ -83,12 +83,17 @@ const BarGroupedLine = (props) => {
 
     // Add second Y axis for paretto line
     const yP = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+
     svg
       .append("g")
-      .call(d3.axisRight(yP).tickValues([0, 80, 100]))
+      .call(
+        d3
+          .axisRight(yP)
+          .tickValues([0, 80, 100])
+          .tickFormat((value) => value + "%")
+      )
       .attr("transform", `translate(${width},0)`);
 
-    // Another scale for subgroup position?
     const xSubgroup = d3
       .scaleBand()
       .domain(subgroups)
@@ -339,6 +344,17 @@ const BarGroupedLine = (props) => {
       .attr("text-anchor", "left")
       .style("alignment-baseline", "middle");
     // eslint-disable-next-line react-hooks/exhaustive-deps
+
+    // draw axis titles
+    svg
+      .append("text")
+      .attr("x", margin + 11)
+      .attr("y", margin - 11)
+      .attr("text-anchor", "end")
+      .style("font-size", "11px")
+      .attr("transform", `translate(-45,5)rotate(270)`)
+      .attr("text-anchor", "end")
+      .text(props.yName);
   }, [
     props.stats,
     props.config,
@@ -350,6 +366,7 @@ const BarGroupedLine = (props) => {
     minValue,
     dateStart,
     dateEnd,
+    props.yName,
   ]);
 
   return (

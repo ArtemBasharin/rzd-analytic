@@ -84,6 +84,7 @@ export const getCustomCalendar = (
   let result = [];
   let start = new Date(dateStart);
   let end = new Date(dateEnd);
+  result.push(start.setDate(start.getDate()));
   if (start < end) {
     while (start <= end) {
       // console.log("календарь", start, dateStart);
@@ -273,4 +274,42 @@ export const renameCategory = (string: string) => {
   if (string === "FPC") return "Итого по ФПК";
   if (string === "D") return "Итого по Д";
   if (string === "OTHER") return "Итого по прочим";
+};
+
+export const getDarkColors = (numColors: number) => {
+  const colors = [];
+  for (let i = 0; i < numColors; i++) {
+    const r = Math.floor(Math.random() * 150);
+    const g = Math.floor(Math.random() * 150);
+    const b = Math.floor(Math.random() * 150);
+    colors.push(`rgb(${r}, ${g}, ${b})`);
+  }
+  return colors;
+};
+
+export const getPeriodDatesFromRegex = (
+  pattern: string,
+  currentYear: number,
+  previousYear: number
+) => {
+  const periodMonths = pattern.split("|").map((month) => parseInt(month, 10)); // Преобразуем значение периода в массив чисел
+  const periodStart = new Date(currentYear, Math.min(...periodMonths) - 1, 1); // Начало периода в текущем году
+  const periodEnd = new Date(
+    new Date(currentYear, Math.max(...periodMonths), 0).setHours(23, 59, 59)
+  ); // Конец периода в текущем году
+  const previousYearStart = new Date(
+    previousYear,
+    Math.min(...periodMonths) - 1,
+    1
+  ); // Начало периода в прошлом году
+  const previousYearEnd = new Date(
+    new Date(previousYear, Math.max(...periodMonths), 0).setHours(23, 59, 59)
+  ); // Конец периода в прошлом году
+
+  return {
+    previousYearStart: previousYearStart,
+    previousYearEnd: previousYearEnd,
+    periodStart: periodStart,
+    periodEnd: periodEnd,
+  };
 };

@@ -22,6 +22,7 @@ import AnalyzeSection from "./AnalyzeSection";
 import RidgelineDiagram from "./RidgelineDiagramm";
 import DownloadButtons from "./ToolDownloadButtons";
 import TextReportTemplatePeriod from "./TextReport";
+import SumLineDiagram from "./SumLineDiagram";
 // import BarChartRaceDiagram from "./BarChartRace";
 
 function Main() {
@@ -81,6 +82,7 @@ function Main() {
           if (activeSlideIndex === 5) dispatch(setToolPalette("sankey"));
           if (activeSlideIndex === 6) dispatch(setToolPalette("ridgeline"));
           if (activeSlideIndex === 7) dispatch(setToolPalette("report"));
+          if (activeSlideIndex === 8) dispatch(setToolPalette("sumline"));
         }}
         onSwiper={(swiper) => {}}
       >
@@ -112,6 +114,7 @@ function Main() {
                     yMax={srcArr.guiltsYmax}
                     maxYear={maxYear}
                     minValue={minValue}
+                    yName="Количество нарушений"
                   />
                 </div>
               </>
@@ -137,6 +140,7 @@ function Main() {
                     yMax={srcArr.guiltsDurationsYmax}
                     maxYear={maxYear}
                     minValue={minValue}
+                    yName="Задержки поездов, ч"
                   />
                 </div>
               </>
@@ -162,6 +166,7 @@ function Main() {
                     yMax={srcArr.reasonsYmax}
                     maxYear={maxYear}
                     minValue={minValue}
+                    yName="Количество нарушений"
                   />
                 </div>
               </>
@@ -220,9 +225,8 @@ function Main() {
               <>
                 <div className="slide" style={{ height: areaHeight }}>
                   <h2 className="section-title">
-                    Аналитика причастности подразделений к причинам нарушений{" "}
-                    (за период {timeFormat(dateStart)}-{timeFormatY(dateEnd)}{" "}
-                    г.)
+                    Соотношение потерь по подразделениям (за период{" "}
+                    {timeFormat(dateStart)}-{timeFormatY(dateEnd)} г.)
                   </h2>
                   {showLoader.sankey ? (
                     <Loader />
@@ -278,6 +282,28 @@ function Main() {
             )
           }
         </SwiperSlide> */}
+
+        <SwiperSlide>
+          {({ isActive }) =>
+            isActive && (
+              <>
+                <div className="slide" style={{ height: areaHeight }}>
+                  <h2 className="section-title">
+                    Сводная аналитика (за период {timeFormat(dateStart)}-
+                    {timeFormatY(dateEnd)} г.)
+                  </h2>
+                  {showLoader.sumline ? (
+                    <Loader />
+                  ) : (
+                    <div id="selectedElementId" ref={downloadRef}>
+                      <SumLineDiagram />
+                    </div>
+                  )}
+                </div>
+              </>
+            )
+          }
+        </SwiperSlide>
       </Swiper>
     </div>
   );

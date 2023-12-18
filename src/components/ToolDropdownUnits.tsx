@@ -6,6 +6,7 @@ import {
   setRidgelineCheckList,
   setSankeyCheckList,
   setStackedCheckList,
+  setSumLineCheckList,
 } from "../redux/filtersSlice";
 import { CSSTransition } from "react-transition-group";
 import { TiArrowSortedDown } from "react-icons/ti";
@@ -15,6 +16,7 @@ interface RootState {
     stackedCheckList: any[];
     sankeyCheckList: any[];
     ridgelineCheckList: any[];
+    sumLineCheckList: any[];
     allCheckedCheckList: any;
   };
 }
@@ -28,6 +30,9 @@ const DropdownUnits = () => {
   );
   const ridgelineCheckList = useSelector(
     (state: RootState) => state.filters.ridgelineCheckList
+  );
+  const sumLineCheckList = useSelector(
+    (state: RootState) => state.filters.sumLineCheckList
   );
   const allChecked = useSelector(
     (state: RootState) => state.filters.allCheckedCheckList
@@ -45,7 +50,7 @@ const DropdownUnits = () => {
   };
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      console.log(event.target);
+      // console.log(event.target);
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
@@ -167,6 +172,35 @@ const DropdownUnits = () => {
                       // console.log(e.target);
                       dispatch(
                         setRidgelineCheckList({
+                          guiltyUnit: e.target.value,
+                          checked: e.target.checked,
+                        })
+                      );
+                    }}
+                    style={{ accentColor: option.checkboxColor }}
+                  />
+                  {option.guiltyUnit}, ({option.value} ч)
+                </label>
+              </li>
+            ))}
+
+          {toolPalette.kind === "sumline" &&
+            sumLineCheckList.map((option) => (
+              <li className="list_element" key={"li-" + option.guiltyUnit}>
+                <label
+                  key={option.guiltyUnit + toolPalette.kind}
+                  className="list_label"
+                >
+                  <input
+                    className="list_input"
+                    type="checkbox"
+                    value={option.guiltyUnit}
+                    checked={option.checked}
+                    disabled={option.isDisabled}
+                    onChange={(e) => {
+                      // console.log(e.target);
+                      dispatch(
+                        setSumLineCheckList({
                           guiltyUnit: e.target.value,
                           checked: e.target.checked,
                         })

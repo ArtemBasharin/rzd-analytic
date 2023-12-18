@@ -15,6 +15,7 @@ import {
   otherDelayed,
   otherDuration,
 } from "../utils/config";
+import { getPeriodDatesFromRegex } from "../utils/functions";
 // import { initialData } from "../DropZoneParser";
 // import dummyArr from "./dummyArr"
 
@@ -22,7 +23,9 @@ export function getAnalyze(
   sourceArr: any[],
   pastYear: number,
   currentYear: number,
-  pattern: string
+  pattern: string,
+  dateStart?: string,
+  dateEnd?: string
 ) {
   // console.time("getAnalyze");
   // console.log("dummyArr" ,dummyArr)
@@ -54,7 +57,44 @@ export function getAnalyze(
     return resultArray;
   };
 
-  let filteredArr = setUndefinedFactsToZero(filterByMonth(sourceArr, pattern));
+  console.log(getPeriodDatesFromRegex(pattern, currentYear, currentYear - 1));
+
+  const filterByDates = (arr: any, dateStart: string, dateEnd: string) => {
+    console.log(dateStart, dateEnd);
+    let srcArrayInDatesFrame: any[] = [];
+    let currentDateStart = new Date(dateStart);
+    let currentDateEnd = new Date(dateEnd);
+    let pastDateStart = new Date(
+      currentDateStart.getFullYear() - 1,
+      currentDateStart.getMonth(),
+      currentDateStart.getDate()
+    );
+    let pastDateEnd = new Date(
+      currentDateEnd.getFullYear() - 1,
+      currentDateEnd.getMonth(),
+      currentDateEnd.getDate()
+    );
+    arr.forEach((el: any) => {
+      if (
+        (Date.parse(el[startTime]) >= currentDateStart.getTime() &&
+          Date.parse(el[startTime]) <= currentDateEnd.getTime()) ||
+        (Date.parse(el[startTime]) >= pastDateStart.getTime() &&
+          Date.parse(el[startTime]) <= pastDateEnd.getTime())
+      ) {
+        srcArrayInDatesFrame.push(el);
+      }
+    });
+    return srcArrayInDatesFrame;
+  };
+  console.log(filterByDates(sourceArr, dateStart!, dateEnd!));
+
+  let filteredArr = setUndefinedFactsToZero(
+    filterByDates(sourceArr, dateStart!, dateEnd!)
+  );
+  let filteredArr2 = setUndefinedFactsToZero(filterByMonth(sourceArr, pattern));
+  console.log(filteredArr2);
+  console.log(filteredArr);
+
   // console.timeEnd("getAnalyze");
   return {
     failsArray: getArrFails(filteredArr, currentYear - 1, currentYear).arr,

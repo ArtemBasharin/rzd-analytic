@@ -11,8 +11,11 @@ import {
   updateCheckedProperty,
   getInitialPattern,
   getCustomCalendar,
+  getPeriodDatesFromRegex,
 } from "../utils/functions";
 import { getReportArr } from "../data-preprocessors/getReportArr";
+import { getSumLineArr } from "../data-preprocessors/getSumLineArr";
+import { initialChartCheckList } from "../utils/initialChartCheckList";
 // import { getRaceArr } from "../data-preprocessors/getRaceArr";
 
 let date = new Date();
@@ -29,7 +32,7 @@ let initialToolPalette = {
   yearVisibility: true,
   minValueVisibility: false,
   periodVisibility: true,
-  datePickerVisibility: false,
+  datePickerVisibility: true,
   unitsListVisibility: false,
 };
 
@@ -62,7 +65,9 @@ let initialAnalyzeState = getAnalyze(
   arrSource,
   date.getFullYear() - 1,
   date.getFullYear(),
-  initialPattern
+  initialPattern,
+  initialStartDate,
+  initialEndDate
 );
 
 let initialStackedState = getStackedArr(
@@ -88,6 +93,9 @@ let initialRidgelineArrState = getRidgelineArr(
   initialCustomCalendar,
   initialCheckedUnits
 );
+
+let initialSumLineArrState = [];
+getSumLineArr(arrSource, initialCustomCalendar, initialCheckedUnits);
 
 // let initialraceArrState = getRaceArr(
 //   arrSource,
@@ -123,11 +131,14 @@ const filtersSlice = createSlice({
     stackedArrState: initialStackedState,
     sankeyArrState: initialSankeyState,
     ridgelineArrState: initialRidgelineArrState,
+    sumLineArrState: initialSumLineArrState,
     // raceArrState: initialraceArrState,
     toolPalette: initialToolPalette,
     stackedCheckList: initialCheckedUnits,
     sankeyCheckList: initialCheckedUnits,
     ridgelineCheckList: initialCheckedUnits,
+    sumLineCheckList: initialCheckedUnits,
+    chartCheckList: initialChartCheckList(),
     loaderShow: initialLoaderShow,
     minCutoffDate: cutoffDates.min,
     maxCutoffDate: cutoffDates.max,
@@ -136,7 +147,12 @@ const filtersSlice = createSlice({
       status: "",
       message: "",
     },
-    allCheckedCheckList: { stacked: true, sankey: true, ridgeline: true },
+    allCheckedCheckList: {
+      stacked: true,
+      sankey: true,
+      ridgeline: true,
+      sumline: true,
+    },
     reportSrcState: [],
   },
 
@@ -167,12 +183,15 @@ const filtersSlice = createSlice({
       state.stackedCheckList = unitsList;
       state.sankeyCheckList = unitsList;
       state.ridgelineCheckList = unitsList;
+      state.sumLineCheckList = unitsList;
 
       state.analyzeState = getAnalyze(
         state.sourceState,
         state.pastYear,
         state.currentYear,
-        state.regexpPattern
+        state.regexpPattern,
+        state.dateStart,
+        state.dateEnd
       );
 
       state.stackedArrState = getStackedArr(
@@ -209,6 +228,12 @@ const filtersSlice = createSlice({
         state.dateEnd,
         state.regexpPattern,
         state.minValue
+      );
+
+      state.sumLineArrState = getSumLineArr(
+        state.sourceState,
+        state.customCalendar,
+        state.sumLineCheckList
       );
 
       // state.raceArrState = getRaceArr(
@@ -262,6 +287,11 @@ const filtersSlice = createSlice({
         state.customCalendar,
         state.stackedCheckList
       );
+      state.sumLineArrState = getSumLineArr(
+        state.sourceState,
+        state.customCalendar,
+        state.sumLineCheckList
+      );
     },
 
     decrementDaysIngroup(state) {
@@ -278,15 +308,35 @@ const filtersSlice = createSlice({
         state.customCalendar,
         state.stackedCheckList
       );
+      state.sumLineArrState = getSumLineArr(
+        state.sourceState,
+        state.customCalendar,
+        state.sumLineCheckList
+      );
     },
 
     setPattern(state, action) {
       state.regexpPattern = action.payload;
+      let periodDatesFromRegex = getPeriodDatesFromRegex(
+        state.regexpPattern,
+        state.currentYear,
+        state.pastYear
+      );
+
+      console.log(
+        periodDatesFromRegex.periodStart,
+        periodDatesFromRegex.periodEnd
+      );
+      state.dateStart = periodDatesFromRegex.periodStart;
+      state.dateEnd = periodDatesFromRegex.periodEnd;
+
       state.analyzeState = getAnalyze(
         state.sourceState,
         state.pastYear,
         state.currentYear,
-        state.regexpPattern
+        state.regexpPattern,
+        state.dateStart,
+        state.dateEnd
       );
 
       state.reportSrcState = getReportArr(
@@ -341,6 +391,15 @@ const filtersSlice = createSlice({
         state.loaderShow = initialLoaderShow;
         state.dateStart = action.payload;
 
+        state.analyzeState = getAnalyze(
+          state.sourceState,
+          state.pastYear,
+          state.currentYear,
+          state.regexpPattern,
+          state.dateStart,
+          state.dateEnd
+        );
+
         state.customCalendar = getCustomCalendar(
           state.daysInGroup,
           state.dateStart,
@@ -357,6 +416,7 @@ const filtersSlice = createSlice({
         state.stackedCheckList = unitsList;
         state.sankeyCheckList = unitsList;
         state.ridgelineCheckList = unitsList;
+        state.sumLineCheckList = unitsList;
       }
 
       if (state.stackedCheckList.length > 0) {
@@ -399,6 +459,12 @@ const filtersSlice = createSlice({
         state.regexpPattern,
         state.minValue
       );
+
+      state.sumLineArrState = getSumLineArr(
+        state.sourceState,
+        state.customCalendar,
+        state.sumLineCheckList
+      );
     },
 
     setDateEnd(state, action) {
@@ -414,6 +480,15 @@ const filtersSlice = createSlice({
       } else {
         state.loaderShow = initialLoaderShow;
         state.dateEnd = action.payload;
+
+        state.analyzeState = getAnalyze(
+          state.sourceState,
+          state.pastYear,
+          state.currentYear,
+          state.regexpPattern,
+          state.dateStart,
+          state.dateEnd
+        );
 
         state.customCalendar = getCustomCalendar(
           state.daysInGroup,
@@ -431,6 +506,7 @@ const filtersSlice = createSlice({
         state.stackedCheckList = unitsList;
         state.sankeyCheckList = unitsList;
         state.ridgelineCheckList = unitsList;
+        state.sumLineCheckList = unitsList;
       }
 
       if (state.stackedCheckList.length > 0) {
@@ -472,6 +548,12 @@ const filtersSlice = createSlice({
         state.dateEnd,
         state.regexpPattern,
         state.minValue
+      );
+
+      state.sumLineArrState = getSumLineArr(
+        state.sourceState,
+        state.customCalendar,
+        state.sumLineCheckList
       );
     },
 
@@ -506,7 +588,6 @@ const filtersSlice = createSlice({
       state.toolPalette = originToolPalette;
       if (action.payload === "analyze") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
-        state.toolPalette.datePickerVisibility = false;
         state.toolPalette.minValueVisibility = false;
         state.toolPalette.daysInGroupVisibility = false;
         state.toolPalette.unitsListVisibility = false;
@@ -539,6 +620,12 @@ const filtersSlice = createSlice({
         state.toolPalette.yearVisibility = false;
         state.toolPalette.daysInGroupVisibility = false;
         state.toolPalette.unitsListVisibility = false;
+        state.toolPalette.minValueVisibility = false;
+      }
+      if (action.payload === "sumline") {
+        state.toolPalette = { ...state.toolPalette, kind: action.payload };
+        state.toolPalette.yearVisibility = false;
+        state.toolPalette.periodVisibility = false;
         state.toolPalette.minValueVisibility = false;
       }
     },
@@ -619,6 +706,34 @@ const filtersSlice = createSlice({
       }
     },
 
+    setSumLineCheckList(state, action) {
+      state.sumLineCheckList = updateCheckedProperty(
+        state.sumLineCheckList,
+        action.payload.guiltyUnit,
+        action.payload.checked
+      );
+
+      if (
+        state.sumLineCheckList.findIndex((el) => el.checked === true) === -1
+      ) {
+        state.loaderShow = {
+          ...state.loaderShow,
+          sumline: true,
+        };
+      } else {
+        state.loaderShow = {
+          ...state.loaderShow,
+          sumline: false,
+        };
+
+        state.sumLineArrState = getSumLineArr(
+          state.sourceState,
+          state.customCalendar,
+          state.sumLineCheckList
+        );
+      }
+    },
+
     invertCheckList(state, action) {
       if (action.payload === "stacked") {
         state.stackedCheckList.map((el) =>
@@ -657,6 +772,31 @@ const filtersSlice = createSlice({
           state.dateEnd,
           state.minValue,
           state.sankeyCheckList
+        );
+      }
+
+      if (action.payload === "sumline") {
+        state.sumLineCheckList.map((el) =>
+          el.checked ? (el.checked = false) : (el.checked = true)
+        );
+
+        if (
+          state.sumLineCheckList.findIndex((el) => el.checked === true) === -1
+        ) {
+          state.loaderShow = {
+            ...state.loaderShow,
+            sumline: true,
+          };
+        } else {
+          state.loaderShow = {
+            ...state.loaderShow,
+            sumline: false,
+          };
+        }
+        state.sumLineArrState = getSumLineArr(
+          state.sourceState,
+          state.customCalendar,
+          state.sumLineCheckList
         );
       }
     },
@@ -746,6 +886,37 @@ const filtersSlice = createSlice({
           state.ridgelineCheckList
         );
       }
+
+      if (action.payload === "sumline") {
+        state.sumLineCheckList.map((el) =>
+          state.allCheckedCheckList.sumline
+            ? (el.checked = false)
+            : (el.checked = true)
+        );
+        state.allCheckedCheckList.sumline
+          ? (state.allCheckedCheckList.sumline = false)
+          : (state.allCheckedCheckList.sumline = true);
+
+        if (
+          state.sumLineCheckList.findIndex((el) => el.checked === true) === -1
+        ) {
+          state.loaderShow = {
+            ...state.loaderShow,
+            sumline: true,
+          };
+        } else {
+          state.loaderShow = {
+            ...state.loaderShow,
+            sumline: false,
+          };
+        }
+
+        state.sumLineArrState = getSumLineArr(
+          state.sourceState,
+          state.customCalendar,
+          state.sumLineCheckList
+        );
+      }
     },
 
     setPopup(state, action) {
@@ -776,6 +947,8 @@ export const {
   setStackedCheckList,
   setSankeyCheckList,
   setRidgelineCheckList,
+  setSumLineCheckList,
+  setChartCheckList,
   setPopup,
   checkAllCheckList,
   invertCheckList,

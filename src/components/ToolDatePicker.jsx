@@ -10,8 +10,8 @@ const DateRangePicker = () => {
   const calendarEndRef = useRef(null);
   const calendarStartRef = useRef(null);
 
-  const dateStart = useSelector((state) => state.filters.dateStart);
-  const dateEnd = useSelector((state) => state.filters.dateEnd);
+  const dateStart = new Date(useSelector((state) => state.filters.dateStart));
+  const dateEnd = new Date(useSelector((state) => state.filters.dateEnd));
   // console.log(dateEnd);
   const minDate = new Date(useSelector((state) => state.filters.minCutoffDate));
   const maxDate = new Date(useSelector((state) => state.filters.maxCutoffDate));

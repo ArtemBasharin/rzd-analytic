@@ -6,6 +6,7 @@ import {
   subDuration,
   otherDuration,
 } from "../utils/config";
+import { cutDecimals } from "../utils/functions";
 
 export const getArrDurations = (
   srcArray: any[],
@@ -30,12 +31,12 @@ export const getArrDurations = (
     });
     return [
       {
-        value: Math.round(pastYearCount * 10) / 10,
+        value: cutDecimals(pastYearCount),
         label: pastYear,
         title: chartname,
       },
       {
-        value: Math.round(currentYearCount * 10) / 10,
+        value: cutDecimals(currentYearCount),
         label: currentYear,
         title: chartname,
       },
@@ -64,12 +65,12 @@ export const getArrDurations = (
     });
     return [
       {
-        value: pastYearCount,
+        value: cutDecimals(pastYearCount),
         label: pastYear,
         title: "Всего",
       },
       {
-        value: currentYearCount,
+        value: cutDecimals(currentYearCount),
         label: currentYear,
         title: "Всего",
       },
