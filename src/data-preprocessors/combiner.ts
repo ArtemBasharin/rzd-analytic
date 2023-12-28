@@ -15,7 +15,7 @@ import {
   otherDelayed,
   otherDuration,
 } from "../utils/config";
-import { getPeriodDatesFromRegex } from "../utils/functions";
+// import { getPeriodDatesFromRegex } from "../utils/functions";
 // import { initialData } from "../DropZoneParser";
 // import dummyArr from "./dummyArr"
 
@@ -44,23 +44,23 @@ export function getAnalyze(
     return arr;
   };
 
-  const filterByMonth = (arr: any[], regexpPattern: string) => {
-    let regexp = new RegExp(`[-](${regexpPattern})[-]`, "g");
-    // console.log(regexp);
-    // console.log(arr[0][startTime], arr[0][startTime].search(regexp));
-    let resultArray = [];
-    for (let i = 0; i < arr.length; ++i) {
-      if (arr[i][startTime].search(regexp) > -1) {
-        resultArray.push(arr[i]);
-      }
-    }
-    return resultArray;
-  };
+  // const filterByMonth = (arr: any[], regexpPattern: string) => {
+  //   let regexp = new RegExp(`[-](${regexpPattern})[-]`, "g");
+  //   // console.log(regexp);
+  //   // console.log(arr[0][startTime], arr[0][startTime].search(regexp));
+  //   let resultArray = [];
+  //   for (let i = 0; i < arr.length; ++i) {
+  //     if (arr[i][startTime].search(regexp) > -1) {
+  //       resultArray.push(arr[i]);
+  //     }
+  //   }
+  //   return resultArray;
+  // };
 
-  console.log(getPeriodDatesFromRegex(pattern, currentYear, currentYear - 1));
+  // console.log(getPeriodDatesFromRegex(pattern, currentYear, currentYear - 1));
 
   const filterByDates = (arr: any, dateStart: string, dateEnd: string) => {
-    console.log(dateStart, dateEnd);
+    // console.log(dateStart, dateEnd);
     let srcArrayInDatesFrame: any[] = [];
     let currentDateStart = new Date(dateStart);
     let currentDateEnd = new Date(dateEnd);
@@ -86,14 +86,14 @@ export function getAnalyze(
     });
     return srcArrayInDatesFrame;
   };
-  console.log(filterByDates(sourceArr, dateStart!, dateEnd!));
+  // console.log(filterByDates(sourceArr, dateStart!, dateEnd!));
 
   let filteredArr = setUndefinedFactsToZero(
     filterByDates(sourceArr, dateStart!, dateEnd!)
   );
-  let filteredArr2 = setUndefinedFactsToZero(filterByMonth(sourceArr, pattern));
-  console.log(filteredArr2);
-  console.log(filteredArr);
+  // let filteredArr2 = setUndefinedFactsToZero(filterByMonth(sourceArr, pattern));
+  // console.log(filteredArr2);
+  // console.log(filteredArr);
 
   // console.timeEnd("getAnalyze");
   return {

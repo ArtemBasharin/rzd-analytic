@@ -6,9 +6,14 @@ import { powerpointColors } from "../utils/config";
 
 const SumLineDiagram = () => {
   const src = useSelector((state) => state.filters.sumLineArrState);
-  const checkList = useSelector((state) => state.filters.stackedCheckList);
+  const checkList = useSelector((state) => state.filters.sumLineCheckList);
+  const chartCheckList = useSelector((state) => state.filters.chartCheckList);
+  console.log("chartCheckList", chartCheckList);
+
   d3.select("#id24").selectAll("g").remove();
   let resData = src.arr;
+        console.log("resData",resData);
+
 
   useEffect(() => {
     // console.log("resData", resData);
@@ -53,24 +58,16 @@ const SumLineDiagram = () => {
           })
       );
 
-    let properties = [
-      "totalDuration",
-      "passDuration",
-      "subDuration",
-      "freightDuration",
-      "otherDuration",
-      "totalDelayed",
-      "passDelayed",
-      "subDelayed",
-      "freightDelayed",
-      "otherDelayed",
-      "technicalKind",
-      "tenologicalKind",
-      "specialKind",
-      "otherKind",
-      "firstCat",
-      "secondCat",
-    ];
+    let checkedOnlyList = chartCheckList.reduce(function (acc, item) {
+      item.checked && (acc = [...acc, item]);
+      return acc;
+    }, []);
+
+    let properties = chartCheckList.reduce(function (acc, item) {
+      item.checked && (acc = [...acc, item.name]);
+      return acc;
+    }, []);
+    console.log(properties);
     // const color = []
 
     let yMax = src.yMax;
@@ -120,12 +117,12 @@ const SumLineDiagram = () => {
     };
 
     // Add Y axises and lines
-    for (let i = 0; i < properties.length; i++) {
-      let col = powerpointColors[i];
-      const name = properties[i];
+    for (let i = 0; i < checkedOnlyList.length; i++) {
+      let col = checkedOnlyList[i].color;
+      const name = checkedOnlyList[i].name;
       let chartProp = getChartProps(name);
       let maxDomainValue = chartProp.yMax;
-      console.log(maxDomainValue);
+      // console.log(maxDomainValue);
       let data = resData.map((el) => {
         return { date: el.date, value: el[name] || 0 };
       });
@@ -165,7 +162,7 @@ const SumLineDiagram = () => {
     let legend = svg
       .append("g")
       .attr("class", "legend")
-      .attr("transform", `translate(${width - 100},0)`);
+      .attr("transform", `translate(${width - 150},0)`);
 
     legend
       .selectAll("path")
@@ -176,7 +173,7 @@ const SumLineDiagram = () => {
         return "M 0," + (i * 20 + 5) + " L 25," + (i * 20 + 5);
       })
       .style("stroke", function (d, i) {
-        return powerpointColors[i];
+        return checkedOnlyList[i].color;
       })
       .style("stroke-width", function (d, i) {
         return getChartProps(d).width;
@@ -187,15 +184,16 @@ const SumLineDiagram = () => {
 
     legend
       .selectAll("text")
-      .data(properties)
+      .data(checkedOnlyList)
       .enter()
       .append("text")
+      .attr("font-size", "12px")
       .attr("x", 30)
       .attr("y", function (d, i) {
         return i * 20 + 10;
       })
-      .text(function (d) {
-        return d;
+      .text(function (d, i) {
+        return checkedOnlyList[i].translated;
       });
   }, [checkList, resData, src.yMax]);
 

@@ -16,10 +16,12 @@ interface RootState {
   };
 }
 
-const DropdownSum = () => {
+const ToolDropdownSum = () => {
   const chartCheckList = useSelector(
     (state: RootState) => state.filters.chartCheckList
   );
+
+  console.log(chartCheckList)
   const allChecked = useSelector(
     (state: RootState) => state.filters.allCheckedCheckList
   );
@@ -85,7 +87,7 @@ const DropdownSum = () => {
               Инвертировать выбор
             </button>
           </div>
-          {toolPalette.kind === "sumline" &&
+          {
             chartCheckList.map((option) => (
               <li className="list_element" key={"li-" + option.name}>
                 <label
@@ -99,16 +101,17 @@ const DropdownSum = () => {
                     checked={option.checked}
                     disabled={option.isDisabled}
                     onChange={(e) =>
-                      dispatch(
+                      {console.log(e.target)
+                        dispatch(
                         setChartCheckList({
                           name: e.target.value,
                           checked: e.target.checked,
                         })
                       )
-                    }
+                    }}
                     style={{ accentColor: option.color }}
                   />
-                  {option.translated}, ({option.value} ч)
+                  {option.translated}: {option.value}
                 </label>
               </li>
             ))}
@@ -118,4 +121,4 @@ const DropdownSum = () => {
   );
 };
 
-export default DropdownSum;
+export default ToolDropdownSum;

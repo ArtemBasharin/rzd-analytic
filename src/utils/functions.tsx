@@ -2,28 +2,47 @@ import React from "react";
 import * as d3 from "d3";
 import { startTime } from "./config";
 
+// const setTimezone = (unixDate: number) => {
+// let date = new Date(unixDate)
+// let dateWithTimeZone = date.toLocaleString('en-US', {timeZone: 'Europe/Moscow'})
+// console.log(new Date(dateWithTimeZone))
+// return new Date(dateWithTimeZone)
+// }
+
 export const getCutoffDates = (arr: any[]) => {
-  let dates: Date[] = arr.map((element: any) => new Date(element[startTime]));
-
+  let dates: number[] = arr.map((element: any) => {
+    // console.log(
+    //   element[startTime],
+    //   new Date(element[startTime]),
+    //   new Date(element[startTime]).getTime(),
+    //   new Date(new Date(element[startTime]).getTime())
+    // );
+    return new Date(element[startTime]).getTime();
+  });
   if (dates.length !== 0) {
-    const minValue = new Date(d3.min(dates)!.setHours(0, 0, 0));
-    const maxValue = new Date(d3.max(dates)!.setHours(23, 59, 59));
-
+    const minValue = new Date(d3.min(dates)!).setHours(0, 0, 0);
+    const maxValue = new Date(d3.max(dates)!).setHours(23, 59, 59);
     return { min: minValue, max: maxValue };
   }
 };
 
-export const getStartDate = (endDate: string) => {
-  let previousMonthDate = new Date(new Date(endDate).setHours(0, 0, 0));
-  previousMonthDate.setDate(1);
-  return new Date(previousMonthDate);
+export const getStartDate = (endDate: number) => {
+  let previousMonthDate = new Date(new Date(endDate).setDate(1)).setHours(
+    0,
+    0,
+    0
+  );
+  // previousMonthDate.setHours(0, 0, 0);
+  console.log("getStartDate", new Date(previousMonthDate));
+
+  return previousMonthDate;
 };
 
 export const convertUnixToDate = (unixDate: number) => {
-  const date = new Date(unixDate); // Умножаем на 1000, т.к. в Unix время указывается в миллисекундах
-  const day = date.getDate(); // Получаем день месяца
-  const month = date.getMonth() + 1; // Получаем номер месяца (начиная с 0)
-  const year = date.getFullYear(); // Получаем год
+  const date = new Date(unixDate);
+  const day = date.getDate();
+  const month = date.getMonth() + 1;
+  const year = date.getFullYear();
 
   // Форматируем день и месяц, добавляя ноль если число состоит из одной цифры
   const formattedDay = day.toString().padStart(2, "0");
@@ -67,6 +86,24 @@ export const updateCheckedProperty = (
   return updatedArray;
 };
 
+export const updateChartProperty = (
+  array: any[],
+  searchValue: string,
+  newCheckedValue: boolean
+) => {
+  const updatedArray = array.map((item) => {
+    if (item.name === searchValue) {
+      return {
+        ...item,
+        checked: newCheckedValue,
+      };
+    }
+    return item;
+  });
+
+  return updatedArray;
+};
+
 export const getInitialPattern = (date: string) => {
   let period = new Date(date).getMonth() + 1;
   if (period < 10) {
@@ -78,8 +115,8 @@ export const getInitialPattern = (date: string) => {
 
 export const getCustomCalendar = (
   step: number,
-  dateStart: string,
-  dateEnd: string
+  dateStart: number,
+  dateEnd: number
 ) => {
   let result = [];
   let start = new Date(dateStart);
@@ -158,8 +195,8 @@ export const getComparisonText = (
 };
 
 export const getDaysBetweenDates = (
-  date1: Date | string,
-  date2: Date | string
+  date1: Date | string | number,
+  date2: Date | string | number
 ) => {
   const oneDay = 24 * 60 * 60 * 1000;
   const firstDate = new Date(date1).getTime();

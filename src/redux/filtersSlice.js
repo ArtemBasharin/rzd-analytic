@@ -12,6 +12,7 @@ import {
   getInitialPattern,
   getCustomCalendar,
   getPeriodDatesFromRegex,
+  updateChartProperty,
 } from "../utils/functions";
 import { getReportArr } from "../data-preprocessors/getReportArr";
 import { getSumLineArr } from "../data-preprocessors/getSumLineArr";
@@ -164,7 +165,9 @@ const filtersSlice = createSlice({
       state.minCutoffDate = cutoffDates.min;
       state.maxCutoffDate = cutoffDates.max;
       state.dateStart = getStartDate(cutoffDates.max);
+      console.log(state.dateStart)
       state.dateEnd = cutoffDates.max;
+      console.log(state.dateEnd)
       state.customCalendar = getCustomCalendar(
         state.daysInGroup,
         state.dateStart,
@@ -922,6 +925,20 @@ const filtersSlice = createSlice({
     setPopup(state, action) {
       state.popup.isOpened = action.payload;
     },
+
+    setChartCheckList(state, action){
+    state.chartCheckList = updateChartProperty(
+      state.chartCheckList,
+      action.payload.name,
+      action.payload.checked
+    );
+    
+      state.sumLineArrState = getSumLineArr(
+        state.sourceState,
+        state.customCalendar,
+        state.sumLineCheckList
+      );
+    }
   },
 });
 

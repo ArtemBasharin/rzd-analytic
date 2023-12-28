@@ -20,12 +20,12 @@ import {
 
 export const getReportArr = (
   sourceArr: any[],
-  dateStart: Date,
-  dateEnd: Date,
+  dateStart: number,
+  dateEnd: number,
   minValue?: number
 ) => {
-  // console.log("dateStart", dateStart);
-  // console.log("dateEnd", dateEnd);
+  console.log("dateStart", dateStart);
+  console.log("dateEnd", dateEnd);
 
   const calcTotalDuration = (obj: any) => {
     let freightDur = obj[freightDuration] || 0;
@@ -49,12 +49,12 @@ export const getReportArr = (
     let srcArrayInDatesFrame: any[] = [];
 
     if (dateStart && dateEnd) {
-      let daysBetweenDates: number = 0;
-      daysBetweenDates = getDaysBetweenDates(dateStart, dateEnd);
+      let daysBetweenDates: number = getDaysBetweenDates(dateStart, dateEnd);
+      // daysBetweenDates = getDaysBetweenDates(dateStart, dateEnd);
 
       let [dateStartCurrentYear, dateEndCurrentYear] = [dateStart, dateEnd];
 
-      let dateEndPastYear = new Date(dateEndCurrentYear.getTime());
+      let dateEndPastYear = new Date(dateEndCurrentYear);
       dateEndPastYear.setFullYear(dateEndPastYear.getFullYear() - 1);
 
       let dateStartPastYear = new Date(dateEndPastYear.getTime());
@@ -62,8 +62,8 @@ export const getReportArr = (
 
       sourceArr.forEach((el) => {
         if (
-          (Date.parse(el[startTime]) >= dateStartCurrentYear.getTime() &&
-            Date.parse(el[startTime]) <= dateEndCurrentYear.getTime()) ||
+          (Date.parse(el[startTime]) >= dateStartCurrentYear &&
+            Date.parse(el[startTime]) <= dateEndCurrentYear) ||
           (Date.parse(el[startTime]) >= dateStartPastYear.getTime() &&
             Date.parse(el[startTime]) <= dateEndPastYear.getTime())
         ) {
@@ -87,7 +87,7 @@ export const getReportArr = (
         }
       });
     }
-    // console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
+    console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
     return srcArrayInDatesFrame.map((el) => {
       if (el.failReason)
         return { ...el, failReason: firstCharToLowerCase(el.failReason) };
@@ -155,17 +155,16 @@ export const getReportArr = (
     return resultArray;
   }
 
-  const getSummaryReport = (arr: any[], dateStart: Date, dateEnd: Date) => {
+  const getSummaryReport = (arr: any[], dateStart: number, dateEnd: number) => {
     let [dateStartCurrentYear, dateEndCurrentYear] = [dateStart, dateEnd];
     let daysBetweenDates: number = 0;
     daysBetweenDates = getDaysBetweenDates(dateStart, dateEnd);
 
-    let dateEndPastYear = new Date(dateEndCurrentYear.getTime());
+    let dateEndPastYear = new Date(dateEndCurrentYear);
     dateEndPastYear.setFullYear(dateEndPastYear.getFullYear() - 1);
 
     let dateStartPastYear = new Date(dateEndPastYear.getTime());
     dateStartPastYear.setDate(dateStartPastYear.getDate() - daysBetweenDates);
-
     let summary = arr.reduce(
       function (acc, curr) {
         if (
@@ -186,8 +185,8 @@ export const getReportArr = (
         }
 
         if (
-          Date.parse(curr.startTime) >= dateStartCurrentYear.getTime() &&
-          Date.parse(curr.startTime) <= dateEndCurrentYear.getTime()
+          Date.parse(curr.startTime) >= dateStartCurrentYear &&
+          Date.parse(curr.startTime) <= dateEndCurrentYear
         ) {
           acc.currentYearTotalFails++;
           acc.currentYearTotalDelays =
@@ -244,6 +243,7 @@ export const getReportArr = (
     });
 
     let sum = getSummaryReport(inputArray, dateStart, dateEnd);
+
     resultArray[0].sum = {
       pastYearTotalFails: sum.pastYearTotalFails,
       pastYearTotalDelays: sum.pastYearTotalDelays,

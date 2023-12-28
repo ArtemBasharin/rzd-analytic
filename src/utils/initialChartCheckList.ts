@@ -75,7 +75,7 @@ export const initialChartCheckList = () => {
       strokeWidth = "10";
     }
 
-    return {
+    result.push( {
       name: list[i],
       color: colors[i],
       translated: translation[i],
@@ -83,7 +83,7 @@ export const initialChartCheckList = () => {
       width: strokeWidth,
       checked: true,
       isDisabled: false,
-    };
+    });
   }
   return result;
 };

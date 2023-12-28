@@ -45,7 +45,7 @@ const varDelay: string[] = ["задержан", "задержано", "заде�
 const TextReportTemplatePeriod = () => {
   // const analyze = useSelector((state: RootState) => state.filters.analyzeState);
   const arr = useSelector((state: RootState) => state.filters.reportSrcState);
-  // console.log("arr", arr);
+  console.log("arr", arr);
 
   let currentYear = d3.max(arr.map((el) => el.year));
   let pastYear = currentYear - 1;

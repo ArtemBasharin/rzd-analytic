@@ -10,6 +10,7 @@ import DaysInGroupSetter from "./ToolDaysInGroupSetter";
 import MinValueSetter from "./ToolMinValueSetter";
 import PeriodSetter from "./ToolPeriodSetter";
 import dummyArr from "../data-preprocessors/dummyArr";
+import ToolDropdownSum from "./ToolDropdownSum";
 const { CSSTransition } = require("react-transition-group");
 
 const ToolPanel = () => {
@@ -95,6 +96,16 @@ const ToolPanel = () => {
       >
         <div className="datepicker_container">
           <DateRangePicker />
+        </div>
+      </CSSTransition>
+      <CSSTransition
+        in={toolPalette.datePickerVisibility}
+        timeout={timeout}
+        classNames="fade"
+        unmountOnExit
+      >
+        <div className="datepicker_container">
+          <ToolDropdownSum />
         </div>
       </CSSTransition>
     </div>

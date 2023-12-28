@@ -78,7 +78,7 @@ export const getSumLineArr = (
   filteredArrByUncheckedUnits.forEach((el) =>
     summedDurationsList.push({
       //   guiltyUnit: el[guiltyUnit],
-      date: (new Date(el[startTime]).setHours(0, 0, 0)),
+      date: new Date(el[startTime]).setHours(0, 0, 0),
       totalDuration: calcTotalDuration(el),
       totalDelayed: calcTotalDelayed(el),
       passDuration: el[passDuration] || 0,
@@ -122,16 +122,19 @@ export const getSumLineArr = (
 
   let result: DurationSummary[] = Object.values(summaries);
   result.sort((a, b) => a.date - b.date);
-  console.log("result2", result);
+  // console.log("result2", result);
+  // console.log("customCalendar", customCalendar);
 
   let unitedDatesResult: any[] = [];
   for (let i = 0; i < customCalendar.length - 1; i++) {
     const currentDate = customCalendar[i];
     const nextDate = customCalendar[i + 1];
     result.forEach((el) => {
-        //  console.log("el.date", el.date);
       if (el.date >= currentDate && el.date < nextDate) {
+        // console.log("el", el);
         unitedDatesResult.push({ date: currentDate });
+        // console.log("unitedDatesResult", unitedDatesResult);
+
         for (let key in el) {
           if (unitedDatesResult[i].hasOwnProperty(key) && key !== "date") {
             unitedDatesResult[i][key] = unitedDatesResult[i][key] + el[key];
@@ -142,7 +145,10 @@ export const getSumLineArr = (
       }
     });
   }
-  console.log("unitedDatesResult", unitedDatesResult);
+
+  let deletedEmptyDatesArr = unitedDatesResult.filter(
+    (el) => Object.keys(el).length > 1
+  );
 
   function findMaxValues(arr: DurationSummary[]) {
     let maxValues: { [key: string]: number } = {};
@@ -155,19 +161,14 @@ export const getSumLineArr = (
         }
       }
     }
-
     return maxValues;
   }
 
-  // Применение функции к массиву result
-  let maxValues = findMaxValues(unitedDatesResult);
-  console.log(maxValues); // вывод максимальных значений по каждому свойству
-
-  // console.log(Array.from(units));
-  console.log("sumLineRes", unitedDatesResult);
+  let maxValues = findMaxValues(deletedEmptyDatesArr);
+  // console.log("sumLineRes", deletedEmptyDatesArr);
 
   return {
-    arr: unitedDatesResult,
+    arr: deletedEmptyDatesArr,
     yMax: maxValues,
   };
 };
