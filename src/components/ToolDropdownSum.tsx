@@ -21,7 +21,7 @@ const ToolDropdownSum = () => {
     (state: RootState) => state.filters.chartCheckList
   );
 
-  console.log(chartCheckList)
+  // console.log(chartCheckList)
   const allChecked = useSelector(
     (state: RootState) => state.filters.allCheckedCheckList
   );
@@ -87,34 +87,33 @@ const ToolDropdownSum = () => {
               Инвертировать выбор
             </button>
           </div>
-          {
-            chartCheckList.map((option) => (
-              <li className="list_element" key={"li-" + option.name}>
-                <label
-                  key={option.name + toolPalette.kind}
-                  className="list_label"
-                >
-                  <input
-                    className="list_input"
-                    type="checkbox"
-                    value={option.name}
-                    checked={option.checked}
-                    disabled={option.isDisabled}
-                    onChange={(e) =>
-                      {console.log(e.target)
-                        dispatch(
-                        setChartCheckList({
-                          name: e.target.value,
-                          checked: e.target.checked,
-                        })
-                      )
-                    }}
-                    style={{ accentColor: option.color }}
-                  />
-                  {option.translated}: {option.value}
-                </label>
-              </li>
-            ))}
+          {chartCheckList.map((option) => (
+            <li className="list_element" key={"li-" + option.name}>
+              <label
+                key={option.name + toolPalette.kind}
+                className="list_label"
+              >
+                <input
+                  className="list_input"
+                  type="checkbox"
+                  value={option.name}
+                  checked={option.checked}
+                  disabled={option.isDisabled}
+                  onChange={(e) => {
+                    console.log(e.target);
+                    dispatch(
+                      setChartCheckList({
+                        name: e.target.value,
+                        checked: e.target.checked,
+                      })
+                    );
+                  }}
+                  style={{ accentColor: option.color }}
+                />
+                {option.translated}: {option.value}
+              </label>
+            </li>
+          ))}
         </ul>
       </CSSTransition>
     </div>

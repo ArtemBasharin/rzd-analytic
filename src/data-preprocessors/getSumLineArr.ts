@@ -90,7 +90,7 @@ export const getSumLineArr = (
       freightDelayed: el[freightDelayed] || 0,
       otherDelayed: el[otherDelayed] || 0,
       technicalKind: el[failKind] === "Нарушение технического вида" ? 1 : 0,
-      tenologicalKind: el[failKind] === "Технологическое нарушение" ? 1 : 0,
+      technologicalKind: el[failKind] === "Технологическое нарушение" ? 1 : 0,
       specialKind:
         el[failKind] === "Особая технологическая необходимость" ? 1 : 0,
       otherKind: el[failKind] === "Прочие причины" ? 1 : 0,
@@ -122,26 +122,54 @@ export const getSumLineArr = (
 
   let result: DurationSummary[] = Object.values(summaries);
   result.sort((a, b) => a.date - b.date);
-  // console.log("result2", result);
-  // console.log("customCalendar", customCalendar);
+  // console.log("result", result);
+  // console.log(
+  //   "customCalendar",
+  //   customCalendar
+  // .map((el) => new Date(el))
+  // );
 
-  let unitedDatesResult: any[] = [];
+  type CustomData = {
+    date: number;
+    totalDuration?: number;
+    totalDelayed?: number;
+    passDuration?: number;
+    subDuration?: number;
+    freightDuration?: number;
+    otherDuration?: number;
+    passDelayed?: number;
+    subDelayed?: number;
+    freightDelayed?: number;
+    otherDelayed?: number;
+    technicalKind?: number;
+    technologicalKind?: number;
+    specialKind?: number;
+    otherKind?: number;
+    firstCat?: number;
+    secondCat?: number;
+  };
+
+  let unitedDatesResult: CustomData[] = [];
+
   for (let i = 0; i < customCalendar.length - 1; i++) {
     const currentDate = customCalendar[i];
     const nextDate = customCalendar[i + 1];
+    // console.log("currentDate", currentDate);
+    // console.log("nextDate", nextDate);
     result.forEach((el) => {
       if (el.date >= currentDate && el.date < nextDate) {
-        // console.log("el", el);
-        unitedDatesResult.push({ date: currentDate });
-        // console.log("unitedDatesResult", unitedDatesResult);
-
+        const newData: CustomData = { date: currentDate };
         for (let key in el) {
-          if (unitedDatesResult[i].hasOwnProperty(key) && key !== "date") {
-            unitedDatesResult[i][key] = unitedDatesResult[i][key] + el[key];
-          } else {
-            unitedDatesResult[i][key] = el[key];
+          if (key !== "date") {
+            if (key in newData) {
+              newData[key as keyof CustomData] =
+                (newData[key as keyof CustomData] || 0) + el[key];
+            } else {
+              newData[key as keyof CustomData] = el[key];
+            }
           }
         }
+        unitedDatesResult.push(newData);
       }
     });
   }

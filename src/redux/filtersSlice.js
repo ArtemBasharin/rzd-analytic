@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, current } from "@reduxjs/toolkit";
 import { getAnalyze } from "../data-preprocessors/combiner";
 import { getStackedArr } from "../data-preprocessors/getStackedArr";
 import dummyArr from "../data-preprocessors/dummyArr";
@@ -96,7 +96,7 @@ let initialRidgelineArrState = getRidgelineArr(
 );
 
 let initialSumLineArrState = [];
-getSumLineArr(arrSource, initialCustomCalendar, initialCheckedUnits);
+// getSumLineArr(arrSource, initialCustomCalendar, initialCheckedUnits);
 
 // let initialraceArrState = getRaceArr(
 //   arrSource,
@@ -122,8 +122,8 @@ const filtersSlice = createSlice({
     sourceState: [],
     minValue: initialMinvalue,
     daysInGroup: initialDaysInGroup,
-    currentYear: date.getFullYear(),
-    pastYear: date.getFullYear() - 1,
+    currentYear: new Date(initialEndDate).getFullYear(),
+    pastYear: new Date(initialEndDate).getFullYear() - 1,
     dateStart: initialStartDate,
     dateEnd: initialEndDate,
     customCalendar: initialCustomCalendar,
@@ -160,14 +160,14 @@ const filtersSlice = createSlice({
   reducers: {
     setSourceState(state, action) {
       state.sourceState = action.payload;
-      // console.log("state.sourceState", state.sourceState);
+      console.log("state.sourceState", action.payload);
       let cutoffDates = getCutoffDates(state.sourceState);
       state.minCutoffDate = cutoffDates.min;
       state.maxCutoffDate = cutoffDates.max;
       state.dateStart = getStartDate(cutoffDates.max);
-      console.log(state.dateStart)
+      console.log(new Date(state.dateStart));
       state.dateEnd = cutoffDates.max;
-      console.log(state.dateEnd)
+      console.log(new Date(state.dateEnd));
       state.customCalendar = getCustomCalendar(
         state.daysInGroup,
         state.dateStart,
@@ -926,19 +926,19 @@ const filtersSlice = createSlice({
       state.popup.isOpened = action.payload;
     },
 
-    setChartCheckList(state, action){
-    state.chartCheckList = updateChartProperty(
-      state.chartCheckList,
-      action.payload.name,
-      action.payload.checked
-    );
-    
+    setChartCheckList(state, action) {
+      state.chartCheckList = updateChartProperty(
+        state.chartCheckList,
+        action.payload.name,
+        action.payload.checked
+      );
+
       state.sumLineArrState = getSumLineArr(
         state.sourceState,
         state.customCalendar,
         state.sumLineCheckList
       );
-    }
+    },
   },
 });
 

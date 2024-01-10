@@ -24,8 +24,11 @@ export const getReportArr = (
   dateEnd: number,
   minValue?: number
 ) => {
-  console.log("dateStart", dateStart);
-  console.log("dateEnd", dateEnd);
+  // console.log("dateStart", dateStart);
+  // console.log("dateEnd", dateEnd);
+  // console.log("sourceArr", sourceArr);
+  // let time = new Date(dateEnd);
+  // console.log("dateEnd", dateEnd, new Date(dateEnd), time.getTime());
 
   const calcTotalDuration = (obj: any) => {
     let freightDur = obj[freightDuration] || 0;
@@ -50,21 +53,33 @@ export const getReportArr = (
 
     if (dateStart && dateEnd) {
       let daysBetweenDates: number = getDaysBetweenDates(dateStart, dateEnd);
-      // daysBetweenDates = getDaysBetweenDates(dateStart, dateEnd);
-
       let [dateStartCurrentYear, dateEndCurrentYear] = [dateStart, dateEnd];
-
       let dateEndPastYear = new Date(dateEndCurrentYear);
       dateEndPastYear.setFullYear(dateEndPastYear.getFullYear() - 1);
 
-      let dateStartPastYear = new Date(dateEndPastYear.getTime());
-      dateStartPastYear.setDate(dateStartPastYear.getDate() - daysBetweenDates);
+      let dateStartPastYear =
+        dateEndPastYear.getTime() -
+        daysBetweenDates * 24 * 60 * 60 * 1000 +
+        1000;
+
+      // console.log("dateStartCurrentYear", new Date(dateStartCurrentYear));
+      // console.log("dateEndCurrentYear", new Date(dateEndCurrentYear));
+      // console.log("dateStartPastYear", new Date(dateStartPastYear));
+      // console.log("dateEndPastYear", dateEndPastYear);
 
       sourceArr.forEach((el) => {
+        // console.log(
+        //   el["ID отказа"],
+        //   new Date(el[startTime]),
+        //   (Date.parse(el[startTime]) >= dateStartCurrentYear &&
+        //     Date.parse(el[startTime]) <= dateEndCurrentYear) ||
+        //     (Date.parse(el[startTime]) >= dateStartPastYear &&
+        //       Date.parse(el[startTime]) <= dateEndPastYear.getTime())
+        // );
         if (
           (Date.parse(el[startTime]) >= dateStartCurrentYear &&
             Date.parse(el[startTime]) <= dateEndCurrentYear) ||
-          (Date.parse(el[startTime]) >= dateStartPastYear.getTime() &&
+          (Date.parse(el[startTime]) >= dateStartPastYear &&
             Date.parse(el[startTime]) <= dateEndPastYear.getTime())
         ) {
           srcArrayInDatesFrame.push({
@@ -87,7 +102,7 @@ export const getReportArr = (
         }
       });
     }
-    console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
+    // console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
     return srcArrayInDatesFrame.map((el) => {
       if (el.failReason)
         return { ...el, failReason: firstCharToLowerCase(el.failReason) };
@@ -98,23 +113,14 @@ export const getReportArr = (
 
   function aggregateData(inputArray: any[]) {
     const resultMap = new Map();
+    // console.log("inputArray", inputArray);
 
-    // Итерируемся по исходному массиву и суммируем данные
     inputArray.forEach((item) => {
-      // if (!item[freightDuration]) item[freightDuration] = 0;
-      // if (!item[passDuration]) item[passDuration] = 0;
-      // if (!item[subDuration]) item[subDuration] = 0;
-      // if (!item[otherDuration]) item[otherDuration] = 0;
-      // if (!item[freightDelayed]) item[freightDelayed] = 0;
-      // if (!item[passDelayed]) item[passDelayed] = 0;
-      // if (!item[subDelayed]) item[subDelayed] = 0;
-      // if (!item[otherDelayed]) item[otherDelayed] = 0;
-
       const key = item.guiltyUnit;
       if (resultMap.has(key)) {
         resultMap.get(key)["count"]++;
         if (!resultMap.get(key).failReason.includes(item.failReason)) {
-          resultMap.get(key).failReason += ", " + item.failReason;
+          resultMap.get(key).failReason += " " + item.failReason;
         }
         resultMap.get(key).freightDelayed += item.freightDelayed;
         resultMap.get(key).freightDuration += item.freightDuration;
@@ -130,14 +136,7 @@ export const getReportArr = (
     });
     // console.log("resultMap",resultMap)
     resultMap.forEach((value) => {
-      // delete value._id;
-      // delete value["ID отказа"];
       delete value.startTime;
-      // delete value["Категория отказа"];
-      // delete value["Вид технологического нарушения"];
-      // delete value["Место"];
-      // delete value.__v;
-      // delete value.timestamp;
     });
 
     const resultArray = Array.from(resultMap, ([key, value]) => value);
@@ -239,9 +238,12 @@ export const getReportArr = (
       }
     });
     resultArray.forEach((item) => {
-      item.report = aggregateData(item.report); // Используем функцию aggregateDataWithCount
+      item.report = aggregateData(item.report);
     });
 
+    // !resultArray[1] && resultArray[1]
+
+    // console.log("resultArray", resultArray);
     let sum = getSummaryReport(inputArray, dateStart, dateEnd);
 
     resultArray[0].sum = {
@@ -253,6 +255,7 @@ export const getReportArr = (
       pastYearTotalSpecial: sum.pastYearTotalSpecial,
       pastYearTotalExternal: sum.pastYearTotalExternal,
     };
+
     resultArray[1].sum = {
       currentYearTotalFails: sum.currentYearTotalFails,
       currentYearTotalDelays: sum.currentYearTotalDelays,
@@ -268,10 +271,5 @@ export const getReportArr = (
 
   // console.log(aggregateDataWithYearAndReport(getFilteredByPeriodArr()));
   // console.log("getFilteredByPeriodArr", getFilteredByPeriodArr());
-  // console.log(
-  //   "getSummaryReport",
-  //   getSummaryReport(getFilteredByPeriodArr(), dateStart, dateEnd)
-  // );
-
   return aggregateDataWithYearAndReport(getFilteredByPeriodArr());
 };

@@ -1,19 +1,18 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import * as d3 from "d3";
-import { powerpointColors } from "../utils/config";
+// import { powerpointColors } from "../utils/config";
 // import { convertUnixToDate } from "../utils/functions";
 
 const SumLineDiagram = () => {
   const src = useSelector((state) => state.filters.sumLineArrState);
   const checkList = useSelector((state) => state.filters.sumLineCheckList);
   const chartCheckList = useSelector((state) => state.filters.chartCheckList);
-  console.log("chartCheckList", chartCheckList);
+  // console.log("chartCheckList", chartCheckList);
 
   d3.select("#id24").selectAll("g").remove();
   let resData = src.arr;
-        console.log("resData",resData);
-
+  // console.log("resData", resData);
 
   useEffect(() => {
     // console.log("resData", resData);
@@ -51,7 +50,7 @@ const SumLineDiagram = () => {
         d3
           .axisBottom(x)
           .tickSize(0)
-          .tickValues(datesArr.filter((_, i) => i % step === 0)) // Filter dates according to step
+          .tickValues(datesArr.filter((_, i) => i % step === 0))
           .tickFormat(function (d) {
             let format = d3.timeFormat("%0d.%0m");
             return format(d);
@@ -67,7 +66,7 @@ const SumLineDiagram = () => {
       item.checked && (acc = [...acc, item.name]);
       return acc;
     }, []);
-    console.log(properties);
+    // console.log(properties);
     // const color = []
 
     let yMax = src.yMax;

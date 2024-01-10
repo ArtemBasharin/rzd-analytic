@@ -33,7 +33,7 @@ export const getStartDate = (endDate: number) => {
     0
   );
   // previousMonthDate.setHours(0, 0, 0);
-  console.log("getStartDate", new Date(previousMonthDate));
+  // console.log("getStartDate", new Date(previousMonthDate));
 
   return previousMonthDate;
 };
@@ -247,7 +247,10 @@ export const getWordOnly = (
 };
 
 export const firstCharToLowerCase = (el: string) => {
-  if (el) return el.charAt(0).toLowerCase() + el.slice(1);
+  if (el) {
+    let item = el.replace(/\(\d+\)/g, "");
+    return item.charAt(0).toLowerCase() + item.slice(1).trim() + ";";
+  }
 };
 
 export const cellComparingPercents = (

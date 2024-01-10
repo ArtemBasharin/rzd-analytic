@@ -15,14 +15,15 @@ const { CSSTransition } = require("react-transition-group");
 
 const ToolPanel = () => {
   const toolPalette = useSelector((state: any) => state.filters.toolPalette);
+  const currentYear = useSelector((state: any) => state.filters.currentYear);
   const dispatch = useDispatch();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  let date = new Date();
+  // let date = new Date();
 
   useEffect(() => {
     let params = {
-      "fromYear": date.getFullYear() - 1,
-      "toYear": date.getFullYear(),
+      "fromYear": currentYear - 1,
+      "toYear": currentYear,
     };
     axios
       .get("/violations", { params })
@@ -33,7 +34,7 @@ const ToolPanel = () => {
         console.log("axios.get error:", error);
         dispatch(setSourceState(dummyArr));
       });
-  }, [date, dispatch]);
+  }, [currentYear, dispatch]);
 
   const timeout = 500;
   return (
