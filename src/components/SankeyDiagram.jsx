@@ -9,9 +9,8 @@ const SankeyDiagram = () => {
   let resData = useSelector((state) => state.filters.sankeyArrState);
   let checkList = useSelector((state) => state.filters.sankeyCheckList);
 
-  d3.select("#id22").selectAll("g").remove();
-
   useEffect(() => {
+    d3.select("#id22").selectAll("g").remove();
     // set the dimensions and margins of the graph
     const margin = { top: 30, right: 60, bottom: 0, left: 60 },
       width = window.innerWidth - margin.left - margin.right,

@@ -12,7 +12,7 @@ const BarChart2Bars = (props) => {
   const dateEnd = useSelector((state) => state.filters.dateEnd);
   useEffect(() => {
     let resData = props.stats;
-    const margin = { top: 80, right: 5, bottom: 50, left: 5 },
+    const margin = { top: 80, right: 5, bottom: 55, left: 5 },
       width = props.width - margin.left - margin.right,
       // height = 350 - margin.top - margin.bottom;
       height = props.height;
@@ -39,7 +39,14 @@ const BarChart2Bars = (props) => {
     svg
       .append("g")
       .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(X));
+      .call(d3.axisBottom(X))
+      .selectAll("text")
+      .attr("font-family", "roboto")
+      .attr("font-size", "15px")
+      .attr("font-weight", "700")
+      .attr("fill", "#000")
+      .attr("text-anchor", "middle")
+      .attr("dy", "15px");
 
     // Y axis: scale and draw
     const y = d3.scalePow().exponent(0.4).range([height, 0]);
@@ -83,8 +90,8 @@ const BarChart2Bars = (props) => {
         return y(d.value) - 10;
       })
       .attr("font-family", "roboto")
-      .attr("font-size", "14px")
-      .attr("font-weight", "700")
+      .attr("font-size", "19px")
+      .attr("font-weight", "900")
       .attr("fill", "#000")
       .attr("text-anchor", "middle");
 
@@ -99,10 +106,10 @@ const BarChart2Bars = (props) => {
         return width / 2;
       })
       .attr("y", function () {
-        return height + 40;
+        return height + 50;
       })
       .attr("font-family", "roboto")
-      .attr("font-size", "14px")
+      .attr("font-size", "16px")
       .attr("font-weight", "700")
       .attr("fill", "#000")
       .attr("text-anchor", "middle");
@@ -154,8 +161,8 @@ const BarChart2Bars = (props) => {
         return y(d3.max([resData[0].value, resData[1].value])) - 55; //find tallest bar and set y-position of text
       })
       .attr("font-family", "roboto")
-      .attr("font-size", "18px")
-      .attr("font-weight", "700")
+      .attr("font-size", "21px")
+      .attr("font-weight", "1000")
       .attr("fill", setTextAndArrowKind())
       .attr("text-anchor", "middle");
 

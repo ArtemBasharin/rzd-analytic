@@ -160,14 +160,12 @@ const filtersSlice = createSlice({
   reducers: {
     setSourceState(state, action) {
       state.sourceState = action.payload;
-      console.log("state.sourceState", action.payload);
+      // console.log("state.sourceState", action.payload);
       let cutoffDates = getCutoffDates(state.sourceState);
       state.minCutoffDate = cutoffDates.min;
       state.maxCutoffDate = cutoffDates.max;
       state.dateStart = getStartDate(cutoffDates.max);
-      console.log(new Date(state.dateStart));
       state.dateEnd = cutoffDates.max;
-      console.log(new Date(state.dateEnd));
       state.customCalendar = getCustomCalendar(
         state.daysInGroup,
         state.dateStart,

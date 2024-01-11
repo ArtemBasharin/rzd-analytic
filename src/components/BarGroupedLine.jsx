@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import * as d3 from "d3";
 import { useSelector } from "react-redux";
+import { el } from "date-fns/locale";
 
 const BarGroupedLine = (props) => {
   const svgRef3 = useRef();
@@ -9,9 +10,9 @@ const BarGroupedLine = (props) => {
   const dateEnd = useSelector((state) => state.filters.dateEnd);
 
   let currentYear = props.maxYear;
-  d3.select(`#id${props.id}`).selectAll("g").remove();
 
   useEffect(() => {
+    d3.select(`#id${props.id}`).selectAll("g").remove();
     const findTrimIndex = (arr, minValue) => {
       for (let i = 0; i < arr.length; ++i) {
         if (arr[i][currentYear] < minValue) return i;
@@ -30,6 +31,14 @@ const BarGroupedLine = (props) => {
         });
         return d3.max(arr);
       } else return 0;
+    };
+
+    const getLinesOfLabelsAmount = () => {
+      if (resData.length <= 10) return 5;
+      if (resData.length > 10 && resData.length <= 15) return 4;
+      if (resData.length > 15 && resData.length <= 20) return 3;
+      if (resData.length > 20 && resData.length <= 30) return 2;
+      if (resData.length > 30) return 1;
     };
 
     let rotationAngle = -40;
@@ -69,9 +78,10 @@ const BarGroupedLine = (props) => {
       .attr("transform", `translate(-3,5)rotate(${rotationAngle})`)
       .attr("text-anchor", "end")
       .attr("font-size", function (d) {
-        return `${(1 - amountOfLabels / 100) * 12}px`; // ${(1 - amountOfLabels / 10) * 10}px
+        return `${(1 - amountOfLabels / 100) * 15}px`; // ${(1 - amountOfLabels / 10) * 10}px
       })
-      .call(wrap, margin.bottom); //text wrap, instead x.bandwidth() pasted margin.bottom
+      .attr("font-weight", "700")
+      .call(wrap, margin.bottom, getLinesOfLabelsAmount()); //text wrap, instead x.bandwidth() pasted margin.bottom
 
     // Add Y axis
     const y = d3
@@ -190,9 +200,9 @@ const BarGroupedLine = (props) => {
       .append("path")
       .datum(resData)
       .attr("fill", "none")
-      .attr("stroke", "rgba(128,0,0,0.5)")
+      .attr("stroke", "rgba(128,0,0,0.8)")
       .attr("stroke-dasharray", "15 8")
-      .attr("stroke-width", 2)
+      .attr("stroke-width", 4)
       .attr(
         "d",
         d3
@@ -278,30 +288,85 @@ const BarGroupedLine = (props) => {
       );
 
     //wrapping label`s text
-    function wrap(text, width) {
+    //  function wrap(text, width) {
+    //   text.each(function () {
+    //     let textNode = d3.select(this);
+    //     let lineHeight = 1.2;
+    //     let y = parseFloat(textNode.attr("y"));
+    //     let dy = parseFloat(textNode.attr("dy"));
+    //     let words = textNode.text().split(/\s+/).reverse();
+    //     let word,
+    //       line = [];
+    //     let lineNumber = 0;
+    //     let tspan = textNode
+    //       .text(null)
+    //       .append("tspan")
+    //       .attr("x", 0)
+    //       .attr("y", y)
+    //       .attr("dy", dy + "em");
+
+    //     while ((word = words.pop())) {
+    //       line.push(word);
+    //       tspan.text(line.join(" "));
+    //       if (tspan.node().getComputedTextLength() > width && lineNumber < 2) {
+    //         line.pop();
+    //         tspan.text(line.join(" "));
+
+    //         // Убираем третью строку
+    //         if (lineNumber === 1) {
+    //           let truncatedText = tspan.text().slice(0, -3); // Убираем троеточие и три символа
+    //           tspan.text(truncatedText + "...");
+    //           break; // Прерываем процесс добавления новых тspan после обрезания второй строки
+    //         }
+
+    //         line = [word];
+    //         tspan = textNode
+    //           .append("tspan")
+    //           .attr("x", 0)
+    //           .attr("y", y)
+    //           .attr("dy", ++lineNumber * lineHeight + dy + "em")
+    //           .text(word);
+    //       }
+    //     }
+    //   });
+    // }
+
+    function wrap(text, width, maxLines) {
       text.each(function () {
-        let text = d3.select(this);
-        let words = text.text().split(/\s+/).reverse();
+        let textNode = d3.select(this);
+        let lineHeight = 1.2;
+        let y = parseFloat(textNode.attr("y"));
+        let dy = parseFloat(textNode.attr("dy"));
+        let words = textNode.text().split(/\s+/).reverse();
         let word,
           line = [];
-        let lineNumber = 0,
-          lineHeight = 1; // ems
-        let y = text.attr("y"),
-          dy = parseFloat(text.attr("dy"));
-        let tspan = text
+        let lineNumber = 0;
+        let tspan = textNode
           .text(null)
           .append("tspan")
           .attr("x", 0)
           .attr("y", y)
           .attr("dy", dy + "em");
+
         while ((word = words.pop())) {
           line.push(word);
           tspan.text(line.join(" "));
-          if (tspan.node().getComputedTextLength() > width) {
+          if (
+            tspan.node().getComputedTextLength() > width &&
+            lineNumber < maxLines
+          ) {
             line.pop();
             tspan.text(line.join(" "));
+
+            // Убираем третью строку
+            if (lineNumber === maxLines - 1) {
+              let truncatedText = tspan.text().slice(0, -3); // Убираем троеточие и три символа
+              tspan.text(truncatedText + "...");
+              break; // Прерываем процесс добавления новых tspan после обрезания второй строки
+            }
+
             line = [word];
-            tspan = text
+            tspan = textNode
               .append("tspan")
               .attr("x", 0)
               .attr("y", y)

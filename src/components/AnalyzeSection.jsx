@@ -13,8 +13,8 @@ function AnalyzeSection() {
   d3.selectAll(".chartItem").selectAll("g").remove();
   d3.selectAll(".chartItem").selectAll("text").remove();
 
-  // d3.selectAll("compareTitle").remove();
-  // d3.selectAll("compareArrow").remove();
+  d3.selectAll("compareTitle").remove();
+  d3.selectAll("compareArrow").remove();
 
   // const originArr = useSelector((state) => state.filters.stackedArrState);
   // const checkedUnits = useSelector((state) => state.filters.stackedCheckList);
