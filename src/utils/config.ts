@@ -69,6 +69,14 @@ export const powerpointColors = [
 
 // console.log("colors", colors);
 
+export const varTrains: string[] = ["поезд", "поезда", "поездов"];
+export const varFails: string[] = [
+  "технологическое нарушение",
+  "технологических нарушения",
+  "технологических нарушений",
+];
+export const varDelay: string[] = ["задержан", "задержано", "задержано"];
+
 export {
   ID,
   startTime,

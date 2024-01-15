@@ -1,6 +1,6 @@
 import React from "react";
 import * as d3 from "d3";
-import { startTime } from "./config";
+import { startTime, varDelay, varTrains } from "./config";
 
 // const setTimezone = (unixDate: number) => {
 // let date = new Date(unixDate)
@@ -11,12 +11,6 @@ import { startTime } from "./config";
 
 export const getCutoffDates = (arr: any[]) => {
   let dates: number[] = arr.map((element: any) => {
-    // console.log(
-    //   element[startTime],
-    //   new Date(element[startTime]),
-    //   new Date(element[startTime]).getTime(),
-    //   new Date(new Date(element[startTime]).getTime())
-    // );
     return new Date(element[startTime]).getTime();
   });
   if (dates.length !== 0) {
@@ -25,7 +19,6 @@ export const getCutoffDates = (arr: any[]) => {
 
     const maxValue = d3.max(dates);
     let maxDate = new Date(maxValue!).setHours(23, 59, 59);
-    console.log(new Date(minDate), new Date(maxDate));
     return { min: minDate, max: maxDate };
   }
 };
@@ -36,9 +29,6 @@ export const getStartDate = (endDate: number) => {
     0,
     0
   );
-  // previousMonthDate.setHours(0, 0, 0);
-  // console.log("getStartDate", new Date(previousMonthDate));
-
   return previousMonthDate;
 };
 
@@ -47,16 +37,12 @@ export const convertUnixToDate = (unixDate: number) => {
   const day = date.getDate();
   const month = date.getMonth() + 1;
   const year = date.getFullYear();
-
-  // Форматируем день и месяц, добавляя ноль если число состоит из одной цифры
   const formattedDay = day.toString().padStart(2, "0");
   const formattedMonth = month.toString().padStart(2, "0");
-  // console.log("unix", `${formattedDay}-${formattedMonth}-${year}`);
   return `${formattedDay}-${formattedMonth}-${year}`;
 };
 
 export const getPattern = (period: string) => {
-  console.log(period);
   let pattern = "";
   if (period.length < 3) {
     pattern = `${period}`;
@@ -68,7 +54,6 @@ export const getPattern = (period: string) => {
     }
     pattern = resultArr.join("|");
   }
-  console.log(pattern);
   return pattern;
 };
 
@@ -128,13 +113,10 @@ export const getCustomCalendar = (
   result.push(start.setDate(start.getDate()));
   if (start < end) {
     while (start <= end) {
-      // console.log("календарь", start, dateStart);
       let val = start.setDate(start.getDate() + step);
       result.push(val);
     }
   }
-  // if (start > end) result.slice(-1);
-  // console.log("resultCal", result);
   return result;
 };
 
@@ -158,36 +140,42 @@ export const cutDecimals = (total: number) => {
     let dec = Math.pow(10, decimals());
     return Math.round(Number(value.toFixed(3)) * dec) / dec;
   };
-
-  // console.log(Number(total.toFixed(2)));
   return toRound(total);
 };
 
 export const getComparisonText = (
   curVal: number,
-  prevVal: number
+  prevVal: number,
+  brackets?: boolean
 ): React.ReactElement | null | undefined => {
   if (prevVal !== 0 && curVal > prevVal) {
     return (
       <span className="text_increase text_inner">
-        {" "}
-        увеличилось на {cutDecimals((curVal / prevVal - 1) * 100)}%{" "}
+        {brackets && " ("}
+        увеличилось на {cutDecimals((curVal / prevVal - 1) * 100)}%
+        {brackets && ")"}
       </span>
     );
   } else if (curVal !== 0 && curVal < prevVal) {
     return (
       <span className="text_decrease text_inner">
+        {brackets && " ("}
         уменьшилось на {cutDecimals((prevVal / curVal - 1) * 100)}%
+        {brackets && ")"}
       </span>
     );
   } else if (curVal === prevVal) {
     return (
-      <span className="text_decrease text_inner">осталось без изменений</span>
+      <span className="text_decrease text_inner">
+        {brackets && " ("}осталось без изменений{brackets && ")"}
+      </span>
     );
   } else if (prevVal === 0) {
     return (
       <span className="text_increase text_inner">
+        {brackets && " ("}
         увеличилось на {cutDecimals(curVal)}
+        {brackets && ")"}
       </span>
     );
   } else if (curVal === 0) {
@@ -207,6 +195,140 @@ export const getDaysBetweenDates = (
   const secondDate = new Date(date2).getTime();
   const diffDays = Math.round(Math.abs((firstDate - secondDate) / oneDay));
   return diffDays;
+};
+
+export const getOneUnitReport = (arr: any[], year: number, unit: string) => {
+  const currentYearArr: any[] = arr.find((obj) => obj.year === year).report;
+  const currentYearUnit: any = currentYearArr.find(
+    (objUnit) => objUnit.guiltyUnit === unit
+  );
+
+  if (currentYearUnit)
+    return (
+      <span className="text_inner">
+        {currentYearUnit.count} ТН.{" "}
+        {getWordOnly(currentYearUnit.totalDelayed, varDelay, true)}{" "}
+        {getNumberWithWord(currentYearUnit.totalDelayed, varTrains)} на{" "}
+        {cutDecimals(currentYearUnit.totalDuration)} ч, в том числе,{" "}
+        {currentYearUnit.freightDelayed > 0
+          ? currentYearUnit.freightDelayed +
+            " груз. на " +
+            cutDecimals(currentYearUnit.freightDuration) +
+            " ч"
+          : ""}
+        {currentYearUnit.freightDelayed > 0 &&
+        (currentYearUnit.passDelayed > 0 ||
+          currentYearUnit.subDelayed > 0 ||
+          currentYearUnit.otherDelayed > 0)
+          ? ", "
+          : ""}
+        {currentYearUnit.passDelayed > 0
+          ? currentYearUnit.passDelayed +
+            " пасс. на " +
+            cutDecimals(currentYearUnit.passDuration) +
+            " ч"
+          : ""}
+        {currentYearUnit.passDelayed > 0 &&
+        (currentYearUnit.subDelayed > 0 || currentYearUnit.otherDelayed > 0)
+          ? ", "
+          : ""}
+        {currentYearUnit.subDelayed > 0
+          ? currentYearUnit.subDelayed +
+            " приг. на " +
+            cutDecimals(currentYearUnit.subDuration) +
+            " ч"
+          : ""}
+        {currentYearUnit.subDelayed > 0 && currentYearUnit.otherDelayed > 0
+          ? ", "
+          : ""}
+        {currentYearUnit.otherDelayed > 0
+          ? currentYearUnit.otherDelayed +
+            " проч. на " +
+            cutDecimals(currentYearUnit.otherDuration) +
+            " ч"
+          : ""}
+      </span>
+    );
+};
+
+type repObj = { arr: any[]; currYear: number; pastYear: number; unit: string };
+
+export const getOneUnitReportWithCompare = (prop: repObj) => {
+  const currentYearArr: any[] = prop.arr.find(
+    (obj) => obj.year === prop.currYear
+  ).report;
+
+  const currentYearUnit: any = currentYearArr.find(
+    (objUnit) => objUnit.guiltyUnit === prop.unit
+  );
+
+  const pastYearArr: any[] = prop.arr.find(
+    (obj) => obj.year === prop.pastYear
+  ).report;
+  const pastYearUnit: any =
+    pastYearArr.find((objUnit) => objUnit.guiltyUnit === prop.unit) || null;
+
+  if (currentYearUnit)
+    return (
+      <span className="text_inner">
+        {currentYearUnit.count} ТН
+        {pastYearUnit &&
+          getComparisonText(currentYearUnit.count, pastYearUnit.count, true)}
+        . {getWordOnly(currentYearUnit.totalDelayed, varDelay, true)}{" "}
+        {getNumberWithWord(currentYearUnit.totalDelayed, varTrains)}
+        {pastYearUnit &&
+          getComparisonText(
+            currentYearUnit.totalDelayed,
+            pastYearUnit.totalDelayed,
+            true
+          )}{" "}
+        на {cutDecimals(currentYearUnit.totalDuration)} ч
+        {pastYearUnit &&
+          getComparisonText(
+            currentYearUnit.totalDuration,
+            pastYearUnit.totalDuration,
+            true
+          )}
+        , в том числе,{" "}
+        {currentYearUnit.freightDelayed > 0
+          ? currentYearUnit.freightDelayed +
+            " груз. на " +
+            cutDecimals(currentYearUnit.freightDuration) +
+            " ч"
+          : ""}
+        {currentYearUnit.freightDelayed > 0 &&
+        (currentYearUnit.passDelayed > 0 ||
+          currentYearUnit.subDelayed > 0 ||
+          currentYearUnit.otherDelayed > 0)
+          ? ", "
+          : ""}
+        {currentYearUnit.passDelayed > 0
+          ? currentYearUnit.passDelayed +
+            " пасс. на " +
+            cutDecimals(currentYearUnit.passDuration) +
+            " ч"
+          : ""}
+        {currentYearUnit.passDelayed > 0 &&
+        (currentYearUnit.subDelayed > 0 || currentYearUnit.otherDelayed > 0)
+          ? ", "
+          : ""}
+        {currentYearUnit.subDelayed > 0
+          ? currentYearUnit.subDelayed +
+            " приг. на " +
+            cutDecimals(currentYearUnit.subDuration) +
+            " ч"
+          : ""}
+        {currentYearUnit.subDelayed > 0 && currentYearUnit.otherDelayed > 0
+          ? ", "
+          : ""}
+        {currentYearUnit.otherDelayed > 0
+          ? currentYearUnit.otherDelayed +
+            " проч. на " +
+            cutDecimals(currentYearUnit.otherDuration) +
+            " ч"
+          : ""}
+      </span>
+    );
 };
 
 export const getNumberWithWord = (number: number, words_arr: string[]) => {

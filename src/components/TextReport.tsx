@@ -8,6 +8,8 @@ import {
   getNumberWithWord,
   getWordOnly,
   renameCategory,
+  getOneUnitReport,
+  getOneUnitReportWithCompare,
 } from "../utils/functions";
 
 import { cutDecimals } from "../utils/functions";
@@ -47,66 +49,13 @@ const TextReportTemplatePeriod = () => {
   const arr = useSelector((state: RootState) => state.filters.reportSrcState);
   console.log("arr", arr);
 
-  let currentYear = d3.max(arr.map((el) => el.year));
-  let pastYear = currentYear - 1;
+  let currentYear: number = d3.max(arr.map((el) => el.year));
+  let pastYear: number = currentYear - 1;
+  console.log(currentYear);
 
   let dictionary: any[] = [];
   let arrForDict = arr.find((obj) => obj.year === currentYear);
   arrForDict.report.forEach((el: any) => dictionary.push(el.guiltyUnit));
-
-  const getOneUnitReport = (year: number, unit: string) => {
-    const currentYearArr: any[] = arr.find((obj) => obj.year === year).report;
-    const currentYearUnit: any = currentYearArr.find(
-      (objUnit) => objUnit.guiltyUnit === unit
-    );
-
-    if (currentYearUnit)
-      return (
-        <span className="text_inner">
-          {currentYearUnit.count} ТН.{" "}
-          {getWordOnly(currentYearUnit.totalDelayed, varDelay, true)}{" "}
-          {getNumberWithWord(currentYearUnit.totalDelayed, varTrains)} на{" "}
-          {cutDecimals(currentYearUnit.totalDuration)} ч, в том числе,{" "}
-          {currentYearUnit.freightDelayed > 0
-            ? currentYearUnit.freightDelayed +
-              " груз. на " +
-              cutDecimals(currentYearUnit.freightDuration) +
-              " ч"
-            : ""}
-          {currentYearUnit.freightDelayed > 0 &&
-          (currentYearUnit.passDelayed > 0 ||
-            currentYearUnit.subDelayed > 0 ||
-            currentYearUnit.otherDelayed > 0)
-            ? ", "
-            : ""}
-          {currentYearUnit.passDelayed > 0
-            ? currentYearUnit.passDelayed +
-              " пасс. на " +
-              cutDecimals(currentYearUnit.passDuration) +
-              " ч"
-            : ""}
-          {currentYearUnit.passDelayed > 0 &&
-          (currentYearUnit.subDelayed > 0 || currentYearUnit.otherDelayed > 0)
-            ? ", "
-            : ""}
-          {currentYearUnit.subDelayed > 0
-            ? currentYearUnit.subDelayed +
-              " приг. на " +
-              cutDecimals(currentYearUnit.subDuration) +
-              " ч"
-            : ""}
-          {currentYearUnit.subDelayed > 0 && currentYearUnit.otherDelayed > 0
-            ? ", "
-            : ""}
-          {currentYearUnit.otherDelayed > 0
-            ? currentYearUnit.otherDelayed +
-              " проч. на " +
-              cutDecimals(currentYearUnit.otherDuration) +
-              " ч"
-            : ""}
-        </span>
-      );
-  };
 
   const getArrReasons = (year: number, unit: string) => {
     const currentYearArr: any[] = arr.find((obj) => obj.year === year).report;
@@ -120,11 +69,17 @@ const TextReportTemplatePeriod = () => {
   dictionary.forEach((unit: string) =>
     text.push(
       <p className="text_paragraph text_inner">
-        {" "}
         <span className="text_unit">{unit.replace(/\n/g, " ")}</span>:{" "}
-        {getOneUnitReport(currentYear, unit)} (за аналогичный период прошлого
-        года: {getOneUnitReport(pastYear, unit) || "ТН не допущено"}). Причины:{" "}
-        {getArrReasons(currentYear, unit)}.
+        {/* {getOneUnitReport(arr, currentYear, unit)} (за аналогичный период */}
+        {getOneUnitReportWithCompare({
+          arr: arr,
+          currYear: currentYear,
+          pastYear: pastYear,
+          unit: unit,
+        })}{" "}
+        (за аналогичный период прошлого года:{" "}
+        {getOneUnitReport(arr, pastYear, unit) || "ТН не допущено"}). Причины:{" "}
+        {getArrReasons(currentYear, unit)}
       </p>
     )
   );
@@ -318,8 +273,8 @@ const TextReportTemplatePeriod = () => {
       </p>
 
       <p className="text_paragraph">
-        технического характера – {arr[1].sum.currentYearTotalTechnical} (в {pastYear}
-        г. – {arr[0].sum.pastYearTotalTechnical}),{" "}
+        технического характера – {arr[1].sum.currentYearTotalTechnical} (в{" "}
+        {pastYear} г. – {arr[0].sum.pastYearTotalTechnical}),{" "}
         {getComparisonText(
           arr[1].sum.currentYearTotalTechnical,
           arr[0].sum.pastYearTotalTechnical
@@ -361,6 +316,7 @@ const TextReportTemplatePeriod = () => {
       <p className="text_paragraph">
         ТН по ответственности подразделений: {text.concat("")}
       </p>
+
       <table className="table_bold">
         <tr className="table_bold text_header">
           <td rowSpan={2} className="table_bold ">
