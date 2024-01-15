@@ -20,9 +20,13 @@ export const getCutoffDates = (arr: any[]) => {
     return new Date(element[startTime]).getTime();
   });
   if (dates.length !== 0) {
-    const minValue = new Date(d3.min(dates)!).setHours(0, 0, 0);
-    const maxValue = new Date(d3.max(dates)!).setHours(23, 59, 59);
-    return { min: minValue, max: maxValue };
+    const minValue = d3.min(dates);
+    let minDate = new Date(minValue!).setHours(0, 0, 0);
+
+    const maxValue = d3.max(dates);
+    let maxDate = new Date(maxValue!).setHours(23, 59, 59);
+    console.log(new Date(minDate), new Date(maxDate));
+    return { min: minDate, max: maxDate };
   }
 };
 
@@ -283,19 +287,20 @@ export const cellComparingPercents = (
 };
 
 export const defineСategory = (string: string) => {
-  if (/\B ПЧ-/gm.test(string) || string.includes("ИЧ КУЛУНДА П")) return "PCH";
-  if (/\B ШЧ-/gm.test(string) || string.includes("ИЧ КУЛУНДА Ш")) return "SHCH";
-  if (/\B ЭЧ-/gm.test(string)) return "ECH";
-  if (/\B ВЧД/gm.test(string)) return "VCHD";
-  if (/\B ПМС-/gm.test(string)) return "PMS";
-  if (/\B ТЧЭ-/gm.test(string)) return "TCH";
-  if (string.includes("ЛокоТех-Сервис") || string.includes("СТМ-Сервис"))
-    return "SLD";
-  if (/\B ЛВЧ-/gm.test(string) || /\B ЛВЧД \B/gm.test(string)) return "FPC";
+  if (/ПЧ-/gm.test(string) || string.includes("ИЧ КУЛУНДА П")) return "PCH";
+  if (/ШЧ-/gm.test(string) || string.includes("ИЧ КУЛУНДА Ш")) return "SHCH";
+  if (/ЭЧ-/gm.test(string)) return "ECH";
+  if (/(?<!\S)ВЧД/gm.test(string)) return "VCHD";
+  if (/ПМС-/gm.test(string)) return "PMS";
+  if (/ТЧЭ-/gm.test(string)) return "TCH";
+  if (string.includes("СЛД") || string.includes("ТМХ")) return "SLD";
+  if (/ЛВЧ-/gm.test(string) || /ЛВЧД-?/gm.test(string)) return "FPC";
   if (
-    /\B ДС\B/gm.test(string) ||
-    /\B ДЦС-/gm.test(string) ||
-    string.includes("З-СИБ, ДЦУП") ||
+    /(?<!\S)ДС(?=\s)/gm.test(string) ||
+    /ДЦС-/gm.test(string) ||
+    /^Д$/gm.test(string) ||
+    /^ДЦУП$/gm.test(string) ||
+    string.includes("ДЦУП") ||
     string.includes("З-СИБ, Д")
   ) {
     return "D";

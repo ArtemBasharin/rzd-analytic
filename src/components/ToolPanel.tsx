@@ -19,10 +19,11 @@ const ToolPanel = () => {
   const dispatch = useDispatch();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   // let date = new Date();
+  console.log("currentYear", currentYear);
 
   useEffect(() => {
     let params = {
-      "fromYear": currentYear - 1,
+      "fromYear": currentYear - 10,
       "toYear": currentYear,
     };
     axios
@@ -32,7 +33,7 @@ const ToolPanel = () => {
       })
       .catch(function (error) {
         console.log("axios.get error:", error);
-        dispatch(setSourceState(dummyArr));
+        dispatch(setSourceState(dummyArr(currentYear - 1, currentYear)));
       });
   }, [currentYear, dispatch]);
 

@@ -1,4 +1,6 @@
+import moment from "moment-timezone";
 import {
+  ID,
   startTime,
   freightDelayed,
   passDelayed,
@@ -24,8 +26,10 @@ export const getReportArr = (
   dateEnd: number,
   minValue?: number
 ) => {
-  // console.log("dateStart", dateStart);
-  // console.log("dateEnd", dateEnd);
+  moment().tz("Europe/London").format();
+
+  // console.log("dateStart", new Date(dateStart));
+  // console.log("dateEnd", new Date(dateEnd));
   // console.log("sourceArr", sourceArr);
   // let time = new Date(dateEnd);
   // console.log("dateEnd", dateEnd, new Date(dateEnd), time.getTime());
@@ -57,25 +61,30 @@ export const getReportArr = (
       let dateEndPastYear = new Date(dateEndCurrentYear);
       dateEndPastYear.setFullYear(dateEndPastYear.getFullYear() - 1);
 
+      // console.log("dateEndPastYear", dateEndPastYear);
+
       let dateStartPastYear =
         dateEndPastYear.getTime() -
         daysBetweenDates * 24 * 60 * 60 * 1000 +
         1000;
 
-      // console.log("dateStartCurrentYear", new Date(dateStartCurrentYear));
-      // console.log("dateEndCurrentYear", new Date(dateEndCurrentYear));
+      console.log("dateStartCurrentYear", new Date(dateStartCurrentYear));
+      console.log("dateEndCurrentYear", new Date(dateEndCurrentYear));
+      // let date1 = dateEndPastYear.valueOf();
+      // let date2 = Date.parse("2023-01-11T23:59:59.000+03:00");
+
+      // console.log(
+      //   "Dates",
+      //   dateEndPastYear,
+      //   date1,
+      //   date2,
+      //   (date2 - date1) / (1000 * 60 * 60)
+      // );
       // console.log("dateStartPastYear", new Date(dateStartPastYear));
       // console.log("dateEndPastYear", dateEndPastYear);
 
+      // console.log(new Date(Date.parse(sourceArr[0][startTime])));
       sourceArr.forEach((el) => {
-        // console.log(
-        //   el["ID отказа"],
-        //   new Date(el[startTime]),
-        //   (Date.parse(el[startTime]) >= dateStartCurrentYear &&
-        //     Date.parse(el[startTime]) <= dateEndCurrentYear) ||
-        //     (Date.parse(el[startTime]) >= dateStartPastYear &&
-        //       Date.parse(el[startTime]) <= dateEndPastYear.getTime())
-        // );
         if (
           (Date.parse(el[startTime]) >= dateStartCurrentYear &&
             Date.parse(el[startTime]) <= dateEndCurrentYear) ||
@@ -83,7 +92,7 @@ export const getReportArr = (
             Date.parse(el[startTime]) <= dateEndPastYear.getTime())
         ) {
           srcArrayInDatesFrame.push({
-            ID: el["ID отказа"],
+            ID: el[ID],
             guiltyUnit: el[guiltyUnit],
             startTime: el[startTime],
             failReason: el[failReason],
@@ -100,6 +109,7 @@ export const getReportArr = (
             totalDuration: calcTotalDuration(el),
           });
         }
+        // else console.log(el[ID], new Date(Date.parse(el[startTime])));
       });
     }
     // console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
@@ -243,7 +253,7 @@ export const getReportArr = (
 
     // !resultArray[1] && resultArray[1]
 
-    // console.log("resultArray", resultArray);
+    console.log("resultArray", resultArray);
     let sum = getSummaryReport(inputArray, dateStart, dateEnd);
 
     resultArray[0].sum = {

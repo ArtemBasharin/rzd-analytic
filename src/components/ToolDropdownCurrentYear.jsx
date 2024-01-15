@@ -12,7 +12,10 @@ const DropdownCurrentYear = () => {
 
   const getOptions = () => {
     const arr = [];
-    for (let i = minDate.getFullYear(); i <= maxDate.getFullYear(); i++) {
+    // for (let i = minDate.getFullYear(); i <= maxDate.getFullYear(); i++) {
+    //   arr.push(i);
+    // }
+    for (let i = 2012; i < 2026; i++) {
       arr.push(i);
     }
     return arr;

@@ -13,7 +13,8 @@ let startTime = "Начало отказа",
   subDelayed = "Количество пригородных поездов(по месту)",
   subDuration = "Время пригородных поездов(по месту)",
   otherDelayed = "Количество прочих поездов(по месту)",
-  otherDuration = "Время прочих поездов(по месту)";
+  otherDuration = "Время прочих поездов(по месту)",
+  ID = "ID отказа";
 
 function generateStylishColors(count: number) {
   var colors = [];
@@ -69,6 +70,7 @@ export const powerpointColors = [
 // console.log("colors", colors);
 
 export {
+  ID,
   startTime,
   failCategory,
   failKind,

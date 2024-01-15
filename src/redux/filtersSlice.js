@@ -20,13 +20,14 @@ import { initialChartCheckList } from "../utils/initialChartCheckList";
 // import { getRaceArr } from "../data-preprocessors/getRaceArr";
 
 let date = new Date();
-let arrSource = dummyArr;
+let arrSource = dummyArr(date.getFullYear() - 1, date.getFullYear());
 let initialMinvalue = 0;
 let initialDaysInGroup = 1;
 let cutoffDates = getCutoffDates(arrSource);
 let initialEndDate = new Date(cutoffDates.max).setHours(23, 59, 59);
 let initialStartDate = getStartDate(initialEndDate);
-// console.log(initialEndDate, initialStartDate);
+
+// console.log(new Date(initialEndDate), new Date(initialStartDate));
 
 let initialToolPalette = {
   kind: "analyze",
@@ -160,12 +161,22 @@ const filtersSlice = createSlice({
   reducers: {
     setSourceState(state, action) {
       state.sourceState = action.payload;
-      // console.log("state.sourceState", action.payload);
+      // .map((el) => {
+      //   let date = new Date(el["Начало отказа"]);
+      //   date.setHours(date.getHours());
+      //   el["Начало отказа"] = date.toISOString();
+      //   return el;
+      // });
+      console.log("state.sourceState", action.payload);
       let cutoffDates = getCutoffDates(state.sourceState);
       state.minCutoffDate = cutoffDates.min;
       state.maxCutoffDate = cutoffDates.max;
+      console.log(new Date(cutoffDates.min), new Date(cutoffDates.max));
       state.dateStart = getStartDate(cutoffDates.max);
       state.dateEnd = cutoffDates.max;
+      state.currentYear = new Date(state.dateEnd).getFullYear();
+      state.pastYear = state.currentYear - 1;
+
       state.customCalendar = getCustomCalendar(
         state.daysInGroup,
         state.dateStart,

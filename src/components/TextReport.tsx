@@ -318,7 +318,7 @@ const TextReportTemplatePeriod = () => {
       </p>
 
       <p className="text_paragraph">
-        технического характера – {arr[1].sum.currentYearTotalTechnical} (в 2022
+        технического характера – {arr[1].sum.currentYearTotalTechnical} (в {pastYear}
         г. – {arr[0].sum.pastYearTotalTechnical}),{" "}
         {getComparisonText(
           arr[1].sum.currentYearTotalTechnical,
@@ -329,7 +329,7 @@ const TextReportTemplatePeriod = () => {
 
       <p className="text_paragraph">
         технологического характера – {arr[1].sum.currentYearTotalTechnological}{" "}
-        (в 2022 г. – {arr[0].sum.pastYearTotalTechnological}),{" "}
+        (в {pastYear} г. – {arr[0].sum.pastYearTotalTechnological}),{" "}
         {getComparisonText(
           arr[1].sum.currentYearTotalTechnological,
           arr[0].sum.pastYearTotalTechnological
@@ -339,7 +339,7 @@ const TextReportTemplatePeriod = () => {
 
       <p className="text_paragraph">
         особая технологическая необходимость –{" "}
-        {arr[1].sum.currentYearTotalSpecial} (в 2022 г. –{" "}
+        {arr[1].sum.currentYearTotalSpecial} (в {pastYear} г. –{" "}
         {arr[0].sum.pastYearTotalSpecial}),{" "}
         {getComparisonText(
           arr[1].sum.currentYearTotalSpecial,
@@ -349,7 +349,7 @@ const TextReportTemplatePeriod = () => {
       </p>
 
       <p className="text_paragraph">
-        внешние – {arr[1].sum.currentYearTotalExternal} (в 2022 г. –{" "}
+        внешние – {arr[1].sum.currentYearTotalExternal} (в {pastYear} г. –{" "}
         {arr[0].sum.pastYearTotalExternal}),{" "}
         {getComparisonText(
           arr[1].sum.currentYearTotalExternal,
@@ -382,10 +382,10 @@ const TextReportTemplatePeriod = () => {
           </th>
         </tr>
         <tr className="table_bold text_header">
-          <td>2022</td>
-          <td>2023</td>
-          <td>2022</td>
-          <td>2023</td>
+          <td>{pastYear}</td>
+          <td>{currentYear}</td>
+          <td>{pastYear}</td>
+          <td>{currentYear}</td>
         </tr>
 
         {tableLayout}

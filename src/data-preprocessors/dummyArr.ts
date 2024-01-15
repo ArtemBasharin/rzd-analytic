@@ -45,16 +45,19 @@ const failKindsList = [
   "Прочие причины",
 ];
 
+ const dummyArr = (pastYear: number, currentYear: number)=>{
+console.log(pastYear, currentYear);
+
 const getRandomizedValue = (min: number, max: number) => {
   return Math.round(Math.random() * (max - min) + min);
 };
 
 const generateElement = () =>
   testArr.push({
-    "Начало отказа": `${getRandomizedValue(2022, 2023)}-0${getRandomizedValue(
+    "Начало отказа": `${getRandomizedValue(pastYear, currentYear)}-0${getRandomizedValue(
       1,
-      9
-    )}-0${getRandomizedValue(1, 9)}T15:11:43.000Z`,
+      12
+    )}-0${getRandomizedValue(1, 12)}T00:00:01.000Z`,
     "Категория отказа": `${getRandomizedValue(1, 2)} категория`,
     "Виновное предприятие":
       unitsList[getRandomizedValue(0, unitsList.length - 1)],
@@ -70,9 +73,12 @@ const generateElement = () =>
     "Вид технологического нарушения": failKindsList[getRandomizedValue(0, 3)],
   });
 
-let testArr: any[] = [];
-for (let i = 0; i < 2000; ++i) {
-  generateElement();
-}
 
-export default testArr;
+    let testArr: any[] = [];
+    for (let i = 0; i < 2000; ++i) {
+      generateElement();
+    }
+    return testArr
+  };
+  export default  dummyArr
+
