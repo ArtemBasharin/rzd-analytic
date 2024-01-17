@@ -15,6 +15,7 @@ import {
   otherDelayed,
   otherDuration,
 } from "../utils/config";
+import { getDaysBetweenDates } from "../utils/functions";
 // import { getPeriodDatesFromRegex } from "../utils/functions";
 // import { initialData } from "../DropZoneParser";
 // import dummyArr from "./dummyArr"
@@ -24,8 +25,8 @@ export function getAnalyze(
   pastYear: number,
   currentYear: number,
   pattern: string,
-  dateStart?: string,
-  dateEnd?: string
+  dateStart?: number,
+  dateEnd?: number
 ) {
   // console.time("getAnalyze");
   // console.log("dummyArr" ,dummyArr)
@@ -59,26 +60,25 @@ export function getAnalyze(
 
   // console.log(getPeriodDatesFromRegex(pattern, currentYear, currentYear - 1));
 
-  const filterByDates = (arr: any, dateStart: string, dateEnd: string) => {
+  const filterByDates = (arr: any, dateStart: number, dateEnd: number) => {
     // console.log(dateStart, dateEnd);
     let srcArrayInDatesFrame: any[] = [];
-    let currentDateStart = new Date(dateStart);
-    let currentDateEnd = new Date(dateEnd);
-    let pastDateStart = new Date(
-      currentDateStart.getFullYear() - 1,
-      currentDateStart.getMonth(),
-      currentDateStart.getDate()
-    );
-    let pastDateEnd = new Date(
-      currentDateEnd.getFullYear() - 1,
-      currentDateEnd.getMonth(),
-      currentDateEnd.getDate()
-    );
+    let daysBetweenDates: number = getDaysBetweenDates(dateStart, dateEnd);
+
+    let currentDateStart = (dateStart);
+    let currentDateEnd = (dateEnd);
+    let pastDateEnd = new Date(currentDateEnd)
+    pastDateEnd.setFullYear(pastDateEnd.getFullYear() - 1);
+
+    let pastDateStart =  pastDateEnd.getTime() -
+    daysBetweenDates * 24 * 60 * 60 * 1000 +
+    1000;
+
     arr.forEach((el: any) => {
       if (
-        (Date.parse(el[startTime]) >= currentDateStart.getTime() &&
-          Date.parse(el[startTime]) <= currentDateEnd.getTime()) ||
-        (Date.parse(el[startTime]) >= pastDateStart.getTime() &&
+        (Date.parse(el[startTime]) >= currentDateStart &&
+          Date.parse(el[startTime]) <= currentDateEnd) ||
+        (Date.parse(el[startTime]) >= pastDateStart &&
           Date.parse(el[startTime]) <= pastDateEnd.getTime())
       ) {
         srcArrayInDatesFrame.push(el);

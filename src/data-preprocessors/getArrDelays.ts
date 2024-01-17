@@ -47,7 +47,7 @@ export const getArrDelays = (
   delaysArray.push(delaysCounter(srcArray, freightDelayed, "Грузовых"));
   delaysArray.push(delaysCounter(srcArray, passDelayed, "Пассажирских"));
   delaysArray.push(delaysCounter(srcArray, subDelayed, "Пригородных"));
-  delaysArray.push(delaysCounter(srcArray, otherDelayed, "Прочих"));
+  // delaysArray.push(delaysCounter(srcArray, otherDelayed, "Прочих"));
 
   //counting number of total delays
   const totalDelaysCounter = (array: any[]) => {
@@ -76,7 +76,7 @@ export const getArrDelays = (
     ];
   };
 
-  delaysArray.push(totalDelaysCounter(delaysArray));
+  delaysArray.unshift(totalDelaysCounter(delaysArray));
 
   //find max value for d3.scales element
   const findMaxValue = (array: any[]) => {

@@ -36,6 +36,7 @@ let initialToolPalette = {
   periodVisibility: true,
   datePickerVisibility: true,
   unitsListVisibility: false,
+  sumLineVisibility: false,
 };
 
 let originToolPalette = {
@@ -46,6 +47,7 @@ let originToolPalette = {
   datePickerVisibility: true,
   daysInGroupVisibility: true,
   unitsListVisibility: true,
+  sumLineVisibility: true,
 };
 
 let initialCustomCalendar = getCustomCalendar(
@@ -154,6 +156,7 @@ const filtersSlice = createSlice({
       sankey: true,
       ridgeline: true,
       sumline: true,
+      charts: true,
     },
     reportSrcState: [],
   },
@@ -371,22 +374,12 @@ const filtersSlice = createSlice({
 
     setPastYear(state, action) {
       state.pastYear = action.payload;
-      state.analyzeState = getAnalyze(
-        state.sourceState,
-        state.pastYear,
-        state.currentYear,
-        state.regexpPattern
-      );
+      state.currentYear = state.pastYear + 1;
     },
 
     setCurrentYear(state, action) {
       state.currentYear = action.payload;
-      state.analyzeState = getAnalyze(
-        state.sourceState,
-        state.pastYear,
-        state.currentYear,
-        state.regexpPattern
-      );
+      state.pastYear = state.currentYear - 1;
     },
 
     setDateStart(state, action) {
@@ -603,29 +596,34 @@ const filtersSlice = createSlice({
         state.toolPalette.minValueVisibility = false;
         state.toolPalette.daysInGroupVisibility = false;
         state.toolPalette.unitsListVisibility = false;
+        state.toolPalette.sumLineVisibility = false;
       }
       if (action.payload === "groupedChart") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
         state.toolPalette.datePickerVisibility = false;
         state.toolPalette.daysInGroupVisibility = false;
         state.toolPalette.unitsListVisibility = false;
+        state.toolPalette.sumLineVisibility = false;
       }
       if (action.payload === "stacked") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
         state.toolPalette.yearVisibility = false;
         state.toolPalette.minValueVisibility = false;
         state.toolPalette.periodVisibility = false;
+        state.toolPalette.sumLineVisibility = false;
       }
       if (action.payload === "sankey") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
         state.toolPalette.yearVisibility = false;
         state.toolPalette.periodVisibility = false;
         state.toolPalette.daysInGroupVisibility = false;
+        state.toolPalette.sumLineVisibility = false;
       }
       if (action.payload === "ridgeline") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
         state.toolPalette.yearVisibility = false;
         state.toolPalette.periodVisibility = false;
+        state.toolPalette.sumLineVisibility = false;
       }
       if (action.payload === "report") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
@@ -633,6 +631,7 @@ const filtersSlice = createSlice({
         state.toolPalette.daysInGroupVisibility = false;
         state.toolPalette.unitsListVisibility = false;
         state.toolPalette.minValueVisibility = false;
+        state.toolPalette.sumLineVisibility = false;
       }
       if (action.payload === "sumline") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
@@ -923,11 +922,42 @@ const filtersSlice = createSlice({
           };
         }
 
-        state.sumLineArrState = getSumLineArr(
-          state.sourceState,
-          state.customCalendar,
-          state.sumLineCheckList
+        // state.sumLineArrState = getSumLineArr(
+        //   state.sourceState,
+        //   state.customCalendar,
+        //   state.sumLineCheckList
+        // );
+      }
+
+      if (action.payload === "sumlineCharts") {
+        state.chartCheckList.map((el) =>
+          state.allCheckedCheckList.charts
+            ? (el.checked = false)
+            : (el.checked = true)
         );
+        state.allCheckedCheckList.charts
+          ? (state.allCheckedCheckList.charts = false)
+          : (state.allCheckedCheckList.charts = true);
+
+        if (
+          state.chartCheckList.findIndex((el) => el.checked === true) === -1
+        ) {
+          state.loaderShow = {
+            ...state.loaderShow,
+            sumline: true,
+          };
+        } else {
+          state.loaderShow = {
+            ...state.loaderShow,
+            sumline: false,
+          };
+        }
+
+        // state.sumLineArrState = getSumLineArr(
+        //   state.sourceState,
+        //   state.customCalendar,
+        //   state.sumLineCheckList
+        // );
       }
     },
 

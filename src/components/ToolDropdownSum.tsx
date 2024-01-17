@@ -74,14 +74,18 @@ const ToolDropdownSum = () => {
           <div className="tools_buttons-container">
             <button
               className="tools tools_dropdown-button"
-              onClick={() => dispatch(checkAllCheckList(toolPalette.kind))}
+              onClick={() =>
+                dispatch(checkAllCheckList(toolPalette.kind + "Charts"))
+              }
               key={"checkAllCheckList-button-" + toolPalette.kind}
             >
               {allChecked.sumline ? "Снять выделение" : "Отметить все"}
             </button>
             <button
               className="tools tools_dropdown-button"
-              onClick={() => dispatch(invertCheckList(toolPalette.kind))}
+              onClick={() =>
+                dispatch(invertCheckList(toolPalette.kind + "Charts"))
+              }
               key={"invertCheckList-button-" + toolPalette.kind}
             >
               Инвертировать выбор

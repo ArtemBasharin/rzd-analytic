@@ -5,7 +5,7 @@ import {
   freightDuration,
   passDuration,
   subDuration,
-  otherDuration,
+  // otherDuration,
   similarColors,
 } from "../utils/config";
 import { cutDecimals } from "../utils/functions";
@@ -51,7 +51,7 @@ export const getUnitsList = (
       : (freightDur = 0);
     obj[passDuration] ? (passDur = obj[passDuration]) : (passDur = 0);
     obj[subDuration] ? (subDur = obj[subDuration]) : (subDur = 0);
-    obj[otherDuration] ? (otherDur = obj[otherDuration]) : (otherDur = 0);
+    // obj[otherDuration] ? (otherDur = obj[otherDuration]) : (otherDur = 0);
     let total = freightDur + passDur + subDur + otherDur;
     return total;
   };

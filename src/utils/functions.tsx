@@ -160,7 +160,7 @@ export const getComparisonText = (
     return (
       <span className="text_decrease text_inner">
         {brackets && " ("}
-        уменьшилось на {cutDecimals((prevVal / curVal - 1) * 100)}%
+        уменьшилось на {cutDecimals((1- ( curVal / prevVal)) * 100)}%
         {brackets && ")"}
       </span>
     );

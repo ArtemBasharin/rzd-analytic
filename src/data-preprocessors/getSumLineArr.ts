@@ -3,12 +3,12 @@ import {
   freightDuration,
   passDuration,
   subDuration,
-  otherDuration,
+  // otherDuration,
   guiltyUnit,
   freightDelayed,
   passDelayed,
   subDelayed,
-  otherDelayed,
+  // otherDelayed,
   failCategory,
   failKind,
 } from "../utils/config";
@@ -18,7 +18,7 @@ export const getSumLineArr = (
   customCalendar: number[],
   unitsList: any[]
 ) => {
-  // console.log("customCalendar", customCalendar);
+  console.log("customCalendar", customCalendar);
   // console.log("dateEnd", dateEnd);
   // console.log("dateStart", dateStart);
   // console.log("srcArray", srcArray);
@@ -56,7 +56,7 @@ export const getSumLineArr = (
       : (freightDur = 0);
     obj[passDuration] ? (passDur = obj[passDuration]) : (passDur = 0);
     obj[subDuration] ? (subDur = obj[subDuration]) : (subDur = 0);
-    obj[otherDuration] ? (otherDur = obj[otherDuration]) : (otherDur = 0);
+    // obj[otherDuration] ? (otherDur = obj[otherDuration]) : (otherDur = 0);
     let total = freightDur + passDur + subDur + otherDur;
     return total;
   };
@@ -69,7 +69,7 @@ export const getSumLineArr = (
     obj[freightDelayed] ? (freightDel = obj[freightDelayed]) : (freightDel = 0);
     obj[passDelayed] ? (passDel = obj[passDelayed]) : (passDel = 0);
     obj[subDelayed] ? (subDel = obj[subDelayed]) : (subDel = 0);
-    obj[otherDelayed] ? (otherDel = obj[otherDelayed]) : (otherDel = 0);
+    // obj[otherDelayed] ? (otherDel = obj[otherDelayed]) : (otherDel = 0);
     let total = freightDel + passDel + subDel + otherDel;
     return total;
   };
@@ -84,11 +84,11 @@ export const getSumLineArr = (
       passDuration: el[passDuration] || 0,
       subDuration: el[subDuration] || 0,
       freightDuration: el[freightDuration] || 0,
-      otherDuration: el[otherDuration] || 0,
+      // otherDuration: el[otherDuration] || 0,
       passDelayed: el[passDelayed] || 0,
       subDelayed: el[subDelayed] || 0,
       freightDelayed: el[freightDelayed] || 0,
-      otherDelayed: el[otherDelayed] || 0,
+      // otherDelayed: el[otherDelayed] || 0,
       technicalKind: el[failKind] === "Нарушение технического вида" ? 1 : 0,
       technologicalKind: el[failKind] === "Технологическое нарушение" ? 1 : 0,
       specialKind:
@@ -122,11 +122,10 @@ export const getSumLineArr = (
 
   let result: DurationSummary[] = Object.values(summaries);
   result.sort((a, b) => a.date - b.date);
-  // console.log("result", result);
+  console.log("result", result);
   // console.log(
   //   "customCalendar",
-  //   customCalendar
-  // .map((el) => new Date(el))
+  //   customCalendar.map((el) => new Date(el))
   // );
 
   type CustomData = {
@@ -136,44 +135,71 @@ export const getSumLineArr = (
     passDuration?: number;
     subDuration?: number;
     freightDuration?: number;
-    otherDuration?: number;
+    // otherDuration?: number;
     passDelayed?: number;
     subDelayed?: number;
     freightDelayed?: number;
-    otherDelayed?: number;
+    // otherDelayed?: number;
     technicalKind?: number;
     technologicalKind?: number;
     specialKind?: number;
-    otherKind?: number;
+    // otherKind?: number;
     firstCat?: number;
     secondCat?: number;
   };
 
   let unitedDatesResult: CustomData[] = [];
 
+  // for (let i = 0; i < customCalendar.length; i++) {
+  //   const currentDate = customCalendar[i];
+  //   const nextDate = customCalendar[i + 1];
+  //   // console.log("currentDate", currentDate);
+  //   // console.log("nextDate", nextDate);
+  //   result.forEach((el) => {
+  //     if (el.date >= currentDate && el.date < nextDate) {
+  //       const newData: CustomData = { date: currentDate };
+  //       for (let key in el) {
+  //         if (key !== "date") {
+  //           if (key in newData) {
+  //             newData[key as keyof CustomData] =
+  //               (newData[key as keyof CustomData] || 0) + el[key];
+  //           } else {
+  //             newData[key as keyof CustomData] = el[key];
+  //           }
+  //         }
+  //       }
+  //       unitedDatesResult.push(newData);
+  //     }
+  //   });
+  // }
+  const uniqueDates: { [date: string]: boolean } = {};
+
   for (let i = 0; i < customCalendar.length - 1; i++) {
     const currentDate = customCalendar[i];
     const nextDate = customCalendar[i + 1];
-    // console.log("currentDate", currentDate);
-    // console.log("nextDate", nextDate);
-    result.forEach((el) => {
+
+    for (let el of result) {
       if (el.date >= currentDate && el.date < nextDate) {
-        const newData: CustomData = { date: currentDate };
-        for (let key in el) {
-          if (key !== "date") {
-            if (key in newData) {
-              newData[key as keyof CustomData] =
-                (newData[key as keyof CustomData] || 0) + el[key];
-            } else {
-              newData[key as keyof CustomData] = el[key];
+        if (!uniqueDates[currentDate]) {
+          const newData: CustomData = { date: currentDate };
+          for (let key in el) {
+            if (key !== "date") {
+              if (key in newData) {
+                newData[key as keyof CustomData] =
+                  (newData[key as keyof CustomData] || 0) + el[key];
+              } else {
+                newData[key as keyof CustomData] = el[key];
+              }
             }
           }
+          unitedDatesResult.push(newData);
+          uniqueDates[currentDate] = true;
         }
-        unitedDatesResult.push(newData);
       }
-    });
+    }
   }
 
+  console.log("unitedDatesResult", unitedDatesResult);
   let deletedEmptyDatesArr = unitedDatesResult.filter(
     (el) => Object.keys(el).length > 1
   );
@@ -193,7 +219,7 @@ export const getSumLineArr = (
   }
 
   let maxValues = findMaxValues(deletedEmptyDatesArr);
-  // console.log("sumLineRes", deletedEmptyDatesArr);
+  console.log("sumLineRes", deletedEmptyDatesArr);
 
   return {
     arr: deletedEmptyDatesArr,

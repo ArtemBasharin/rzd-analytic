@@ -3,12 +3,12 @@ export const list = [
   "passDuration",
   "subDuration",
   "freightDuration",
-  "otherDuration",
+  // "otherDuration",
   "totalDelayed",
   "passDelayed",
   "subDelayed",
   "freightDelayed",
-  "otherDelayed",
+  // "otherDelayed",
   "technicalKind",
   "tenologicalKind",
   "specialKind",
@@ -22,12 +22,12 @@ const translation = [
   "Задержки пассажирских, ч",
   "Задержки пригородных, ч",
   "Задержки грузовых, ч",
-  "Задержки прочих, ч",
+  // "Задержки прочих, ч",
   "Задержано всего",
   "Задержано пассажирских",
   "Задержано пригородных",
   "Задержано грузовых",
-  "Задержано прочих",
+  // "Задержано прочих",
   "Нарушения технического вида",
   "Технологические нарушения",
   "Особая технологическая необходимость",
@@ -75,7 +75,7 @@ export const initialChartCheckList = () => {
       strokeWidth = "10";
     }
 
-    result.push( {
+    result.push({
       name: list[i],
       color: colors[i],
       translated: translation[i],

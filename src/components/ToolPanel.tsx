@@ -101,7 +101,7 @@ const ToolPanel = () => {
         </div>
       </CSSTransition>
       <CSSTransition
-        in={toolPalette.datePickerVisibility}
+        in={toolPalette.sumLineVisibility}
         timeout={timeout}
         classNames="fade"
         unmountOnExit

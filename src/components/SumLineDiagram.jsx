@@ -23,6 +23,7 @@ const SumLineDiagram = () => {
 
     let datesArr = [];
     resData.forEach((el) => datesArr.push(el.date));
+    console.log(datesArr);
 
     // append the svg object to the body of the page
     const svg = d3
@@ -194,7 +195,7 @@ const SumLineDiagram = () => {
       .text(function (d, i) {
         return checkedOnlyList[i].translated;
       });
-  }, [checkList, resData, src.yMax]);
+  }, [chartCheckList, checkList, resData, src.yMax]);
 
   return (
     <svg
