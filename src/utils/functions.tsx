@@ -414,7 +414,7 @@ export const defineСategory = (string: string) => {
   if (/ЭЧ-/gm.test(string)) return "ECH";
   if (/(?<!\S)ВЧД/gm.test(string)) return "VCHD";
   if (/ПМС-/gm.test(string)) return "PMS";
-  if (/ТЧЭ-/gm.test(string)) return "TCH";
+  if (/ТЧЭ-/gm.test(string) || /^Т$/gm.test(string)) return "TCH";
   if (string.includes("СЛД") || string.includes("ТМХ")) return "SLD";
   if (/ЛВЧ-/gm.test(string) || /ЛВЧД-?/gm.test(string)) return "FPC";
   if (
