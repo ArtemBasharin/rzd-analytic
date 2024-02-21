@@ -270,7 +270,7 @@ export const getOneUnitReportWithCompare = (prop: repObj) => {
 
   if (currentYearUnit)
     return (
-      <span className="text_inner">
+      <span className={`text_inner ${!pastYearUnit && "text_increase"}`}>
         {currentYearUnit.count} ТН
         {pastYearUnit &&
           getComparisonText(currentYearUnit.count, pastYearUnit.count, true)}

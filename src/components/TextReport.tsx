@@ -65,6 +65,7 @@ const TextReportTemplatePeriod = () => {
     if (currentYearUnit) return `${currentYearUnit.failReason}`;
   };
 
+  //generating part of each unit description 
   let text: any[] = [];
   dictionary.forEach((unit: string) =>
     text.push(
@@ -84,6 +85,7 @@ const TextReportTemplatePeriod = () => {
     )
   );
 
+  //generating one row of table of each unit description 
   const getOneRowReport = (unit: string) => {
     const currentYearArr: any[] = arr.find(
       (obj) => obj.year === currentYear
