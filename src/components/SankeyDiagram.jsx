@@ -90,7 +90,6 @@ const SankeyDiagram = () => {
       //   "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000"
       // )
       // .text(function (d) {
-      //   console.log(d.name.length);
       //   return d.name;
       // })
       .text(function (d) {

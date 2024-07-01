@@ -6,18 +6,25 @@ import {
   passDuration,
   subDuration,
   // otherDuration,
+  place,
   similarColors,
 } from "../utils/config";
 import { cutDecimals } from "../utils/functions";
 
-export const getUnitsList = (
+export const getTerritoryList = (
   arr: any[],
   startDate: Date,
   endDate: Date,
   customCalendar?: number[]
 ) => {
   let result = new Set();
+  // console.log(customCalendar);
+  // let startDate = new Date(d3.min(customCalendar));
+  // let endDate = new Date(d3.max(customCalendar));
+  // let startDate = new Date(d3.min(customCalendar));
+  // let endDate = new Date(d3.max(customCalendar));
   let cutoffByDatesArr: any[] = [];
+  // console.log(arr);
 
   let key = "";
   if (Object.keys(arr[0]).includes("guiltyUnit")) {
@@ -26,6 +33,7 @@ export const getUnitsList = (
   if (Object.keys(arr[0]).includes(guiltyUnit)) {
     key = guiltyUnit;
   }
+
   arr.forEach((element) => {
     let date = new Date(element[startTime]);
     if (date >= startDate && date <= endDate) {
@@ -105,5 +113,8 @@ export const getUnitsList = (
     listItems[i].checkboxColor = color(i);
   }
 
+  ////////////////
+
+  // console.log("listItems", listItems);
   return listItems;
 };

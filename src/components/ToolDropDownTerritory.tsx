@@ -21,7 +21,7 @@ interface RootState {
   };
 }
 
-const DropdownUnits = () => {
+const DropdownTerritory = () => {
   const stackedCheckList = useSelector(
     (state: RootState) => state.filters.stackedCheckList
   );
@@ -218,4 +218,4 @@ const DropdownUnits = () => {
   );
 };
 
-export default DropdownUnits;
+export default DropdownTerritory;

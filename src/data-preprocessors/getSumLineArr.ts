@@ -18,12 +18,6 @@ export const getSumLineArr = (
   customCalendar: number[],
   unitsList: any[]
 ) => {
-  console.log("customCalendar", customCalendar);
-  // console.log("dateEnd", dateEnd);
-  // console.log("dateStart", dateStart);
-  // console.log("srcArray", srcArray);
-  // console.log("unitsList", unitsList);
-
   const filterCheckedUnits = (srcArr: any[], units: string[]) => {
     let result: any[] = [];
     srcArr.forEach((el) => units.includes(el[guiltyUnit]) && result.push(el));
@@ -98,7 +92,6 @@ export const getSumLineArr = (
       secondCat: el[failCategory] === "2 категория" ? 1 : 0,
     })
   );
-  // console.log("summedDurationsList", summedDurationsList);
 
   interface DurationSummary {
     date: number;
@@ -122,11 +115,6 @@ export const getSumLineArr = (
 
   let result: DurationSummary[] = Object.values(summaries);
   result.sort((a, b) => a.date - b.date);
-  console.log("result", result);
-  // console.log(
-  //   "customCalendar",
-  //   customCalendar.map((el) => new Date(el))
-  // );
 
   type CustomData = {
     date: number;
@@ -150,28 +138,6 @@ export const getSumLineArr = (
 
   let unitedDatesResult: CustomData[] = [];
 
-  // for (let i = 0; i < customCalendar.length; i++) {
-  //   const currentDate = customCalendar[i];
-  //   const nextDate = customCalendar[i + 1];
-  //   // console.log("currentDate", currentDate);
-  //   // console.log("nextDate", nextDate);
-  //   result.forEach((el) => {
-  //     if (el.date >= currentDate && el.date < nextDate) {
-  //       const newData: CustomData = { date: currentDate };
-  //       for (let key in el) {
-  //         if (key !== "date") {
-  //           if (key in newData) {
-  //             newData[key as keyof CustomData] =
-  //               (newData[key as keyof CustomData] || 0) + el[key];
-  //           } else {
-  //             newData[key as keyof CustomData] = el[key];
-  //           }
-  //         }
-  //       }
-  //       unitedDatesResult.push(newData);
-  //     }
-  //   });
-  // }
   const uniqueDates: { [date: string]: boolean } = {};
 
   for (let i = 0; i < customCalendar.length - 1; i++) {

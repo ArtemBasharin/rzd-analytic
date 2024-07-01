@@ -409,10 +409,10 @@ export const cellComparingPercents = (
 };
 
 export const defineСategory = (string: string) => {
-  if (/ПЧ-/gm.test(string) || string.includes("ИЧ КУЛУНДА П")) return "PCH";
+  if (/^П$/gm.test(string) || /ПЧ-/gm.test(string) || string.includes("ИЧ КУЛУНДА П")) return "PCH";
   if (/ШЧ-/gm.test(string) || string.includes("ИЧ КУЛУНДА Ш")) return "SHCH";
   if (/ЭЧ-/gm.test(string)) return "ECH";
-  if (/(?<!\S)ВЧД/gm.test(string)) return "VCHD";
+  if (/(?<!\S)ВЧД/gm.test(string) || string.includes("З-СИБ, В") || /^В$/gm.test(string)) return "VCHD";
   if (/ПМС-/gm.test(string)) return "PMS";
   if (/ТЧЭ-/gm.test(string) || /^Т$/gm.test(string)) return "TCH";
   if (string.includes("СЛД") || string.includes("ТМХ")) return "SLD";

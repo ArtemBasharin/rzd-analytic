@@ -14,6 +14,7 @@ let startTime = "Начало отказа",
   subDuration = "Время пригородных поездов(по месту)",
   otherDelayed = "Количество прочих поездов(по месту)",
   otherDuration = "Время прочих поездов(по месту)",
+  place = "Место",
   ID = "ID отказа";
 
 function generateStylishColors(count: number) {
@@ -84,6 +85,7 @@ export {
   failKind,
   guiltyUnit,
   guiltyNew,
+  place,
   failReason,
   freightDelayed,
   freightDuration,

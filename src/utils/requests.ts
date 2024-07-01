@@ -2,7 +2,7 @@ import axios from "axios";
 import dummyArr from "../data-preprocessors/dummyArr";
 
 axios.defaults.baseURL = "http://localhost:3001";
-axios.defaults.timeout = 120000;
+axios.defaults.timeout = 1200000; //120secs is not enough when handling 30k docs to mongoDB
 
 const getViolationsArray = (startDate: string, endDate: string) => {
   let params = {

@@ -10,12 +10,6 @@ import {
 } from "../utils/config";
 
 export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
-  // console.log("customCalendar", customCalendar);
-  // console.log("dateEnd", dateEnd);
-  // console.log("dateStart", dateStart);
-  // console.log("srcArray", srcArray);
-  // console.log("unitsList", unitsList);
-
   const filterCheckedUnits = (srcArr, units) => {
     let result = [];
     srcArr.forEach((el) => units.includes(el[guiltyUnit]) && result.push(el));
@@ -27,7 +21,6 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
     unitsList.forEach(
       (el) => el.checked === true && checkedUnitsSimpleArray.push(el.guiltyUnit)
     );
-  // console.log("checkedUnits", checkedUnitsSimpleArray);
 
   let filteredArrByUncheckedUnits = [];
   if (unitsList)
@@ -36,7 +29,6 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
       checkedUnitsSimpleArray
     );
   else filteredArrByUncheckedUnits = srcArray;
-  // console.log("filteredArrByUncheckedUnits", filteredArrByUncheckedUnits);
 
   const calcTotalDuration = (obj) => {
     let freightDur,
@@ -61,19 +53,16 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
       guiltyUnit: el[guiltyUnit],
     })
   );
-  // console.log("summedDurationsList", summedDurationsList);
 
   let result = [];
   let units = new Set();
   let dates = new Set();
 
-  // Collect unique units and dates
   for (let obj of summedDurationsList) {
     units.add(obj.guiltyUnit);
     dates.add(obj.violationDate);
   }
 
-  // Initialize result array with objects having 0 values for each unit
   for (let date of dates) {
     let obj = { date };
     for (let guiltyUnit of units) {
@@ -82,7 +71,6 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
     result.push(obj);
   }
 
-  // Calculate totals for each unit and date
   for (let obj of summedDurationsList) {
     let date = obj.violationDate;
     let unit = obj.guiltyUnit;
@@ -92,7 +80,6 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
   }
 
   result.sort((a, b) => a.date - b.date);
-  // console.log("result2", result);
 
   let unitedDatesResult = [];
   for (let i = 0; i < customCalendar.length - 1; i++) {
@@ -111,7 +98,6 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
       }
     });
   }
-  // console.log("unitedDatesResult", unitedDatesResult);
 
   let yMaxArr = [];
   unitedDatesResult.forEach((el) => {
@@ -132,9 +118,6 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
       ? unitsAsArr.forEach((unit) => (el[unit] = 0))
       : el
   );
-
-  // console.log(Array.from(units));
-  // console.log("filledByZeroValues", unitedDatesResult);
 
   return {
     arr: unitedDatesResult,

@@ -1,22 +1,16 @@
 import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import * as d3 from "d3";
-// import { powerpointColors } from "../utils/config";
-// import { convertUnixToDate } from "../utils/functions";
 
 const SumLineDiagram = () => {
   const src = useSelector((state) => state.filters.sumLineArrState);
   const checkList = useSelector((state) => state.filters.sumLineCheckList);
   const chartCheckList = useSelector((state) => state.filters.chartCheckList);
-  // console.log("chartCheckList", chartCheckList);
 
   d3.select("#id24").selectAll("g").remove();
   let resData = src.arr;
-  // console.log("resData", resData);
 
   useEffect(() => {
-    // console.log("resData", resData);
-    // set the dimensions and margins of the graph
     const margin = { top: 30, right: 170, bottom: 50, left: 100 },
       width = window.innerWidth - margin.left - margin.right,
       height = window.innerHeight - 180 - margin.top - margin.bottom;
@@ -25,7 +19,6 @@ const SumLineDiagram = () => {
     resData.forEach((el) => datesArr.push(el.date));
     console.log(datesArr);
 
-    // append the svg object to the body of the page
     const svg = d3
       .select("#id24")
       .attr("width", width + margin.left + margin.right)
@@ -34,7 +27,6 @@ const SumLineDiagram = () => {
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
     const step = Math.ceil(datesArr.length / 30);
-    // Add X axis --> it is a date format
     const x = d3
       .scaleLinear()
       .domain(
@@ -67,8 +59,6 @@ const SumLineDiagram = () => {
       item.checked && (acc = [...acc, item.name]);
       return acc;
     }, []);
-    // console.log(properties);
-    // const color = []
 
     let yMax = src.yMax;
     const getChartProps = (prop) => {
@@ -122,7 +112,6 @@ const SumLineDiagram = () => {
       const name = checkedOnlyList[i].name;
       let chartProp = getChartProps(name);
       let maxDomainValue = chartProp.yMax;
-      // console.log(maxDomainValue);
       let data = resData.map((el) => {
         return { date: el.date, value: el[name] || 0 };
       });

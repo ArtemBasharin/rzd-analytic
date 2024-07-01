@@ -16,7 +16,6 @@ const StackedAreaDiagram = () => {
 
   useEffect(() => {
     let resData = stackedArrState.arr;
-    // console.log("resData", resData);
 
     // set the dimensions and margins of the graph
     const margin = { top: 30, right: 170, bottom: 50, left: 100 },
@@ -37,7 +36,6 @@ const StackedAreaDiagram = () => {
 
     let keys = [];
     let colorArr = [];
-    // console.log("keys", keys);
 
     // collect colors in right order from checklist checkboxes
     checkList.forEach((el) => {
@@ -46,8 +44,6 @@ const StackedAreaDiagram = () => {
         colorArr.push(el.checkboxColor);
       }
     });
-
-    // console.log("colorArr", colorArr);
 
     // Add X axis
     const x = d3
@@ -58,7 +54,6 @@ const StackedAreaDiagram = () => {
         })
       )
       .range([0, width - 200]);
-    // console.log(resData);
 
     // Append the axes.
     // Calculating the step for displaying signatures
@@ -95,6 +90,19 @@ const StackedAreaDiagram = () => {
     let arrFromKeys = keys.map((el) => {
       return el.guiltyUnit;
     });
+
+    // Add second Y axis for losses
+    //  const yP = d3.scaleLinear().domain([0, 100]).range([height, 0]);
+
+    //  svg
+    //    .append("g")
+    //    .call(
+    //      d3
+    //        .axisRight(yP)
+    //        .tickValues([0, 80, 100])
+    //        .tickFormat((value) => value + "%")
+    //    )
+    //    .attr("transform", `translate(${width},0)`);
 
     const color = d3.scaleOrdinal().domain(arrFromKeys).range(colorArr);
     const stackedData = d3.stack().keys(arrFromKeys)(resData);

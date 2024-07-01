@@ -86,19 +86,5 @@ export const getSumList = (arr: any[]) => {
     };
   }
 
- 
-  
-  // arr.forEach((obj: any) => {
-  //   for (const key in obj) {
-  //     if (Object.prototype.hasOwnProperty.call(obj, key)) {
-  //       if (result[key]) {
-  //         result[key] += obj[key];
-  //       } else {
-  //         result[key] = obj[key];
-  //       }
-  //     }
-  //   }
-  // });
-
   return result;
 };

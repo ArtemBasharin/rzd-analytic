@@ -20,7 +20,6 @@ export const getSankeyArr = (
   minValue,
   unitsList
 ) => {
-  // console.log(dateStart, dateEnd);
   const calcTotalDurationValue = (obj) => {
     let freightDur,
       passDur,
@@ -55,7 +54,6 @@ export const getSankeyArr = (
       });
     }
   });
-  // console.log("srcArrayInDatesFrame", srcArrayInDatesFrame);
 
   let srcArrayMergedByUniqueUnits = [];
   srcArrayInDatesFrame.forEach((obj) => {
@@ -72,7 +70,6 @@ export const getSankeyArr = (
       srcArrayMergedByUniqueUnits[index].otherDuration += obj.otherDuration;
     }
   });
-  // console.log("srcArrayMergedByUniqueUnits", srcArrayMergedByUniqueUnits);
 
   let unitsArrFilteredByMinValueTool = [];
   srcArrayMergedByUniqueUnits.forEach((el) => {
@@ -99,7 +96,6 @@ export const getSankeyArr = (
       srcArrayMergedDurations[index].otherDuration += obj.otherDuration;
     }
   });
-  // console.log("srcArrayMergedDurations", srcArrayMergedDurations);
 
   let srcArrayFilteredByMinValueTool = [];
   srcArrayMergedDurations.forEach((el) => {
@@ -107,14 +103,11 @@ export const getSankeyArr = (
       srcArrayFilteredByMinValueTool.push(el);
   });
 
-  // console.log("srcArrayFilteredByMinValueTool", srcArrayFilteredByMinValueTool);
-
   let checkedUnitsSimpleArray = [];
   if (unitsList)
     unitsList.forEach(
       (el) => el.checked === true && checkedUnitsSimpleArray.push(el.guiltyUnit)
     );
-  // console.log("checkedUnitsSimpleArray", checkedUnitsSimpleArray);
 
   let srcArrayFilteredByCheckedUnits = [];
   if (unitsList)
@@ -124,7 +117,6 @@ export const getSankeyArr = (
         srcArrayFilteredByCheckedUnits.push(el)
     );
   else srcArrayFilteredByCheckedUnits = srcArrayFilteredByMinValueTool;
-  // console.log("srcArrayFilteredByCheckedUnits", srcArrayFilteredByCheckedUnits);
 
   const keys = ["guiltyUnit", "failReason", "failCategory", "failKind"];
   let index = -1;
@@ -181,11 +173,6 @@ export const getSankeyArr = (
       ? (el.isDisabled = false)
       : (el.isDisabled = true)
   );
-  // console.log("gets", {
-  //   nodes: nodes,
-  //   links: links,
-  //   unitsList: unitsListNew,
-  // });
 
   return {
     nodes: nodes,
