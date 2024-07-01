@@ -1,7 +1,4 @@
-// import React from "react";
 import * as htmlToImage from "html-to-image";
-// import { saveAs } from "file-saver";
-// import { Document, Packer, Paragraph } from "docx";
 import { FaCopy, FaDownload } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 
@@ -62,17 +59,17 @@ function DownloadButtons(props) {
   const copyToBufferAsText = () => {
     const textContainer = document.getElementById("text_report");
     const tempContainer = document.createElement("div");
-    // Создаем клон элемента с текстом и стилями
+
     tempContainer.appendChild(textContainer.cloneNode(true));
-
-    // Стилизуем временный контейнер (необязательно)
-    // tempContainer.style.position = "absolute";
-    // tempContainer.style.left = "-9999px";
-    // tempContainer.style.width = "1px";
-    // tempContainer.style.height = "1px";
-    // tempContainer.style.overflow = "hidden";
-
     document.body.appendChild(tempContainer);
+
+    const styleElements = document.head.querySelectorAll(
+      "style, link[rel='stylesheet']"
+    );
+    styleElements.forEach((styleElement) => {
+      const clone = styleElement.cloneNode(true);
+      tempContainer.appendChild(clone);
+    });
 
     const range = document.createRange();
     range.selectNode(tempContainer);

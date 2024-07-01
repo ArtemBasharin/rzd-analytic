@@ -65,7 +65,7 @@ const TextReportTemplatePeriod = () => {
     if (currentYearUnit) return `${currentYearUnit.failReason}`;
   };
 
-  //generating part of each unit description 
+  //generating part of each unit description
   let text: any[] = [];
   dictionary.forEach((unit: string) =>
     text.push(
@@ -85,7 +85,7 @@ const TextReportTemplatePeriod = () => {
     )
   );
 
-  //generating one row of table of each unit description 
+  //generating one row of table of each unit description
   const getOneRowReport = (unit: string) => {
     const currentYearArr: any[] = arr.find(
       (obj) => obj.year === currentYear
@@ -192,9 +192,11 @@ const TextReportTemplatePeriod = () => {
         <>
           {subtotal[key].arr}
           <tr className="table_bold text_header table_fill" key={subtotal[key]}>
-            <td className="table_bold_right">{renameCategory(key)}</td>
+            <td className="table_bold_right table_fill">
+              {renameCategory(key)}
+            </td>
             <td>{cutDecimals(subtotal[key].pastValue)}</td>
-            <td className="table_bold_right">
+            <td className="table_bold_right table_fill">
               {" "}
               {cutDecimals(subtotal[key].currentValue)}
             </td>
@@ -223,9 +225,9 @@ const TextReportTemplatePeriod = () => {
 
   tableLayout.push(
     <tr className="table_bold text_header table_fill">
-      <td className="table_bold_right">Всего</td>
+      <td className="table_bold_right table_fill">Всего</td>
       <td>{arr[0].sum.pastYearTotalDurations}</td>
-      <td className="table_bold_right">
+      <td className="table_bold_right table_fill">
         {arr[1].sum.currentYearTotalDurations}
       </td>
       {cellComparingPercents(
@@ -318,6 +320,7 @@ const TextReportTemplatePeriod = () => {
       <p className="text_paragraph">
         ТН по ответственности подразделений: {text.concat("")}
       </p>
+      <p style={{ lineHeight: "30px" }}>&nbsp;&nbsp;</p>
 
       <table className="table_bold">
         <tr className="table_bold text_header">

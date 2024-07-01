@@ -48,21 +48,23 @@ td {
   border-spacing: 0;
   border: 1px solid black;
   border-collapse: collapse;
-  padding: 5px;
+  padding: 0 1px;
   text-align: center;
   white-space: nowrap;
 }
 
 .table_bold {
-  margin: 30px auto;
-  border: 2px solid black;
+  margin: auto;
+  border: 1px solid black;
 }
+
 .table_bold_right {
-  border-right: 2px solid black;
+  border-right: 1px solid black;
 }
 
 .table_fill {
-  background-color: lightgray;
+  background-color: #d8d8d8;
+  line-height: 21.5px;
 }
 
 .text_header {
