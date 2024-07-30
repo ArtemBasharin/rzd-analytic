@@ -19,15 +19,16 @@ const ToolPanel = () => {
   const dispatch = useDispatch();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   // let date = new Date();
-  console.log("currentYear", currentYear);
+  // console.log("currentYear", currentYear);
 
   useEffect(() => {
     let params = {
       "fromYear": currentYear - 10,
       "toYear": currentYear,
     };
+
     axios
-      .get("/violations", { params })
+      .get("https://rzd-analytic-api.vercel.app/violations", { params })
       .then(function (res) {
         dispatch(setSourceState(res.data));
       })
