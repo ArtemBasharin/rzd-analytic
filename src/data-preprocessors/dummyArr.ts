@@ -1,43 +1,33 @@
 const unitsList = [
-  "ТЧЭ-10",
-  "ТЧЭ-7",
-  "ВЧДЭ-11 АЛТАЙСКАЯ",
-  "ДЦУП",
-  "ПЧ-25",
-  "ВЧДЭ-12 ВХОДНАЯ",
-  "ПЧ-16",
-  "ПЧ-19",
-  "ДЦС-4",
-  "ПЧ-17",
-  "ДС АЛАМБАЙ",
-  "ТЧЭ-4",
-  "ТЧЭ-14",
-  "ИЧ КУЛУНДА П",
-  "ШЧ-10",
-  "ДС АЛТАЙСКАЯ",
-  "ДС КАМЕНЬ-НА-ОБИ",
-  "ВЧДЭ-25 НОВОКУЗНЕЦК",
-  "ЛВЧ-13",
-  "ЭЧ-13 З-СИБ",
-  "ВЧДЭ-7 КРАСНОЯРСК-ВОСТ",
-  "ЭЧ-9 З-СИБ",
+  "Depo #1",
+  "Depo #2",
+  "Depo #3",
+  "Сontrol center",
+  "Track maintenance #1",
+  "Track maintenance #2",
+  "Track maintenance #3",
+  "Electrical maintenance #1",
+  "Electrical maintenance #2",
+  "Car maintenance #1",
+  "Car maintenance #2",
 ];
 const reasonsList = [
-  "Отвлечение осмотрщиков-ремонтников, выполняющих техническое обслуживание, на сокращенное опробование тормозов другого поезда",
-  "Несвоевременная подача заявки на производство работ по вине заказчика «окна»",
-  "Повышенное артериальное давление",
-  "Отсутствие информации или передача неверной информации, касающейся порядка следования поезда дежурным по станции участка",
-  "Остановка негабаритного транспортного средства на железнодорожном переезде",
-  "Воздействие низких температур, требующих ограничения скорости",
-  "Неправильный выбор места начала торможения",
-  "Выкидка вагонов, ошибочно включенных в сформированный состав (чужаков)",
-  "Хулиганские действия пассажиров",
-  "Нарушение водителем автомобиля правил проезда через переезд (проезд под шлагбаум)",
-  "Посадка и высадка работников ОАО «РЖД», обеспечивающих выполнение перевозочного процесса и текущее содержание объектов инфраструктуры и подвижного состава",
-  "Ожидание отцепки толкача при нарушении нормативного графика",
-  "Отсутствие проверки действия тормозов в пути следования",
-  "Рассеянность/невнимательность энергодиспетчерского персонала",
+  "Distraction of maintainers",
+  "Late work request",
+  "High blood pressure",
+  "Lack of train info",
+  "Obstruction at crossing",
+  "Low temp speed limit",
+  "Wrong brake start",
+  "Misdropped cars",
+  "Passenger misconduct",
+  "Crossing violation",
+  "Staff boarding",
+  "Tug unhook delay",
+  "No brake check",
+  "Operator inattention",
 ];
+
 const failKindsList = [
   "Технологическое нарушение",
   "Нарушение технического вида",
@@ -45,40 +35,42 @@ const failKindsList = [
   "Прочие причины",
 ];
 
- const dummyArr = (pastYear: number, currentYear: number)=>{
-console.log(pastYear, currentYear);
+const dummyArr = (pastYear: number, currentYear: number) => {
+  console.log(pastYear, currentYear);
 
-const getRandomizedValue = (min: number, max: number) => {
-  return Math.round(Math.random() * (max - min) + min);
-};
-
-const generateElement = () =>
-  testArr.push({
-    "Начало отказа": `${getRandomizedValue(pastYear, currentYear)}-0${getRandomizedValue(
-      1,
-      12
-    )}-0${getRandomizedValue(1, 12)}T00:00:01.000Z`,
-    "Категория отказа": `${getRandomizedValue(1, 2)} категория`,
-    "Виновное предприятие":
-      unitsList[getRandomizedValue(0, unitsList.length - 1)],
-    "Количество грузовых поездов(по месту)": getRandomizedValue(1, 50),
-    "Время грузовых поездов(по месту)": getRandomizedValue(1, 200),
-    "Количество пассажирских поездов(по месту)": getRandomizedValue(1, 20),
-    "Время пассажирских поездов(по месту)": getRandomizedValue(1, 30),
-    "Количество пригородных поездов(по месту)": getRandomizedValue(1, 20),
-    "Время пригородных поездов(по месту)": getRandomizedValue(1, 30),
-    "Количество прочих поездов(по месту)": getRandomizedValue(1, 20),
-    "Время прочих поездов(по месту)": getRandomizedValue(1, 100),
-    "Причина 2 ур": reasonsList[getRandomizedValue(0, reasonsList.length - 1)],
-    "Вид технологического нарушения": failKindsList[getRandomizedValue(0, 3)],
-  });
-
-
-    let testArr: any[] = [];
-    for (let i = 0; i < 2000; ++i) {
-      generateElement();
-    }
-    return testArr
+  const getRandomizedValue = (min: number, max: number) => {
+    return Math.round(Math.random() * (max - min) + min);
   };
-  export default  dummyArr
 
+  const generateElement = () =>
+    testArr.push({
+      "Начало отказа": `${getRandomizedValue(
+        pastYear,
+        currentYear
+      )}-0${getRandomizedValue(1, 12)}-0${getRandomizedValue(
+        1,
+        12
+      )}T00:00:01.000Z`,
+      "Категория отказа": `${getRandomizedValue(1, 2)} категория`,
+      "Виновное предприятие":
+        unitsList[getRandomizedValue(0, unitsList.length - 1)],
+      "Количество грузовых поездов(по месту)": getRandomizedValue(1, 50),
+      "Время грузовых поездов(по месту)": getRandomizedValue(1, 200),
+      "Количество пассажирских поездов(по месту)": getRandomizedValue(1, 20),
+      "Время пассажирских поездов(по месту)": getRandomizedValue(1, 30),
+      "Количество пригородных поездов(по месту)": getRandomizedValue(1, 20),
+      "Время пригородных поездов(по месту)": getRandomizedValue(1, 30),
+      "Количество прочих поездов(по месту)": getRandomizedValue(1, 20),
+      "Время прочих поездов(по месту)": getRandomizedValue(1, 100),
+      "Причина 2 ур":
+        reasonsList[getRandomizedValue(0, reasonsList.length - 1)],
+      "Вид технологического нарушения": failKindsList[getRandomizedValue(0, 3)],
+    });
+
+  let testArr: any[] = [];
+  for (let i = 0; i < 2000; ++i) {
+    generateElement();
+  }
+  return testArr;
+};
+export default dummyArr;
