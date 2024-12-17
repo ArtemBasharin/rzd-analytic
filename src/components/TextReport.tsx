@@ -33,6 +33,7 @@ interface RootState {
     };
     regexpPattern: string;
     reportSrcState: any[];
+    reportStations: any[];
   };
 }
 
@@ -47,11 +48,12 @@ const varDelay: string[] = ["задержан", "задержано", "заде�
 const TextReportTemplatePeriod = () => {
   // const analyze = useSelector((state: RootState) => state.filters.analyzeState);
   const arr = useSelector((state: RootState) => state.filters.reportSrcState);
-  console.log("arr", arr);
+  const stationsReport = useSelector(
+    (state: RootState) => state.filters.reportStations
+  );
 
   let currentYear: number = d3.max(arr.map((el) => el.year));
   let pastYear: number = currentYear - 1;
-  console.log(currentYear);
 
   let dictionary: any[] = [];
   let arrForDict = arr.find((obj) => obj.year === currentYear);
@@ -98,7 +100,6 @@ const TextReportTemplatePeriod = () => {
     const pastYearUnit: any = pastYearArr.find(
       (objUnit) => objUnit.guiltyUnit === unit
     );
-    // console.log("currentYearUnit.guiltyUnit", currentYearUnit);
     let pastYearUnitTotalDuration = pastYearUnit
       ? pastYearUnit.totalDuration
       : "";
@@ -143,7 +144,16 @@ const TextReportTemplatePeriod = () => {
   });
 
   let dictionaryForTable: string[] = Array.from(dictionaryForTableAsSet);
-  // console.log("dictionaryForTable", dictionaryForTable);
+
+  const dicUnitForTableStationsAsSet: Set<string> = new Set();
+
+  arr[1].report.forEach((el: any) => {
+    dicUnitForTableStationsAsSet.add(el.guiltyUnit);
+  });
+
+  const dicUnitForTableStations: string[] = Array.from(
+    dicUnitForTableStationsAsSet
+  );
 
   let tableLayout: any[] = [];
   let subtotal: any = {
@@ -161,7 +171,6 @@ const TextReportTemplatePeriod = () => {
 
   dictionaryForTable.forEach((el: string) => {
     const category: string = defineСategory(el);
-    // console.log(typeof getOneRowReport(el));
 
     if (subtotal[category]) {
       subtotal[category].arr = [
@@ -237,6 +246,78 @@ const TextReportTemplatePeriod = () => {
     </tr>
   );
 
+  ////////////////////////////////////////////////////////////////////////////////////
+  const getOneRowStationsReport = (place: string, index: number) => {
+    const currentYearArr: any[] = stationsReport.find(
+      (obj) => obj.year === currentYear
+    ).report;
+    const currentYearPlace: any = currentYearArr.find(
+      (objUnit) => objUnit.place === place
+    );
+
+    const pastYearArr: any[] = stationsReport.find(
+      (obj) => obj.year === pastYear
+    ).report;
+    const pastYearPlace: any = pastYearArr.find(
+      (objUnit) => objUnit.place === place
+    );
+
+    let pastYearPlaceTotalDuration = pastYearPlace
+      ? pastYearPlace.totalDuration
+      : "";
+    let currentYearPlaceTotalDuration = currentYearPlace
+      ? currentYearPlace.totalDuration
+      : "";
+
+    return {
+      layout: (
+        <tr key={index}>
+          <td className="table_bold_right">{place}</td>
+          <td>{pastYearPlaceTotalDuration}</td>
+          <td className="table_bold_right">{currentYearPlaceTotalDuration}</td>
+          {cellComparingPercents(
+            pastYearPlaceTotalDuration,
+            currentYearPlaceTotalDuration
+          )}
+          {dicUnitForTableStations.map((unit) => {
+            return (
+              <td key={unit}>
+                {currentYearPlace && currentYearPlace[unit]
+                  ? cutDecimals(
+                      currentYearPlace.freightDuration +
+                        currentYearPlace.passDuration +
+                        currentYearPlace.subDuration +
+                        currentYearPlace.otherDuration
+                    )
+                  : ""}
+              </td>
+            );
+          })}
+        </tr>
+      ),
+      pastYear: pastYearPlaceTotalDuration,
+      currentYear: currentYearPlaceTotalDuration,
+    };
+  };
+
+  const dictionaryStationsTableAsSet: Set<string> = new Set();
+  stationsReport.forEach((el) => {
+    el.report.forEach((el2: any) => {
+      dictionaryStationsTableAsSet.add(el2.place);
+    });
+  });
+  const dictionaryStationsTable: string[] = Array.from(
+    dictionaryStationsTableAsSet
+  );
+
+  const tableStationsLayout: any[] = dictionaryStationsTable.map(
+    (el, index) => {
+      const l = getOneRowStationsReport(el, index);
+      return l.layout;
+    }
+  );
+
+  ///////////////////////////////////////////////////////
   return (
     <div className="text_container">
       <p className="text_paragraph">
@@ -350,6 +431,53 @@ const TextReportTemplatePeriod = () => {
         </tr>
 
         {tableLayout}
+      </table>
+
+      <div>
+        <h2
+          style={{ lineHeight: "50px", textAlign: "center", marginTop: "15px" }}
+        >
+          Распределение технологических нарушений по железнодорожным станциям
+        </h2>
+      </div>
+
+      <table className="table_bold" style={{ width: "1600px" }}>
+        <thead>
+          <tr className="table_bold text_header">
+            <td rowSpan={2} className="table_bold ">
+              Станция
+            </td>
+            <th colSpan={2}>
+              Поездо-часы <br />
+              задержек
+            </th>
+            <th rowSpan={2} className="table_bold ">
+              +/- % (ч) к<br />
+              прошлому <br />
+              году
+            </th>
+            {dicUnitForTableStations.map((unit) => {
+              return (
+                <th
+                  rowSpan={2}
+                  style={{
+                    writingMode: "vertical-rl",
+                    transform: "rotate(180deg)",
+                    height: "130px", // Фиксированная высота ячейки
+                    whiteSpace: "normal",
+                  }}
+                >
+                  {unit}
+                </th>
+              );
+            })}
+          </tr>
+          <tr className="table_bold text_header">
+            <td>{pastYear}</td>
+            <td>{currentYear}</td>
+          </tr>
+        </thead>
+        {tableStationsLayout}
       </table>
     </div>
   );

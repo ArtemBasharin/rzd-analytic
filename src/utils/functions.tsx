@@ -2,13 +2,6 @@ import React from "react";
 import * as d3 from "d3";
 import { startTime, varDelay, varTrains } from "./config";
 
-// const setTimezone = (unixDate: number) => {
-// let date = new Date(unixDate)
-// let dateWithTimeZone = date.toLocaleString('en-US', {timeZone: 'Europe/Moscow'})
-// console.log(new Date(dateWithTimeZone))
-// return new Date(dateWithTimeZone)
-// }
-
 export const getCutoffDates = (arr: any[]) => {
   let dates: number[] = arr.map((element: any) => {
     return new Date(element[startTime]).getTime();
@@ -160,7 +153,7 @@ export const getComparisonText = (
     return (
       <span className="text_decrease text_inner">
         {brackets && " ("}
-        уменьшилось на {cutDecimals((1- ( curVal / prevVal)) * 100)}%
+        уменьшилось на {cutDecimals((1 - curVal / prevVal) * 100)}%
         {brackets && ")"}
       </span>
     );
@@ -409,10 +402,20 @@ export const cellComparingPercents = (
 };
 
 export const defineСategory = (string: string) => {
-  if (/^П$/gm.test(string) || /ПЧ-/gm.test(string) || string.includes("ИЧ КУЛУНДА П")) return "PCH";
+  if (
+    /^П$/gm.test(string) ||
+    /ПЧ-/gm.test(string) ||
+    string.includes("ИЧ КУЛУНДА П")
+  )
+    return "PCH";
   if (/ШЧ-/gm.test(string) || string.includes("ИЧ КУЛУНДА Ш")) return "SHCH";
   if (/ЭЧ-/gm.test(string)) return "ECH";
-  if (/(?<!\S)ВЧД/gm.test(string) || string.includes("З-СИБ, В") || /^В$/gm.test(string)) return "VCHD";
+  if (
+    /(?<!\S)ВЧД/gm.test(string) ||
+    string.includes("З-СИБ, В") ||
+    /^В$/gm.test(string)
+  )
+    return "VCHD";
   if (/ПМС-/gm.test(string)) return "PMS";
   if (/ТЧЭ-/gm.test(string) || /^Т$/gm.test(string)) return "TCH";
   if (string.includes("СЛД") || string.includes("ТМХ")) return "SLD";

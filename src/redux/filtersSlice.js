@@ -1,4 +1,4 @@
-import { createSlice, current } from "@reduxjs/toolkit";
+import { createSlice } from "@reduxjs/toolkit";
 import { getAnalyze } from "../data-preprocessors/combiner";
 import { getStackedArr } from "../data-preprocessors/getStackedArr";
 import dummyArr from "../data-preprocessors/dummyArr";
@@ -17,6 +17,7 @@ import {
 import { getReportArr } from "../data-preprocessors/getReportArr";
 import { getSumLineArr } from "../data-preprocessors/getSumLineArr";
 import { initialChartCheckList } from "../utils/initialChartCheckList";
+import { getReportStationsArr } from "../data-preprocessors/getReportStationsArr";
 // import { getRaceArr } from "../data-preprocessors/getRaceArr";
 
 let date = new Date();
@@ -26,8 +27,6 @@ let initialDaysInGroup = 1;
 let cutoffDates = getCutoffDates(arrSource);
 let initialEndDate = new Date(cutoffDates.max).setHours(23, 59, 59);
 let initialStartDate = getStartDate(initialEndDate);
-
-// console.log(new Date(initialEndDate), new Date(initialStartDate));
 
 let initialToolPalette = {
   kind: "analyze",
@@ -159,6 +158,7 @@ const filtersSlice = createSlice({
       charts: true,
     },
     reportSrcState: [],
+    reportStations: [],
   },
 
   reducers: {
@@ -170,11 +170,9 @@ const filtersSlice = createSlice({
       //   el["Начало отказа"] = date.toISOString();
       //   return el;
       // });
-      console.log("state.sourceState", action.payload);
       let cutoffDates = getCutoffDates(state.sourceState);
       state.minCutoffDate = cutoffDates.min;
       state.maxCutoffDate = cutoffDates.max;
-      console.log(new Date(cutoffDates.min), new Date(cutoffDates.max));
       state.dateStart = getStartDate(cutoffDates.max);
       state.dateEnd = cutoffDates.max;
       state.currentYear = new Date(state.dateEnd).getFullYear();
@@ -194,7 +192,6 @@ const filtersSlice = createSlice({
         state.dateEnd,
         state.customCalendar
       );
-      // console.log(unitsList);
       state.stackedCheckList = unitsList;
       state.sankeyCheckList = unitsList;
       state.ridgelineCheckList = unitsList;
@@ -235,9 +232,16 @@ const filtersSlice = createSlice({
         state.customCalendar,
         state.ridgelineCheckList
       );
-      // console.log(state.ridgelineArrState);
 
       state.reportSrcState = getReportArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.regexpPattern,
+        state.minValue
+      );
+
+      state.reportStations = getReportStationsArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
@@ -338,10 +342,6 @@ const filtersSlice = createSlice({
         state.pastYear
       );
 
-      console.log(
-        periodDatesFromRegex.periodStart,
-        periodDatesFromRegex.periodEnd
-      );
       state.dateStart = periodDatesFromRegex.periodStart;
       state.dateEnd = periodDatesFromRegex.periodEnd;
 
@@ -359,6 +359,14 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.regexpPattern
+      );
+
+      state.reportStations = getReportStationsArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.regexpPattern,
+        state.minValue
       );
     },
 
@@ -417,7 +425,6 @@ const filtersSlice = createSlice({
           state.dateEnd,
           state.customCalendar
         );
-        // console.log("unitsList", unitsList);
         state.stackedCheckList = unitsList;
         state.sankeyCheckList = unitsList;
         state.ridgelineCheckList = unitsList;
@@ -458,6 +465,14 @@ const filtersSlice = createSlice({
       }
 
       state.reportSrcState = getReportArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.regexpPattern,
+        state.minValue
+      );
+
+      state.reportStations = getReportStationsArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
@@ -507,7 +522,6 @@ const filtersSlice = createSlice({
           state.dateEnd,
           state.customCalendar
         );
-        // console.log("unitsList", unitsList);
         state.stackedCheckList = unitsList;
         state.sankeyCheckList = unitsList;
         state.ridgelineCheckList = unitsList;
@@ -548,6 +562,14 @@ const filtersSlice = createSlice({
       }
 
       state.reportSrcState = getReportArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+        state.regexpPattern,
+        state.minValue
+      );
+
+      state.reportStations = getReportStationsArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
@@ -682,7 +704,6 @@ const filtersSlice = createSlice({
           state.minValue,
           state.sankeyCheckList
         );
-        console.log(state.sankeyArrState);
       }
     },
 
@@ -713,7 +734,6 @@ const filtersSlice = createSlice({
           state.minValue,
           state.ridgelineCheckList
         );
-        // console.log(state.ridgelineArrState);
       }
     },
 
