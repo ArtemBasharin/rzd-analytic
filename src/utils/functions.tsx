@@ -483,3 +483,35 @@ export const getPeriodDatesFromRegex = (
     periodEnd: periodEnd,
   };
 };
+
+export function sumValuesByKey(obj: any, key: string) {
+  let results: number[] = [];
+
+  // Рекурсивная функция для обхода объекта
+  function traverse(currentObj: any) {
+    for (let prop in currentObj) {
+      if (currentObj.hasOwnProperty(prop)) {
+        if (prop === key) {
+          // Если текущий ключ совпадает с искомым, добавляем значение в результат
+          results.push(currentObj[prop]);
+        }
+        // Если текущее свойство — объект (или массив), рекурсивно обходим его
+        if (typeof currentObj[prop] === "object" && currentObj[prop] !== null) {
+          traverse(currentObj[prop]);
+        }
+      }
+    }
+  }
+
+  traverse(obj);
+
+  const results2 = results.map((el: any) => {
+    return (
+      el.freightDuration + el.passDuration + el.subDuration + el.otherDuration
+    );
+  });
+
+  console.log(results2);
+  const result = results2.reduce((acc, curr) => acc + curr, 0);
+  return result;
+}

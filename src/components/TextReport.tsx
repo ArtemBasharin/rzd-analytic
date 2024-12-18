@@ -10,10 +10,11 @@ import {
   renameCategory,
   getOneUnitReport,
   getOneUnitReportWithCompare,
+  sumValuesByKey,
 } from "../utils/functions";
 
 import { cutDecimals } from "../utils/functions";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 interface RootState {
   filters: {
@@ -287,8 +288,20 @@ const TextReportTemplatePeriod = () => {
           )}
           {isRightTableVisible &&
             dicUnitForTableStations.map((unit) => {
-              return (
-                <td key={unit}>
+              const pastCell = (
+                <td key={"past-" + unit}>
+                  {pastYearPlace && pastYearPlace[unit]
+                    ? cutDecimals(
+                        pastYearPlace[unit].freightDuration +
+                          pastYearPlace[unit].passDuration +
+                          pastYearPlace[unit].subDuration +
+                          pastYearPlace[unit].otherDuration
+                      )
+                    : ""}
+                </td>
+              );
+              const currentCell = (
+                <td key={"cur" + unit}>
                   {currentYearPlace && currentYearPlace[unit]
                     ? cutDecimals(
                         currentYearPlace[unit].freightDuration +
@@ -299,6 +312,7 @@ const TextReportTemplatePeriod = () => {
                     : ""}
                 </td>
               );
+              return [pastCell, currentCell];
             })}
         </tr>
       ),
@@ -324,138 +338,131 @@ const TextReportTemplatePeriod = () => {
     }
   );
 
+  //итоговая строка всей таблицы
+  tableStationsLayout.push(
+    <tr className="table_bold text_header table_fill">
+      <td className="table_bold_right table_fill">Всего</td>
+      <td>{arr[0].sum.pastYearTotalDurations}</td>
+      <td className="table_bold_right table_fill">
+        {arr[1].sum.currentYearTotalDurations}
+      </td>
+      {cellComparingPercents(
+        arr[0].sum.pastYearTotalDurations,
+        arr[1].sum.currentYearTotalDurations
+      )}
+
+      {/* итоговая строка правой части таблицы*/}
+      {isRightTableVisible &&
+        dicUnitForTableStations.map((unit) => {
+          const pastCell = (
+            <td key={"past-" + unit}>
+              {cutDecimals(sumValuesByKey(stationsReport[0].report, unit))}
+            </td>
+          );
+
+          const currentCell = (
+            <td key={"cur-" + unit}>
+              {cutDecimals(sumValuesByKey(stationsReport[1].report, unit))}
+            </td>
+          );
+
+          return [pastCell, currentCell];
+        })}
+    </tr>
+  );
+
   ///////////////////////////////////////////////////////
   return (
-    <div className="text_container">
-      <p className="text_paragraph">
-        1. За рассматриваемый период допущено{" "}
-        {getNumberWithWord(arr[1].sum.currentYearTotalFails, varFails)} (далее –
-        ТН), за аналогичный период прошлого года было допущено{" "}
-        {arr[0].sum.pastYearTotalFails} ТН,{" "}
-        {getComparisonText(
-          arr[1].sum.currentYearTotalFails,
-          arr[0].sum.pastYearTotalFails
-        )}
-        . {getWordOnly(arr[1].sum.currentYearTotalDelays, varDelay, true)}{" "}
-        {getNumberWithWord(arr[1].sum.currentYearTotalDelays, varTrains)}, за
-        аналогичный период прошлого года{" "}
-        {getWordOnly(arr[0].sum.pastYearTotalDelays, varDelay)}{" "}
-        {getNumberWithWord(arr[0].sum.pastYearTotalDelays, varTrains)},{" "}
-        {getComparisonText(
-          arr[1].sum.currentYearTotalDelays,
-          arr[0].sum.pastYearTotalDelays
-        )}
-        . Общая продолжительность задержек поездов составила{" "}
-        {arr[1].sum.currentYearTotalDurations} ч, за аналогичный период прошлого
-        года продолжительность задержек составила{" "}
-        {arr[0].sum.pastYearTotalDurations} ч,{" "}
-        {getComparisonText(
-          arr[1].sum.currentYearTotalDurations,
-          arr[0].sum.pastYearTotalDurations
-        )}
-        .
-      </p>
-      <p className="text_paragraph">
-        2. Определен тип у{" "}
-        {arr[1].sum.currentYearTotalTechnical +
-          arr[1].sum.currentYearTotalTechnological +
-          arr[1].sum.currentYearTotalSpecial +
-          arr[1].sum.currentYearTotalExternal}{" "}
-        ТН, из них:
-      </p>
+    <>
+      <div className="text_container">
+        <p className="text_paragraph">
+          1. За рассматриваемый период допущено{" "}
+          {getNumberWithWord(arr[1].sum.currentYearTotalFails, varFails)} (далее
+          – ТН), за аналогичный период прошлого года было допущено{" "}
+          {arr[0].sum.pastYearTotalFails} ТН,{" "}
+          {getComparisonText(
+            arr[1].sum.currentYearTotalFails,
+            arr[0].sum.pastYearTotalFails
+          )}
+          . {getWordOnly(arr[1].sum.currentYearTotalDelays, varDelay, true)}{" "}
+          {getNumberWithWord(arr[1].sum.currentYearTotalDelays, varTrains)}, за
+          аналогичный период прошлого года{" "}
+          {getWordOnly(arr[0].sum.pastYearTotalDelays, varDelay)}{" "}
+          {getNumberWithWord(arr[0].sum.pastYearTotalDelays, varTrains)},{" "}
+          {getComparisonText(
+            arr[1].sum.currentYearTotalDelays,
+            arr[0].sum.pastYearTotalDelays
+          )}
+          . Общая продолжительность задержек поездов составила{" "}
+          {arr[1].sum.currentYearTotalDurations} ч, за аналогичный период
+          прошлого года продолжительность задержек составила{" "}
+          {arr[0].sum.pastYearTotalDurations} ч,{" "}
+          {getComparisonText(
+            arr[1].sum.currentYearTotalDurations,
+            arr[0].sum.pastYearTotalDurations
+          )}
+          .
+        </p>
+        <p className="text_paragraph">
+          2. Определен тип у{" "}
+          {arr[1].sum.currentYearTotalTechnical +
+            arr[1].sum.currentYearTotalTechnological +
+            arr[1].sum.currentYearTotalSpecial +
+            arr[1].sum.currentYearTotalExternal}{" "}
+          ТН, из них:
+        </p>
 
-      <p className="text_paragraph">
-        технического характера – {arr[1].sum.currentYearTotalTechnical} (в{" "}
-        {pastYear} г. – {arr[0].sum.pastYearTotalTechnical}),{" "}
-        {getComparisonText(
-          arr[1].sum.currentYearTotalTechnical,
-          arr[0].sum.pastYearTotalTechnical
-        )}
-        ;
-      </p>
+        <p className="text_paragraph">
+          технического характера – {arr[1].sum.currentYearTotalTechnical} (в{" "}
+          {pastYear} г. – {arr[0].sum.pastYearTotalTechnical}),{" "}
+          {getComparisonText(
+            arr[1].sum.currentYearTotalTechnical,
+            arr[0].sum.pastYearTotalTechnical
+          )}
+          ;
+        </p>
 
-      <p className="text_paragraph">
-        технологического характера – {arr[1].sum.currentYearTotalTechnological}{" "}
-        (в {pastYear} г. – {arr[0].sum.pastYearTotalTechnological}),{" "}
-        {getComparisonText(
-          arr[1].sum.currentYearTotalTechnological,
-          arr[0].sum.pastYearTotalTechnological
-        )}
-        ;
-      </p>
+        <p className="text_paragraph">
+          технологического характера –{" "}
+          {arr[1].sum.currentYearTotalTechnological} (в {pastYear} г. –{" "}
+          {arr[0].sum.pastYearTotalTechnological}),{" "}
+          {getComparisonText(
+            arr[1].sum.currentYearTotalTechnological,
+            arr[0].sum.pastYearTotalTechnological
+          )}
+          ;
+        </p>
 
-      <p className="text_paragraph">
-        особая технологическая необходимость –{" "}
-        {arr[1].sum.currentYearTotalSpecial} (в {pastYear} г. –{" "}
-        {arr[0].sum.pastYearTotalSpecial}),{" "}
-        {getComparisonText(
-          arr[1].sum.currentYearTotalSpecial,
-          arr[0].sum.pastYearTotalSpecial
-        )}
-        ;
-      </p>
+        <p className="text_paragraph">
+          особая технологическая необходимость –{" "}
+          {arr[1].sum.currentYearTotalSpecial} (в {pastYear} г. –{" "}
+          {arr[0].sum.pastYearTotalSpecial}),{" "}
+          {getComparisonText(
+            arr[1].sum.currentYearTotalSpecial,
+            arr[0].sum.pastYearTotalSpecial
+          )}
+          ;
+        </p>
 
-      <p className="text_paragraph">
-        внешние – {arr[1].sum.currentYearTotalExternal} (в {pastYear} г. –{" "}
-        {arr[0].sum.pastYearTotalExternal}),{" "}
-        {getComparisonText(
-          arr[1].sum.currentYearTotalExternal,
-          arr[0].sum.pastYearTotalExternal
-        )}
-        ;
-      </p>
+        <p className="text_paragraph">
+          внешние – {arr[1].sum.currentYearTotalExternal} (в {pastYear} г. –{" "}
+          {arr[0].sum.pastYearTotalExternal}),{" "}
+          {getComparisonText(
+            arr[1].sum.currentYearTotalExternal,
+            arr[0].sum.pastYearTotalExternal
+          )}
+          ;
+        </p>
 
-      <p className="text_paragraph">
-        ТН по ответственности подразделений: {text.concat("")}
-      </p>
-      <p style={{ lineHeight: "30px" }}>&nbsp;&nbsp;</p>
+        <p className="text_paragraph">
+          ТН по ответственности подразделений: {text.concat("")}
+        </p>
+        <p style={{ lineHeight: "30px" }}>&nbsp;&nbsp;</p>
 
-      <table className="table_bold">
-        <tr className="table_bold text_header">
-          <td rowSpan={2} className="table_bold ">
-            Подразделение
-          </td>
-          <th colSpan={2}>
-            Поездо-часы <br />
-            задержек
-          </th>
-          <th rowSpan={2} className="table_bold ">
-            +/- % (ч) к<br />
-            прошлому <br />
-            году
-          </th>
-          <th colSpan={2}>
-            По отношению к общему
-            <br />
-            количеству поездо-часов, %
-          </th>
-        </tr>
-        <tr className="table_bold text_header">
-          <td>{pastYear}</td>
-          <td>{currentYear}</td>
-          <td>{pastYear}</td>
-          <td>{currentYear}</td>
-        </tr>
-
-        {tableLayout}
-      </table>
-
-      <div>
-        <h2
-          style={{ lineHeight: "50px", textAlign: "center", marginTop: "15px" }}
-        >
-          Распределение технологических нарушений по железнодорожным станциям
-        </h2>
-        <button onClick={toggleRightTable}>
-          {isRightTableVisible ? "Скрыть" : "Распределить"} подразделения
-        </button>
-      </div>
-
-      <table className="table_bold" style={{ width: "1600px" }}>
-        <thead>
+        <table className="table_bold">
           <tr className="table_bold text_header">
             <td rowSpan={2} className="table_bold ">
-              Станция
+              Подразделение
             </td>
             <th colSpan={2}>
               Поездо-часы <br />
@@ -466,31 +473,83 @@ const TextReportTemplatePeriod = () => {
               прошлому <br />
               году
             </th>
-            {isRightTableVisible &&
-              dicUnitForTableStations.map((unit) => {
-                return (
-                  <th
-                    rowSpan={2}
-                    style={{
-                      writingMode: "vertical-rl",
-                      transform: "rotate(180deg)",
-                      height: "130px", // Фиксированная высота ячейки
-                      whiteSpace: "normal",
-                    }}
-                  >
-                    {unit}
-                  </th>
-                );
-              })}
+            <th colSpan={2}>
+              По отношению к общему
+              <br />
+              количеству поездо-часов, %
+            </th>
           </tr>
           <tr className="table_bold text_header">
             <td>{pastYear}</td>
             <td>{currentYear}</td>
+            <td>{pastYear}</td>
+            <td>{currentYear}</td>
           </tr>
-        </thead>
-        {tableStationsLayout}
-      </table>
-    </div>
+
+          {tableLayout}
+        </table>
+
+        <div>
+          <h2
+            style={{
+              lineHeight: "50px",
+              textAlign: "center",
+              marginTop: "15px",
+            }}
+          >
+            Распределение технологических нарушений по железнодорожным станциям
+            <button onClick={toggleRightTable} className="table_right_button">
+              {!isRightTableVisible
+                ? " (консолидированное представление)"
+                : " (c распределением по подразделениям)"}
+            </button>
+          </h2>
+        </div>
+      </div>
+      <div className="stations_container">
+        <table className="table_bold table_stations" id="stations_container">
+          <thead>
+            <tr className="table_bold text_header">
+              <td rowSpan={2} className="table_bold ">
+                Станция
+              </td>
+              <th colSpan={2}>
+                Поездо-часы <br />
+                задержек
+              </th>
+              <th rowSpan={2} className="table_bold ">
+                +/- % (ч) к <br />
+                прошлому <br />
+                году
+              </th>
+              {isRightTableVisible &&
+                dicUnitForTableStations.map((unit) => {
+                  return (
+                    <th
+                      rowSpan={2}
+                      colSpan={2}
+                      style={{
+                        writingMode: "vertical-rl",
+                        transform: "rotate(180deg)",
+                        height: "130px", // Фиксированная высота ячейки
+                        whiteSpace: "normal",
+                        fontSize: "12px",
+                      }}
+                    >
+                      {unit}
+                    </th>
+                  );
+                })}
+            </tr>
+            <tr className="table_bold text_header">
+              <td>{pastYear}</td>
+              <td>{currentYear}</td>
+            </tr>
+          </thead>
+          {tableStationsLayout}
+        </table>
+      </div>
+    </>
   );
 };
 

@@ -1,0 +1,24 @@
+td {
+  min-width: 10px;
+  text-align: center;
+}
+
+.table_stations {
+  font-family: "Times New Roman", Times, serif;
+
+  margin: 30px auto 0 auto;
+  max-width: 1850px;
+  line-height: 21.5px;
+}
+
+.stations_container {
+  width: 100%;
+  max-width: 1850px;
+  overflow: visible;
+}
+
+.table_right_button {
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+}
