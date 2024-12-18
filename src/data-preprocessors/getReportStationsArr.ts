@@ -207,7 +207,7 @@ export const getReportStationsArr = (
     resultArray.forEach((item) => {
       item.report = aggregateData(item.report);
     });
-
+    console.log(resultArray);
     return resultArray;
   }
 

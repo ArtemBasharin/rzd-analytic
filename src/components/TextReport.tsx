@@ -13,6 +13,7 @@ import {
 } from "../utils/functions";
 
 import { cutDecimals } from "../utils/functions";
+import { useEffect, useState } from "react";
 
 interface RootState {
   filters: {
@@ -51,6 +52,11 @@ const TextReportTemplatePeriod = () => {
   const stationsReport = useSelector(
     (state: RootState) => state.filters.reportStations
   );
+
+  const [isRightTableVisible, setRightTableVisible] = useState(false);
+  const toggleRightTable = () => {
+    setRightTableVisible(!isRightTableVisible);
+  };
 
   let currentYear: number = d3.max(arr.map((el) => el.year));
   let pastYear: number = currentYear - 1;
@@ -279,20 +285,21 @@ const TextReportTemplatePeriod = () => {
             pastYearPlaceTotalDuration,
             currentYearPlaceTotalDuration
           )}
-          {dicUnitForTableStations.map((unit) => {
-            return (
-              <td key={unit}>
-                {currentYearPlace && currentYearPlace[unit]
-                  ? cutDecimals(
-                      currentYearPlace.freightDuration +
-                        currentYearPlace.passDuration +
-                        currentYearPlace.subDuration +
-                        currentYearPlace.otherDuration
-                    )
-                  : ""}
-              </td>
-            );
-          })}
+          {isRightTableVisible &&
+            dicUnitForTableStations.map((unit) => {
+              return (
+                <td key={unit}>
+                  {currentYearPlace && currentYearPlace[unit]
+                    ? cutDecimals(
+                        currentYearPlace[unit].freightDuration +
+                          currentYearPlace[unit].passDuration +
+                          currentYearPlace[unit].subDuration +
+                          currentYearPlace[unit].otherDuration
+                      )
+                    : ""}
+                </td>
+              );
+            })}
         </tr>
       ),
       pastYear: pastYearPlaceTotalDuration,
@@ -439,6 +446,9 @@ const TextReportTemplatePeriod = () => {
         >
           Распределение технологических нарушений по железнодорожным станциям
         </h2>
+        <button onClick={toggleRightTable}>
+          {isRightTableVisible ? "Скрыть" : "Распределить"} подразделения
+        </button>
       </div>
 
       <table className="table_bold" style={{ width: "1600px" }}>
@@ -456,21 +466,22 @@ const TextReportTemplatePeriod = () => {
               прошлому <br />
               году
             </th>
-            {dicUnitForTableStations.map((unit) => {
-              return (
-                <th
-                  rowSpan={2}
-                  style={{
-                    writingMode: "vertical-rl",
-                    transform: "rotate(180deg)",
-                    height: "130px", // Фиксированная высота ячейки
-                    whiteSpace: "normal",
-                  }}
-                >
-                  {unit}
-                </th>
-              );
-            })}
+            {isRightTableVisible &&
+              dicUnitForTableStations.map((unit) => {
+                return (
+                  <th
+                    rowSpan={2}
+                    style={{
+                      writingMode: "vertical-rl",
+                      transform: "rotate(180deg)",
+                      height: "130px", // Фиксированная высота ячейки
+                      whiteSpace: "normal",
+                    }}
+                  >
+                    {unit}
+                  </th>
+                );
+              })}
           </tr>
           <tr className="table_bold text_header">
             <td>{pastYear}</td>
