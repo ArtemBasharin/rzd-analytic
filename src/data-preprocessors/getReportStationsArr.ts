@@ -96,99 +96,241 @@ export const getReportStationsArr = (
     });
   };
 
-  function aggregateData(inputArray: any[]) {
-    const resultMap = new Map();
+  // function aggregateData(inputArray: any[]) {
+  //   console.log("inputArray", inputArray);
+  //   const resultMap = new Map();
+
+  //   inputArray.forEach((item) => {
+  //     const keyPlace = item.place; // keyPlace — это строка
+  //     const keyGuiltyUnit = item.guiltyUnit;
+
+  //     // Если keyPlace уже есть в resultMap
+  //     if (resultMap.has(keyPlace)) {
+  //       const existingPlace = resultMap.get(keyPlace);
+  //       existingPlace.count++;
+  //       existingPlace.freightDelayed += item.freightDelayed;
+  //       existingPlace.freightDuration += item.freightDuration;
+  //       existingPlace.passDelayed += item.passDelayed;
+  //       existingPlace.passDuration += item.passDuration;
+  //       existingPlace.subDelayed += item.subDelayed;
+  //       existingPlace.subDuration += item.subDuration;
+  //       existingPlace.otherDelayed += item.otherDelayed;
+  //       existingPlace.otherDuration += item.otherDuration;
+
+  //       // Обновляем свойство keyGuiltyUnit
+  //       if (existingPlace[keyGuiltyUnit]) {
+  //         const existingUnit = existingPlace[keyGuiltyUnit];
+  //         existingUnit.count++;
+  //         existingUnit.freightDelayed += item.freightDelayed;
+  //         existingUnit.freightDuration += item.freightDuration;
+  //         existingUnit.passDelayed += item.passDelayed;
+  //         existingUnit.passDuration += item.passDuration;
+  //         existingUnit.subDelayed += item.subDelayed;
+  //         existingUnit.subDuration += item.subDuration;
+  //         existingUnit.otherDelayed += item.otherDelayed;
+  //         existingUnit.otherDuration += item.otherDuration;
+  //       } else {
+  //         existingPlace[keyGuiltyUnit] = {
+  //           count: 1,
+  //           freightDelayed: item.freightDelayed,
+  //           freightDuration: item.freightDuration,
+  //           passDelayed: item.passDelayed,
+  //           passDuration: item.passDuration,
+  //           subDelayed: item.subDelayed,
+  //           subDuration: item.subDuration,
+  //           otherDelayed: item.otherDelayed,
+  //           otherDuration: item.otherDuration,
+  //         };
+  //       }
+  //     } else {
+  //       // Если keyPlace отсутствует в resultMap
+  //       const newPlace = {
+  //         ...item,
+  //         count: 1,
+  //       };
+
+  //       // Добавляем свойство keyGuiltyUnit в keyPlace
+  //       newPlace[keyGuiltyUnit] = {
+  //         count: 1,
+  //         freightDelayed: item.freightDelayed,
+  //         freightDuration: item.freightDuration,
+  //         passDelayed: item.passDelayed,
+  //         passDuration: item.passDuration,
+  //         subDelayed: item.subDelayed,
+  //         subDuration: item.subDuration,
+  //         otherDelayed: item.otherDelayed,
+  //         otherDuration: item.otherDuration,
+  //       };
+
+  //       resultMap.set(keyPlace, newPlace);
+  //     }
+  //   });
+
+  //   resultMap.forEach((value) => {
+  //     delete value.startTime;
+  //     delete value.guiltyUnit;
+  //     delete value.failReason;
+  //     delete value.failKind;
+  //   });
+
+  //   console.log(resultMap);
+
+  //   const resultArray = Array.from(resultMap, ([key, value]) => value);
+  //   resultArray.forEach((el) => {
+  //     el.place = el.place.split(",").slice(-1).join("");
+  //     el.totalDelayed = cutDecimals(
+  //       el.freightDelayed + el.passDelayed + el.subDelayed + el.otherDelayed
+  //     );
+  //     el.totalDuration = cutDecimals(
+  //       el.freightDuration + el.passDuration + el.subDuration + el.otherDuration
+  //     );
+  //   });
+
+  //   resultArray.sort((a, b) => b.count - a.count);
+  //   return resultArray;
+  // }
+
+  type InputItem = {
+    place: string;
+    guiltyUnit: string;
+    failReason: string;
+    freightDelayed: number;
+    freightDuration: number;
+    passDelayed: number;
+    passDuration: number;
+    subDelayed: number;
+    subDuration: number;
+    otherDelayed: number;
+    otherDuration: number;
+    startTime?: string;
+    failKind?: string;
+  };
+
+  type GuiltyUnitData = {
+    count: number;
+    freightDelayed: number;
+    freightDuration: number;
+    passDelayed: number;
+    passDuration: number;
+    subDelayed: number;
+    subDuration: number;
+    otherDelayed: number;
+    otherDuration: number;
+  };
+
+  type AggregatedPlace = {
+    place: string;
+    count: number;
+    freightDelayed: number;
+    freightDuration: number;
+    passDelayed: number;
+    passDuration: number;
+    subDelayed: number;
+    subDuration: number;
+    otherDelayed: number;
+    otherDuration: number;
+    [guiltyUnit: string]: GuiltyUnitData | string | number;
+  };
+
+  function aggregateData(inputArray: InputItem[]): AggregatedPlace[] {
+    const resultArray: AggregatedPlace[] = [];
 
     inputArray.forEach((item) => {
-      const keyPlace = item.place; // keyPlace — это объект
-      const keyGuiltyUnit = item.guiltyUnit;
+      // Найти существующую запись для места
+      const existingPlace = resultArray.find(
+        (entry) => entry.place === item.place
+      );
 
-      // Если keyPlace уже есть в resultMap
-      if (resultMap.has(keyPlace)) {
-        const existingPlace = resultMap.get(keyPlace);
+      if (existingPlace) {
         existingPlace.count++;
-        if (!existingPlace.failReason.includes(item.failReason)) {
-          existingPlace.failReason.push(item.failReason);
+        if (!Array.isArray(existingPlace.failReason)) {
+          existingPlace.failReason = "";
         }
-        existingPlace.freightDelayed += item.freightDelayed;
-        existingPlace.freightDuration += item.freightDuration;
-        existingPlace.passDelayed += item.passDelayed;
-        existingPlace.passDuration += item.passDuration;
-        existingPlace.subDelayed += item.subDelayed;
-        existingPlace.subDuration += item.subDuration;
-        existingPlace.otherDelayed += item.otherDelayed;
-        existingPlace.otherDuration += item.otherDuration;
 
-        // Обновляем свойство keyGuiltyUnit
-        if (existingPlace[keyGuiltyUnit]) {
-          const existingUnit = existingPlace[keyGuiltyUnit];
+        existingPlace.freightDelayed += item.freightDelayed || 0;
+        existingPlace.freightDuration += item.freightDuration || 0;
+        existingPlace.passDelayed += item.passDelayed || 0;
+        existingPlace.passDuration += item.passDuration || 0;
+        existingPlace.subDelayed += item.subDelayed || 0;
+        existingPlace.subDuration += item.subDuration || 0;
+        existingPlace.otherDelayed += item.otherDelayed || 0;
+        existingPlace.otherDuration += item.otherDuration || 0;
+
+        // Обновляем данные для guiltyUnit
+        if (existingPlace[item.guiltyUnit]) {
+          const existingUnit = existingPlace[item.guiltyUnit] as GuiltyUnitData;
           existingUnit.count++;
-          existingUnit.freightDelayed += item.freightDelayed;
-          existingUnit.freightDuration += item.freightDuration;
-          existingUnit.passDelayed += item.passDelayed;
-          existingUnit.passDuration += item.passDuration;
-          existingUnit.subDelayed += item.subDelayed;
-          existingUnit.subDuration += item.subDuration;
-          existingUnit.otherDelayed += item.otherDelayed;
-          existingUnit.otherDuration += item.otherDuration;
+          existingUnit.freightDelayed += item.freightDelayed || 0;
+          existingUnit.freightDuration += item.freightDuration || 0;
+          existingUnit.passDelayed += item.passDelayed || 0;
+          existingUnit.passDuration += item.passDuration || 0;
+          existingUnit.subDelayed += item.subDelayed || 0;
+          existingUnit.subDuration += item.subDuration || 0;
+          existingUnit.otherDelayed += item.otherDelayed || 0;
+          existingUnit.otherDuration += item.otherDuration || 0;
         } else {
-          existingPlace[keyGuiltyUnit] = {
+          existingPlace[item.guiltyUnit] = {
             count: 1,
-            freightDelayed: item.freightDelayed,
-            freightDuration: item.freightDuration,
-            passDelayed: item.passDelayed,
-            passDuration: item.passDuration,
-            subDelayed: item.subDelayed,
-            subDuration: item.subDuration,
-            otherDelayed: item.otherDelayed,
-            otherDuration: item.otherDuration,
+            freightDelayed: item.freightDelayed || 0,
+            freightDuration: item.freightDuration || 0,
+            passDelayed: item.passDelayed || 0,
+            passDuration: item.passDuration || 0,
+            subDelayed: item.subDelayed || 0,
+            subDuration: item.subDuration || 0,
+            otherDelayed: item.otherDelayed || 0,
+            otherDuration: item.otherDuration || 0,
           };
         }
       } else {
-        // Если keyPlace отсутствует в resultMap
-        const newPlace = {
-          ...item,
+        const newPlace: AggregatedPlace = {
+          place: item.place,
           count: 1,
-          failReason: [item.failReason], // Используем массив для хранения причин
+          freightDelayed: item.freightDelayed || 0,
+          freightDuration: item.freightDuration || 0,
+          passDelayed: item.passDelayed || 0,
+          passDuration: item.passDuration || 0,
+          subDelayed: item.subDelayed || 0,
+          subDuration: item.subDuration || 0,
+          otherDelayed: item.otherDelayed || 0,
+          otherDuration: item.otherDuration || 0,
+          [item.guiltyUnit]: {
+            count: 1,
+            freightDelayed: item.freightDelayed || 0,
+            freightDuration: item.freightDuration || 0,
+            passDelayed: item.passDelayed || 0,
+            passDuration: item.passDuration || 0,
+            subDelayed: item.subDelayed || 0,
+            subDuration: item.subDuration || 0,
+            otherDelayed: item.otherDelayed || 0,
+            otherDuration: item.otherDuration || 0,
+          },
         };
-
-        // Добавляем свойство keyGuiltyUnit в keyPlace
-        newPlace[keyGuiltyUnit] = {
-          count: 1,
-          freightDelayed: item.freightDelayed,
-          freightDuration: item.freightDuration,
-          passDelayed: item.passDelayed,
-          passDuration: item.passDuration,
-          subDelayed: item.subDelayed,
-          subDuration: item.subDuration,
-          otherDelayed: item.otherDelayed,
-          otherDuration: item.otherDuration,
-        };
-
-        resultMap.set(keyPlace, newPlace);
+        resultArray.push(newPlace);
       }
     });
 
-    resultMap.forEach((value) => {
-      delete value.startTime;
-      delete value.guiltyUnit;
-      delete value.failReason;
-      delete value.failKind;
-    });
-
-    const resultArray = Array.from(resultMap, ([key, value]) => value);
     resultArray.forEach((el) => {
-      el.place = el.place.split(",").slice(-1).join("");
-      el.totalDelayed = cutDecimals(
+      delete el.startTime;
+      delete el.guiltyUnit;
+      delete el.failReason;
+      delete el.failKind;
+
+      el.place = el.place.split(",").slice(-1).join("").trim();
+      el["totalDelayed"] = cutDecimals(
         el.freightDelayed + el.passDelayed + el.subDelayed + el.otherDelayed
       );
-      el.totalDuration = cutDecimals(
+      el["totalDuration"] = cutDecimals(
         el.freightDuration + el.passDuration + el.subDuration + el.otherDuration
       );
     });
 
     resultArray.sort((a, b) => b.count - a.count);
+
     return resultArray;
+  }
+
+  function cutDecimals(value: number): number {
+    return Math.round(value * 100) / 100; // Округляет значение до 2 знаков после запятой
   }
 
   function aggregateDataWithYearAndReport(inputArray: any[]) {

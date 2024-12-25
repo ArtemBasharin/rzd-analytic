@@ -511,7 +511,6 @@ export function sumValuesByKey(obj: any, key: string) {
     );
   });
 
-  console.log(results2);
   const result = results2.reduce((acc, curr) => acc + curr, 0);
   return result;
 }

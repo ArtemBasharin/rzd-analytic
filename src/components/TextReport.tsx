@@ -154,6 +154,9 @@ const TextReportTemplatePeriod = () => {
 
   const dicUnitForTableStationsAsSet: Set<string> = new Set();
 
+  arr[0].report.forEach((el: any) => {
+    dicUnitForTableStationsAsSet.add(el.guiltyUnit);
+  });
   arr[1].report.forEach((el: any) => {
     dicUnitForTableStationsAsSet.add(el.guiltyUnit);
   });
