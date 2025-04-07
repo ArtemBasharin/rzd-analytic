@@ -21,7 +21,6 @@ const BarGroupedLine = (props) => {
     let resData = props.stats.slice(0, findTrimIndex(props.stats, minValue));
 
     let amountOfLabels = resData.length;
-    // console.log("amountOfLabels", amountOfLabels);
 
     const getMaxLabelLength = () => {
       if (props.stats[0].label) {
@@ -78,7 +77,7 @@ const BarGroupedLine = (props) => {
       .attr("transform", `translate(-3,5)rotate(${rotationAngle})`)
       .attr("text-anchor", "end")
       .attr("font-size", function (d) {
-        return `${(1 - amountOfLabels / 100) * 15}px`; // ${(1 - amountOfLabels / 10) * 10}px
+        return `${(1 - amountOfLabels / 100) * 20}px`; // ${(1 - amountOfLabels / 10) * 10}px
       })
       .attr("font-weight", "700")
       .call(wrap, margin.bottom, getLinesOfLabelsAmount()); //text wrap, instead x.bandwidth() pasted margin.bottom

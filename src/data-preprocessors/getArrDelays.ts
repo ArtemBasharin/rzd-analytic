@@ -4,8 +4,7 @@ import {
   freightDelayed,
   passDelayed,
   subDelayed,
-  otherDelayed,
-} from "../utils/config";
+  } from "../utils/config";
 
 export const getArrDelays = (
   srcArray: any[],

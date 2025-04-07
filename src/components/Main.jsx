@@ -40,7 +40,6 @@ function Main() {
 
   let areaWidth = window.innerWidth;
   let areaHeight = window.innerHeight;
-  // console.log("areaHeight", areaHeight);
 
   const paramsGroupedSection = {
     id: 15, //this prop need to create unique #id svg elements

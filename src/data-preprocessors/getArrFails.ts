@@ -34,12 +34,12 @@ export const getArrFails = (
     src.forEach((element) => {
       if (element[name]) {
         if (
-          element[name].includes(prop) &&
+          element[name] === (prop) &&
           element[startTime].includes(pastYear)
         )
           pastYearCount++;
         if (
-          element[name].includes(prop) &&
+          element[name]===(prop) &&
           element[startTime].includes(currentYear)
         )
           currentYearCount++;
@@ -54,12 +54,11 @@ export const getArrFails = (
   // create array for chart section with some kinds fails
   let failsArray = [];
   failsArray.push(totalFailsCounter(srcArray));
-
   failsArray.push(
-    failsCounter(srcArray, failCategory, "1 категория", "1 категории")
+    failsCounter(srcArray, failCategory, "1", "1 категории")
   );
   failsArray.push(
-    failsCounter(srcArray, failCategory, "2 категория", "2 категории")
+    failsCounter(srcArray, failCategory, "2", "2 категории")
   );
   failsArray.push(
     failsCounter(

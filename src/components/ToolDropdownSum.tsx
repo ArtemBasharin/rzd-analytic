@@ -104,7 +104,6 @@ const ToolDropdownSum = () => {
                   checked={option.checked}
                   disabled={option.isDisabled}
                   onChange={(e) => {
-                    console.log(e.target);
                     dispatch(
                       setChartCheckList({
                         name: e.target.value,

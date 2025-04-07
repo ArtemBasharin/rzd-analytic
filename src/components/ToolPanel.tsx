@@ -19,7 +19,6 @@ const ToolPanel = () => {
   const dispatch = useDispatch();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   // let date = new Date();
-  console.log("currentYear", currentYear);
 
   useEffect(() => {
     let params = {

@@ -13,6 +13,7 @@ import {
   getCustomCalendar,
   getPeriodDatesFromRegex,
   updateChartProperty,
+  cutDecimals,
 } from "../utils/functions";
 import { getReportArr } from "../data-preprocessors/getReportArr";
 import { getSumLineArr } from "../data-preprocessors/getSumLineArr";
@@ -263,7 +264,7 @@ const filtersSlice = createSlice({
     },
 
     increment(state) {
-      state.minValue = state.minValue + 1;
+      if (state.minValue<1) {state.minValue = cutDecimals(state.minValue + 0.1)} else {state.minValue = state.minValue+1}
 
       let sankeyArr = getSankeyArr(
         state.sourceState,
@@ -278,7 +279,10 @@ const filtersSlice = createSlice({
     },
 
     decrement(state) {
-      if (state.minValue > 0) state.minValue = state.minValue - 1;
+
+      if (state.minValue > 0 && state.minValue<=1) state.minValue = cutDecimals(state.minValue - 0.1)
+      if (state.minValue > 0 && state.minValue>1) state.minValue = cutDecimals(state.minValue - 1)
+
 
       let sankeyArr = getSankeyArr(
         state.sourceState,
@@ -382,7 +386,7 @@ const filtersSlice = createSlice({
 
     setPastYear(state, action) {
       state.pastYear = action.payload;
-      state.currentYear = state.pastYear + 1;
+      // state.currentYear = state.pastYear + 1;
     },
 
     setCurrentYear(state, action) {

@@ -1,7 +1,7 @@
 import * as d3 from "d3";
 
 let startTime = "Начало отказа",
-  failCategory = "Категория отказа",
+  failCategory = "Категория",
   failKind = "Вид технологического нарушения",
   guiltyUnit = "Виновное предприятие",
   guiltyNew = "Ответственный",

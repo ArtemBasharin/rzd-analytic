@@ -115,12 +115,12 @@ export const getCustomCalendar = (
 
 export const cutDecimals = (total: number) => {
   const decimals = () => {
-    let res = 0;
-    let val = Math.round(total);
-    if (val < 1) {
+    let res=0;
+    let val = Math.trunc(Number(total));
+    if (val < 10) {
       res = 2;
     }
-    if (val >= 1 && val < 100) {
+    if (val >= 10 && val < 100) {
       res = 1;
     }
     if (val >= 100) {

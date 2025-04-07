@@ -88,8 +88,8 @@ export const getSumLineArr = (
       specialKind:
         el[failKind] === "Особая технологическая необходимость" ? 1 : 0,
       otherKind: el[failKind] === "Прочие причины" ? 1 : 0,
-      firstCat: el[failCategory] === "1 категория" ? 1 : 0,
-      secondCat: el[failCategory] === "2 категория" ? 1 : 0,
+      firstCat: el[failCategory] === "1" ? 1 : 0,
+      secondCat: el[failCategory] === "2" ? 1 : 0,
     })
   );
 
@@ -165,7 +165,6 @@ export const getSumLineArr = (
     }
   }
 
-  console.log("unitedDatesResult", unitedDatesResult);
   let deletedEmptyDatesArr = unitedDatesResult.filter(
     (el) => Object.keys(el).length > 1
   );
@@ -185,7 +184,6 @@ export const getSumLineArr = (
   }
 
   let maxValues = findMaxValues(deletedEmptyDatesArr);
-  console.log("sumLineRes", deletedEmptyDatesArr);
 
   return {
     arr: deletedEmptyDatesArr,

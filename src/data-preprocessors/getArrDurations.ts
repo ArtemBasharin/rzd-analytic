@@ -4,7 +4,6 @@ import {
   freightDuration,
   passDuration,
   subDuration,
-  otherDuration,
 } from "../utils/config";
 import { cutDecimals } from "../utils/functions";
 

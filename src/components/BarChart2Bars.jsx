@@ -5,6 +5,7 @@ import * as d3 from "d3";
 import descendArrow from "../images/descendArrow.svg";
 import increaseArrow from "../images/increaseArrow.svg";
 import transparentArrow from "../images/transparentArrow.svg";
+import { cutDecimals } from "../utils/functions";
 
 const BarChart2Bars = (props) => {
   const minValue = useSelector((state) => state.filters.minValue);
@@ -26,7 +27,6 @@ const BarChart2Bars = (props) => {
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
     let x = d3.map(resData, (d) => d.label);
-    // console.log("x", x);
 
     // X axis: scale and draw
     let X = d3
@@ -122,18 +122,17 @@ const BarChart2Bars = (props) => {
       }
       if (resData[0].value !== 0) {
         return (
-          Math.floor(
-            ((resData[1].value - resData[0].value) / resData[0].value) * 1000
-          ) /
-            10 +
+          
+            cutDecimals((resData[1].value - resData[0].value) / resData[0].value) 
+           +
           "%"
         );
       }
       if (resData[0].value === 0) {
-        return "+" + resData[1].value;
+        return "+" + cutDecimals(resData[1].value);
       }
       if (resData[1].value === 0) {
-        return "-" + resData[0].value;
+        return "-" + cutDecimals(resData[0].value);
       }
     };
     const setTextAndArrowKind = () => {

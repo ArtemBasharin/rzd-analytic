@@ -7,7 +7,6 @@ const BarChartRaceDiagram = () => {
   const svgRef8 = useRef();
   let data = useSelector((state) => state.filters.raceArrState);
   // let checkList = useSelector((state) => state.filters.raceCheckList);
-  // console.log("checkList", checkList);
 
   d3.select("#id24").selectAll("g").remove();
 
@@ -35,8 +34,6 @@ const BarChartRaceDiagram = () => {
       .map(([date, data]) => [date, data])
       .sort(([a], [b]) => d3.ascending(a, b));
 
-    console.log("datevalues", datevalues);
-
     const getKeyframes = () => {
       const keyframes = [];
       let ka, a, kb, b;
@@ -56,13 +53,11 @@ const BarChartRaceDiagram = () => {
     };
 
     let keyframes = getKeyframes();
-    console.log("keyframes", keyframes);
 
     const nameframes = d3.groups(
       keyframes.flatMap(([, data]) => data),
       (d) => d.name
     );
-    console.log("nameframes", nameframes);
 
     const prev = new Map(
       nameframes.flatMap(([, data]) => d3.pairs(data, (a, b) => [b, a]))

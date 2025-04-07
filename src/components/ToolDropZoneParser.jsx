@@ -44,10 +44,10 @@ function DropZoneParser() {
         arr.forEach((el) => {
           if (el["ID отказа"] || el["#"]) {
             if (el[guiltyNew]) {
-              el[guiltyNew] = el[guiltyNew].replace(/З-СИБ$/, "");
+              el[guiltyNew] = el[guiltyNew].replace(/Московская,$/, "");
             }
             if (el[guiltyUnit]) {
-              el[guiltyUnit] = el[guiltyUnit].replace(/З-СИБ$/, "");
+              el[guiltyUnit] = el[guiltyUnit].replace(/Московская,$/, "");
             }
           }
           result.push(el);

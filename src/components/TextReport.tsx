@@ -345,9 +345,9 @@ const TextReportTemplatePeriod = () => {
   tableStationsLayout.push(
     <tr className="table_bold text_header table_fill">
       <td className="table_bold_right table_fill">Всего</td>
-      <td>{arr[0].sum.pastYearTotalDurations}</td>
+      <td>{cutDecimals(arr[0].sum.pastYearTotalDurations)}</td>
       <td className="table_bold_right table_fill">
-        {arr[1].sum.currentYearTotalDurations}
+        {cutDecimals(arr[1].sum.currentYearTotalDurations)}
       </td>
       {cellComparingPercents(
         arr[0].sum.pastYearTotalDurations,
@@ -359,13 +359,13 @@ const TextReportTemplatePeriod = () => {
         dicUnitForTableStations.map((unit) => {
           const pastCell = (
             <td key={"past-" + unit}>
-              {cutDecimals(sumValuesByKey(stationsReport[0].report, unit))}
+              {(cutDecimals(sumValuesByKey(stationsReport[0].report, unit)))}
             </td>
           );
 
           const currentCell = (
             <td key={"cur-" + unit}>
-              {cutDecimals(sumValuesByKey(stationsReport[1].report, unit))}
+              {(cutDecimals(sumValuesByKey(stationsReport[1].report, unit)))}
             </td>
           );
 

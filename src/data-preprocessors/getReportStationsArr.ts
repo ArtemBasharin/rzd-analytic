@@ -28,7 +28,6 @@ export const getReportStationsArr = (
   minValue?: number
 ) => {
   moment().tz("Europe/London").format();
-
   const calcTotalDuration = (obj: any) => {
     let freightDur = obj[freightDuration] || 0;
     let passDur = obj[passDuration] || 0;
@@ -314,8 +313,8 @@ export const getReportStationsArr = (
       delete el.guiltyUnit;
       delete el.failReason;
       delete el.failKind;
-
-      el.place = el.place.split(",").slice(-1).join("").trim();
+     
+      if (el.place) el.place = el.place.split(",").slice(-1).join("").trim();
       el["totalDelayed"] = cutDecimals(
         el.freightDelayed + el.passDelayed + el.subDelayed + el.otherDelayed
       );
@@ -329,11 +328,7 @@ export const getReportStationsArr = (
     return resultArray;
   }
 
-  function cutDecimals(value: number): number {
-    return Math.round(value * 100) / 100; // Округляет значение до 2 знаков после запятой
-  }
-
-  function aggregateDataWithYearAndReport(inputArray: any[]) {
+   function aggregateDataWithYearAndReport(inputArray: any[]) {
     const resultArray: any[] = [];
 
     inputArray.forEach((item: any) => {
@@ -349,7 +344,7 @@ export const getReportStationsArr = (
     resultArray.forEach((item) => {
       item.report = aggregateData(item.report);
     });
-    console.log(resultArray);
+
     return resultArray;
   }
 

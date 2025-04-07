@@ -11,6 +11,7 @@ import {
   failCategory,
   failKind,
   failReason,
+place
 } from "../utils/config";
 
 export const getSankeyArr = (
@@ -51,6 +52,7 @@ export const getSankeyArr = (
         otherDuration: el[otherDuration] || 0,
         failCategory: el[failCategory],
         failKind: el[failKind],
+        place:el[place]
       });
     }
   });
@@ -73,7 +75,8 @@ export const getSankeyArr = (
 
   let unitsArrFilteredByMinValueTool = [];
   srcArrayMergedByUniqueUnits.forEach((el) => {
-    el.totalDuration >= minValue &&
+    
+    (el.totalDuration >= minValue) &&
       unitsArrFilteredByMinValueTool.push(el.guiltyUnit);
   });
 
@@ -84,7 +87,8 @@ export const getSankeyArr = (
         item.guiltyUnit === obj.guiltyUnit &&
         item.failReason === obj.failReason &&
         item.failCategory === obj.failCategory &&
-        item.failKind === obj.failKind
+        item.failKind === obj.failKind &&
+        item.place === obj.place
     );
     if (index === -1) {
       srcArrayMergedDurations.push({ ...obj });
@@ -118,12 +122,17 @@ export const getSankeyArr = (
     );
   else srcArrayFilteredByCheckedUnits = srcArrayFilteredByMinValueTool;
 
-  const keys = ["guiltyUnit", "failReason", "failCategory", "failKind"];
+  const keys = ["guiltyUnit", "place", "failReason",
+    // "failKind", 
+    // "failCategory"
+  ];
   let index = -1;
   const nodes = [];
   const nodeByKey = new d3.InternMap([], JSON.stringify);
   const indexByKey = new d3.InternMap([], JSON.stringify);
   const links = [];
+
+  console.log(srcArrayFilteredByCheckedUnits)
 
   for (const k of keys) {
     for (const d of srcArrayFilteredByCheckedUnits) {

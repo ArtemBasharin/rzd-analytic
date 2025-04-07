@@ -17,7 +17,6 @@ const SumLineDiagram = () => {
 
     let datesArr = [];
     resData.forEach((el) => datesArr.push(el.date));
-    console.log(datesArr);
 
     const svg = d3
       .select("#id24")

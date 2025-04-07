@@ -46,7 +46,7 @@ const failKindsList = [
 ];
 
  const dummyArr = (pastYear: number, currentYear: number)=>{
-console.log(pastYear, currentYear);
+
 
 const getRandomizedValue = (min: number, max: number) => {
   return Math.round(Math.random() * (max - min) + min);
@@ -58,7 +58,7 @@ const generateElement = () =>
       1,
       12
     )}-0${getRandomizedValue(1, 12)}T00:00:01.000Z`,
-    "Категория отказа": `${getRandomizedValue(1, 2)} категория`,
+    "Категория": `${getRandomizedValue(1, 2)}`,
     "Виновное предприятие":
       unitsList[getRandomizedValue(0, unitsList.length - 1)],
     "Количество грузовых поездов(по месту)": getRandomizedValue(1, 50),

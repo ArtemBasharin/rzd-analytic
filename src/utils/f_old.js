@@ -32,7 +32,6 @@ export const convertUnixToDate = (unixDate) => {
 };
 
 export const getPattern = (period) => {
-  console.log(period);
   let pattern = "";
   if (period.length < 3) {
     pattern = `${period}`;
@@ -44,7 +43,6 @@ export const getPattern = (period) => {
     }
     pattern = resultArr.join("|");
   }
-  console.log(pattern);
   return pattern;
 };
 

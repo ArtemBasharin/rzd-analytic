@@ -9,7 +9,6 @@ function DownloadButtons(props) {
 
   function downloadElementAsSVG() {
     const selectedElement = props.reference.current;
-    console.log(selectedElement);
     htmlToImage
       .toSvg(selectedElement)
       .then(function (dataUrl) {
