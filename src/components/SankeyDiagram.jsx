@@ -26,8 +26,8 @@ const SankeyDiagram = () => {
     svg.append("g");
 
     const sankeyGenerator = sankey()
-      .nodeSort(null)
-      .linkSort(null)
+      .nodeSort((a, b) => b.value - a.value)
+      .linkSort((a, b) => b.value - a.value)
       .nodeWidth(4)
       .nodePadding(10)
       .extent([
@@ -35,9 +35,25 @@ const SankeyDiagram = () => {
         [width, height - 10],
       ]);
 
+    const shiftAmount = 400; // на сколько пикселей сместить "ось" узлов влево
+
     const { nodes, links } = sankeyGenerator({
       nodes: resData.nodes.map((d) => ({ ...d })),
       links: resData.links.map((d) => ({ ...d })),
+    });
+
+    // Найдём центр всей диаграммы по X
+    const centerX = width / 2;
+
+    // Смещаем только те узлы, которые находятся на "центральной линии" или близко к ней
+    nodes.forEach((node) => {
+      const nodeCenter = (node.x0 + node.x1) / 2;
+
+      // Пример — если узел находится ближе к центру, сдвигаем его
+      if (Math.abs(nodeCenter - centerX) < 50) {
+        node.x0 -= shiftAmount;
+        node.x1 -= shiftAmount;
+      }
     });
 
     svg
@@ -63,10 +79,12 @@ const SankeyDiagram = () => {
       .join("path")
       .attr("d", sankeyLinkHorizontal())
       .attr("stroke", function (d) {
-        return checkList.find(
-          (el) => el.guiltyUnit === d.names[0]
-        ).checkboxColor;
+        return (
+          checkList.find((el) => el.guiltyUnit === d.names[0])?.checkboxColor ||
+          "default-color"
+        );
       })
+
       .attr("stroke-width", (d) => d.width)
       .style("mix-blend-mode", "multiply")
       .append("title")
@@ -93,8 +111,8 @@ const SankeyDiagram = () => {
       //   return d.name;
       // })
       .text(function (d) {
-        if (d.name && d.name.length >= 74) {
-          return d.name.substr(0, 74) + " ...";
+        if (d.name && d.name.length >= 170) {
+          return d.name.substr(0, 170) + " ...";
         } else {
           return d.name;
         }

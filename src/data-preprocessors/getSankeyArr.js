@@ -11,7 +11,7 @@ import {
   failCategory,
   failKind,
   failReason,
-place
+  place,
 } from "../utils/config";
 
 export const getSankeyArr = (
@@ -52,7 +52,7 @@ export const getSankeyArr = (
         otherDuration: el[otherDuration] || 0,
         failCategory: el[failCategory],
         failKind: el[failKind],
-        place:el[place]
+        place: el[place],
       });
     }
   });
@@ -75,8 +75,7 @@ export const getSankeyArr = (
 
   let unitsArrFilteredByMinValueTool = [];
   srcArrayMergedByUniqueUnits.forEach((el) => {
-    
-    (el.totalDuration >= minValue) &&
+    el.totalDuration >= minValue &&
       unitsArrFilteredByMinValueTool.push(el.guiltyUnit);
   });
 
@@ -107,6 +106,40 @@ export const getSankeyArr = (
       srcArrayFilteredByMinValueTool.push(el);
   });
 
+  // Combine nodes for "place" and "failReason" based on minValue
+  let placeTotalDurationMap = new d3.InternMap([], JSON.stringify);
+  let failReasonTotalDurationMap = new d3.InternMap([], JSON.stringify);
+  srcArrayFilteredByMinValueTool.forEach((el) => {
+    const placeKey = el.place;
+    const failReasonKey = el.failReason;
+    placeTotalDurationMap.set(
+      placeKey,
+      (placeTotalDurationMap.get(placeKey) || 0) + el.totalDuration
+    );
+    failReasonTotalDurationMap.set(
+      failReasonKey,
+      (failReasonTotalDurationMap.get(failReasonKey) || 0) + el.totalDuration
+    );
+  });
+
+  let placeFilterSet = new Set();
+  let failReasonFilterSet = new Set();
+  placeTotalDurationMap.forEach((value, key) => {
+    if (value >= minValue) {
+      placeFilterSet.add(key);
+    }
+  });
+  failReasonTotalDurationMap.forEach((value, key) => {
+    if (value >= minValue) {
+      failReasonFilterSet.add(key);
+    }
+  });
+
+  srcArrayFilteredByMinValueTool = srcArrayFilteredByMinValueTool.filter(
+    (el) =>
+      placeFilterSet.has(el.place) && failReasonFilterSet.has(el.failReason)
+  );
+
   let checkedUnitsSimpleArray = [];
   if (unitsList)
     unitsList.forEach(
@@ -122,8 +155,11 @@ export const getSankeyArr = (
     );
   else srcArrayFilteredByCheckedUnits = srcArrayFilteredByMinValueTool;
 
-  const keys = ["guiltyUnit", "place", "failReason",
-    // "failKind", 
+  const keys = [
+    "guiltyUnit",
+    "place",
+    "failReason",
+    // "failKind",
     // "failCategory"
   ];
   let index = -1;
@@ -131,8 +167,6 @@ export const getSankeyArr = (
   const nodeByKey = new d3.InternMap([], JSON.stringify);
   const indexByKey = new d3.InternMap([], JSON.stringify);
   const links = [];
-
-  console.log(srcArrayFilteredByCheckedUnits)
 
   for (const k of keys) {
     for (const d of srcArrayFilteredByCheckedUnits) {
@@ -168,8 +202,6 @@ export const getSankeyArr = (
       linkByKey.set(names, link);
     }
   }
-
-  ////////// sankey checklist section (need to mark disabled elements)////////////
 
   let unitsListAsSet = new Set();
   srcArrayFilteredByMinValueTool.forEach((el) =>
