@@ -22,146 +22,112 @@ export const getSankeyArr = (
   unitsList
 ) => {
   const calcTotalDurationValue = (obj) => {
-    let freightDur,
-      passDur,
-      subDur,
-      otherDur = 0;
-    obj[freightDuration]
-      ? (freightDur = obj[freightDuration])
-      : (freightDur = 0);
-    obj[passDuration] ? (passDur = obj[passDuration]) : (passDur = 0);
-    obj[subDuration] ? (subDur = obj[subDuration]) : (subDur = 0);
-    obj[otherDuration] ? (otherDur = obj[otherDuration]) : (otherDur = 0);
-    let total = freightDur + passDur + subDur + otherDur;
-    return total;
+    return (
+      (obj[freightDuration] || 0) +
+      (obj[passDuration] || 0) +
+      (obj[subDuration] || 0) +
+      (obj[otherDuration] || 0)
+    );
   };
 
-  let srcArrayInDatesFrame = [];
-  srcArray.forEach((el) => {
-    if (
-      Date.parse(el[startTime]) >= dateStart &&
-      Date.parse(el[startTime]) <= dateEnd
-    ) {
-      srcArrayInDatesFrame.push({
-        guiltyUnit: el[guiltyUnit],
-        failReason: el[failReason],
-        totalDuration: calcTotalDurationValue(el),
-        freightDuration: el[freightDuration] || 0,
-        passDuration: el[passDuration] || 0,
-        subDuration: el[subDuration] || 0,
-        otherDuration: el[otherDuration] || 0,
-        failCategory: el[failCategory],
-        failKind: el[failKind],
-        place: el[place],
-      });
-    }
-  });
-
-  let srcArrayMergedByUniqueUnits = [];
-  srcArrayInDatesFrame.forEach((obj) => {
-    const index = srcArrayMergedByUniqueUnits.findIndex(
-      (item) => item.guiltyUnit === obj.guiltyUnit
-    );
-    if (index === -1) {
-      srcArrayMergedByUniqueUnits.push({ ...obj });
-    } else {
-      srcArrayMergedByUniqueUnits[index].totalDuration += obj.totalDuration;
-      srcArrayMergedByUniqueUnits[index].freightDuration += obj.freightDuration;
-      srcArrayMergedByUniqueUnits[index].passDuration += obj.passDuration;
-      srcArrayMergedByUniqueUnits[index].subDuration += obj.subDuration;
-      srcArrayMergedByUniqueUnits[index].otherDuration += obj.otherDuration;
-    }
-  });
-
-  let unitsArrFilteredByMinValueTool = [];
-  srcArrayMergedByUniqueUnits.forEach((el) => {
-    el.totalDuration >= minValue &&
-      unitsArrFilteredByMinValueTool.push(el.guiltyUnit);
-  });
-
-  let srcArrayMergedDurations = [];
-  srcArrayInDatesFrame.forEach((obj) => {
-    const index = srcArrayMergedDurations.findIndex(
-      (item) =>
-        item.guiltyUnit === obj.guiltyUnit &&
-        item.failReason === obj.failReason &&
-        item.failCategory === obj.failCategory &&
-        item.failKind === obj.failKind &&
-        item.place === obj.place
-    );
-    if (index === -1) {
-      srcArrayMergedDurations.push({ ...obj });
-    } else {
-      srcArrayMergedDurations[index].totalDuration += obj.totalDuration;
-      srcArrayMergedDurations[index].freightDuration += obj.freightDuration;
-      srcArrayMergedDurations[index].passDuration += obj.passDuration;
-      srcArrayMergedDurations[index].subDuration += obj.subDuration;
-      srcArrayMergedDurations[index].otherDuration += obj.otherDuration;
-    }
-  });
-
-  let srcArrayFilteredByMinValueTool = [];
-  srcArrayMergedDurations.forEach((el) => {
-    unitsArrFilteredByMinValueTool.includes(el.guiltyUnit) &&
-      srcArrayFilteredByMinValueTool.push(el);
-  });
-
-  // Combine nodes for "place" and "failReason" based on minValue
-  let placeTotalDurationMap = new d3.InternMap([], JSON.stringify);
-  let failReasonTotalDurationMap = new d3.InternMap([], JSON.stringify);
-  srcArrayFilteredByMinValueTool.forEach((el) => {
-    const placeKey = el.place;
-    const failReasonKey = el.failReason;
-    placeTotalDurationMap.set(
-      placeKey,
-      (placeTotalDurationMap.get(placeKey) || 0) + el.totalDuration
-    );
-    failReasonTotalDurationMap.set(
-      failReasonKey,
-      (failReasonTotalDurationMap.get(failReasonKey) || 0) + el.totalDuration
-    );
-  });
-
-  let placeFilterSet = new Set();
-  let failReasonFilterSet = new Set();
-  placeTotalDurationMap.forEach((value, key) => {
-    if (value >= minValue) {
-      placeFilterSet.add(key);
-    }
-  });
-  failReasonTotalDurationMap.forEach((value, key) => {
-    if (value >= minValue) {
-      failReasonFilterSet.add(key);
-    }
-  });
-
-  srcArrayFilteredByMinValueTool = srcArrayFilteredByMinValueTool.filter(
-    (el) =>
-      placeFilterSet.has(el.place) && failReasonFilterSet.has(el.failReason)
-  );
-
-  let checkedUnitsSimpleArray = [];
-  if (unitsList)
-    unitsList.forEach(
-      (el) => el.checked === true && checkedUnitsSimpleArray.push(el.guiltyUnit)
-    );
-
-  let srcArrayFilteredByCheckedUnits = [];
-  if (unitsList)
-    srcArrayFilteredByMinValueTool.forEach(
+  // 1. Отфильтровать по дате
+  const srcArrayInDatesFrame = srcArray
+    .filter(
       (el) =>
-        checkedUnitsSimpleArray.includes(el.guiltyUnit) &&
-        srcArrayFilteredByCheckedUnits.push(el)
-    );
-  else srcArrayFilteredByCheckedUnits = srcArrayFilteredByMinValueTool;
+        Date.parse(el[startTime]) >= dateStart &&
+        Date.parse(el[startTime]) <= dateEnd
+    )
+    .map((el) => ({
+      guiltyUnit: el[guiltyUnit],
+      failReason: el[failReason],
+      totalDuration: calcTotalDurationValue(el),
+      freightDuration: el[freightDuration] || 0,
+      passDuration: el[passDuration] || 0,
+      subDuration: el[subDuration] || 0,
+      otherDuration: el[otherDuration] || 0,
+      failCategory: el[failCategory],
+      failKind: el[failKind],
+      place: el[place],
+    }));
 
-  const keys = [
-    "guiltyUnit",
-    "place",
-    "failReason",
-    // "failKind",
-    // "failCategory"
-  ];
+  // 2. Сумма totalDuration по уникальным guiltyUnit
+  const mergedByUnit = new Map();
+  srcArrayInDatesFrame.forEach((obj) => {
+    const key = obj.guiltyUnit;
+    if (!mergedByUnit.has(key)) {
+      mergedByUnit.set(key, { ...obj });
+    } else {
+      const item = mergedByUnit.get(key);
+      item.totalDuration += obj.totalDuration;
+      item.freightDuration += obj.freightDuration;
+      item.passDuration += obj.passDuration;
+      item.subDuration += obj.subDuration;
+      item.otherDuration += obj.otherDuration;
+    }
+  });
+
+  // 3. Оставить guiltyUnit, у которых totalDuration >= minValue
+  const unitsAboveThreshold = new Set();
+  mergedByUnit.forEach((val, key) => {
+    if (val.totalDuration >= minValue) {
+      unitsAboveThreshold.add(key);
+    }
+  });
+
+  // 4. Сгруппировать по уникальной комбинации полей
+  const mergedDetailed = new Map();
+  srcArrayInDatesFrame.forEach((obj) => {
+    if (!unitsAboveThreshold.has(obj.guiltyUnit)) return;
+    const key = JSON.stringify([
+      obj.guiltyUnit,
+      obj.failReason,
+      obj.failCategory,
+      obj.failKind,
+      obj.place,
+    ]);
+    if (!mergedDetailed.has(key)) {
+      mergedDetailed.set(key, { ...obj });
+    } else {
+      const item = mergedDetailed.get(key);
+      item.totalDuration += obj.totalDuration;
+      item.freightDuration += obj.freightDuration;
+      item.passDuration += obj.passDuration;
+      item.subDuration += obj.subDuration;
+      item.otherDuration += obj.otherDuration;
+    }
+  });
+
+  let dataFiltered = Array.from(mergedDetailed.values());
+
+  // 5. Применить фильтр по unitsList
+  let checkedUnits = null;
+  if (unitsList) {
+    checkedUnits = new Set(
+      unitsList.filter((el) => el.checked).map((el) => el.guiltyUnit)
+    );
+    dataFiltered = dataFiltered.filter((d) => checkedUnits.has(d.guiltyUnit));
+  }
+
+  // 6. Объединить place < minValue в "Остальные"
+  const placeTotals = new Map();
+  dataFiltered.forEach((d) => {
+    placeTotals.set(d.place, (placeTotals.get(d.place) || 0) + d.totalDuration);
+  });
+
+  const lowValuePlaces = new Set();
+  placeTotals.forEach((val, key) => {
+    if (val < minValue) lowValuePlaces.add(key);
+  });
+
+  dataFiltered = dataFiltered.map((d) => ({
+    ...d,
+    place: lowValuePlaces.has(d.place)
+      ? `Остальные (менее ${minValue} ч)`
+      : d.place,
+  }));
+
+  // 7. Создать nodes и links
+  const keys = ["guiltyUnit", "place", "failReason"];
   let index = -1;
   const nodes = [];
   const nodeByKey = new d3.InternMap([], JSON.stringify);
@@ -169,7 +135,7 @@ export const getSankeyArr = (
   const links = [];
 
   for (const k of keys) {
-    for (const d of srcArrayFilteredByCheckedUnits) {
+    for (const d of dataFiltered) {
       const key = [k, d[k]];
       if (nodeByKey.has(key)) continue;
       const node = { name: d[k] };
@@ -184,9 +150,10 @@ export const getSankeyArr = (
     const b = keys[i];
     const prefix = keys.slice(0, i + 1);
     const linkByKey = new d3.InternMap([], JSON.stringify);
-    for (const d of srcArrayFilteredByCheckedUnits) {
+
+    for (const d of dataFiltered) {
       const names = prefix.map((k) => d[k]);
-      const value = d.totalDuration || 0; /////////// here need to use selector for choose quantity, duration,
+      const value = d.totalDuration || 0;
       let link = linkByKey.get(names);
       if (link) {
         link.value += value;
@@ -203,21 +170,16 @@ export const getSankeyArr = (
     }
   }
 
-  let unitsListAsSet = new Set();
-  srcArrayFilteredByMinValueTool.forEach((el) =>
-    unitsListAsSet.add(el.guiltyUnit)
-  );
-  let unitsListAsArr = Array.from(unitsListAsSet);
-  let unitsListNew = cloneDeep(unitsList);
-  unitsListNew.forEach((el) =>
-    unitsListAsArr.includes(el.guiltyUnit)
-      ? (el.isDisabled = false)
-      : (el.isDisabled = true)
-  );
+  // 8. Обновить список units
+  const unitsUsed = new Set(dataFiltered.map((d) => d.guiltyUnit));
+  const unitsListNew = cloneDeep(unitsList || []);
+  unitsListNew.forEach((el) => {
+    el.isDisabled = !unitsUsed.has(el.guiltyUnit);
+  });
 
   return {
-    nodes: nodes,
-    links: links,
+    nodes,
+    links,
     unitsList: unitsListNew,
   };
 };
