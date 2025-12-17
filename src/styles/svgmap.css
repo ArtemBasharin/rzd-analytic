@@ -1,0 +1,22 @@
+.text-rect {
+  fill: none;
+  stroke: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 0.72;
+  color: transparent;
+}
+
+.path-line {
+  stroke: #acacac;
+  stroke-width: 0.72;
+}
+
+.station-rect {
+  stroke: none;
+  fill: none;
+}
+
+.map-subtitle {
+  font-size: 0.5em;
+}

@@ -12,6 +12,7 @@
 @import url("../src/styles/downloadbuttons.css");
 @import url("../src/styles/report.css");
 @import url("../src/styles/tables.css");
+@import url("../src/styles/svgmap.css");
 
 :root {
   --main-bg-color: #2979ff;
