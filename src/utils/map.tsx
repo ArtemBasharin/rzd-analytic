@@ -1,9 +1,8 @@
-import React, { RefObject } from "react";
+import React from "react";
 
 interface Props {}
 
-const SvgMap = React.forwardRef<HTMLElement, Props>(
-  (props, ref) => 
+const SvgMap = React.forwardRef<SVGSVGElement, Props>((props, ref) => {
   return (
     <svg
       ref={ref}
@@ -2054,6 +2053,6 @@ const SvgMap = React.forwardRef<HTMLElement, Props>(
       </g>
     </svg>
   );
-};
+});
 
-export default React.forwardRef(SvgMap);
+export default SvgMap;

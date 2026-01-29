@@ -25,17 +25,18 @@ const SankeyDiagram = () => {
 
     svg.append("g");
 
+    const nodePadding = 20;
     const sankeyGenerator = sankey()
       .nodeSort((a, b) => b.value - a.value)
       .linkSort((a, b) => b.value - a.value)
       .nodeWidth(4)
-      .nodePadding(10)
+      .nodePadding(nodePadding)
       .extent([
         [0, 5],
         [width, height - 10],
       ]);
 
-    const shiftAmount = 400; // на сколько пикселей сместить "ось" узлов влево
+    const shiftAmount = 500; // на сколько пикселей сместить "ось" узлов влево
 
     const { nodes, links } = sankeyGenerator({
       nodes: resData.nodes.map((d) => ({ ...d })),
@@ -90,10 +91,26 @@ const SankeyDiagram = () => {
       .append("title")
       .text((d) => `${d.names.join(" → ")}\n${d.value.toLocaleString()}`);
 
+    const nodeCount = nodes.length;
+    const minFontSize = 14;
+    const maxFontSize = 40;
+    const fontSize = Math.max(
+      minFontSize,
+      Math.min(
+        maxFontSize,
+        Math.floor((height - (nodeCount * nodePadding) / 6) / nodeCount),
+      ),
+    );
+    const rightSpaceWidth =
+      width / 2 + shiftAmount - margin.left - margin.right;
+    const allowedCharsAmount = Math.floor(rightSpaceWidth / fontSize) - 8;
+
     svg
       .append("g")
       .attr("font-family", "roboto")
-      .attr("font-size", "10")
+      .attr("font-size", (d) => {
+        return `${fontSize}px`;
+      })
       .attr("font-weight", "900")
       .selectAll("text")
       .data(nodes)
@@ -111,8 +128,8 @@ const SankeyDiagram = () => {
       //   return d.name;
       // })
       .text(function (d) {
-        if (d.name && d.name.length >= 170) {
-          return d.name.substr(0, 170) + " ...";
+        if (d.name && d.name.length >= allowedCharsAmount) {
+          return d.name.substr(0, allowedCharsAmount) + " ...";
         } else {
           return d.name;
         }

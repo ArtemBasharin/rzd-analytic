@@ -23,7 +23,7 @@ import RidgelineDiagram from "./RidgelineDiagramm";
 import DownloadButtons from "./ToolDownloadButtons";
 import TextReportTemplatePeriod from "./TextReport";
 import SumLineDiagram from "./SumLineDiagram";
-import InteractiveMap from "./InteractiveMap";
+// import InteractiveMap from "./InteractiveMap";
 // import BarChartRaceDiagram from "./BarChartRace";
 
 function Main() {
@@ -305,7 +305,7 @@ function Main() {
           }
         </SwiperSlide>
 
-        <SwiperSlide>
+        {/* <SwiperSlide>
           {({ isActive }) =>
             isActive && (
               <>
@@ -319,7 +319,7 @@ function Main() {
               </>
             )
           }
-        </SwiperSlide>
+        </SwiperSlide> */}
       </Swiper>
     </div>
   );

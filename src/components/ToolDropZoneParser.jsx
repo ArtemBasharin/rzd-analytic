@@ -20,7 +20,7 @@ function DropZoneParser() {
       var result = {};
       workbook.SheetNames.forEach(function (sheetName) {
         var roa = XLSX.utils.sheet_to_row_object_array(
-          workbook.Sheets[sheetName]
+          workbook.Sheets[sheetName],
         );
         if (roa.length > 0) {
           result[sheetName] = roa;

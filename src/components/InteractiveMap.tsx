@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { SvgMap } from "../utils/map";
+import SvgMap from "../utils/map";
 
 const InteractiveMap = () => {
   const svgRef = useRef(null);
