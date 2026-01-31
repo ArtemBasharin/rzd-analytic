@@ -1,6 +1,6 @@
 // import { useRef } from "react";
 import * as d3 from "d3";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   cellComparingPercents,
   defineСategory,
@@ -14,7 +14,8 @@ import {
 } from "../utils/functions";
 
 import { cutDecimals } from "../utils/functions";
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import SankeyDiagram from "./SankeyDiagram";
 
 interface RootState {
   filters: {
@@ -36,6 +37,7 @@ interface RootState {
     regexpPattern: string;
     reportSrcState: any[];
     reportStations: any[];
+    sankeyCheckList: any[];
   };
 }
 
@@ -51,8 +53,21 @@ const TextReportTemplatePeriod = () => {
   // const analyze = useSelector((state: RootState) => state.filters.analyzeState);
   const arr = useSelector((state: RootState) => state.filters.reportSrcState);
   const stationsReport = useSelector(
-    (state: RootState) => state.filters.reportStations
+    (state: RootState) => state.filters.reportStations,
   );
+
+  const checkList = useSelector((state: RootState) => state.filters.sankeyCheckList);
+  const dispatch = useDispatch();
+
+  // Create filtered checkList for each unit
+  const getFilteredCheckList = useMemo(() => {
+    return (currentUnit: string) => {
+      return checkList.map(item => ({
+        ...item,
+        checked: item.guiltyUnit === currentUnit
+      }));
+    };
+  }, [checkList]);
 
   const [isRightTableVisible, setRightTableVisible] = useState(false);
   const toggleRightTable = () => {
@@ -69,7 +84,7 @@ const TextReportTemplatePeriod = () => {
   const getArrReasons = (year: number, unit: string) => {
     const currentYearArr: any[] = arr.find((obj) => obj.year === year).report;
     const currentYearUnit: any = currentYearArr.find(
-      (objUnit) => objUnit.guiltyUnit === unit
+      (objUnit) => objUnit.guiltyUnit === unit,
     );
     if (currentYearUnit) return `${currentYearUnit.failReason}`;
   };
@@ -78,34 +93,40 @@ const TextReportTemplatePeriod = () => {
   let text: any[] = [];
   dictionary.forEach((unit: string) =>
     text.push(
-      <p className="text_paragraph text_inner">
-        <span className="text_unit">{unit.replace(/\n/g, " ")}</span>:{" "}
-        {/* {getOneUnitReport(arr, currentYear, unit)} (за аналогичный период */}
-        {getOneUnitReportWithCompare({
-          arr: arr,
-          currYear: currentYear,
-          pastYear: pastYear,
-          unit: unit,
-        })}{" "}
-        (за аналогичный период прошлого года:{" "}
-        {getOneUnitReport(arr, pastYear, unit) || "ТН не допущено"}). Причины:{" "}
-        {getArrReasons(currentYear, unit)}
-      </p>
-    )
+      <>
+        <p className="text_paragraph text_inner">
+          <span className="text_unit">{unit.replace(/\n/g, " ")}</span>:{" "}
+          {getOneUnitReportWithCompare({
+            arr: arr,
+            currYear: currentYear,
+            pastYear: pastYear,
+            unit: unit,
+          })}{" "}
+          (за аналогичный период прошлого года:{" "}
+          {getOneUnitReport(arr, pastYear, unit) || "ТН не допущено"}). Причины:{" "}
+          {getArrReasons(currentYear, unit)}
+        </p>
+        <SankeyDiagram 
+          key={unit} 
+          svgId={`sankey-${unit.replace(/\s+/g, '-')}`}
+          filteredCheckList={getFilteredCheckList(unit)}
+        />
+      </>,
+    ),
   );
 
   //generating one row of table of each unit description
   const getOneRowReport = (unit: string) => {
     const currentYearArr: any[] = arr.find(
-      (obj) => obj.year === currentYear
+      (obj) => obj.year === currentYear,
     ).report;
     const currentYearUnit: any = currentYearArr.find(
-      (objUnit) => objUnit.guiltyUnit === unit
+      (objUnit) => objUnit.guiltyUnit === unit,
     );
 
     const pastYearArr: any[] = arr.find((obj) => obj.year === pastYear).report;
     const pastYearUnit: any = pastYearArr.find(
-      (objUnit) => objUnit.guiltyUnit === unit
+      (objUnit) => objUnit.guiltyUnit === unit,
     );
     let pastYearUnitTotalDuration = pastYearUnit
       ? pastYearUnit.totalDuration
@@ -121,19 +142,19 @@ const TextReportTemplatePeriod = () => {
           <td className="table_bold_right">{currentYearUnitTotalDuration}</td>
           {cellComparingPercents(
             pastYearUnitTotalDuration,
-            currentYearUnitTotalDuration
+            currentYearUnitTotalDuration,
           )}
           <td>
             {cutDecimals(
               (pastYearUnitTotalDuration / arr[0].sum.pastYearTotalDurations) *
-                100
+                100,
             )}
           </td>
           <td>
             {cutDecimals(
               (currentYearUnitTotalDuration /
                 arr[1].sum.currentYearTotalDurations) *
-                100
+                100,
             )}
           </td>
         </tr>
@@ -146,7 +167,7 @@ const TextReportTemplatePeriod = () => {
   let dictionaryForTableAsSet: Set<string> = new Set();
   arr.forEach((el) => {
     el.report.forEach((el2: any) =>
-      dictionaryForTableAsSet.add(el2.guiltyUnit)
+      dictionaryForTableAsSet.add(el2.guiltyUnit),
     );
   });
 
@@ -162,7 +183,7 @@ const TextReportTemplatePeriod = () => {
   });
 
   const dicUnitForTableStations: string[] = Array.from(
-    dicUnitForTableStationsAsSet
+    dicUnitForTableStationsAsSet,
   );
 
   let tableLayout: any[] = [];
@@ -221,12 +242,12 @@ const TextReportTemplatePeriod = () => {
             </td>
             {cellComparingPercents(
               subtotal[key].pastValue,
-              subtotal[key].currentValue
+              subtotal[key].currentValue,
             )}
             <td>
               {cutDecimals(
                 (subtotal[key].pastValue / arr[0].sum.pastYearTotalDurations) *
-                  100
+                  100,
               )}
             </td>
             <td className="table_bold_right">
@@ -234,11 +255,11 @@ const TextReportTemplatePeriod = () => {
               {cutDecimals(
                 (subtotal[key].currentValue /
                   arr[1].sum.currentYearTotalDurations) *
-                  100
+                  100,
               )}
             </td>
           </tr>
-        </>
+        </>,
       );
   }
 
@@ -251,25 +272,25 @@ const TextReportTemplatePeriod = () => {
       </td>
       {cellComparingPercents(
         arr[0].sum.pastYearTotalDurations,
-        arr[1].sum.currentYearTotalDurations
+        arr[1].sum.currentYearTotalDurations,
       )}
-    </tr>
+    </tr>,
   );
 
   ////////////////////////////////////////////////////////////////////////////////////
   const getOneRowStationsReport = (place: string, index: number) => {
     const currentYearArr: any[] = stationsReport.find(
-      (obj) => obj.year === currentYear
+      (obj) => obj.year === currentYear,
     ).report;
     const currentYearPlace: any = currentYearArr.find(
-      (objUnit) => objUnit.place === place
+      (objUnit) => objUnit.place === place,
     );
 
     const pastYearArr: any[] = stationsReport.find(
-      (obj) => obj.year === pastYear
+      (obj) => obj.year === pastYear,
     ).report;
     const pastYearPlace: any = pastYearArr.find(
-      (objUnit) => objUnit.place === place
+      (objUnit) => objUnit.place === place,
     );
 
     let pastYearPlaceTotalDuration = pastYearPlace
@@ -287,7 +308,7 @@ const TextReportTemplatePeriod = () => {
           <td className="table_bold_right">{currentYearPlaceTotalDuration}</td>
           {cellComparingPercents(
             pastYearPlaceTotalDuration,
-            currentYearPlaceTotalDuration
+            currentYearPlaceTotalDuration,
           )}
           {isRightTableVisible &&
             dicUnitForTableStations.map((unit) => {
@@ -298,7 +319,7 @@ const TextReportTemplatePeriod = () => {
                         pastYearPlace[unit].freightDuration +
                           pastYearPlace[unit].passDuration +
                           pastYearPlace[unit].subDuration +
-                          pastYearPlace[unit].otherDuration
+                          pastYearPlace[unit].otherDuration,
                       )
                     : ""}
                 </td>
@@ -310,7 +331,7 @@ const TextReportTemplatePeriod = () => {
                         currentYearPlace[unit].freightDuration +
                           currentYearPlace[unit].passDuration +
                           currentYearPlace[unit].subDuration +
-                          currentYearPlace[unit].otherDuration
+                          currentYearPlace[unit].otherDuration,
                       )
                     : ""}
                 </td>
@@ -331,14 +352,14 @@ const TextReportTemplatePeriod = () => {
     });
   });
   const dictionaryStationsTable: string[] = Array.from(
-    dictionaryStationsTableAsSet
+    dictionaryStationsTableAsSet,
   );
 
   const tableStationsLayout: any[] = dictionaryStationsTable.map(
     (el, index) => {
       const l = getOneRowStationsReport(el, index);
       return l.layout;
-    }
+    },
   );
 
   //итоговая строка всей таблицы
@@ -351,7 +372,7 @@ const TextReportTemplatePeriod = () => {
       </td>
       {cellComparingPercents(
         arr[0].sum.pastYearTotalDurations,
-        arr[1].sum.currentYearTotalDurations
+        arr[1].sum.currentYearTotalDurations,
       )}
 
       {/* итоговая строка правой части таблицы*/}
@@ -359,19 +380,19 @@ const TextReportTemplatePeriod = () => {
         dicUnitForTableStations.map((unit) => {
           const pastCell = (
             <td key={"past-" + unit}>
-              {(cutDecimals(sumValuesByKey(stationsReport[0].report, unit)))}
+              {cutDecimals(sumValuesByKey(stationsReport[0].report, unit))}
             </td>
           );
 
           const currentCell = (
             <td key={"cur-" + unit}>
-              {(cutDecimals(sumValuesByKey(stationsReport[1].report, unit)))}
+              {cutDecimals(sumValuesByKey(stationsReport[1].report, unit))}
             </td>
           );
 
           return [pastCell, currentCell];
         })}
-    </tr>
+    </tr>,
   );
 
   ///////////////////////////////////////////////////////
@@ -385,7 +406,7 @@ const TextReportTemplatePeriod = () => {
           {arr[0].sum.pastYearTotalFails} ТН,{" "}
           {getComparisonText(
             arr[1].sum.currentYearTotalFails,
-            arr[0].sum.pastYearTotalFails
+            arr[0].sum.pastYearTotalFails,
           )}
           . {getWordOnly(arr[1].sum.currentYearTotalDelays, varDelay, true)}{" "}
           {getNumberWithWord(arr[1].sum.currentYearTotalDelays, varTrains)}, за
@@ -394,7 +415,7 @@ const TextReportTemplatePeriod = () => {
           {getNumberWithWord(arr[0].sum.pastYearTotalDelays, varTrains)},{" "}
           {getComparisonText(
             arr[1].sum.currentYearTotalDelays,
-            arr[0].sum.pastYearTotalDelays
+            arr[0].sum.pastYearTotalDelays,
           )}
           . Общая продолжительность задержек поездов составила{" "}
           {arr[1].sum.currentYearTotalDurations} ч, за аналогичный период
@@ -402,7 +423,7 @@ const TextReportTemplatePeriod = () => {
           {arr[0].sum.pastYearTotalDurations} ч,{" "}
           {getComparisonText(
             arr[1].sum.currentYearTotalDurations,
-            arr[0].sum.pastYearTotalDurations
+            arr[0].sum.pastYearTotalDurations,
           )}
           .
         </p>
@@ -420,7 +441,7 @@ const TextReportTemplatePeriod = () => {
           {pastYear} г. – {arr[0].sum.pastYearTotalTechnical}),{" "}
           {getComparisonText(
             arr[1].sum.currentYearTotalTechnical,
-            arr[0].sum.pastYearTotalTechnical
+            arr[0].sum.pastYearTotalTechnical,
           )}
           ;
         </p>
@@ -431,7 +452,7 @@ const TextReportTemplatePeriod = () => {
           {arr[0].sum.pastYearTotalTechnological}),{" "}
           {getComparisonText(
             arr[1].sum.currentYearTotalTechnological,
-            arr[0].sum.pastYearTotalTechnological
+            arr[0].sum.pastYearTotalTechnological,
           )}
           ;
         </p>
@@ -442,7 +463,7 @@ const TextReportTemplatePeriod = () => {
           {arr[0].sum.pastYearTotalSpecial}),{" "}
           {getComparisonText(
             arr[1].sum.currentYearTotalSpecial,
-            arr[0].sum.pastYearTotalSpecial
+            arr[0].sum.pastYearTotalSpecial,
           )}
           ;
         </p>
@@ -452,7 +473,7 @@ const TextReportTemplatePeriod = () => {
           {arr[0].sum.pastYearTotalExternal}),{" "}
           {getComparisonText(
             arr[1].sum.currentYearTotalExternal,
-            arr[0].sum.pastYearTotalExternal
+            arr[0].sum.pastYearTotalExternal,
           )}
           ;
         </p>

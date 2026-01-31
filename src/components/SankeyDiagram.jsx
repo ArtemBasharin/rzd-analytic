@@ -4,13 +4,43 @@ import { sankey, sankeyLinkHorizontal } from "d3-sankey";
 import { useSelector } from "react-redux";
 import { cutDecimals } from "../utils/functions";
 
-const SankeyDiagram = () => {
+const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
   const svgRef6 = useRef();
   let resData = useSelector((state) => state.filters.sankeyArrState);
-  let checkList = useSelector((state) => state.filters.sankeyCheckList);
+  let globalCheckList = useSelector((state) => state.filters.sankeyCheckList);
+  let checkList = filteredCheckList || globalCheckList;
 
   useEffect(() => {
-    d3.select("#id22").selectAll("g").remove();
+    d3.select(`#${svgId}`).selectAll("g").remove();
+    
+    // Filter data based on checkList
+    const checkedUnits = checkList.filter(item => item.checked).map(item => item.guiltyUnit);
+    const filteredLinks = resData.links.filter(link => 
+      checkedUnits.includes(link.names[0])
+    );
+    
+    // Get all node indices that are referenced in filtered links
+    const usedNodeIndices = new Set();
+    filteredLinks.forEach(link => {
+      usedNodeIndices.add(link.source);
+      usedNodeIndices.add(link.target);
+    });
+    
+    // Filter nodes and create index mapping
+    const filteredNodes = resData.nodes.filter((node, index) => usedNodeIndices.has(index));
+    const indexMap = new Map();
+    filteredNodes.forEach((node, newIndex) => {
+      const oldIndex = resData.nodes.indexOf(node);
+      indexMap.set(oldIndex, newIndex);
+    });
+    
+    // Remap link indices
+    const remappedLinks = filteredLinks.map(link => ({
+      ...link,
+      source: indexMap.get(link.source),
+      target: indexMap.get(link.target)
+    }));
+    
     // set the dimensions and margins of the graph
     const margin = { top: 30, right: 60, bottom: 0, left: 60 },
       width = window.innerWidth - margin.left - margin.right,
@@ -18,7 +48,7 @@ const SankeyDiagram = () => {
 
     // append the svg object to the body of the page
     const svg = d3
-      .select("#id22")
+      .select(`#${svgId}`)
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
@@ -39,8 +69,8 @@ const SankeyDiagram = () => {
     const shiftAmount = 500; // на сколько пикселей сместить "ось" узлов влево
 
     const { nodes, links } = sankeyGenerator({
-      nodes: resData.nodes.map((d) => ({ ...d })),
-      links: resData.links.map((d) => ({ ...d })),
+      nodes: filteredNodes.map((d) => ({ ...d })),
+      links: remappedLinks.map((d) => ({ ...d })),
     });
 
     // Найдём центр всей диаграммы по X
@@ -141,7 +171,7 @@ const SankeyDiagram = () => {
 
   return (
     <svg
-      id={`id22`}
+      id={svgId}
       className="chartItem stackedChart"
       ref={svgRef6}
       width={1900}
