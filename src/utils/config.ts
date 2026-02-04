@@ -14,6 +14,8 @@ let startTime = "Начало отказа",
   subDuration = "Время пригородных поездов(по месту)",
   otherDelayed = "Количество прочих поездов(по месту)",
   otherDuration = "Время прочих поездов(по месту)",
+  allDelayed = "Количество всех поездов(по месту)",
+  allDuration = "Время всех поездов(по месту)",
   place = "Место",
   ID = "ID отказа";
 
@@ -98,4 +100,6 @@ export {
   similarColors,
   generateStylishColors,
   colors,
+  allDelayed,
+  allDuration,
 };

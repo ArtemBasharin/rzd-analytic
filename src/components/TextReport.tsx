@@ -17,6 +17,19 @@ import { cutDecimals } from "../utils/functions";
 import { useState, useMemo } from "react";
 import SankeyDiagram from "./SankeyDiagram";
 
+import {
+  startTime,
+  freightDelayed,
+  freightDuration,
+  ID,
+  place,
+  allDelayed,
+  allDuration,
+  guiltyNew,
+  failReason,
+  guiltyUnit,
+} from "../utils/config";
+
 interface RootState {
   filters: {
     sourceState: any[];
@@ -37,7 +50,12 @@ interface RootState {
     regexpPattern: string;
     reportSrcState: any[];
     reportStations: any[];
+<<<<<<< Updated upstream
     sankeyCheckList: any[];
+=======
+    dateStart: number;
+    dateEnd: number;
+>>>>>>> Stashed changes
   };
 }
 
@@ -52,6 +70,7 @@ const varDelay: string[] = ["задержан", "задержано", "заде�
 const TextReportTemplatePeriod = () => {
   // const analyze = useSelector((state: RootState) => state.filters.analyzeState);
   const arr = useSelector((state: RootState) => state.filters.reportSrcState);
+
   const stationsReport = useSelector(
     (state: RootState) => state.filters.reportStations,
   );
@@ -74,6 +93,30 @@ const TextReportTemplatePeriod = () => {
     setRightTableVisible(!isRightTableVisible);
   };
 
+  let sourceArr = useSelector((state: RootState) => state.filters.sourceState);
+  let topCases: any = [];
+  let start = new Date(
+    useSelector((state: RootState) => state.filters.dateStart),
+  );
+  let end = new Date(useSelector((state: RootState) => state.filters.dateEnd));
+  console.log(start, end);
+  // const [isTopCasesVisible, setIsTopCasesVisible] = useState(false);
+  // const toggleTopCasesVisible = () => {
+  //   setIsTopCasesVisible(!isTopCasesVisible);
+  //   console.log(topCases);
+  //   topCases = sourceArr
+  //     .filter((el) => el[startTime] > start && el[startTime] < end)
+  //     .sort((a, b) => b[freightDuration] - b[freightDuration]);
+  // };
+
+  topCases = sourceArr
+    .filter((el) => {
+      const elDate = new Date(el[startTime] as string);
+      return elDate > start && elDate < end;
+    })
+    .sort((b, a) => a[freightDuration] - b[freightDuration]);
+  console.log(topCases);
+
   let currentYear: number = d3.max(arr.map((el) => el.year));
   let pastYear: number = currentYear - 1;
 
@@ -93,6 +136,7 @@ const TextReportTemplatePeriod = () => {
   let text: any[] = [];
   dictionary.forEach((unit: string) =>
     text.push(
+<<<<<<< Updated upstream
       <>
         <p className="text_paragraph text_inner">
           <span className="text_unit">{unit.replace(/\n/g, " ")}</span>:{" "}
@@ -112,6 +156,21 @@ const TextReportTemplatePeriod = () => {
           filteredCheckList={getFilteredCheckList(unit)}
         />
       </>,
+=======
+      <p className="text_paragraph text_inner">
+        <span className="text_unit">{unit.replace(/\n/g, " ")}</span>:{" "}
+        {/* {getOneUnitReport(arr, currentYear, unit)} (за аналогичный период */}
+        {getOneUnitReportWithCompare({
+          arr: arr,
+          currYear: currentYear,
+          pastYear: pastYear,
+          unit: unit,
+        })}{" "}
+        (за аналогичный период прошлого года:{" "}
+        {getOneUnitReport(arr, pastYear, unit) || "ТН не допущено"}). Причины:{" "}
+        {getArrReasons(currentYear, unit)}
+      </p>,
+>>>>>>> Stashed changes
     ),
   );
 
@@ -400,7 +459,7 @@ const TextReportTemplatePeriod = () => {
     <>
       <div className="text_container">
         <p className="text_paragraph">
-          1. За рассматриваемый период допущено{" "}
+          За рассматриваемый период допущено{" "}
           {getNumberWithWord(arr[1].sum.currentYearTotalFails, varFails)} (далее
           – ТН), за аналогичный период прошлого года было допущено{" "}
           {arr[0].sum.pastYearTotalFails} ТН,{" "}
@@ -427,16 +486,68 @@ const TextReportTemplatePeriod = () => {
           )}
           .
         </p>
-        <p className="text_paragraph">
-          2. Определен тип у{" "}
-          {arr[1].sum.currentYearTotalTechnical +
-            arr[1].sum.currentYearTotalTechnological +
-            arr[1].sum.currentYearTotalSpecial +
-            arr[1].sum.currentYearTotalExternal}{" "}
-          ТН, из них:
-        </p>
+
+        {arr[1].sum.currentYearTotalTechnical +
+          arr[1].sum.currentYearTotalTechnological +
+          arr[1].sum.currentYearTotalSpecial +
+          arr[1].sum.currentYearTotalExternal >
+          0 && (
+          <>
+            <p className="text_paragraph">
+              Определен тип у{" "}
+              {arr[1].sum.currentYearTotalTechnical +
+                arr[1].sum.currentYearTotalTechnological +
+                arr[1].sum.currentYearTotalSpecial +
+                arr[1].sum.currentYearTotalExternal}{" "}
+              ТН, из них:
+            </p>
+
+            <p className="text_paragraph">
+              технического характера – {arr[1].sum.currentYearTotalTechnical} (в{" "}
+              {pastYear} г. – {arr[0].sum.pastYearTotalTechnical}),{" "}
+              {getComparisonText(
+                arr[1].sum.currentYearTotalTechnical,
+                arr[0].sum.pastYearTotalTechnical,
+              )}
+              ;
+            </p>
+
+            <p className="text_paragraph">
+              технологического характера –{" "}
+              {arr[1].sum.currentYearTotalTechnological} (в {pastYear} г. –{" "}
+              {arr[0].sum.pastYearTotalTechnological}),{" "}
+              {getComparisonText(
+                arr[1].sum.currentYearTotalTechnological,
+                arr[0].sum.pastYearTotalTechnological,
+              )}
+              ;
+            </p>
+
+            <p className="text_paragraph">
+              особая технологическая необходимость –{" "}
+              {arr[1].sum.currentYearTotalSpecial} (в {pastYear} г. –{" "}
+              {arr[0].sum.pastYearTotalSpecial}),{" "}
+              {getComparisonText(
+                arr[1].sum.currentYearTotalSpecial,
+                arr[0].sum.pastYearTotalSpecial,
+              )}
+              ;
+            </p>
+
+            <p className="text_paragraph">
+              внешние – {arr[1].sum.currentYearTotalExternal} (в {pastYear} г. –{" "}
+              {arr[0].sum.pastYearTotalExternal}),{" "}
+              {getComparisonText(
+                arr[1].sum.currentYearTotalExternal,
+                arr[0].sum.pastYearTotalExternal,
+              )}
+              ;
+            </p>
+          </>
+        )}
 
         <p className="text_paragraph">
+<<<<<<< Updated upstream
           технического характера – {arr[1].sum.currentYearTotalTechnical} (в{" "}
           {pastYear} г. – {arr[0].sum.pastYearTotalTechnical}),{" "}
           {getComparisonText(
@@ -476,6 +587,26 @@ const TextReportTemplatePeriod = () => {
             arr[0].sum.pastYearTotalExternal,
           )}
           ;
+=======
+          Технологические нарушения, повлекшие за собой наибольшее количество
+          потерь:
+          {topCases.slice(0, 5).map((el: any, index: any) => {
+            return (
+              <p key={index}>
+                {index + 1}
+                {")"} ТН №{el[ID]},{" "}
+                {new Date(el[startTime]).toLocaleDateString("ru-RU", {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                })}{" "}
+                г. , станция/перегон: {el[place]}, задержано поездов:{" "}
+                {el[allDelayed]} на {el[allDuration]} ч, причина:{" "}
+                {el[failReason].toLowerCase()} отнесено за {el[guiltyUnit]};
+              </p>
+            );
+          })}
+>>>>>>> Stashed changes
         </p>
 
         <p className="text_paragraph">

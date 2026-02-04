@@ -65,7 +65,7 @@ function DownloadButtons(props) {
     document.body.appendChild(tempContainer);
 
     const styleElements = document.head.querySelectorAll(
-      "style, link[rel='stylesheet']"
+      "style, link[rel='stylesheet']",
     );
     styleElements.forEach((styleElement) => {
       const clone = styleElement.cloneNode(true);
@@ -88,7 +88,6 @@ function DownloadButtons(props) {
     document.body.removeChild(tempContainer);
   };
 
-  // const [tableId, fileName] = ["stations_container", "Таблица1.xlsx"];
   async function downloadTableAsExcel() {
     const table = document.getElementById("stations_container");
 
@@ -108,7 +107,7 @@ function DownloadButtons(props) {
     rows.forEach((row, rowIndex) => {
       const cells = row.querySelectorAll("td, th");
       const excelRow = worksheet.addRow(
-        [...cells].map((cell) => cell.textContent || "")
+        [...cells].map((cell) => cell.textContent || ""),
       );
 
       let cellIndexOffset = 0; // для учёта colSpan
@@ -166,7 +165,7 @@ function DownloadButtons(props) {
             rowIndex, // строка начала
             excelCellIndex, // столбец начала
             rowIndex + rowSpan - 1, // строка конца
-            excelCellIndex + colSpan - 1 // столбец конца
+            excelCellIndex + colSpan - 1, // столбец конца
           );
 
           cellIndexOffset += colSpan - 1; // Сдвигаем индекс для colSpan
@@ -180,7 +179,7 @@ function DownloadButtons(props) {
     const buffer = await workbook.xlsx.writeBuffer();
     saveAs(
       new Blob([buffer], { type: "application/octet-stream" }),
-      "Таблица.xlsx"
+      "Таблица.xlsx",
     );
   }
 

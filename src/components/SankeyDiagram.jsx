@@ -11,6 +11,7 @@ const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
   let checkList = filteredCheckList || globalCheckList;
 
   useEffect(() => {
+<<<<<<< Updated upstream
     d3.select(`#${svgId}`).selectAll("g").remove();
     
     // Filter data based on checkList
@@ -41,6 +42,9 @@ const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
       target: indexMap.get(link.target)
     }));
     
+=======
+    d3.select(svgRef6.current).selectAll("g").remove();
+>>>>>>> Stashed changes
     // set the dimensions and margins of the graph
     const margin = { top: 30, right: 60, bottom: 0, left: 60 },
       width = window.innerWidth - margin.left - margin.right,
@@ -48,7 +52,11 @@ const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
 
     // append the svg object to the body of the page
     const svg = d3
+<<<<<<< Updated upstream
       .select(`#${svgId}`)
+=======
+      .select(svgRef6.current)
+>>>>>>> Stashed changes
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
@@ -69,8 +77,17 @@ const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
     const shiftAmount = 500; // на сколько пикселей сместить "ось" узлов влево
 
     const { nodes, links } = sankeyGenerator({
+<<<<<<< Updated upstream
       nodes: filteredNodes.map((d) => ({ ...d })),
       links: remappedLinks.map((d) => ({ ...d })),
+=======
+      nodes: resData.nodes.map((d, i) => ({ ...d, id: i })),
+      links: resData.links.map((d) => ({
+        ...d,
+        source: typeof d.source === 'string' ? resData.nodes.findIndex(n => n.name === d.source) : d.source,
+        target: typeof d.target === 'string' ? resData.nodes.findIndex(n => n.name === d.target) : d.target
+      })),
+>>>>>>> Stashed changes
     });
 
     // Найдём центр всей диаграммы по X
@@ -119,7 +136,7 @@ const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
       .attr("stroke-width", (d) => d.width)
       .style("mix-blend-mode", "multiply")
       .append("title")
-      .text((d) => `${d.names.join(" → ")}\n${d.value.toLocaleString()}`);
+      .text((d) => `${d.names?.join(" → ") || `${d.source.name} → ${d.target.name}`}\n${d.value.toLocaleString()}`);
 
     const nodeCount = nodes.length;
     const minFontSize = 14;

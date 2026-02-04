@@ -24,7 +24,7 @@ export const getReportArr = (
   sourceArr: any[],
   dateStart: number,
   dateEnd: number,
-  minValue?: number
+  minValue?: number,
 ) => {
   moment().tz("Europe/London").format();
 
@@ -123,10 +123,13 @@ export const getReportArr = (
     const resultArray = Array.from(resultMap, ([key, value]) => value);
     resultArray.forEach((el) => {
       el.totalDelayed = cutDecimals(
-        el.freightDelayed + el.passDelayed + el.subDelayed + el.otherDelayed
+        el.freightDelayed + el.passDelayed + el.subDelayed + el.otherDelayed,
       );
       el.totalDuration = cutDecimals(
-        el.freightDuration + el.passDuration + el.subDuration + el.otherDuration
+        el.freightDuration +
+          el.passDuration +
+          el.subDuration +
+          el.otherDuration,
       );
     });
 
@@ -198,7 +201,7 @@ export const getReportArr = (
         currentYearTotalSpecial: 0,
         pastYearTotalExternal: 0,
         currentYearTotalExternal: 0,
-      }
+      },
     );
     return summary;
   };
@@ -240,6 +243,7 @@ export const getReportArr = (
       currentYearTotalTechnological: sum.currentYearTotalTechnological,
       currentYearTotalSpecial: sum.currentYearTotalSpecial,
       currentYearTotalExternal: sum.currentYearTotalExternal,
+      // top5cases: top5cases,
     };
 
     return resultArray;
