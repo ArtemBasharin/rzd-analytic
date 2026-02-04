@@ -12,6 +12,7 @@ const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
 
   useEffect(() => {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     d3.select(`#${svgId}`).selectAll("g").remove();
     
     // Filter data based on checkList
@@ -45,6 +46,9 @@ const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
 =======
     d3.select(svgRef6.current).selectAll("g").remove();
 >>>>>>> Stashed changes
+=======
+    d3.select(svgRef6.current).selectAll("g").remove();
+>>>>>>> Stashed changes
     // set the dimensions and margins of the graph
     const margin = { top: 30, right: 60, bottom: 0, left: 60 },
       width = window.innerWidth - margin.left - margin.right,
@@ -53,7 +57,11 @@ const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
     // append the svg object to the body of the page
     const svg = d3
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       .select(`#${svgId}`)
+=======
+      .select(svgRef6.current)
+>>>>>>> Stashed changes
 =======
       .select(svgRef6.current)
 >>>>>>> Stashed changes
@@ -78,15 +86,21 @@ const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
 
     const { nodes, links } = sankeyGenerator({
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
       nodes: filteredNodes.map((d) => ({ ...d })),
       links: remappedLinks.map((d) => ({ ...d })),
 =======
+=======
+>>>>>>> Stashed changes
       nodes: resData.nodes.map((d, i) => ({ ...d, id: i })),
       links: resData.links.map((d) => ({
         ...d,
         source: typeof d.source === 'string' ? resData.nodes.findIndex(n => n.name === d.source) : d.source,
         target: typeof d.target === 'string' ? resData.nodes.findIndex(n => n.name === d.target) : d.target
       })),
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     });
 

@@ -30,6 +30,19 @@ import {
   guiltyUnit,
 } from "../utils/config";
 
+import {
+  startTime,
+  freightDelayed,
+  freightDuration,
+  ID,
+  place,
+  allDelayed,
+  allDuration,
+  guiltyNew,
+  failReason,
+  guiltyUnit,
+} from "../utils/config";
+
 interface RootState {
   filters: {
     sourceState: any[];
@@ -51,7 +64,12 @@ interface RootState {
     reportSrcState: any[];
     reportStations: any[];
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     sankeyCheckList: any[];
+=======
+    dateStart: number;
+    dateEnd: number;
+>>>>>>> Stashed changes
 =======
     dateStart: number;
     dateEnd: number;
@@ -170,6 +188,9 @@ const TextReportTemplatePeriod = () => {
         {getOneUnitReport(arr, pastYear, unit) || "ТН не допущено"}). Причины:{" "}
         {getArrReasons(currentYear, unit)}
       </p>,
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
     ),
   );
@@ -548,6 +569,7 @@ const TextReportTemplatePeriod = () => {
 
         <p className="text_paragraph">
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
           технического характера – {arr[1].sum.currentYearTotalTechnical} (в{" "}
           {pastYear} г. – {arr[0].sum.pastYearTotalTechnical}),{" "}
           {getComparisonText(
@@ -588,6 +610,8 @@ const TextReportTemplatePeriod = () => {
           )}
           ;
 =======
+=======
+>>>>>>> Stashed changes
           Технологические нарушения, повлекшие за собой наибольшее количество
           потерь:
           {topCases.slice(0, 5).map((el: any, index: any) => {
@@ -606,6 +630,9 @@ const TextReportTemplatePeriod = () => {
               </p>
             );
           })}
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
         </p>
 
