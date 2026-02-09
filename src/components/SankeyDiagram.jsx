@@ -4,51 +4,53 @@ import { sankey, sankeyLinkHorizontal } from "d3-sankey";
 import { useSelector } from "react-redux";
 import { cutDecimals } from "../utils/functions";
 
-const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
+const SankeyDiagram = ({ svgId = "id22", filteredCheckList, mode = "slide", singleUnit }) => {
   const svgRef6 = useRef();
   let resData = useSelector((state) => state.filters.sankeyArrState);
   let globalCheckList = useSelector((state) => state.filters.sankeyCheckList);
   let checkList = filteredCheckList || globalCheckList;
 
   useEffect(() => {
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
+    if (!resData?.nodes || !resData?.links) return;
+
     d3.select(`#${svgId}`).selectAll("g").remove();
-    
-    // Filter data based on checkList
-    const checkedUnits = checkList.filter(item => item.checked).map(item => item.guiltyUnit);
-    const filteredLinks = resData.links.filter(link => 
-      checkedUnits.includes(link.names[0])
+
+    // Filter data based on mode
+    const checkedUnits = mode === "report" && singleUnit 
+      ? [singleUnit]
+      : checkList
+          .filter((item) => item.checked)
+          .map((item) => item.guiltyUnit);
+    const filteredLinks = resData.links.filter((link) =>
+      checkedUnits.includes(link.names[0]),
     );
-    
+
     // Get all node indices that are referenced in filtered links
     const usedNodeIndices = new Set();
-    filteredLinks.forEach(link => {
+    filteredLinks.forEach((link) => {
       usedNodeIndices.add(link.source);
       usedNodeIndices.add(link.target);
     });
-    
+
     // Filter nodes and create index mapping
-    const filteredNodes = resData.nodes.filter((node, index) => usedNodeIndices.has(index));
+    const filteredNodes = resData.nodes.filter((node, index) =>
+      usedNodeIndices.has(index),
+    );
     const indexMap = new Map();
     filteredNodes.forEach((node, newIndex) => {
       const oldIndex = resData.nodes.indexOf(node);
       indexMap.set(oldIndex, newIndex);
     });
-    
+
     // Remap link indices
-    const remappedLinks = filteredLinks.map(link => ({
+    const remappedLinks = filteredLinks.map((link) => ({
       ...link,
       source: indexMap.get(link.source),
-      target: indexMap.get(link.target)
+      target: indexMap.get(link.target),
     }));
-    
-=======
+
     d3.select(svgRef6.current).selectAll("g").remove();
->>>>>>> Stashed changes
-=======
     d3.select(svgRef6.current).selectAll("g").remove();
->>>>>>> Stashed changes
     // set the dimensions and margins of the graph
     const margin = { top: 30, right: 60, bottom: 0, left: 60 },
       width = window.innerWidth - margin.left - margin.right,
@@ -56,20 +58,13 @@ const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
 
     // append the svg object to the body of the page
     const svg = d3
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       .select(`#${svgId}`)
-=======
-      .select(svgRef6.current)
->>>>>>> Stashed changes
-=======
-      .select(svgRef6.current)
->>>>>>> Stashed changes
       .attr("width", width + margin.left + margin.right)
       .attr("height", height + margin.top + margin.bottom)
+      .append("g")
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    svg.append("g");
+    svg.selectAll("*").remove();
 
     const nodePadding = 20;
     const sankeyGenerator = sankey()
@@ -85,23 +80,8 @@ const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
     const shiftAmount = 500; // на сколько пикселей сместить "ось" узлов влево
 
     const { nodes, links } = sankeyGenerator({
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
       nodes: filteredNodes.map((d) => ({ ...d })),
       links: remappedLinks.map((d) => ({ ...d })),
-=======
-=======
->>>>>>> Stashed changes
-      nodes: resData.nodes.map((d, i) => ({ ...d, id: i })),
-      links: resData.links.map((d) => ({
-        ...d,
-        source: typeof d.source === 'string' ? resData.nodes.findIndex(n => n.name === d.source) : d.source,
-        target: typeof d.target === 'string' ? resData.nodes.findIndex(n => n.name === d.target) : d.target
-      })),
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
     });
 
     // Найдём центр всей диаграммы по X
@@ -150,7 +130,10 @@ const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
       .attr("stroke-width", (d) => d.width)
       .style("mix-blend-mode", "multiply")
       .append("title")
-      .text((d) => `${d.names?.join(" → ") || `${d.source.name} → ${d.target.name}`}\n${d.value.toLocaleString()}`);
+      .text(
+        (d) =>
+          `${d.names?.join(" → ") || `${d.source.name} → ${d.target.name}`}\n${d.value.toLocaleString()}`,
+      );
 
     const nodeCount = nodes.length;
     const minFontSize = 14;
@@ -198,7 +181,7 @@ const SankeyDiagram = ({ svgId = 'id22', filteredCheckList }) => {
       .append("tspan")
       .attr("fill-opacity", 0.7)
       .text((d) => ` (${cutDecimals(d.value)} ч)`);
-  }, [resData, checkList]);
+  }, [resData, checkList, svgId, mode, singleUnit]);
 
   return (
     <svg

@@ -30,19 +30,6 @@ import {
   guiltyUnit,
 } from "../utils/config";
 
-import {
-  startTime,
-  freightDelayed,
-  freightDuration,
-  ID,
-  place,
-  allDelayed,
-  allDuration,
-  guiltyNew,
-  failReason,
-  guiltyUnit,
-} from "../utils/config";
-
 interface RootState {
   filters: {
     sourceState: any[];
@@ -63,17 +50,9 @@ interface RootState {
     regexpPattern: string;
     reportSrcState: any[];
     reportStations: any[];
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
     sankeyCheckList: any[];
-=======
     dateStart: number;
     dateEnd: number;
->>>>>>> Stashed changes
-=======
-    dateStart: number;
-    dateEnd: number;
->>>>>>> Stashed changes
   };
 }
 
@@ -93,20 +72,54 @@ const TextReportTemplatePeriod = () => {
     (state: RootState) => state.filters.reportStations,
   );
 
-  const checkList = useSelector((state: RootState) => state.filters.sankeyCheckList);
+  const checkList = useSelector(
+    (state: RootState) => state.filters.sankeyCheckList,
+  );
   const dispatch = useDispatch();
 
   // Create filtered checkList for each unit
   const getFilteredCheckList = useMemo(() => {
     return (currentUnit: string) => {
-      return checkList.map(item => ({
+      return checkList.map((item) => ({
         ...item,
-        checked: item.guiltyUnit === currentUnit
+        checked: item.guiltyUnit === currentUnit,
       }));
     };
   }, [checkList]);
 
+  const [sortConfig, setSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  } | null>(null);
+  const [stationsSortConfig, setStationsSortConfig] = useState<{
+    key: string;
+    direction: "asc" | "desc";
+  } | null>(null);
   const [isRightTableVisible, setRightTableVisible] = useState(false);
+
+  const handleSort = (key: string) => {
+    let direction: "asc" | "desc" = "desc";
+    if (
+      sortConfig &&
+      sortConfig.key === key &&
+      sortConfig.direction === "desc"
+    ) {
+      direction = "asc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const handleStationsSort = (key: string) => {
+    let direction: "asc" | "desc" = "desc";
+    if (
+      stationsSortConfig &&
+      stationsSortConfig.key === key &&
+      stationsSortConfig.direction === "desc"
+    ) {
+      direction = "asc";
+    }
+    setStationsSortConfig({ key, direction });
+  };
   const toggleRightTable = () => {
     setRightTableVisible(!isRightTableVisible);
   };
@@ -152,10 +165,9 @@ const TextReportTemplatePeriod = () => {
 
   //generating part of each unit description
   let text: any[] = [];
-  dictionary.forEach((unit: string) =>
+  dictionary.forEach((unit: string, index: number) =>
     text.push(
-<<<<<<< Updated upstream
-      <>
+      <div key={`unit-${index}`}>
         <p className="text_paragraph text_inner">
           <span className="text_unit">{unit.replace(/\n/g, " ")}</span>:{" "}
           {getOneUnitReportWithCompare({
@@ -169,29 +181,12 @@ const TextReportTemplatePeriod = () => {
           {getArrReasons(currentYear, unit)}
         </p>
         <SankeyDiagram 
-          key={unit} 
-          svgId={`sankey-${unit.replace(/\s+/g, '-')}`}
-          filteredCheckList={getFilteredCheckList(unit)}
+          svgId={`svg-${index}`} 
+          mode="report" 
+          singleUnit={unit}
+          filteredCheckList={undefined}
         />
-      </>,
-=======
-      <p className="text_paragraph text_inner">
-        <span className="text_unit">{unit.replace(/\n/g, " ")}</span>:{" "}
-        {/* {getOneUnitReport(arr, currentYear, unit)} (за аналогичный период */}
-        {getOneUnitReportWithCompare({
-          arr: arr,
-          currYear: currentYear,
-          pastYear: pastYear,
-          unit: unit,
-        })}{" "}
-        (за аналогичный период прошлого года:{" "}
-        {getOneUnitReport(arr, pastYear, unit) || "ТН не допущено"}). Причины:{" "}
-        {getArrReasons(currentYear, unit)}
-      </p>,
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
+      </div>,
     ),
   );
 
@@ -279,6 +274,58 @@ const TextReportTemplatePeriod = () => {
     D: { arr: [], pastValue: 0, currentValue: 0 },
     OTHER: { arr: [], pastValue: 0, currentValue: 0 },
   };
+
+  // Apply sorting to dictionaryForTable
+  if (sortConfig) {
+    dictionaryForTable.sort((a: string, b: string) => {
+      let aValue, bValue;
+      if (sortConfig.key === "pastYear") {
+        aValue =
+          arr
+            .find((obj: any) => obj.year === pastYear)
+            ?.report.find((unit: any) => unit.guiltyUnit === a)
+            ?.totalDuration || 0;
+        bValue =
+          arr
+            .find((obj: any) => obj.year === pastYear)
+            ?.report.find((unit: any) => unit.guiltyUnit === b)
+            ?.totalDuration || 0;
+      } else if (sortConfig.key === "currentYear") {
+        aValue =
+          arr
+            .find((obj: any) => obj.year === currentYear)
+            ?.report.find((unit: any) => unit.guiltyUnit === a)
+            ?.totalDuration || 0;
+        bValue =
+          arr
+            .find((obj: any) => obj.year === currentYear)
+            ?.report.find((unit: any) => unit.guiltyUnit === b)
+            ?.totalDuration || 0;
+      } else {
+        aValue = a;
+        bValue = b;
+      }
+      if (sortConfig.direction === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+  } else {
+    dictionaryForTable.sort((a: string, b: string) => {
+      const aCurrentValue =
+        arr
+          .find((obj: any) => obj.year === currentYear)
+          ?.report.find((unit: any) => unit.guiltyUnit === a)?.totalDuration ||
+        0;
+      const bCurrentValue =
+        arr
+          .find((obj: any) => obj.year === currentYear)
+          ?.report.find((unit: any) => unit.guiltyUnit === b)?.totalDuration ||
+        0;
+      return bCurrentValue - aCurrentValue;
+    });
+  }
 
   dictionaryForTable.forEach((el: string) => {
     const category: string = defineСategory(el);
@@ -431,16 +478,63 @@ const TextReportTemplatePeriod = () => {
       dictionaryStationsTableAsSet.add(el2.place);
     });
   });
-  const dictionaryStationsTable: string[] = Array.from(
-    dictionaryStationsTableAsSet,
-  );
+  // Apply sorting to dictionaryStationsTable
+  let sortedStationsTable = [...dictionaryStationsTableAsSet];
+  if (stationsSortConfig) {
+    sortedStationsTable.sort((a: string, b: string) => {
+      let aValue, bValue;
+      if (stationsSortConfig.key === "pastYear") {
+        aValue =
+          stationsReport
+            .find((obj: any) => obj.year === pastYear)
+            ?.report.find((station: any) => station.place === a)
+            ?.totalDuration || 0;
+        bValue =
+          stationsReport
+            .find((obj: any) => obj.year === pastYear)
+            ?.report.find((station: any) => station.place === b)
+            ?.totalDuration || 0;
+      } else if (stationsSortConfig.key === "currentYear") {
+        aValue =
+          stationsReport
+            .find((obj: any) => obj.year === currentYear)
+            ?.report.find((station: any) => station.place === a)
+            ?.totalDuration || 0;
+        bValue =
+          stationsReport
+            .find((obj: any) => obj.year === currentYear)
+            ?.report.find((station: any) => station.place === b)
+            ?.totalDuration || 0;
+      } else {
+        aValue = a;
+        bValue = b;
+      }
+      if (stationsSortConfig.direction === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+  } else {
+    sortedStationsTable.sort((a: string, b: string) => {
+      const aCurrentValue =
+        stationsReport
+          .find((obj: any) => obj.year === currentYear)
+          ?.report.find((station: any) => station.place === a)?.totalDuration ||
+        0;
+      const bCurrentValue =
+        stationsReport
+          .find((obj: any) => obj.year === currentYear)
+          ?.report.find((station: any) => station.place === b)?.totalDuration ||
+        0;
+      return bCurrentValue - aCurrentValue;
+    });
+  }
 
-  const tableStationsLayout: any[] = dictionaryStationsTable.map(
-    (el, index) => {
-      const l = getOneRowStationsReport(el, index);
-      return l.layout;
-    },
-  );
+  const tableStationsLayout: any[] = sortedStationsTable.map((el, index) => {
+    const l = getOneRowStationsReport(el, index);
+    return l.layout;
+  });
 
   //итоговая строка всей таблицы
   tableStationsLayout.push(
@@ -568,8 +662,6 @@ const TextReportTemplatePeriod = () => {
         )}
 
         <p className="text_paragraph">
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
           технического характера – {arr[1].sum.currentYearTotalTechnical} (в{" "}
           {pastYear} г. – {arr[0].sum.pastYearTotalTechnical}),{" "}
           {getComparisonText(
@@ -601,7 +693,7 @@ const TextReportTemplatePeriod = () => {
           ;
         </p>
 
-        <p className="text_paragraph">
+        <div className="text_paragraph">
           внешние – {arr[1].sum.currentYearTotalExternal} (в {pastYear} г. –{" "}
           {arr[0].sum.pastYearTotalExternal}),{" "}
           {getComparisonText(
@@ -609,9 +701,8 @@ const TextReportTemplatePeriod = () => {
             arr[0].sum.pastYearTotalExternal,
           )}
           ;
-=======
-=======
->>>>>>> Stashed changes
+        </div>
+        <div className="text_paragraph">
           Технологические нарушения, повлекшие за собой наибольшее количество
           потерь:
           {topCases.slice(0, 5).map((el: any, index: any) => {
@@ -630,11 +721,7 @@ const TextReportTemplatePeriod = () => {
               </p>
             );
           })}
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
-        </p>
+        </div>
 
         <p className="text_paragraph">
           ТН по ответственности подразделений: {text.concat("")}
@@ -642,33 +729,56 @@ const TextReportTemplatePeriod = () => {
         <p style={{ lineHeight: "30px" }}>&nbsp;&nbsp;</p>
 
         <table className="table_bold">
-          <tr className="table_bold text_header">
-            <td rowSpan={2} className="table_bold ">
-              Подразделение
-            </td>
-            <th colSpan={2}>
-              Поездо-часы <br />
-              задержек
-            </th>
-            <th rowSpan={2} className="table_bold ">
-              +/- % (ч) к<br />
-              прошлому <br />
-              году
-            </th>
-            <th colSpan={2}>
-              По отношению к общему
-              <br />
-              количеству поездо-часов, %
-            </th>
-          </tr>
-          <tr className="table_bold text_header">
-            <td>{pastYear}</td>
-            <td>{currentYear}</td>
-            <td>{pastYear}</td>
-            <td>{currentYear}</td>
-          </tr>
+          <tbody>
+            <tr className="table_bold text_header">
+              <td
+                rowSpan={2}
+                className="table_bold "
+                onClick={() => handleSort("name")}
+                style={{ cursor: "pointer" }}
+              >
+                Подразделение{" "}
+                {sortConfig?.key === "name" &&
+                  (sortConfig.direction === "desc" ? "↓" : "↑")}
+              </td>
+              <th colSpan={2}>
+                Поездо-часы <br />
+                задержек
+              </th>
+              <th rowSpan={2} className="table_bold ">
+                +/- % (ч) к<br />
+                прошлому <br />
+                году
+              </th>
+              <th colSpan={2}>
+                По отношению к общему
+                <br />
+                количеству поездо-часов, %
+              </th>
+            </tr>
+            <tr className="table_bold text_header">
+              <td
+                onClick={() => handleSort("pastYear")}
+                style={{ cursor: "pointer" }}
+              >
+                {pastYear}{" "}
+                {sortConfig?.key === "pastYear" &&
+                  (sortConfig.direction === "desc" ? "↓" : "↑")}
+              </td>
+              <td
+                onClick={() => handleSort("currentYear")}
+                style={{ cursor: "pointer" }}
+              >
+                {currentYear}{" "}
+                {sortConfig?.key === "currentYear" &&
+                  (sortConfig.direction === "desc" ? "↓" : "↑")}
+              </td>
+              <td>{pastYear}</td>
+              <td>{currentYear}</td>
+            </tr>
 
-          {tableLayout}
+            {tableLayout}
+          </tbody>
         </table>
 
         <div>
@@ -692,8 +802,15 @@ const TextReportTemplatePeriod = () => {
         <table className="table_bold table_stations" id="stations_container">
           <thead>
             <tr className="table_bold text_header">
-              <td rowSpan={2} className="table_bold ">
-                Станция
+              <td
+                rowSpan={2}
+                className="table_bold "
+                onClick={() => handleStationsSort("name")}
+                style={{ cursor: "pointer" }}
+              >
+                Станция{" "}
+                {stationsSortConfig?.key === "name" &&
+                  (stationsSortConfig.direction === "desc" ? "↓" : "↑")}
               </td>
               <th colSpan={2}>
                 Поездо-часы <br />
@@ -713,7 +830,7 @@ const TextReportTemplatePeriod = () => {
                       style={{
                         writingMode: "vertical-rl",
                         transform: "rotate(180deg)",
-                        height: "130px", // Фиксированная высота ячейки
+                        height: "130px",
                         whiteSpace: "normal",
                         fontSize: "12px",
                       }}
@@ -724,11 +841,25 @@ const TextReportTemplatePeriod = () => {
                 })}
             </tr>
             <tr className="table_bold text_header">
-              <td>{pastYear}</td>
-              <td>{currentYear}</td>
+              <td
+                onClick={() => handleStationsSort("pastYear")}
+                style={{ cursor: "pointer" }}
+              >
+                {pastYear}{" "}
+                {stationsSortConfig?.key === "pastYear" &&
+                  (stationsSortConfig.direction === "desc" ? "↓" : "↑")}
+              </td>
+              <td
+                onClick={() => handleStationsSort("currentYear")}
+                style={{ cursor: "pointer" }}
+              >
+                {currentYear}{" "}
+                {stationsSortConfig?.key === "currentYear" &&
+                  (stationsSortConfig.direction === "desc" ? "↓" : "↑")}
+              </td>
             </tr>
           </thead>
-          {tableStationsLayout}
+          <tbody>{tableStationsLayout}</tbody>
         </table>
       </div>
     </>
