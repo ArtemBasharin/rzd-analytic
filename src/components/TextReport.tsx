@@ -1,6 +1,6 @@
 // import { useRef } from "react";
 import * as d3 from "d3";
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
 import {
   cellComparingPercents,
   defineСategory,
@@ -14,22 +14,20 @@ import {
 } from "../utils/functions";
 
 import { cutDecimals } from "../utils/functions";
-import { useState, useMemo } from "react";
-import SankeyDiagram from "./SankeyDiagram";
+import { useState } from "react";
 
 import {
   startTime,
-  freightDelayed,
+  // freightDelayed,
   freightDuration,
   ID,
   place,
   allDelayed,
   allDuration,
-  guiltyNew,
+  // guiltyNew,
   failReason,
   guiltyUnit,
 } from "../utils/config";
-
 
 interface RootState {
   filters: {
@@ -72,21 +70,6 @@ const TextReportTemplatePeriod = () => {
   const stationsReport = useSelector(
     (state: RootState) => state.filters.reportStations,
   );
-
-  const checkList = useSelector(
-    (state: RootState) => state.filters.sankeyCheckList,
-  );
-  const dispatch = useDispatch();
-
-  // Create filtered checkList for each unit
-  const getFilteredCheckList = useMemo(() => {
-    return (currentUnit: string) => {
-      return checkList.map((item) => ({
-        ...item,
-        checked: item.guiltyUnit === currentUnit,
-      }));
-    };
-  }, [checkList]);
 
   const [sortConfig, setSortConfig] = useState<{
     key: string;
@@ -168,26 +151,19 @@ const TextReportTemplatePeriod = () => {
   let text: any[] = [];
   dictionary.forEach((unit: string, index: number) =>
     text.push(
-      <div key={`unit-${index}`}>
-        <p className="text_paragraph text_inner">
-          <span className="text_unit">{unit.replace(/\n/g, " ")}</span>:{" "}
-          {getOneUnitReportWithCompare({
-            arr: arr,
-            currYear: currentYear,
-            pastYear: pastYear,
-            unit: unit,
-          })}{" "}
-          (за аналогичный период прошлого года:{" "}
-          {getOneUnitReport(arr, pastYear, unit) || "ТН не допущено"}). Причины:{" "}
-          {getArrReasons(currentYear, unit)}
-        </p>
-        <SankeyDiagram 
-          svgId={`svg-${index}`} 
-          mode="report" 
-          singleUnit={unit}
-          filteredCheckList={undefined}
-        />
-      </div>,
+      <p className="text_paragraph text_inner">
+        <span className="text_unit">{unit.replace(/\n/g, " ")}</span>:{" "}
+        {/* {getOneUnitReport(arr, currentYear, unit)} (за аналогичный период */}
+        {getOneUnitReportWithCompare({
+          arr: arr,
+          currYear: currentYear,
+          pastYear: pastYear,
+          unit: unit,
+        })}{" "}
+        (за аналогичный период прошлого года:{" "}
+        {getOneUnitReport(arr, pastYear, unit) || "ТН не допущено"}). Причины:{" "}
+        {getArrReasons(currentYear, unit)}
+      </p>,
     ),
   );
 
@@ -479,63 +455,16 @@ const TextReportTemplatePeriod = () => {
       dictionaryStationsTableAsSet.add(el2.place);
     });
   });
-  // Apply sorting to dictionaryStationsTable
-  let sortedStationsTable = [...dictionaryStationsTableAsSet];
-  if (stationsSortConfig) {
-    sortedStationsTable.sort((a: string, b: string) => {
-      let aValue, bValue;
-      if (stationsSortConfig.key === "pastYear") {
-        aValue =
-          stationsReport
-            .find((obj: any) => obj.year === pastYear)
-            ?.report.find((station: any) => station.place === a)
-            ?.totalDuration || 0;
-        bValue =
-          stationsReport
-            .find((obj: any) => obj.year === pastYear)
-            ?.report.find((station: any) => station.place === b)
-            ?.totalDuration || 0;
-      } else if (stationsSortConfig.key === "currentYear") {
-        aValue =
-          stationsReport
-            .find((obj: any) => obj.year === currentYear)
-            ?.report.find((station: any) => station.place === a)
-            ?.totalDuration || 0;
-        bValue =
-          stationsReport
-            .find((obj: any) => obj.year === currentYear)
-            ?.report.find((station: any) => station.place === b)
-            ?.totalDuration || 0;
-      } else {
-        aValue = a;
-        bValue = b;
-      }
-      if (stationsSortConfig.direction === "asc") {
-        return aValue > bValue ? 1 : -1;
-      } else {
-        return aValue < bValue ? 1 : -1;
-      }
-    });
-  } else {
-    sortedStationsTable.sort((a: string, b: string) => {
-      const aCurrentValue =
-        stationsReport
-          .find((obj: any) => obj.year === currentYear)
-          ?.report.find((station: any) => station.place === a)?.totalDuration ||
-        0;
-      const bCurrentValue =
-        stationsReport
-          .find((obj: any) => obj.year === currentYear)
-          ?.report.find((station: any) => station.place === b)?.totalDuration ||
-        0;
-      return bCurrentValue - aCurrentValue;
-    });
-  }
+  const dictionaryStationsTable: string[] = Array.from(
+    dictionaryStationsTableAsSet,
+  );
 
-  const tableStationsLayout: any[] = sortedStationsTable.map((el, index) => {
-    const l = getOneRowStationsReport(el, index);
-    return l.layout;
-  });
+  const tableStationsLayout: any[] = dictionaryStationsTable.map(
+    (el, index) => {
+      const l = getOneRowStationsReport(el, index);
+      return l.layout;
+    },
+  );
 
   //итоговая строка всей таблицы
   tableStationsLayout.push(
@@ -663,47 +592,6 @@ const TextReportTemplatePeriod = () => {
         )}
 
         <p className="text_paragraph">
-          технического характера – {arr[1].sum.currentYearTotalTechnical} (в{" "}
-          {pastYear} г. – {arr[0].sum.pastYearTotalTechnical}),{" "}
-          {getComparisonText(
-            arr[1].sum.currentYearTotalTechnical,
-            arr[0].sum.pastYearTotalTechnical,
-          )}
-          ;
-        </p>
-
-        <p className="text_paragraph">
-          технологического характера –{" "}
-          {arr[1].sum.currentYearTotalTechnological} (в {pastYear} г. –{" "}
-          {arr[0].sum.pastYearTotalTechnological}),{" "}
-          {getComparisonText(
-            arr[1].sum.currentYearTotalTechnological,
-            arr[0].sum.pastYearTotalTechnological,
-          )}
-          ;
-        </p>
-
-        <p className="text_paragraph">
-          особая технологическая необходимость –{" "}
-          {arr[1].sum.currentYearTotalSpecial} (в {pastYear} г. –{" "}
-          {arr[0].sum.pastYearTotalSpecial}),{" "}
-          {getComparisonText(
-            arr[1].sum.currentYearTotalSpecial,
-            arr[0].sum.pastYearTotalSpecial,
-          )}
-          ;
-        </p>
-
-        <div className="text_paragraph">
-          внешние – {arr[1].sum.currentYearTotalExternal} (в {pastYear} г. –{" "}
-          {arr[0].sum.pastYearTotalExternal}),{" "}
-          {getComparisonText(
-            arr[1].sum.currentYearTotalExternal,
-            arr[0].sum.pastYearTotalExternal,
-          )}
-          ;
-        </div>
-        <div className="text_paragraph">
           Технологические нарушения, повлекшие за собой наибольшее количество
           потерь:
           {topCases.slice(0, 5).map((el: any, index: any) => {
@@ -722,7 +610,7 @@ const TextReportTemplatePeriod = () => {
               </p>
             );
           })}
-        </div>
+        </p>
 
         <p className="text_paragraph">
           ТН по ответственности подразделений: {text.concat("")}

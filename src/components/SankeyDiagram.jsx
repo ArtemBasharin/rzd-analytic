@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import * as d3 from "d3";
 import { sankey, sankeyLinkHorizontal } from "d3-sankey";
 import { useSelector } from "react-redux";
@@ -48,13 +48,6 @@ const SankeyDiagram = ({
       indexMap.set(oldIndex, newIndex);
     });
 
-    // Remap link indices
-    const remappedLinks = filteredLinks.map((link) => ({
-      ...link,
-      source: indexMap.get(link.source),
-      target: indexMap.get(link.target),
-    }));
-
     d3.select(svgRef6.current).selectAll("g").remove();
     d3.select(svgRef6.current).selectAll("g").remove();
     // set the dimensions and margins of the graph
@@ -86,8 +79,18 @@ const SankeyDiagram = ({
     const shiftAmount = 500; // на сколько пикселей сместить "ось" узлов влево
 
     const { nodes, links } = sankeyGenerator({
-      nodes: filteredNodes.map((d) => ({ ...d })),
-      links: remappedLinks.map((d) => ({ ...d })),
+      nodes: resData.nodes.map((d, i) => ({ ...d, id: i })),
+      links: resData.links.map((d) => ({
+        ...d,
+        source:
+          typeof d.source === "string"
+            ? resData.nodes.findIndex((n) => n.name === d.source)
+            : d.source,
+        target:
+          typeof d.target === "string"
+            ? resData.nodes.findIndex((n) => n.name === d.target)
+            : d.target,
+      })),
     });
 
     // Найдём центр всей диаграммы по X
