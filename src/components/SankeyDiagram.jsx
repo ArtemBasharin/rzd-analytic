@@ -4,7 +4,12 @@ import { sankey, sankeyLinkHorizontal } from "d3-sankey";
 import { useSelector } from "react-redux";
 import { cutDecimals } from "../utils/functions";
 
-const SankeyDiagram = ({ svgId = "id22", filteredCheckList, mode = "slide", singleUnit }) => {
+const SankeyDiagram = ({
+  svgId = "id22",
+  filteredCheckList,
+  mode = "slide",
+  singleUnit,
+}) => {
   const svgRef6 = useRef();
   let resData = useSelector((state) => state.filters.sankeyArrState);
   let globalCheckList = useSelector((state) => state.filters.sankeyCheckList);
@@ -16,11 +21,12 @@ const SankeyDiagram = ({ svgId = "id22", filteredCheckList, mode = "slide", sing
     d3.select(`#${svgId}`).selectAll("g").remove();
 
     // Filter data based on mode
-    const checkedUnits = mode === "report" && singleUnit 
-      ? [singleUnit]
-      : checkList
-          .filter((item) => item.checked)
-          .map((item) => item.guiltyUnit);
+    const checkedUnits =
+      mode === "report" && singleUnit
+        ? [singleUnit]
+        : checkList
+            .filter((item) => item.checked)
+            .map((item) => item.guiltyUnit);
     const filteredLinks = resData.links.filter((link) =>
       checkedUnits.includes(link.names[0]),
     );
