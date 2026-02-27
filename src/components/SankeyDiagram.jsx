@@ -52,8 +52,19 @@ const SankeyDiagram = ({
     d3.select(svgRef6.current).selectAll("g").remove();
     // set the dimensions and margins of the graph
     const margin = { top: 30, right: 60, bottom: 0, left: 60 },
-      width = window.innerWidth - margin.left - margin.right,
-      height = window.innerHeight - 180 - margin.top - margin.bottom;
+      width = window.innerWidth - margin.left - margin.right;
+
+    // Calculate fontSize before sankey generation for report mode
+    let fontSize = 20;
+    if (mode === "report") {
+      const estimatedNodeCount = filteredNodes.length;
+      const minFontSize = 14;
+      const maxFontSize = 40;
+      fontSize = Math.max(minFontSize, Math.min(maxFontSize, 30));
+    }
+
+    const nodePadding = fontSize * 1.2;
+    const height = window.innerHeight - 180 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     const svg = d3
@@ -65,7 +76,6 @@ const SankeyDiagram = ({
 
     svg.selectAll("*").remove();
 
-    const nodePadding = 20;
     const sankeyGenerator = sankey()
       .nodeSort((a, b) => b.value - a.value)
       .linkSort((a, b) => b.value - a.value)
@@ -76,21 +86,22 @@ const SankeyDiagram = ({
         [width, height - 10],
       ]);
 
-    const shiftAmount = 500; // на сколько пикселей сместить "ось" узлов влево
+    const shiftAmount = 500;
 
     const { nodes, links } = sankeyGenerator({
-      nodes: resData.nodes.map((d, i) => ({ ...d, id: i })),
-      links: resData.links.map((d) => ({
+      nodes: filteredNodes.map((d) => ({ ...d })),
+      links: filteredLinks.map((d) => ({
         ...d,
-        source:
-          typeof d.source === "string"
-            ? resData.nodes.findIndex((n) => n.name === d.source)
-            : d.source,
-        target:
-          typeof d.target === "string"
-            ? resData.nodes.findIndex((n) => n.name === d.target)
-            : d.target,
+        source: indexMap.get(d.source),
+        target: indexMap.get(d.target),
       })),
+    });
+
+    // Нелинейное масштабирование ширины связей
+    const maxWidth = Math.max(...links.map(l => l.width));
+    links.forEach(link => {
+      link.originalWidth = link.width;
+      link.width = Math.sqrt(link.width / maxWidth) * maxWidth;
     });
 
     // Найдём центр всей диаграммы по X
@@ -136,7 +147,7 @@ const SankeyDiagram = ({
         );
       })
 
-      .attr("stroke-width", (d) => d.width)
+      .attr("stroke-width", (d) => d.originalWidth)
       .style("mix-blend-mode", "multiply")
       .append("title")
       .text(
@@ -147,13 +158,15 @@ const SankeyDiagram = ({
     const nodeCount = nodes.length;
     const minFontSize = 14;
     const maxFontSize = 40;
-    const fontSize = Math.max(
-      minFontSize,
-      Math.min(
-        maxFontSize,
-        Math.floor((height - (nodeCount * nodePadding) / 6) / nodeCount),
-      ),
-    );
+    if (mode !== "report") {
+      fontSize = Math.max(
+        minFontSize,
+        Math.min(
+          maxFontSize,
+          Math.floor((height - (nodeCount * nodePadding) / 6) / nodeCount),
+        ),
+      );
+    }
     const rightSpaceWidth =
       width / 2 + shiftAmount - margin.left - margin.right;
     const allowedCharsAmount = Math.floor(rightSpaceWidth / fontSize) - 8;
@@ -172,14 +185,6 @@ const SankeyDiagram = ({
       .attr("y", (d) => (d.y1 + d.y0) / 2)
       .attr("dy", "0.35em")
       .attr("text-anchor", (d) => (d.x0 < width / 2 ? "start" : "end"))
-      // .style("fill", "white")
-      // .style(
-      //   "text-shadow",
-      //   "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000"
-      // )
-      // .text(function (d) {
-      //   return d.name;
-      // })
       .text(function (d) {
         if (d.name && d.name.length >= allowedCharsAmount) {
           return d.name.substr(0, allowedCharsAmount) + " ...";

@@ -28,6 +28,7 @@ import {
   failReason,
   guiltyUnit,
 } from "../utils/config";
+import SankeyDiagram from "./SankeyDiagram";
 
 interface RootState {
   filters: {
@@ -69,6 +70,10 @@ const TextReportTemplatePeriod = () => {
 
   const stationsReport = useSelector(
     (state: RootState) => state.filters.reportStations,
+  );
+
+  const checkList = useSelector(
+    (state: RootState) => state.filters.sankeyCheckList,
   );
 
   const [sortConfig, setSortConfig] = useState<{
@@ -114,15 +119,6 @@ const TextReportTemplatePeriod = () => {
     useSelector((state: RootState) => state.filters.dateStart),
   );
   let end = new Date(useSelector((state: RootState) => state.filters.dateEnd));
-  console.log(start, end);
-  // const [isTopCasesVisible, setIsTopCasesVisible] = useState(false);
-  // const toggleTopCasesVisible = () => {
-  //   setIsTopCasesVisible(!isTopCasesVisible);
-  //   console.log(topCases);
-  //   topCases = sourceArr
-  //     .filter((el) => el[startTime] > start && el[startTime] < end)
-  //     .sort((a, b) => b[freightDuration] - b[freightDuration]);
-  // };
 
   topCases = sourceArr
     .filter((el) => {
@@ -164,6 +160,12 @@ const TextReportTemplatePeriod = () => {
         {getOneUnitReport(arr, pastYear, unit) || "ТН не допущено"}). Причины:{" "}
         {getArrReasons(currentYear, unit)}
       </p>,
+      <SankeyDiagram 
+        svgId={`svg-${index}`}
+        mode="report"
+        singleUnit={unit}
+        filteredCheckList={undefined}
+      />,
     ),
   );
 
