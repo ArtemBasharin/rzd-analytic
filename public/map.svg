@@ -1,0 +1,1261 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Создано Microsoft Visio, экспорт SVG map.svg Страница-1 -->
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:ev="http://www.w3.org/2001/xml-events"
+		xmlns:v="http://schemas.microsoft.com/visio/2003/SVGExtensions/" width="10.2961in" height="4.40681in"
+		viewBox="0 0 741.321 317.291" xml:space="preserve" color-interpolation-filters="sRGB" class="st15">
+	<v:documentProperties v:langID="1049" v:metric="true" v:viewMarkup="false">
+		<v:userDefs>
+			<v:ud v:nameU="msvConvertTheme"/>
+		</v:userDefs>
+	</v:documentProperties>
+
+	<style type="text/css">
+	<![CDATA[
+		.st1 {fill:#ffffff;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.75}
+		.st2 {fill:none;stroke:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.72}
+		.st3 {fill:#000000;font-family:Arial;font-size:0.499992em;font-weight:bold}
+		.st4 {font-size:1em}
+		.st5 {fill:#000000;font-family:Arial;font-size:0.499992em}
+		.st6 {stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.24}
+		.st7 {stroke:#595959;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.5}
+		.st8 {stroke:#ff0000;stroke-linecap:round;stroke-linejoin:round;stroke-width:4.08}
+		.st9 {stroke:#f8b57e;stroke-linecap:round;stroke-linejoin:round;stroke-width:3.12}
+		.st10 {stroke:#b5cb85;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.2}
+		.st11 {stroke:#cadaa9;stroke-linecap:round;stroke-linejoin:round;stroke-width:2.16}
+		.st12 {stroke:#688037;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.72}
+		.st13 {stroke:#cd736b;stroke-linecap:round;stroke-linejoin:round;stroke-width:4.08}
+		.st14 {stroke:#000000;stroke-linecap:round;stroke-linejoin:round;stroke-width:0.72}
+		.st15 {fill:none;fill-rule:evenodd;font-size:12px;overflow:visible;stroke-linecap:square;stroke-miterlimit:3}
+	]]>
+	</style>
+
+	<g v:mID="0" v:index="1" v:groupContext="foregroundPage">
+		<title>Страница-1</title>
+		<v:pageProperties v:drawingScale="0.0393701" v:pageScale="0.0393701" v:drawingUnits="24" v:shadowOffsetX="8.50394"
+				v:shadowOffsetY="-8.50394"/>
+		<v:layer v:name="Пути" v:index="0"/>
+		<v:layer v:name="Станции" v:index="1"/>
+		<v:layer v:name="Дорожные стыки" v:index="2"/>
+		<v:layer v:name="ДУ Километраж" v:index="3"/>
+		<v:layer v:name="Соединительная линия" v:index="4"/>
+		<g id="shape233-1" v:mID="233" v:groupContext="shape" v:layerMember="0" transform="translate(502.147,-128.271)">
+			<title>Лист.233</title>
+			<path d="M1.99 313.44 L2.35 313.44 L2.7 313.58 L3.06 313.72 L3.34 314.01 L3.56 314.29 L3.77 314.58 L3.91 314.94 L3.91
+						 315.36 L3.91 315.72 L3.77 316.15 L3.56 316.43 L3.34 316.72 L3.06 317.01 L2.7 317.15 L2.35 317.29 L1.99 317.29
+						 L1.56 317.29 L1.21 317.15 L0.85 317.01 L0.57 316.72 L0.36 316.43 L0.21 316.15 L0.07 315.72 L0 315.36 L0.07
+						 314.94 L0.21 314.58 L0.36 314.29 L0.57 314.01 L0.85 313.72 L1.21 313.58 L1.56 313.44 L1.99 313.44 L1.99
+						 313.44 Z" class="st1"/>
+		</g>
+		<g id="shape377-3" v:mID="377" v:groupContext="shape" v:layerMember="1" transform="translate(147.231,-235.391)">
+			<title>Лист.377</title>
+			<desc>Карасук I</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="30.7387" cy="315.604" width="61.48" height="3.37329"/>
+			<rect x="0" y="313.917" width="61.4773" height="3.37329" class="st2"/>
+			<text x="34.47" y="317.1" class="st3" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Карасук<tspan
+						class="st4" v:langID="1033"> </tspan><tspan class="st4" v:langID="1033">I</tspan></text>		</g>
+		<g id="shape379-8" v:mID="379" v:groupContext="shape" v:layerMember="1" transform="translate(-99.6359,57.8008) rotate(-90)">
+			<title>Лист.379</title>
+			<desc>Осолодино</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="22.6748" cy="315.042" width="45.35" height="4.49772"/>
+			<rect x="0" y="312.793" width="45.3497" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Осолодино</text>		</g>
+		<g id="shape380-11" v:mID="380" v:groupContext="shape" v:layerMember="1"
+				transform="translate(-80.3792,71.9787) rotate(-90)">
+			<title>Лист.380</title>
+			<desc>Карасук III</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="19.5912" cy="315.042" width="39.19" height="4.49772"/>
+			<rect x="0" y="312.793" width="39.1825" height="4.49772" class="st2"/>
+			<text x="10.38" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Карасук <tspan
+						class="st4" v:langID="1033">III</tspan></text>		</g>
+		<g id="shape381-15" v:mID="381" v:groupContext="shape" v:layerMember="1"
+				transform="translate(-62.7855,79.0653) rotate(-90)">
+			<title>Лист.381</title>
+			<desc>Чебачий</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="18.0806" cy="315.042" width="36.17" height="4.49772"/>
+			<rect x="0" y="312.793" width="36.1611" height="4.49772" class="st2"/>
+			<text x="12.22" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Чебачий</text>		</g>
+		<g id="shape382-18" v:mID="382" v:groupContext="shape" v:layerMember="1" transform="translate(12.5783,84.7346) rotate(-90)">
+			<title>Лист.382</title>
+			<desc>Хабары</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="17.0918" cy="315.042" width="34.19" height="4.49772"/>
+			<rect x="0" y="312.793" width="34.1836" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Хабары</text>		</g>
+		<g id="shape389-21" v:mID="389" v:groupContext="shape" v:layerMember="1"
+				transform="translate(-4.67528,81.0609) rotate(-90)">
+			<title>Лист.389</title>
+			<desc>Краснозерское</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="30.7616" cy="314.578" width="61.53" height="5.42429"/>
+			<rect x="0" y="311.866" width="61.5232" height="5.42429" class="st2"/>
+			<text x="0" y="316.08" class="st3" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Краснозерское</text>		</g>
+		<g id="shape430-24" v:mID="430" v:groupContext="shape" v:layerMember="1" transform="translate(499.73,-266.326)">
+			<title>Лист.430</title>
+			<desc>Черепаново</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="24.0666" cy="315.042" width="48.14" height="4.49772"/>
+			<rect x="0" y="312.793" width="48.1332" height="4.49772" class="st2"/>
+			<text x="11.98" y="316.54" class="st3" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Черепаново</text>		</g>
+		<g id="shape563-27" v:mID="563" v:groupContext="shape" v:layerMember="1" transform="translate(386.222,166.676) rotate(-90)">
+			<title>Лист.563</title>
+			<desc>Артышта II</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="21.837" cy="314.578" width="43.68" height="5.42429"/>
+			<rect x="0" y="311.866" width="43.6739" height="5.42429" class="st2"/>
+			<text x="0" y="316.08" class="st3" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Артышта <tspan class="st4"
+						v:langID="1033">II</tspan></text>		</g>
+		<g id="shape578-31" v:mID="578" v:groupContext="shape" v:layerMember="2" transform="translate(171.532,-133.074)">
+			<title>Лист.578</title>
+			<desc>Кулунда</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="22.0277" cy="315.604" width="44.06" height="3.37329"/>
+			<rect x="0" y="313.917" width="44.0554" height="3.37329" class="st2"/>
+			<text x="19.14" y="317.1" class="st3" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Кулунда</text>		</g>
+		<g id="shape580-34" v:mID="580" v:groupContext="shape" v:layerMember="1" transform="translate(175.135,-221.217)">
+			<title>Лист.580</title>
+			<desc>Бурла</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="17.6161" cy="315.042" width="35.24" height="4.49772"/>
+			<rect x="0" y="312.793" width="35.2322" height="4.49772" class="st2"/>
+			<text x="18.12" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Бурла</text>		</g>
+		<g id="shape581-37" v:mID="581" v:groupContext="shape" v:layerMember="1" transform="translate(175.135,-206.213)">
+			<title>Лист.581</title>
+			<desc>Айнак</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="17.6161" cy="315.042" width="35.24" height="4.49772"/>
+			<rect x="0" y="312.793" width="35.2322" height="4.49772" class="st2"/>
+			<text x="18.6" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Айнак</text>		</g>
+		<g id="shape582-40" v:mID="582" v:groupContext="shape" v:layerMember="1" transform="translate(156.612,-182.704)">
+			<title>Лист.582</title>
+			<desc>Красный Дол</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="27.0273" cy="315.042" width="54.06" height="4.49772"/>
+			<rect x="0" y="312.793" width="54.0547" height="4.49772" class="st2"/>
+			<text x="17.34" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Красный Дол</text>		</g>
+		<g id="shape583-43" v:mID="583" v:groupContext="shape" v:layerMember="1" transform="translate(165.214,-169.362)">
+			<title>Лист.583</title>
+			<desc>Славгород</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="22.7443" cy="315.042" width="45.49" height="4.49772"/>
+			<rect x="0" y="312.793" width="45.4885" height="4.49772" class="st2"/>
+			<text x="15.43" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Славгород</text>		</g>
+		<g id="shape584-46" v:mID="584" v:groupContext="shape" v:layerMember="1" transform="translate(178.171,-150.937)">
+			<title>Лист.584</title>
+			<desc>Табуны</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="17.6161" cy="315.042" width="35.24" height="4.49772"/>
+			<rect x="0" y="312.793" width="35.2322" height="4.49772" class="st2"/>
+			<text x="14.17" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Табуны</text>		</g>
+		<g id="shape585-49" v:mID="585" v:groupContext="shape" v:layerMember="1" transform="translate(61.3531,96.9115) rotate(-90)">
+			<title>Лист.585</title>
+			<desc>Камень-на-Оби</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="30.1829" cy="315.042" width="60.37" height="4.49772"/>
+			<rect x="0" y="312.793" width="60.3659" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Камень-на-Оби</text>		</g>
+		<g id="shape586-52" v:mID="586" v:groupContext="shape" v:layerMember="1" transform="translate(84.8618,101.742) rotate(-90)">
+			<title>Лист.586</title>
+			<desc>Плотинная</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="21.679" cy="315.042" width="43.36" height="4.49772"/>
+			<rect x="0" y="312.793" width="43.358" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Плотинная</text>		</g>
+		<g id="shape587-55" v:mID="587" v:groupContext="shape" v:layerMember="1" transform="translate(25.92,86.1519) rotate(-90)">
+			<title>Лист.587</title>
+			<desc>Урываево</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="19.802" cy="315.042" width="39.61" height="4.49772"/>
+			<rect x="0" y="312.793" width="39.604" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Урываево</text>		</g>
+		<g id="shape588-58" v:mID="588" v:groupContext="shape" v:layerMember="1" transform="translate(47.7657,92.784) rotate(-90)">
+			<title>Лист.588</title>
+			<desc>Световская</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.8672" cy="315.042" width="47.74" height="4.49772"/>
+			<rect x="0" y="312.793" width="47.7345" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Световская</text>		</g>
+		<g id="shape589-61" v:mID="589" v:groupContext="shape" v:layerMember="1" transform="translate(35.0098,102.83) rotate(-90)">
+			<title>Лист.589</title>
+			<desc>Панкрушиха</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="24.6381" cy="315.042" width="49.28" height="4.49772"/>
+			<rect x="0" y="312.793" width="49.2763" height="4.49772" class="st2"/>
+			<text x="14.85" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Панкрушиха</text>		</g>
+		<g id="shape590-64" v:mID="590" v:groupContext="shape" v:layerMember="1" transform="translate(104.459,120.462) rotate(-90)">
+			<title>Лист.590</title>
+			<desc>Тараданово</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="24.3892" cy="315.042" width="48.78" height="4.49772"/>
+			<rect x="0" y="312.793" width="48.7783" height="4.49772" class="st2"/>
+			<text x="15.09" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Тараданово</text>		</g>
+		<g id="shape591-67" v:mID="591" v:groupContext="shape" v:layerMember="1" transform="translate(118.878,108.291) rotate(-90)">
+			<title>Лист.591</title>
+			<desc>Сузун</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="12.2175" cy="315.042" width="24.44" height="4.49772"/>
+			<rect x="0" y="312.793" width="24.4349" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Сузун</text>		</g>
+		<g id="shape592-70" v:mID="592" v:groupContext="shape" v:layerMember="1" transform="translate(133.051,111.755) rotate(-90)">
+			<title>Лист.592</title>
+			<desc>Рямы</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="12.093" cy="315.042" width="24.19" height="4.49772"/>
+			<rect x="0" y="312.793" width="24.1859" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Рямы</text>		</g>
+		<g id="shape593-73" v:mID="593" v:groupContext="shape" v:layerMember="1" transform="translate(163.4,118.75) rotate(-90)">
+			<title>Лист.593</title>
+			<desc>Вор.-Молод.</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="26.7881" cy="315.042" width="53.58" height="4.49772"/>
+			<rect x="0" y="312.793" width="53.5763" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Вор.-Молод.</text>		</g>
+		<g id="shape597-76" v:mID="597" v:groupContext="shape" v:layerMember="1" transform="translate(509.678,-257.822)">
+			<title>Лист.597</title>
+			<desc>Безменово</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="22.6499" cy="315.042" width="45.3" height="4.49772"/>
+			<rect x="0" y="312.793" width="45.2998" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Безменово</text>		</g>
+		<g id="shape598-79" v:mID="598" v:groupContext="shape" v:layerMember="1" transform="translate(505.675,-228.304)">
+			<title>Лист.598</title>
+			<desc>Усть-Тальменская</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="35.99" cy="315.042" width="71.98" height="4.49772"/>
+			<rect x="0" y="312.793" width="71.98" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Усть-Тальменская</text>		</g>
+		<g id="shape599-82" v:mID="599" v:groupContext="shape" v:layerMember="1" transform="translate(508.385,-244.764)">
+			<title>Лист.599</title>
+			<desc>Красный Боец</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="28.9656" cy="315.042" width="57.94" height="4.49772"/>
+			<rect x="0" y="312.793" width="57.9312" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Красный Боец</text>		</g>
+		<g id="shape600-85" v:mID="600" v:groupContext="shape" v:layerMember="1" transform="translate(504.663,-211.863)">
+			<title>Лист.600</title>
+			<desc>Пут.пост 162 км</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="30.4724" cy="315.042" width="60.95" height="4.49772"/>
+			<rect x="0" y="312.793" width="60.9449" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Пут.пост 162 км</text>		</g>
+		<g id="shape601-88" v:mID="601" v:groupContext="shape" v:layerMember="1" transform="translate(188.326,157.233) rotate(-90)">
+			<title>Лист.601</title>
+			<desc>Боровиха</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="19.3832" cy="315.042" width="38.77" height="4.49772"/>
+			<rect x="0" y="312.793" width="38.7665" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Боровиха</text>		</g>
+		<g id="shape602-91" v:mID="602" v:groupContext="shape" v:layerMember="1" transform="translate(203.369,162.968) rotate(-90)">
+			<title>Лист.602</title>
+			<desc>Алтайская (п. Г)</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="25.7923" cy="311.205" width="51.59" height="12.1701"/>
+			<rect x="0" y="305.12" width="51.5846" height="12.1701" class="st2"/>
+			<text x="0" y="312.71" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Алтайская (п. Г)</text>		</g>
+		<g id="shape603-94" v:mID="603" v:groupContext="shape" v:layerMember="1" transform="translate(225.177,163.248) rotate(-90)">
+			<title>Лист.603</title>
+			<desc>Шпагино</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="18.7057" cy="315.042" width="37.42" height="4.49772"/>
+			<rect x="0" y="312.793" width="37.4114" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Шпагино</text>		</g>
+		<g id="shape604-97" v:mID="604" v:groupContext="shape" v:layerMember="1" transform="translate(247.854,165.522) rotate(-90)">
+			<title>Лист.604</title>
+			<desc>Батунная</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="18.9712" cy="315.042" width="37.95" height="4.49772"/>
+			<rect x="0" y="312.793" width="37.9423" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Батунная</text>		</g>
+		<g id="shape605-100" v:mID="605" v:groupContext="shape" v:layerMember="1"
+				transform="translate(270.531,166.083) rotate(-90)">
+			<title>Лист.605</title>
+			<desc>Заринская</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="20.123" cy="315.042" width="40.25" height="4.49772"/>
+			<rect x="0" y="312.793" width="40.246" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Заринская</text>		</g>
+		<g id="shape606-103" v:mID="606" v:groupContext="shape" v:layerMember="1"
+				transform="translate(291.545,166.614) rotate(-90)">
+			<title>Лист.606</title>
+			<desc>Смазнево</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="18.9712" cy="315.042" width="37.95" height="4.49772"/>
+			<rect x="0" y="312.793" width="37.9423" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Смазнево</text>		</g>
+		<g id="shape607-106" v:mID="607" v:groupContext="shape" v:layerMember="1"
+				transform="translate(315.319,166.614) rotate(-90)">
+			<title>Лист.607</title>
+			<desc>Голуха</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="18.9712" cy="315.042" width="37.95" height="4.49772"/>
+			<rect x="0" y="312.793" width="37.9423" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Голуха</text>		</g>
+		<g id="shape608-109" v:mID="608" v:groupContext="shape" v:layerMember="1"
+				transform="translate(334.065,167.485) rotate(-90)">
+			<title>Лист.608</title>
+			<desc>Тягун</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="18.9712" cy="315.042" width="37.95" height="4.49772"/>
+			<rect x="0" y="312.793" width="37.9423" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Тягун</text>		</g>
+		<g id="shape609-112" v:mID="609" v:groupContext="shape" v:layerMember="1"
+				transform="translate(356.742,167.485) rotate(-90)">
+			<title>Лист.609</title>
+			<desc>Аламбай</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="18.9712" cy="315.042" width="37.95" height="4.49772"/>
+			<rect x="0" y="312.793" width="37.9423" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Аламбай</text>		</g>
+		<g id="shape610-115" v:mID="610" v:groupContext="shape" v:layerMember="1" transform="translate(429.544,-140.43)">
+			<title>Лист.610</title>
+			<desc>Алтайская</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="26.2205" cy="315.041" width="52.45" height="4.49856"/>
+			<rect x="0" y="312.792" width="52.4409" height="4.49856" class="st2"/>
+			<text x="21.16" y="316.54" class="st3" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Алтайская</text>		</g>
+		<g id="shape612-118" v:mID="612" v:groupContext="shape" v:layerMember="1" transform="translate(434.713,-124.254)">
+			<title>Лист.612</title>
+			<desc>Барнаул</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="21.0523" cy="314.72" width="42.11" height="5.14025"/>
+			<rect x="0" y="312.15" width="42.1047" height="5.14025" class="st2"/>
+			<text x="16.68" y="316.22" class="st3" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Барнаул</text>		</g>
+		<g id="shape614-121" v:mID="614" v:groupContext="shape" v:layerMember="1" transform="translate(406.664,-180.115)">
+			<title>Лист.614</title>
+			<desc>Среднесибирская</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="37.8735" cy="315.042" width="75.75" height="4.49772"/>
+			<rect x="0" y="312.793" width="75.747" height="4.49772" class="st2"/>
+			<text x="22.38" y="316.54" class="st3" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Среднесибирская</text>		</g>
+		<g id="shape616-124" v:mID="616" v:groupContext="shape" v:layerMember="1" transform="translate(447.261,-168.776)">
+			<title>Лист.616</title>
+			<desc>Озерки</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="17.6161" cy="315.042" width="35.24" height="4.49772"/>
+			<rect x="0" y="312.793" width="35.2322" height="4.49772" class="st2"/>
+			<text x="15.16" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Озерки</text>		</g>
+		<g id="shape617-127" v:mID="617" v:groupContext="shape" v:layerMember="1" transform="translate(446.127,-160.858)">
+			<title>Лист.617</title>
+			<desc>Цаплино</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="17.6161" cy="315.042" width="35.24" height="4.49772"/>
+			<rect x="0" y="312.793" width="35.2322" height="4.49772" class="st2"/>
+			<text x="10.71" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Цаплино</text>		</g>
+		<g id="shape618-130" v:mID="618" v:groupContext="shape" v:layerMember="1" transform="translate(435.922,-150.105)">
+			<title>Лист.618</title>
+			<desc>Повалиха</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="22.1896" cy="315.042" width="44.38" height="4.49772"/>
+			<rect x="0" y="312.793" width="44.3792" height="4.49772" class="st2"/>
+			<text x="17.02" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Повалиха</text>		</g>
+		<g id="shape619-133" v:mID="619" v:groupContext="shape" v:layerMember="1" transform="translate(433.136,-131.359)">
+			<title>Лист.619</title>
+			<desc>Присягино</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.7625" cy="315.042" width="47.53" height="4.49772"/>
+			<rect x="0" y="312.793" width="47.525" height="4.49772" class="st2"/>
+			<text x="18.09" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Присягино</text>		</g>
+		<g id="shape620-136" v:mID="620" v:groupContext="shape" v:layerMember="1"
+				transform="translate(-78.9619,228.492) rotate(-90)">
+			<title>Лист.620</title>
+			<desc>Кильты</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="17.6161" cy="315.042" width="35.24" height="4.49772"/>
+			<rect x="0" y="312.793" width="35.2322" height="4.49772" class="st2"/>
+			<text x="14.7" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Кильты</text>		</g>
+		<g id="shape621-139" v:mID="621" v:groupContext="shape" v:layerMember="1"
+				transform="translate(-30.7729,87.5692) rotate(-90)">
+			<title>Лист.621</title>
+			<desc>Зубково</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="17.925" cy="315.042" width="35.85" height="4.49772"/>
+			<rect x="0" y="312.793" width="35.8499" height="4.49772" class="st2"/>
+			<text x="13.3" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Зубково</text>		</g>
+		<g id="shape622-142" v:mID="622" v:groupContext="shape" v:layerMember="1"
+				transform="translate(-61.1224,243.052) rotate(-90)">
+			<title>Лист.622</title>
+			<desc>Яготинская</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.1747" cy="315.042" width="46.35" height="4.49772"/>
+			<rect x="0" y="312.793" width="46.3493" height="4.49772" class="st2"/>
+			<text x="14.87" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Яготинская</text>		</g>
+		<g id="shape623-145" v:mID="623" v:groupContext="shape" v:layerMember="1"
+				transform="translate(-38.4453,263.317) rotate(-90)">
+			<title>Лист.623</title>
+			<desc>Новоблаговещенка</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="32.4806" cy="315.042" width="64.97" height="4.49772"/>
+			<rect x="0" y="312.793" width="64.9612" height="4.49772" class="st2"/>
+			<text x="10.9" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Новоблаговещенка</text>		</g>
+		<g id="shape624-148" v:mID="624" v:groupContext="shape" v:layerMember="1"
+				transform="translate(-12.3477,245.929) rotate(-90)">
+			<title>Лист.624</title>
+			<desc>Леньки</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.714" cy="315.042" width="47.43" height="4.49772"/>
+			<rect x="0" y="312.793" width="47.4279" height="4.49772" class="st2"/>
+			<text x="27.74" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Леньки</text>		</g>
+		<g id="shape625-151" v:mID="625" v:groupContext="shape" v:layerMember="1"
+				transform="translate(4.11212,245.832) rotate(-90)">
+			<title>Лист.625</title>
+			<desc>Гилевка</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.714" cy="315.042" width="47.43" height="4.49772"/>
+			<rect x="0" y="312.793" width="47.4279" height="4.49772" class="st2"/>
+			<text x="24.84" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Гилевка</text>		</g>
+		<g id="shape626-154" v:mID="626" v:groupContext="shape" v:layerMember="1"
+				transform="translate(22.2539,247.727) rotate(-90)">
+			<title>Лист.626</title>
+			<desc>Овечкино</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.714" cy="315.042" width="47.43" height="4.49772"/>
+			<rect x="0" y="312.793" width="47.4279" height="4.49772" class="st2"/>
+			<text x="20.48" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Овечкино</text>		</g>
+		<g id="shape627-157" v:mID="627" v:groupContext="shape" v:layerMember="1"
+				transform="translate(41.5106,248.764) rotate(-90)">
+			<title>Лист.627</title>
+			<desc>Корчино</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.714" cy="315.042" width="47.43" height="4.49772"/>
+			<rect x="0" y="312.793" width="47.4279" height="4.49772" class="st2"/>
+			<text x="24.13" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Корчино</text>		</g>
+		<g id="shape628-160" v:mID="628" v:groupContext="shape" v:layerMember="1"
+				transform="translate(59.6335,249.994) rotate(-90)">
+			<title>Лист.628</title>
+			<desc>Паново</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.714" cy="315.042" width="47.43" height="4.49772"/>
+			<rect x="0" y="312.793" width="47.4279" height="4.49772" class="st2"/>
+			<text x="26.6" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Паново</text>		</g>
+		<g id="shape629-163" v:mID="629" v:groupContext="shape" v:layerMember="1"
+				transform="translate(74.9405,251.598) rotate(-90)">
+			<title>Лист.629</title>
+			<desc>Ребриха</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.714" cy="315.042" width="47.43" height="4.49772"/>
+			<rect x="0" y="312.793" width="47.4279" height="4.49772" class="st2"/>
+			<text x="23.63" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Ребриха</text>		</g>
+		<g id="shape630-166" v:mID="630" v:groupContext="shape" v:layerMember="1"
+				transform="translate(94.7831,254.336) rotate(-90)">
+			<title>Лист.630</title>
+			<desc>Дальний</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.714" cy="315.042" width="47.43" height="4.49772"/>
+			<rect x="0" y="312.793" width="47.4279" height="4.49772" class="st2"/>
+			<text x="23.38" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Дальний</text>		</g>
+		<g id="shape631-169" v:mID="631" v:groupContext="shape" v:layerMember="1"
+				transform="translate(110.128,248.861) rotate(-90)">
+			<title>Лист.631</title>
+			<desc>Арбузовка</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="20.8379" cy="315.556" width="41.68" height="3.46967"/>
+			<rect x="0" y="313.821" width="41.6759" height="3.46967" class="st2"/>
+			<text x="12.66" y="317.06" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Арбузовка</text>		</g>
+		<g id="shape632-172" v:mID="632" v:groupContext="shape" v:layerMember="1"
+				transform="translate(129.586,247.619) rotate(-90)">
+			<title>Лист.632</title>
+			<desc>Сарайский</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="20.8691" cy="315.042" width="41.74" height="4.49772"/>
+			<rect x="0" y="312.793" width="41.7381" height="4.49772" class="st2"/>
+			<text x="11.72" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Сарайский</text>		</g>
+		<g id="shape633-175" v:mID="633" v:groupContext="shape" v:layerMember="1"
+				transform="translate(146.374,238.215) rotate(-90)">
+			<title>Лист.633</title>
+			<desc>Штабка</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="16.0004" cy="315.042" width="32.01" height="4.49772"/>
+			<rect x="0" y="312.793" width="32.0007" height="4.49772" class="st2"/>
+			<text x="11.02" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="2"/><v:tabList/>Штабка</text>		</g>
+		<g id="shape635-178" v:mID="635" v:groupContext="shape" v:layerMember="1" transform="translate(329.34,-10.6032)">
+			<title>Лист.635</title>
+			<desc>Локоть</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="14.8008" cy="314.578" width="29.61" height="5.42429"/>
+			<rect x="0" y="311.866" width="29.6016" height="5.42429" class="st2"/>
+			<text x="5.25" y="316.08" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="1"/><v:tabList/>Локоть</text>		</g>
+		<g id="shape636-181" v:mID="636" v:groupContext="shape" v:layerMember="2" transform="translate(336.71,-19.7118)">
+			<title>Лист.636</title>
+			<desc>Рубцовск</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="22.5597" cy="315.042" width="45.12" height="4.49772"/>
+			<rect x="0" y="312.793" width="45.1194" height="4.49772" class="st2"/>
+			<text x="8.35" y="316.54" class="st3" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="1"/><v:tabList/>Рубцовск</text>		</g>
+		<g id="shape637-184" v:mID="637" v:groupContext="shape" v:layerMember="1" transform="translate(369.181,-28.2157)">
+			<title>Лист.637</title>
+			<desc>Озимая</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="15.7182" cy="315.042" width="31.44" height="4.49772"/>
+			<rect x="0" y="312.793" width="31.4364" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Озимая</text>		</g>
+		<g id="shape638-187" v:mID="638" v:groupContext="shape" v:layerMember="1" transform="translate(421.625,-33.2992)">
+			<title>Лист.638</title>
+			<desc>Поспелиха</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.0226" cy="315.042" width="46.05" height="4.49772"/>
+			<rect x="0" y="312.793" width="46.0453" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Поспелиха</text>		</g>
+		<g id="shape639-190" v:mID="639" v:groupContext="shape" v:layerMember="1" transform="translate(432.748,-42.3889)">
+			<title>Лист.639</title>
+			<desc>Шипуново</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="21.3162" cy="315.042" width="42.64" height="4.49772"/>
+			<rect x="0" y="312.793" width="42.6325" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Шипуново</text>		</g>
+		<g id="shape640-193" v:mID="640" v:groupContext="shape" v:layerMember="1" transform="translate(446.922,-52.0079)">
+			<title>Лист.640</title>
+			<desc>Язевка-Сибирская</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="39.8543" cy="315.042" width="79.71" height="4.49772"/>
+			<rect x="0" y="312.793" width="79.7087" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Язевка-Сибирская</text>		</g>
+		<g id="shape641-196" v:mID="641" v:groupContext="shape" v:layerMember="1" transform="translate(471.639,-71.3023)">
+			<title>Лист.641</title>
+			<desc>Топчиха</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="16.2992" cy="315.042" width="32.6" height="4.49772"/>
+			<rect x="0" y="312.793" width="32.5984" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Топчиха</text>		</g>
+		<g id="shape642-199" v:mID="642" v:groupContext="shape" v:layerMember="1" transform="translate(484.419,-108.682)">
+			<title>Лист.642</title>
+			<desc>Южный</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="13.1692" cy="315.042" width="26.34" height="4.49772"/>
+			<rect x="0" y="312.793" width="26.3384" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Южный</text>		</g>
+		<g id="shape643-202" v:mID="643" v:groupContext="shape" v:layerMember="1" transform="translate(480.025,-97.6293)">
+			<title>Лист.643</title>
+			<desc>Ползуново</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="21.3188" cy="315.042" width="42.64" height="4.49772"/>
+			<rect x="0" y="312.793" width="42.6377" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Ползуново</text>		</g>
+		<g id="shape644-205" v:mID="644" v:groupContext="shape" v:layerMember="1" transform="translate(477.308,-82.6409)">
+			<title>Лист.644</title>
+			<desc>Калманка</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="20.2403" cy="315.042" width="40.49" height="4.49772"/>
+			<rect x="0" y="312.793" width="40.4806" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Калманка</text>		</g>
+		<g id="shape645-208" v:mID="645" v:groupContext="shape" v:layerMember="1" transform="translate(514.159,-129.091)">
+			<title>Лист.645</title>
+			<desc>Кузнечная</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="23.2341" cy="315.042" width="46.47" height="4.49772"/>
+			<rect x="0" y="312.793" width="46.4682" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Кузнечная</text>		</g>
+		<g id="shape646-211" v:mID="646" v:groupContext="shape" v:layerMember="1" transform="translate(528.221,-119.756)">
+			<title>Лист.646</title>
+			<desc>Баюново</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="25.056" cy="315.042" width="50.12" height="4.49772"/>
+			<rect x="0" y="312.793" width="50.1119" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Баюново</text>		</g>
+		<g id="shape647-214" v:mID="647" v:groupContext="shape" v:layerMember="1" transform="translate(542.29,-107)">
+			<title>Лист.647</title>
+			<desc>Овчинниково</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="29.588" cy="315.042" width="59.18" height="4.49772"/>
+			<rect x="0" y="312.793" width="59.176" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Овчинниково</text>		</g>
+		<g id="shape648-217" v:mID="648" v:groupContext="shape" v:layerMember="1" transform="translate(558.15,-94.5464)">
+			<title>Лист.648</title>
+			<desc>Гордеево</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="22.906" cy="315.042" width="45.82" height="4.49772"/>
+			<rect x="0" y="312.793" width="45.8119" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Гордеево</text>		</g>
+		<g id="shape649-220" v:mID="649" v:groupContext="shape" v:layerMember="1" transform="translate(573.394,-80.6567)">
+			<title>Лист.649</title>
+			<desc>Большая Речка</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="31.0436" cy="315.042" width="62.09" height="4.49772"/>
+			<rect x="0" y="312.793" width="62.0871" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Большая Речка</text>		</g>
+		<g id="shape650-223" v:mID="650" v:groupContext="shape" v:layerMember="1" transform="translate(595.866,-64.4803)">
+			<title>Лист.650</title>
+			<desc>Буланиха</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="22.3589" cy="315.042" width="44.72" height="4.49772"/>
+			<rect x="0" y="312.793" width="44.7177" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Буланиха</text>		</g>
+		<g id="shape651-226" v:mID="651" v:groupContext="shape" v:layerMember="1" transform="translate(610.288,-49.7402)">
+			<title>Лист.651</title>
+			<desc>Зональный</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="22.3589" cy="315.042" width="44.72" height="4.49772"/>
+			<rect x="0" y="312.793" width="44.7177" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Зональный</text>		</g>
+		<g id="shape652-229" v:mID="652" v:groupContext="shape" v:layerMember="1" transform="translate(625.844,-34.4142)">
+			<title>Лист.652</title>
+			<desc>Бийск (п. Чемровка)</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="31.673" cy="315.042" width="63.35" height="4.49772"/>
+			<rect x="0" y="312.793" width="63.3461" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Бийск (п. Чемровка)</text>		</g>
+		<g id="shape653-232" v:mID="653" v:groupContext="shape" v:layerMember="1" transform="translate(643.985,-14.5338)">
+			<title>Лист.653</title>
+			<desc>Бийск</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="12.5243" cy="314.72" width="25.05" height="5.14025"/>
+			<rect x="0" y="312.15" width="25.0486" height="5.14025" class="st2"/>
+			<text x="0" y="316.22" class="st3" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Бийск</text>		</g>
+		<g id="shape848-235" v:mID="848" v:groupContext="shape" v:layerMember="1"
+				transform="translate(145.561,114.498) rotate(-90)">
+			<title>Лист.848</title>
+			<desc>Ларичиха</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="20.054" cy="315.042" width="40.11" height="4.49772"/>
+			<rect x="0" y="312.793" width="40.108" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Ларичиха</text>		</g>
+		<g id="shape1029-238" v:mID="1029" v:groupContext="shape" v:layerMember="3" transform="translate(458.6,-61.0599)">
+			<title>Лист.1029</title>
+			<desc>Алейская</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="25.7466" cy="315.042" width="51.5" height="4.49772"/>
+			<rect x="0" y="312.793" width="51.4932" height="4.49772" class="st2"/>
+			<text x="0" y="316.54" class="st5" v:langID="1049"><v:paragraph v:spLine="-1"/><v:tabList/>Алейская</text>		</g>
+		<g id="shape1042-241" v:mID="1042" v:groupContext="shape" transform="translate(19.2576,-233.151)">
+			<title>Лист.1042</title>
+			<rect x="0" y="297.291" width="152" height="20" class="st2"/>
+		</g>
+		<g id="shape1043-243" v:mID="1043" v:groupContext="shape" transform="translate(0.36,-296.931)">
+			<title>Лист.1043</title>
+			<rect x="0" y="297.291" width="152" height="20" class="st2"/>
+		</g>
+		<g id="shape1050-245" v:mID="1050" v:groupContext="shape" v:layerMember="4" transform="translate(193.195,-148.362)">
+			<title>Динамическая соединительная линия.579</title>
+			<path d="M7.09 310.22 L7.09 310.19" class="st6"/>
+		</g>
+		<g id="shape1082-248" v:mID="1082" v:groupContext="shape" transform="translate(447.688,85.177) rotate(63.5085)">
+			<title>Лист.1082</title>
+			<path d="M0 317.29 L1.06 317.29" class="st7"/>
+		</g>
+		<g id="shape121-251" v:mID="121" v:groupContext="shape" transform="translate(376.929,427.344) rotate(-158.768)">
+			<title>Лист.121</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049"
+						v:val="VT4(Среднесибирская - Воронежско-Молодежная)"/>
+			</v:custProps>
+			<path d="M0 317.29 L15.89 317.29" class="st8"/>
+		</g>
+		<g id="shape300-254" v:mID="300" v:groupContext="shape" transform="translate(385.852,429.746) rotate(-163.301)">
+			<title>Лист.300</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Воронежско-Молодежная - Ларичиха)"/>
+			</v:custProps>
+			<path d="M0 317.29 L17.76 317.29" class="st9"/>
+		</g>
+		<g id="shape594-257" v:mID="594" v:groupContext="shape" transform="translate(385.97,429.264) rotate(-166.504)">
+			<title>Лист.594</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Ларичиха - Рямы)"/>
+			</v:custProps>
+			<path d="M0 317.29 L14.58 317.29" class="st10"/>
+		</g>
+		<g id="shape595-260" v:mID="595" v:groupContext="shape" transform="translate(377.014,427.068) rotate(-167.471)">
+			<title>Лист.595</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Рямы - Сузун)"/>
+			</v:custProps>
+			<path d="M0 317.29 L13.07 317.29" class="st11"/>
+		</g>
+		<g id="shape1011-263" v:mID="1011" v:groupContext="shape" transform="translate(356.133,422.315) rotate(-165.964)">
+			<title>Лист.1011</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Сузун - Тараданово)"/>
+			</v:custProps>
+			<path d="M0 317.29 L17.53 317.29" class="st10"/>
+		</g>
+		<g id="shape1012-266" v:mID="1012" v:groupContext="shape" transform="translate(363.918,423.22) rotate(-170.538)">
+			<title>Лист.1012</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Тараданово - Плотинная)"/>
+			</v:custProps>
+			<path d="M0 317.29 L17.24 317.29" class="st9"/>
+		</g>
+		<g id="shape22-269" v:mID="22" v:groupContext="shape" transform="translate(529.716,31.986) rotate(84.0866)">
+			<title>Лист.22</title>
+			<path d="M0 317.29 L16.57 317.29" class="st12"/>
+		</g>
+		<g id="shape26-272" v:mID="26" v:groupContext="shape" transform="translate(533.308,109.604) rotate(80.3689)">
+			<title>Лист.26</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Кулунда - Табуны)"/>
+			</v:custProps>
+			<path d="M0 317.29 L20.94 317.29" class="st11"/>
+		</g>
+		<g id="shape39-275" v:mID="39" v:groupContext="shape" transform="translate(276.522,-129.577) rotate(9.52941)">
+			<title>Лист.39</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Кильты - Кулунда)"/>
+			</v:custProps>
+			<path d="M0 317.29 L12.26 317.29" class="st10"/>
+		</g>
+		<g id="shape98-278" v:mID="98" v:groupContext="shape" transform="translate(262.429,-130.83) rotate(4.76364)">
+			<title>Лист.98</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Яготинская - Кильты)"/>
+			</v:custProps>
+			<path d="M0 317.29 L17.07 317.29" class="st9"/>
+		</g>
+		<g id="shape99-281" v:mID="99" v:groupContext="shape" transform="translate(329.044,-125.161) rotate(4.76364)">
+			<title>Лист.99</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Гилевка - Леньки)"/>
+			</v:custProps>
+			<path d="M0 317.29 L17.07 317.29" class="st11"/>
+		</g>
+		<g id="shape111-284" v:mID="111" v:groupContext="shape" transform="translate(344.037,-123.905) rotate(4.39871)">
+			<title>Лист.111</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Овечкино - Гилевка)"/>
+			</v:custProps>
+			<path d="M0 317.29 L18.48 317.29" class="st9"/>
+		</g>
+		<g id="shape240-287" v:mID="240" v:groupContext="shape" transform="translate(362.462,-122.488) rotate(4.39871)">
+			<title>Лист.240</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Корчино - Овечкино)"/>
+			</v:custProps>
+			<path d="M0 317.29 L18.48 317.29" class="st13"/>
+		</g>
+		<g id="shape241-290" v:mID="241" v:groupContext="shape" transform="translate(382.057,-120.978) rotate(4.61065)">
+			<title>Лист.241</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Паново - Корчино)"/>
+			</v:custProps>
+			<path d="M0 317.29 L17.63 317.29" class="st11"/>
+		</g>
+		<g id="shape104-293" v:mID="104" v:groupContext="shape" transform="translate(401.379,-119.415) rotate(4.92711)">
+			<title>Лист.104</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Ребриха - Паново)"/>
+			</v:custProps>
+			<path d="M0 317.29 L16.5 317.29" class="st12"/>
+		</g>
+		<g id="shape237-296" v:mID="237" v:groupContext="shape" transform="translate(414.903,-118.236) rotate(4.39871)">
+			<title>Лист.237</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Дальний - Ребриха)"/>
+			</v:custProps>
+			<path d="M0 317.29 L18.48 317.29" class="st13"/>
+		</g>
+		<g id="shape238-299" v:mID="238" v:groupContext="shape" transform="translate(435.343,-116.657) rotate(4.76364)">
+			<title>Лист.238</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Арбузовка - Дальний)"/>
+			</v:custProps>
+			<path d="M0 317.29 L17.07 317.29" class="st9"/>
+		</g>
+		<g id="shape242-302" v:mID="242" v:groupContext="shape" transform="translate(426.001,-116.335)">
+			<title>Лист.242</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Сарайский - Арбузовка)"/>
+			</v:custProps>
+			<path d="M0 317.29 L18.43 317.29" class="st11"/>
+		</g>
+		<g id="shape243-305" v:mID="243" v:groupContext="shape" transform="translate(444.426,-116.335)">
+			<title>Лист.243</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Штабка - Сарайский)"/>
+			</v:custProps>
+			<path d="M0 317.29 L17.01 317.29" class="st10"/>
+		</g>
+		<g id="shape244-308" v:mID="244" v:groupContext="shape" transform="translate(340.33,-92.3146) rotate(-22.4379)">
+			<title>Лист.244</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Барнаул - Штабка)"/>
+			</v:custProps>
+			<path d="M0 317.29 L23.84 317.29" class="st12"/>
+		</g>
+		<g id="shape106-311" v:mID="106" v:groupContext="shape" transform="translate(181.004,96.0102) rotate(-72.4179)">
+			<title>Лист.106</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Присягино - Барнаул)"/>
+			</v:custProps>
+			<path d="M0 317.29 L6.81 317.29" class="st11"/>
+		</g>
+		<g id="shape108-314" v:mID="108" v:groupContext="shape" transform="translate(177.712,108.41) rotate(-75.9638)">
+			<title>Лист.108</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Алтайская - Присягино)"/>
+			</v:custProps>
+			<path d="M0 317.29 L11.69 317.29" class="st10"/>
+		</g>
+		<g id="shape109-317" v:mID="109" v:groupContext="shape" transform="translate(523.212,-129.68) rotate(6.82098)">
+			<title>Лист.109</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Кузнечная - Присягино)"/>
+			</v:custProps>
+			<path d="M0 317.29 L19.96 317.29" class="st10"/>
+		</g>
+		<g id="shape102-320" v:mID="102" v:groupContext="shape" transform="translate(769.197,329.821) rotate(115.774)">
+			<title>Лист.102</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Барнаул - Южный)"/>
+			</v:custProps>
+			<path d="M0 317.29 L14.83 317.29" class="st9"/>
+		</g>
+		<g id="shape103-323" v:mID="103" v:groupContext="shape" transform="translate(778.033,305.543) rotate(108.435)">
+			<title>Лист.103</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1033" v:val="VT4(Южный - Ползуново)"/>
+			</v:custProps>
+			<path d="M0 317.29 L13.45 317.29" class="st10"/>
+		</g>
+		<g id="shape110-326" v:mID="110" v:groupContext="shape" transform="translate(783.902,280.189) rotate(101.31)">
+			<title>Лист.110</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Ползуново - Калманка)"/>
+			</v:custProps>
+			<path d="M0 317.29 L14.45 317.29" class="st9"/>
+		</g>
+		<g id="shape112-329" v:mID="112" v:groupContext="shape" transform="translate(761.574,357.123) rotate(113.199)">
+			<title>Лист.112</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Калманка - Топчиха)"/>
+			</v:custProps>
+			<path d="M0 317.29 L10.79 317.29" class="st11"/>
+		</g>
+		<g id="shape105-332" v:mID="105" v:groupContext="shape" transform="translate(652.307,498.662) rotate(143.973)">
+			<title>Лист.105</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Топчиха - Алейская)"/>
+			</v:custProps>
+			<path d="M0 317.29 L19.28 317.29" class="st10"/>
+		</g>
+		<g id="shape96-335" v:mID="96" v:groupContext="shape" transform="translate(613.34,525.47) rotate(149.036)">
+			<title>Лист.96</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Алеская - Язевка Сибирская)"/>
+			</v:custProps>
+			<path d="M0 317.29 L16.53 317.29" class="st9"/>
+		</g>
+		<g id="shape107-338" v:mID="107" v:groupContext="shape" transform="translate(617.877,521.835) rotate(145.008)">
+			<title>Лист.107</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Язевка Сибирская - Шипуново)"/>
+			</v:custProps>
+			<path d="M0 317.29 L17.3 317.29" class="st11"/>
+		</g>
+		<g id="shape229-341" v:mID="229" v:groupContext="shape" transform="translate(646.107,496.18) rotate(135)">
+			<title>Лист.229</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Шипуново - Поспелиха)"/>
+			</v:custProps>
+			<path d="M0 317.29 L12.03 317.29" class="st10"/>
+		</g>
+		<g id="shape230-344" v:mID="230" v:groupContext="shape" transform="translate(544.541,569.176) rotate(155.556)">
+			<title>Лист.230</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Поспелиха - Озимая)"/>
+			</v:custProps>
+			<path d="M0 317.29 L17.13 317.29" class="st9"/>
+		</g>
+		<g id="shape234-347" v:mID="234" v:groupContext="shape" transform="translate(539.551,570.922) rotate(153.435)">
+			<title>Лист.234</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Озимая - Рубцовск)"/>
+			</v:custProps>
+			<path d="M0 317.29 L22.18 317.29" class="st10"/>
+		</g>
+		<g id="shape97-350" v:mID="97" v:groupContext="shape" transform="translate(510.775,585.42) rotate(155.225)">
+			<title>Лист.97</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Рубцовск - Локоть)"/>
+			</v:custProps>
+			<path d="M0 317.29 L20.29 317.29" class="st10"/>
+		</g>
+		<g id="shape206-353" v:mID="206" v:groupContext="shape" transform="translate(470.795,602.925) rotate(159.444)">
+			<title>Лист.206</title>
+			<path d="M0 317.29 L24.22 317.29" class="st14"/>
+		</g>
+		<g id="shape235-356" v:mID="235" v:groupContext="shape" transform="translate(687.65,-72.8711) rotate(38.9093)">
+			<title>Лист.235</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Кузнечная - Алтайская)"/>
+			</v:custProps>
+			<path d="M0 317.29 L21.83 317.29" class="st10"/>
+		</g>
+		<g id="shape122-359" v:mID="122" v:groupContext="shape" transform="translate(687.607,-71.9855) rotate(35.0593)">
+			<title>Лист.122</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Баюново - Кузнечная)"/>
+			</v:custProps>
+			<path d="M0 317.29 L15.61 317.29" class="st11"/>
+		</g>
+		<g id="shape236-362" v:mID="236" v:groupContext="shape" transform="translate(719.047,-48.8662) rotate(39.2894)">
+			<title>Лист.236</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Овчинниково - Баюново)"/>
+			</v:custProps>
+			<path d="M0 317.29 L20.14 317.29" class="st9"/>
+		</g>
+		<g id="shape245-365" v:mID="245" v:groupContext="shape" transform="translate(734.638,-36.1103) rotate(39.2894)">
+			<title>Лист.245</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Гордеево - Овчинниково)"/>
+			</v:custProps>
+			<path d="M0 317.29 L20.14 317.29" class="st11"/>
+		</g>
+		<g id="shape246-368" v:mID="246" v:groupContext="shape" transform="translate(756.936,-17.7103) rotate(40.8724)">
+			<title>Лист.246</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Большая Речка - Гордеево)"/>
+			</v:custProps>
+			<path d="M0 317.29 L19.49 317.29" class="st9"/>
+		</g>
+		<g id="shape247-371" v:mID="247" v:groupContext="shape" transform="translate(757.504,-16.5213) rotate(37.5686)">
+			<title>Лист.247</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Буланиха - Большая Речка)"/>
+			</v:custProps>
+			<path d="M0 317.29 L27.89 317.29" class="st11"/>
+		</g>
+		<g id="shape250-374" v:mID="250" v:groupContext="shape" transform="translate(799.591,17.2027) rotate(42.2737)">
+			<title>Лист.250</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Зональный - Буланиха)"/>
+			</v:custProps>
+			<path d="M0 317.29 L21.07 317.29" class="st9"/>
+		</g>
+		<g id="shape251-377" v:mID="251" v:groupContext="shape" transform="translate(818.102,34.0642) rotate(42.9904)">
+			<title>Лист.251</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4( Бийск (п. Чемровка) - Зональный)"/>
+			</v:custProps>
+			<path d="M0 317.29 L22.86 317.29" class="st11"/>
+		</g>
+		<g id="shape284-380" v:mID="284" v:groupContext="shape" transform="translate(838.361,53.001) rotate(43.8694)">
+			<title>Лист.284</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Бийск - Бийск (п. Чемровка))"/>
+			</v:custProps>
+			<path d="M0 317.29 L26.28 317.29" class="st9"/>
+		</g>
+		<g id="shape3-383" v:mID="3" v:groupContext="shape" transform="translate(174.262,218.898) rotate(-98.1301)">
+			<title>Лист.3</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Алтайская - Повалиха)"/>
+			</v:custProps>
+			<path d="M0 317.29 L10.02 317.29" class="st9"/>
+		</g>
+		<g id="shape4-386" v:mID="4" v:groupContext="shape" transform="translate(173.236,116.573) rotate(-81.3844)">
+			<title>Лист.4</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Цаплино - Повалиха)"/>
+			</v:custProps>
+			<path d="M0 317.29 L9.46 317.29" class="st9"/>
+		</g>
+		<g id="shape113-389" v:mID="113" v:groupContext="shape" transform="translate(171.073,154.75) rotate(-90)">
+			<title>Лист.113</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Цаплино - Озерки)"/>
+			</v:custProps>
+			<path d="M0 317.29 L8.5 317.29" class="st12"/>
+		</g>
+		<g id="shape114-392" v:mID="114" v:groupContext="shape" transform="translate(179.618,73.1068) rotate(-76.6727)">
+			<title>Лист.114</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Озерки - Среднесибирская)"/>
+			</v:custProps>
+			<path d="M0 317.29 L15.06 317.29" class="st10"/>
+		</g>
+		<g id="shape115-395" v:mID="115" v:groupContext="shape" transform="translate(436.201,-138.948) rotate(-9.46232)">
+			<title>Лист.115</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Укладочный - Алтайская)"/>
+			</v:custProps>
+			<path d="M0 317.29 L25.86 317.29" class="st12"/>
+		</g>
+		<g id="shape116-398" v:mID="116" v:groupContext="shape" transform="translate(293.566,-76.4281) rotate(-37.875)">
+			<title>Лист.116</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Алтайская - Боровиха)"/>
+			</v:custProps>
+			<path d="M0 317.29 L16.16 317.29" class="st12"/>
+		</g>
+		<g id="shape117-401" v:mID="117" v:groupContext="shape" transform="translate(629.983,-125.839) rotate(23.9625)">
+			<title>Лист.117</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Укладочный - Боровиха)"/>
+			</v:custProps>
+			<path d="M0 317.29 L13.96 317.29" class="st9"/>
+		</g>
+		<g id="shape118-404" v:mID="118" v:groupContext="shape" transform="translate(513.875,-147.517)">
+			<title>Лист.118</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Шпагино - Укладочный)"/>
+			</v:custProps>
+			<path d="M0 317.29 L24.09 317.29" class="st8"/>
+		</g>
+		<g id="shape120-407" v:mID="120" v:groupContext="shape" transform="translate(556.602,-146.969) rotate(3.36646)">
+			<title>Лист.120</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Батунная - Шпагино)"/>
+			</v:custProps>
+			<path d="M0 317.29 L24.14 317.29" class="st10"/>
+		</g>
+		<g id="shape231-410" v:mID="231" v:groupContext="shape" transform="translate(313.485,419.969) rotate(-143.746)">
+			<title>Лист.231</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Боровиха - Цаплино)"/>
+			</v:custProps>
+			<path d="M0 317.29 L15.82 317.29" class="st9"/>
+		</g>
+		<g id="shape9-413" v:mID="9" v:groupContext="shape" transform="translate(183.786,55.5689) rotate(-76.1372)">
+			<title>Лист.9</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049"
+						v:val="VT4(Среднесибирская - Путевой пост 162 км)"/>
+			</v:custProps>
+			<path d="M0 317.29 L29.28 317.29" class="st9"/>
+		</g>
+		<g id="shape232-416" v:mID="232" v:groupContext="shape" transform="translate(187.026,36.1461) rotate(-83.9275)">
+			<title>Лист.232</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Красный Боец - Безменово)"/>
+			</v:custProps>
+			<path d="M0 317.29 L13.4 317.29" class="st9"/>
+		</g>
+		<g id="shape239-419" v:mID="239" v:groupContext="shape" transform="translate(188.178,25.427) rotate(-84.4002)">
+			<title>Лист.239</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Безменово - Черепаново)"/>
+			</v:custProps>
+			<path d="M0 317.29 L8.45 317.29" class="st10"/>
+		</g>
+		<g id="shape59-422" v:mID="59" v:groupContext="shape" transform="translate(562.064,-146.099)">
+			<title>Лист.59</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Заринская - Батунная)"/>
+			</v:custProps>
+			<path d="M0 317.29 L24.09 317.29" class="st11"/>
+		</g>
+		<g id="shape60-425" v:mID="60" v:groupContext="shape" transform="translate(594.617,-145.987) rotate(1.52753)">
+			<title>Лист.60</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Смазнево - Заринская)"/>
+			</v:custProps>
+			<path d="M0 317.29 L21.27 317.29" class="st9"/>
+		</g>
+		<g id="shape61-428" v:mID="61" v:groupContext="shape" transform="translate(620.447,-145.265) rotate(2.3533)">
+			<title>Лист.61</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Голуха - Смазнево)"/>
+			</v:custProps>
+			<path d="M0 317.29 L20.71 317.29" class="st8"/>
+		</g>
+		<g id="shape71-431" v:mID="71" v:groupContext="shape" transform="translate(628.111,-144.682)">
+			<title>Лист.71</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Тягун - Голуха)"/>
+			</v:custProps>
+			<path d="M0 317.29 L19.84 317.29" class="st9"/>
+		</g>
+		<g id="shape596-434" v:mID="596" v:groupContext="shape" transform="translate(647.954,-144.682)">
+			<title>Лист.596</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Аламбай - Тягун)"/>
+			</v:custProps>
+			<path d="M0 317.29 L24.66 317.29" class="st10"/>
+		</g>
+		<g id="shape765-437" v:mID="765" v:groupContext="shape" transform="translate(672.615,-144.682)">
+			<title>Лист.765</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Артышта - Аламбай)"/>
+			</v:custProps>
+			<path d="M0 317.29 L26.93 317.29" class="st9"/>
+		</g>
+		<g id="shape101-440" v:mID="101" v:groupContext="shape" transform="translate(293.809,-127.885) rotate(7.37377)">
+			<title>Лист.101</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Новоблаговещенка - Яготинская)"/>
+			</v:custProps>
+			<path d="M0 317.29 L24.3 317.29" class="st11"/>
+		</g>
+		<g id="shape317-443" v:mID="317" v:groupContext="shape" transform="translate(291.27,-127.078) rotate(2.5448)">
+			<title>Лист.317</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Леньки - Новоблаговещенка)"/>
+			</v:custProps>
+			<path d="M0 317.29 L25.54 317.29" class="st13"/>
+		</g>
+		<g id="shape100-446" v:mID="100" v:groupContext="shape" transform="translate(323.73,415.627) rotate(-166.264)">
+			<title>Лист.100</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Плотинная - Камень-на-Оби)"/>
+			</v:custProps>
+			<path d="M0 317.29 L26.26 317.29" class="st10"/>
+		</g>
+		<g id="shape328-449" v:mID="328" v:groupContext="shape" transform="translate(293.719,408.256) rotate(-165.426)">
+			<title>Лист.328</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Камень-на-Оби - Световская)"/>
+			</v:custProps>
+			<path d="M0 317.29 L14.64 317.29" class="st9"/>
+		</g>
+		<g id="shape561-452" v:mID="561" v:groupContext="shape" transform="translate(268.214,401.4) rotate(-163.301)">
+			<title>Лист.561</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Световская - Панкрушиха)"/>
+			</v:custProps>
+			<path d="M0 317.29 L11.84 317.29" class="st8"/>
+		</g>
+		<g id="shape721-455" v:mID="721" v:groupContext="shape" transform="translate(277.348,403.402) rotate(-167.125)">
+			<title>Лист.721</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Панкрушиха - Урываево)"/>
+			</v:custProps>
+			<path d="M0 317.29 L10.18 317.29" class="st10"/>
+		</g>
+		<g id="shape732-458" v:mID="732" v:groupContext="shape" transform="translate(301.48,406.988) rotate(-173.367)">
+			<title>Лист.732</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Урываево - Хабары)"/>
+			</v:custProps>
+			<path d="M0 317.29 L12.27 317.29" class="st8"/>
+		</g>
+		<g id="shape25-461" v:mID="25" v:groupContext="shape" transform="translate(245.19,397.248) rotate(-165.256)">
+			<title>Лист.25</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Хабары - Краснозерское)"/>
+			</v:custProps>
+			<path d="M0 317.29 L16.71 317.29" class="st9"/>
+		</g>
+		<g id="shape1002-464" v:mID="1002" v:groupContext="shape" transform="translate(241.607,396.032) rotate(-167.593)">
+			<title>Лист.1002</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Краснозерское - Зубково)"/>
+			</v:custProps>
+			<path d="M0 317.29 L29.02 317.29" class="st10"/>
+		</g>
+		<g id="shape1013-467" v:mID="1013" v:groupContext="shape" transform="translate(213.42,389.831) rotate(-167.622)">
+			<title>Лист.1013</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Зубково - Чебачий)"/>
+			</v:custProps>
+			<path d="M0 317.29 L31.5 317.29" class="st8"/>
+		</g>
+		<g id="shape24-470" v:mID="24" v:groupContext="shape" transform="translate(156.152,376.05) rotate(-162.669)">
+			<title>Лист.24</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Чебачий - Карасук III)"/>
+			</v:custProps>
+			<path d="M0 317.29 L18.25 317.29" class="st10"/>
+		</g>
+		<g id="shape1017-473" v:mID="1017" v:groupContext="shape" transform="translate(182.121,380.871) rotate(-170.728)">
+			<title>Лист.1017</title>
+			<path d="M0 317.29 L19.38 317.29" class="st12"/>
+		</g>
+		<g id="shape23-476" v:mID="23" v:groupContext="shape" transform="translate(-92.4842,214.85) rotate(-99.4623)">
+			<title>Лист.23</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Табуны - Славгород)"/>
+			</v:custProps>
+			<path d="M0 317.29 L17.24 317.29" class="st9"/>
+		</g>
+		<g id="shape1018-479" v:mID="1018" v:groupContext="shape" transform="translate(-98.6254,170.982) rotate(-94.5739)">
+			<title>Лист.1018</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Славгород - Красный Дол)"/>
+			</v:custProps>
+			<path d="M0 317.29 L14.22 317.29" class="st12"/>
+		</g>
+		<g id="shape1019-482" v:mID="1019" v:groupContext="shape" transform="translate(-100.374,115.662) rotate(-87.1376)">
+			<title>Лист.1019</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Красный Дол - Айнак)"/>
+			</v:custProps>
+			<path d="M0 317.29 L22.71 317.29" class="st9"/>
+		</g>
+		<g id="shape1020-485" v:mID="1020" v:groupContext="shape" transform="translate(-99.6359,108.829) rotate(-90)">
+			<title>Лист.1020</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Бурла - Айнак)"/>
+			</v:custProps>
+			<path d="M0 317.29 L17.01 317.29" class="st11"/>
+		</g>
+		<g id="shape1021-488" v:mID="1021" v:groupContext="shape" transform="translate(-95.0495,145.574) rotate(-99.7537)">
+			<title>Лист.1021</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Бурла - Карасук I)"/>
+			</v:custProps>
+			<path d="M0 317.29 L10.82 317.29" class="st8"/>
+		</g>
+		<g id="shape119-491" v:mID="119" v:groupContext="shape" transform="translate(184.344,61.2255) rotate(-82.4054)">
+			<title>Лист.119</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049"
+						v:val="VT4(Путевой пост 162 км - Усть-Тальменская)"/>
+			</v:custProps>
+			<path d="M0 317.29 L17.16 317.29" class="st10"/>
+		</g>
+		<g id="shape1062-494" v:mID="1062" v:groupContext="shape" transform="translate(185.001,58.9004) rotate(-85.0729)">
+			<title>Лист.1062</title>
+			<v:custProps>
+				<v:cp v:nameU="Row_1" v:lbl="Свойство1" v:type="0" v:langID="1049" v:val="VT4(Усть-Тальменская - Красный Боец)"/>
+			</v:custProps>
+			<path d="M0 317.29 L16.5 317.29" class="st10"/>
+		</g>
+		<g id="shape1083-497" v:mID="1083" v:groupContext="shape" transform="translate(129.307,370.35) rotate(-164.497)">
+			<title>Лист.1083</title>
+			<path d="M0 317.29 L36.04 317.29" class="st14"/>
+		</g>
+		<g id="shape1080-500" v:mID="1080" v:groupContext="shape" transform="translate(434.034,421.151) rotate(138.549)">
+			<title>Лист.1080</title>
+			<path d="M0 317.29 L33.04 317.29" class="st14"/>
+		</g>
+		<g id="shape1063-503" v:mID="1063" v:groupContext="shape" v:layerMember="1" transform="translate(277.972,-0.36)">
+			<title>Лист.1063</title>
+			<desc>Казахстанские ж.д.</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="28.6602" cy="314.578" width="57.33" height="5.42429"/>
+			<rect x="0" y="311.866" width="57.3205" height="5.42429" class="st2"/>
+			<text x="2.09" y="316.08" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="1"/><v:tabList/>Казахстанские ж.д.</text>		</g>
+		<g id="shape564-506" v:mID="564" v:groupContext="shape" v:layerMember="1" transform="translate(139.702,-103.702)">
+			<title>Лист.564</title>
+			<desc>Казахстанские ж.д.</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="28.6602" cy="314.578" width="57.33" height="5.42429"/>
+			<rect x="0" y="311.866" width="57.3205" height="5.42429" class="st2"/>
+			<text x="2.09" y="316.08" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="1"/><v:tabList/>Казахстанские ж.д.</text>		</g>
+		<g id="shape565-509" v:mID="565" v:groupContext="shape" v:layerMember="1" transform="translate(118.128,-260.902)">
+			<title>Лист.565</title>
+			<desc>Омское территориальное управление</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="28.6602" cy="314.578" width="57.33" height="5.42429"/>
+			<rect x="0" y="311.866" width="57.3205" height="5.42429" class="st2"/>
+			<text x="18.11" y="310.08" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="1"/><v:tabList/>Омское <tspan
+						x="4.24" dy="1em" class="st4">территориальное </tspan><tspan x="12.19" dy="1em" class="st4">управление</tspan></text>		</g>
+		<g id="shape566-514" v:mID="566" v:groupContext="shape" v:layerMember="1" transform="translate(482.694,-287.954)">
+			<title>Лист.566</title>
+			<desc>Новосибирское территориальное управление</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="28.6602" cy="314.578" width="57.33" height="5.42429"/>
+			<rect x="0" y="311.866" width="57.3205" height="5.42429" class="st2"/>
+			<text x="7.18" y="310.08" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="1"/><v:tabList/>Новосибирское <tspan
+						x="4.24" dy="1em" class="st4">территориальное </tspan><tspan x="12.19" dy="1em" class="st4">управление</tspan></text>		</g>
+		<g id="shape567-519" v:mID="567" v:groupContext="shape" transform="translate(193.694,-14.4711) rotate(-78.6495)">
+			<title>Лист.567</title>
+			<path d="M0 317.29 L10.21 317.29" class="st14"/>
+		</g>
+		<g id="shape568-522" v:mID="568" v:groupContext="shape" transform="translate(761.77,-138.52) rotate(11.3099)">
+			<title>Лист.568</title>
+			<path d="M0 317.29 L21.68 317.29" class="st14"/>
+		</g>
+		<g id="shape569-525" v:mID="569" v:groupContext="shape" v:layerMember="1" transform="translate(683.64,-122.25)">
+			<title>Лист.569</title>
+			<desc>Кузбасское территориальное управление</desc>
+			<v:textBlock v:margins="rect(0,0,0,0)" v:tabSpace="42.5197"/>
+			<v:textRect cx="28.6602" cy="314.578" width="57.33" height="5.42429"/>
+			<rect x="0" y="311.866" width="57.3205" height="5.42429" class="st2"/>
+			<text x="13" y="310.08" class="st5" v:langID="1049"><v:paragraph v:spLine="-1" v:horizAlign="1"/><v:tabList/>Кузбасское <tspan
+						x="4.24" dy="1em" class="st4">территориальное </tspan><tspan x="12.19" dy="1em" class="st4">управление</tspan></text>		</g>
+	</g>
+</svg>
