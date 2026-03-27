@@ -19,6 +19,7 @@ import { getReportArr } from "../data-preprocessors/getReportArr";
 import { getSumLineArr } from "../data-preprocessors/getSumLineArr";
 import { initialChartCheckList } from "../utils/initialChartCheckList";
 import { getReportStationsArr } from "../data-preprocessors/getReportStationsArr";
+import { startTime as violationStartKey } from "../utils/config";
 // import { getRaceArr } from "../data-preprocessors/getRaceArr";
 
 let date = new Date();
@@ -164,14 +165,17 @@ const filtersSlice = createSlice({
 
   reducers: {
     setSourceState(state, action) {
-      state.sourceState = action.payload;
-      // .map((el) => {
-      //   let date = new Date(el["Начало отказа"]);
-      //   date.setHours(date.getHours());
-      //   el["Начало отказа"] = date.toISOString();
-      //   return el;
-      // });
+      const rows = Array.isArray(action.payload) ? action.payload : [];
+      state.sourceState = rows.map((row) => {
+        const hasRu =
+          row[violationStartKey] != null && row[violationStartKey] !== "";
+        if (!hasRu && row.startTime != null && row.startTime !== "") {
+          return { ...row, [violationStartKey]: row.startTime };
+        }
+        return row;
+      });
       let cutoffDates = getCutoffDates(state.sourceState);
+      if (!cutoffDates) return;
       state.minCutoffDate = cutoffDates.min;
       state.maxCutoffDate = cutoffDates.max;
       state.dateStart = getStartDate(cutoffDates.max);
@@ -261,6 +265,28 @@ const filtersSlice = createSlice({
       //   state.dateStart,
       //   state.dateEnd
       // );
+    },
+
+    /** Границы по /violations/meta до прихода полного массива (datepicker). */
+    setCutoffDatesFromMeta(state, action) {
+      const { minDate, maxDate } = action.payload || {};
+      if (minDate == null || maxDate == null) return;
+      const minMs = new Date(minDate).setHours(0, 0, 0);
+      const maxMs = new Date(maxDate).setHours(23, 59, 59);
+      if (!Number.isFinite(minMs) || !Number.isFinite(maxMs)) return;
+      state.minCutoffDate = minMs;
+      state.maxCutoffDate = maxMs;
+      state.dateStart = getStartDate(maxMs);
+      state.dateEnd = maxMs;
+      const y = new Date(maxMs).getFullYear();
+      state.currentYear = y;
+      state.pastYear = y - 1;
+      state.regexpPattern = getInitialPattern(maxMs);
+      state.customCalendar = getCustomCalendar(
+        state.daysInGroup,
+        state.dateStart,
+        state.dateEnd,
+      );
     },
 
     increment(state) {
@@ -1021,6 +1047,7 @@ export const {
   setPastYear,
   setCurrentYear,
   setSourceState,
+  setCutoffDatesFromMeta,
   stackedArrState,
   setDateStart,
   setDateEnd,

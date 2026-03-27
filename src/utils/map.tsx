@@ -11,6 +11,63 @@ const MAP_ELLIPSE_BASE_RX = "data-map-base-rx";
 const MAP_ELLIPSE_BASE_RY = "data-map-base-ry";
 const MAP_PATH_CX = "data-map-station-dot-cx";
 const MAP_PATH_CY = "data-map-station-dot-cy";
+const MAP_OPEN_LINE_D_ORIG = "data-map-open-line-d-orig";
+
+/**
+ * round-cap удлиняет штрих на stroke/2 с каждого конца; укорачиваем M…L… на эту величину
+ * (как в Visio: один сегмент), чтобы внешние концы остались на месте.
+ */
+function applySegmentOpenLineStrokeGeometry(
+  path: SVGPathElement,
+  strokeWidth: number,
+): void {
+  if (!path.getAttribute(MAP_OPEN_LINE_D_ORIG)) {
+    path.setAttribute(
+      MAP_OPEN_LINE_D_ORIG,
+      path.getAttribute("d")?.replace(/\s+/g, " ").trim() ?? "",
+    );
+  }
+  const dOrig = path.getAttribute(MAP_OPEN_LINE_D_ORIG) ?? "";
+  const m = dOrig.match(
+    /^M\s*([\d.-]+)\s+([\d.-]+)\s+L\s*([\d.-]+)\s+([\d.-]+)\s*$/i,
+  );
+  if (!m) {
+    path.setAttribute("d", dOrig);
+    path.style.strokeLinecap = "butt";
+    path.style.strokeLinejoin = "miter";
+    return;
+  }
+  const sx = parseFloat(m[1]);
+  const sy = parseFloat(m[2]);
+  const ex = parseFloat(m[3]);
+  const ey = parseFloat(m[4]);
+  const dx = ex - sx;
+  const dy = ey - sy;
+  const len = Math.hypot(dx, dy);
+  if (len < 1e-9) {
+    path.setAttribute("d", dOrig);
+    path.style.strokeLinecap = "butt";
+    path.style.strokeLinejoin = "miter";
+    return;
+  }
+  const trim = Math.min(strokeWidth / 2, len / 2 - 1e-4);
+  if (trim <= 0) {
+    path.setAttribute("d", dOrig);
+    path.style.strokeLinecap = "butt";
+    path.style.strokeLinejoin = "miter";
+    return;
+  }
+  const ux = dx / len;
+  const uy = dy / len;
+  const nx1 = sx + ux * trim;
+  const ny1 = sy + uy * trim;
+  const nx2 = ex - ux * trim;
+  const ny2 = ey - uy * trim;
+  const fmt = (n: number) => String(+n.toFixed(5));
+  path.setAttribute("d", `M${fmt(nx1)} ${fmt(ny1)} L${fmt(nx2)} ${fmt(ny2)}`);
+  path.style.strokeLinecap = "round";
+  path.style.strokeLinejoin = "round";
+}
 
 /** Первый прямой дочерний <g> — страница Visio с контентом */
 function firstDirectChildG(svg: Element): SVGGElement | null {
@@ -182,6 +239,27 @@ function heatColorFromRatio(ratio: number): string {
   return `rgb(${r}, ${g}, ${bl})`;
 }
 
+/** Нормализация в [0,1] по log1p(min)…log1p(max), чтобы большой разброс по модулю слабее отражался в толщине/цвете */
+function valueToVisualRatio(value: number, minV: number, maxV: number): number {
+  if (!Number.isFinite(value) || maxV <= 0) return 0;
+  const v = Math.max(0, value);
+  const lo = (x: number) => Math.log1p(Math.max(0, x));
+  const tMin = lo(minV);
+  const tMax = lo(maxV);
+  const denom = tMax - tMin;
+  if (denom <= 1e-15) {
+    return v >= maxV ? 1 : 0;
+  }
+  const ratio = (lo(v) - tMin) / denom;
+  return Math.max(0, Math.min(1, ratio));
+}
+
+function nonNegativeNumericValues(record: Record<string, number>): number[] {
+  return Object.values(record).filter(
+    (v): v is number => typeof v === "number" && Number.isFinite(v) && v >= 0,
+  );
+}
+
 const SvgMap = React.forwardRef<SVGSVGElement, Props>(
   (
     { className, segmentDurationByName = {}, stationDurationByName = {} },
@@ -274,17 +352,16 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
         [];
       const groups = Array.from(svgRoot.querySelectorAll("g"));
       const minStrokeWidth = 1.3;
-      const maxStrokeWidth = 10;
+      const maxStrokeWidth = 7;
       const defaultGrayStroke = "#9ca3af";
 
-      const maxSegmentValue = Math.max(
-        0,
-        ...Object.values(segmentDurationByName),
-      );
-      const maxStationValue = Math.max(
-        0,
-        ...Object.values(stationDurationByName),
-      );
+      const segmentNums = nonNegativeNumericValues(segmentDurationByName);
+      const maxSegmentValue = segmentNums.length ? Math.max(...segmentNums) : 0;
+      const minSegmentValue = segmentNums.length ? Math.min(...segmentNums) : 0;
+
+      const stationNums = nonNegativeNumericValues(stationDurationByName);
+      const maxStationValue = stationNums.length ? Math.max(...stationNums) : 0;
+      const minStationValue = stationNums.length ? Math.min(...stationNums) : 0;
 
       const heatStyleFromRatio = (ratio: number) => {
         const strokeWidth =
@@ -301,17 +378,11 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
       const stationDotScaleFromRatio = (ratio: number) =>
         stationDotMinScale + ratio * (stationDotMaxScale - stationDotMinScale);
 
-      /** butt — толщина не удлиняет сегмент вдоль пути (в отличие от round/square) */
-      const applySegmentStrokeCaps = (pathEl: SVGPathElement) => {
-        pathEl.style.strokeLinecap = "butt";
-        pathEl.style.strokeLinejoin = "miter";
-      };
-
       const applyGray = (paths: SVGPathElement[]) => {
         paths.forEach((pathEl) => {
           pathEl.style.stroke = defaultGrayStroke;
           pathEl.style.strokeWidth = `${minStrokeWidth}`;
-          applySegmentStrokeCaps(pathEl);
+          applySegmentOpenLineStrokeGeometry(pathEl, minStrokeWidth);
         });
       };
 
@@ -343,13 +414,17 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
       });
 
       edgesWithData.forEach(({ paths, value }) => {
-        const segRatio = maxSegmentValue > 0 ? value / maxSegmentValue : 0;
+        const segRatio = valueToVisualRatio(
+          value,
+          minSegmentValue,
+          maxSegmentValue,
+        );
         const lineStyle = heatStyleFromRatio(segRatio);
 
         paths.forEach((path) => {
           path.style.stroke = lineStyle.strokeColor;
           path.style.strokeWidth = `${lineStyle.strokeWidth}`;
-          applySegmentStrokeCaps(path);
+          applySegmentOpenLineStrokeGeometry(path, lineStyle.strokeWidth);
         });
       });
 
@@ -389,7 +464,7 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
           paintNoData();
           return;
         }
-        const ratio = maxStationValue > 0 ? v / maxStationValue : 0;
+        const ratio = valueToVisualRatio(v, minStationValue, maxStationValue);
         setGeom(stationDotScaleFromRatio(ratio));
         paintData(heatColorFromRatio(ratio));
       };

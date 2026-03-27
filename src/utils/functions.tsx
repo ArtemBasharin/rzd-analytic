@@ -1,19 +1,24 @@
 import React from "react";
-import * as d3 from "d3";
 import { startTime, varDelay, varTrains } from "./config";
 
-export const getCutoffDates = (arr: any[]) => {
-  let dates: number[] = arr.map((element: any) => {
-    return new Date(element[startTime]).getTime();
-  });
-  if (dates.length !== 0) {
-    const minValue = d3.min(dates);
-    let minDate = new Date(minValue!).setHours(0, 0, 0);
+/** Дата события: колонка отчёта или поле API (`startTime`). */
+function violationTimeMs(element: any): number | null {
+  const raw = element?.[startTime] ?? element?.startTime;
+  if (raw == null || raw === "") return null;
+  const t = new Date(raw as string | number | Date).getTime();
+  return Number.isFinite(t) ? t : null;
+}
 
-    const maxValue = d3.max(dates);
-    let maxDate = new Date(maxValue!).setHours(23, 59, 59);
-    return { min: minDate, max: maxDate };
-  }
+export const getCutoffDates = (arr: any[]) => {
+  const times = arr
+    .map(violationTimeMs)
+    .filter((t): t is number => t != null);
+  if (times.length === 0) return undefined;
+  const minValue = Math.min(...times);
+  const maxValue = Math.max(...times);
+  const minDate = new Date(minValue).setHours(0, 0, 0);
+  const maxDate = new Date(maxValue).setHours(23, 59, 59);
+  return { min: minDate, max: maxDate };
 };
 
 export const getStartDate = (endDate: number) => {

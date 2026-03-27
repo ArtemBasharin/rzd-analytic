@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setSourceState } from "../redux/filtersSlice";
-import axios from "axios";
+import { setCutoffDatesFromMeta, setSourceState } from "../redux/filtersSlice";
+import {
+  fetchAllViolationsPageable,
+  fetchViolationsMeta,
+} from "../utils/requests";
+import "../utils/requests";
 import DateRangePicker from "./ToolDatePicker";
 import DropdownUnits from "./ToolDropdownUnits";
 import DropdownPastYear from "./ToolDropdownPastYear";
@@ -15,40 +19,62 @@ const { CSSTransition } = require("react-transition-group");
 
 const ToolPanel = () => {
   const toolPalette = useSelector((state: any) => state.filters.toolPalette);
-  const currentYear = useSelector((state: any) => state.filters.currentYear);
   const dispatch = useDispatch();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  // let date = new Date();
 
   useEffect(() => {
-    let params = {
-      "fromYear": currentYear - 10,
-      "toYear": currentYear,
-    };
-    axios
-      .get("/violations", { params })
-      .then(function (res) {
-        const data = res.data;
+    let cancelled = false;
+    const calendarYear = new Date().getFullYear();
+    const yearParams = { fromYear: 2000, toYear: calendarYear + 1 };
+
+    (async () => {
+      try {
+        const meta = await fetchViolationsMeta(yearParams);
+        if (cancelled) return;
+        if (
+          meta &&
+          meta.minDate != null &&
+          meta.maxDate != null &&
+          meta.total > 0
+        ) {
+          dispatch(
+            setCutoffDatesFromMeta({
+              minDate: meta.minDate,
+              maxDate: meta.maxDate,
+            }),
+          );
+        }
+
+        const data = await fetchAllViolationsPageable(yearParams);
+        if (cancelled) return;
+
         if (process.env.NODE_ENV === "development") {
-          const n = Array.isArray(data) ? data.length : 0;
+          const totalHint =
+            meta?.total != null ? ` (meta.total=${meta.total})` : "";
           console.log(
-            "[ToolPanel] GET /violations OK — записей:",
-            n,
-            "(если ожидаете больше — снимите limit на сервере, фронт не режет массив)",
+            "[ToolPanel] GET /violations — записей:",
+            data.length,
+            totalHint,
           );
         }
         dispatch(setSourceState(data));
-      })
-      .catch(function (error) {
-        console.log("axios.get error:", error);
+      } catch (error) {
+        if (cancelled) return;
+        console.log("axios violations load error:", error);
         if (process.env.NODE_ENV === "development") {
           console.log(
-            "[ToolPanel] подставляем dummyArr(2000 строк) — отчёт не из БД",
+            "[ToolPanel] подставляем dummyArr — отчёт не из БД или старый API",
           );
         }
-        dispatch(setSourceState(dummyArr(currentYear - 1, currentYear)));
-      });
-  }, [currentYear, dispatch]);
+        dispatch(
+          setSourceState(dummyArr(calendarYear - 1, calendarYear)),
+        );
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch]);
 
   const timeout = 500;
   return (
