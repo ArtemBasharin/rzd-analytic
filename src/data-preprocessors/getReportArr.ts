@@ -27,7 +27,6 @@ export const getReportArr = (
   minValue?: number,
 ) => {
   moment().tz("Europe/London").format();
-
   const calcTotalDuration = (obj: any) => {
     let freightDur = obj[freightDuration] || 0;
     let passDur = obj[passDuration] || 0;
@@ -207,44 +206,60 @@ export const getReportArr = (
   };
 
   function aggregateDataWithYearAndReport(inputArray: any[]) {
-    const resultArray: any[] = [];
-
+    const byYear = new Map<number, any[]>();
     inputArray.forEach((item: any) => {
       const year = new Date(item.startTime).getFullYear();
-      const existingItem = resultArray.find((element) => element.year === year);
+      if (!byYear.has(year)) byYear.set(year, []);
+      byYear.get(year)!.push(item);
+    });
 
-      if (existingItem) {
-        existingItem.report.push(item);
-      } else {
-        resultArray.push({ year, report: [item] });
+    const yearsInData = Array.from(byYear.keys());
+    const currentYear =
+      yearsInData.length > 0
+        ? Math.max(...yearsInData)
+        : new Date(dateEnd).getFullYear();
+    const pastYear = currentYear - 1;
+
+    const resultArray: any[] = [];
+    const ensureYearRow = (year: number) => {
+      let row = resultArray.find((x) => x.year === year);
+      if (!row) {
+        row = { year, report: aggregateData(byYear.get(year) || []) };
+        resultArray.push(row);
       }
-    });
-    resultArray.forEach((item) => {
-      item.report = aggregateData(item.report);
-    });
+      return row;
+    };
+    ensureYearRow(pastYear);
+    ensureYearRow(currentYear);
+    resultArray.sort((a, b) => a.year - b.year);
 
     let sum = getSummaryReport(inputArray, dateStart, dateEnd);
 
-    resultArray[0].sum = {
-      pastYearTotalFails: sum.pastYearTotalFails,
-      pastYearTotalDelays: sum.pastYearTotalDelays,
-      pastYearTotalDurations: cutDecimals(sum.pastYearTotalDurations),
-      pastYearTotalTechnical: sum.pastYearTotalTechnical,
-      pastYearTotalTechnological: sum.pastYearTotalTechnological,
-      pastYearTotalSpecial: sum.pastYearTotalSpecial,
-      pastYearTotalExternal: sum.pastYearTotalExternal,
-    };
+    const pastRow = resultArray.find((x) => x.year === pastYear);
+    const currentRow = resultArray.find((x) => x.year === currentYear);
 
-    resultArray[1].sum = {
-      currentYearTotalFails: sum.currentYearTotalFails,
-      currentYearTotalDelays: sum.currentYearTotalDelays,
-      currentYearTotalDurations: cutDecimals(sum.currentYearTotalDurations),
-      currentYearTotalTechnical: sum.currentYearTotalTechnical,
-      currentYearTotalTechnological: sum.currentYearTotalTechnological,
-      currentYearTotalSpecial: sum.currentYearTotalSpecial,
-      currentYearTotalExternal: sum.currentYearTotalExternal,
-      // top5cases: top5cases,
-    };
+    if (pastRow) {
+      pastRow.sum = {
+        pastYearTotalFails: sum.pastYearTotalFails,
+        pastYearTotalDelays: sum.pastYearTotalDelays,
+        pastYearTotalDurations: cutDecimals(sum.pastYearTotalDurations),
+        pastYearTotalTechnical: sum.pastYearTotalTechnical,
+        pastYearTotalTechnological: sum.pastYearTotalTechnological,
+        pastYearTotalSpecial: sum.pastYearTotalSpecial,
+        pastYearTotalExternal: sum.pastYearTotalExternal,
+      };
+    }
+    if (currentRow) {
+      currentRow.sum = {
+        currentYearTotalFails: sum.currentYearTotalFails,
+        currentYearTotalDelays: sum.currentYearTotalDelays,
+        currentYearTotalDurations: cutDecimals(sum.currentYearTotalDurations),
+        currentYearTotalTechnical: sum.currentYearTotalTechnical,
+        currentYearTotalTechnological: sum.currentYearTotalTechnological,
+        currentYearTotalSpecial: sum.currentYearTotalSpecial,
+        currentYearTotalExternal: sum.currentYearTotalExternal,
+      };
+    }
 
     return resultArray;
   }

@@ -20,7 +20,7 @@ export const getStartDate = (endDate: number) => {
   let previousMonthDate = new Date(new Date(endDate).setDate(1)).setHours(
     0,
     0,
-    0
+    0,
   );
   return previousMonthDate;
 };
@@ -53,7 +53,7 @@ export const getPattern = (period: string) => {
 export const updateCheckedProperty = (
   array: any[],
   searchValue: string,
-  newCheckedValue: boolean
+  newCheckedValue: boolean,
 ) => {
   const updatedArray = array.map((item) => {
     if (item.guiltyUnit === searchValue) {
@@ -71,7 +71,7 @@ export const updateCheckedProperty = (
 export const updateChartProperty = (
   array: any[],
   searchValue: string,
-  newCheckedValue: boolean
+  newCheckedValue: boolean,
 ) => {
   const updatedArray = array.map((item) => {
     if (item.name === searchValue) {
@@ -98,7 +98,7 @@ export const getInitialPattern = (date: string) => {
 export const getCustomCalendar = (
   step: number,
   dateStart: number,
-  dateEnd: number
+  dateEnd: number,
 ) => {
   let result = [];
   let start = new Date(dateStart);
@@ -115,7 +115,7 @@ export const getCustomCalendar = (
 
 export const cutDecimals = (total: number) => {
   const decimals = () => {
-    let res=0;
+    let res = 0;
     let val = Math.trunc(Number(total));
     if (val < 10) {
       res = 2;
@@ -139,7 +139,7 @@ export const cutDecimals = (total: number) => {
 export const getComparisonText = (
   curVal: number,
   prevVal: number,
-  brackets?: boolean
+  brackets?: boolean,
 ): React.ReactElement | null | undefined => {
   if (prevVal !== 0 && curVal > prevVal) {
     return (
@@ -181,7 +181,7 @@ export const getComparisonText = (
 
 export const getDaysBetweenDates = (
   date1: Date | string | number,
-  date2: Date | string | number
+  date2: Date | string | number,
 ) => {
   const oneDay = 24 * 60 * 60 * 1000;
   const firstDate = new Date(date1).getTime();
@@ -193,7 +193,7 @@ export const getDaysBetweenDates = (
 export const getOneUnitReport = (arr: any[], year: number, unit: string) => {
   const currentYearArr: any[] = arr.find((obj) => obj.year === year).report;
   const currentYearUnit: any = currentYearArr.find(
-    (objUnit) => objUnit.guiltyUnit === unit
+    (objUnit) => objUnit.guiltyUnit === unit,
   );
 
   if (currentYearUnit)
@@ -248,15 +248,15 @@ type repObj = { arr: any[]; currYear: number; pastYear: number; unit: string };
 
 export const getOneUnitReportWithCompare = (prop: repObj) => {
   const currentYearArr: any[] = prop.arr.find(
-    (obj) => obj.year === prop.currYear
+    (obj) => obj.year === prop.currYear,
   ).report;
 
   const currentYearUnit: any = currentYearArr.find(
-    (objUnit) => objUnit.guiltyUnit === prop.unit
+    (objUnit) => objUnit.guiltyUnit === prop.unit,
   );
 
   const pastYearArr: any[] = prop.arr.find(
-    (obj) => obj.year === prop.pastYear
+    (obj) => obj.year === prop.pastYear,
   ).report;
   const pastYearUnit: any =
     pastYearArr.find((objUnit) => objUnit.guiltyUnit === prop.unit) || null;
@@ -273,14 +273,14 @@ export const getOneUnitReportWithCompare = (prop: repObj) => {
           getComparisonText(
             currentYearUnit.totalDelayed,
             pastYearUnit.totalDelayed,
-            true
+            true,
           )}{" "}
         на {cutDecimals(currentYearUnit.totalDuration)} ч
         {pastYearUnit &&
           getComparisonText(
             currentYearUnit.totalDuration,
             pastYearUnit.totalDuration,
-            true
+            true,
           )}
         , в том числе,{" "}
         {currentYearUnit.freightDelayed > 0
@@ -344,12 +344,12 @@ export const getNumberWithWord = (number: number, words_arr: string[]) => {
 export const getWordOnly = (
   number: number,
   words_arr: string[],
-  isFirstWord?: boolean
+  isFirstWord?: boolean,
 ) => {
   let editedArr = [];
   isFirstWord
     ? (editedArr = words_arr.map(
-        (el) => el.charAt(0).toUpperCase() + el.slice(1)
+        (el) => el.charAt(0).toUpperCase() + el.slice(1),
       ))
     : (editedArr = words_arr);
 
@@ -374,11 +374,11 @@ export const firstCharToLowerCase = (el: string) => {
 
 export const cellComparingPercents = (
   pastYearUnitTotalDuration: number,
-  currentYearUnitTotalDuration: number
+  currentYearUnitTotalDuration: number,
 ) => {
   if (pastYearUnitTotalDuration && currentYearUnitTotalDuration) {
     let result = cutDecimals(
-      (currentYearUnitTotalDuration / pastYearUnitTotalDuration - 1) * 100
+      (currentYearUnitTotalDuration / pastYearUnitTotalDuration - 1) * 100,
     );
     return (
       <td
@@ -460,20 +460,20 @@ export const getDarkColors = (numColors: number) => {
 export const getPeriodDatesFromRegex = (
   pattern: string,
   currentYear: number,
-  previousYear: number
+  previousYear: number,
 ) => {
   const periodMonths = pattern.split("|").map((month) => parseInt(month, 10)); // Преобразуем значение периода в массив чисел
   const periodStart = new Date(currentYear, Math.min(...periodMonths) - 1, 1); // Начало периода в текущем году
   const periodEnd = new Date(
-    new Date(currentYear, Math.max(...periodMonths), 0).setHours(23, 59, 59)
+    new Date(currentYear, Math.max(...periodMonths), 0).setHours(23, 59, 59),
   ); // Конец периода в текущем году
   const previousYearStart = new Date(
     previousYear,
     Math.min(...periodMonths) - 1,
-    1
+    1,
   ); // Начало периода в прошлом году
   const previousYearEnd = new Date(
-    new Date(previousYear, Math.max(...periodMonths), 0).setHours(23, 59, 59)
+    new Date(previousYear, Math.max(...periodMonths), 0).setHours(23, 59, 59),
   ); // Конец периода в прошлом году
 
   return {

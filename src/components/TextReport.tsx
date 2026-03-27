@@ -126,7 +126,6 @@ const TextReportTemplatePeriod = () => {
       return elDate > start && elDate < end;
     })
     .sort((b, a) => a[freightDuration] - b[freightDuration]);
-  console.log(topCases);
 
   let currentYear: number = d3.max(arr.map((el) => el.year));
   let pastYear: number = currentYear - 1;

@@ -28,10 +28,24 @@ const ToolPanel = () => {
     axios
       .get("/violations", { params })
       .then(function (res) {
-        dispatch(setSourceState(res.data));
+        const data = res.data;
+        if (process.env.NODE_ENV === "development") {
+          const n = Array.isArray(data) ? data.length : 0;
+          console.log(
+            "[ToolPanel] GET /violations OK — записей:",
+            n,
+            "(если ожидаете больше — снимите limit на сервере, фронт не режет массив)",
+          );
+        }
+        dispatch(setSourceState(data));
       })
       .catch(function (error) {
         console.log("axios.get error:", error);
+        if (process.env.NODE_ENV === "development") {
+          console.log(
+            "[ToolPanel] подставляем dummyArr(2000 строк) — отчёт не из БД",
+          );
+        }
         dispatch(setSourceState(dummyArr(currentYear - 1, currentYear)));
       });
   }, [currentYear, dispatch]);

@@ -79,6 +79,5 @@ export const getRaceArr = (
     return Array.from(result.values());
   }
 
-  console.log("mergeObjects", mergeObjects(srcArrayInDatesFrame));
   return mergeObjects(srcArrayInDatesFrame);
 };

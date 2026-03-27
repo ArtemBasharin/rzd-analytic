@@ -23,7 +23,7 @@ import RidgelineDiagram from "./RidgelineDiagramm";
 import DownloadButtons from "./ToolDownloadButtons";
 import TextReportTemplatePeriod from "./TextReport";
 import SumLineDiagram from "./SumLineDiagram";
-// import InteractiveMap from "./InteractiveMap";
+import InteractiveMap from "./InteractiveMap";
 // import BarChartRaceDiagram from "./BarChartRace";
 
 function Main() {
@@ -305,11 +305,17 @@ function Main() {
           }
         </SwiperSlide>
 
-        {/* <SwiperSlide>
+        <SwiperSlide>
           {({ isActive }) =>
             isActive && (
               <>
-                <div className="slide" style={{ height: areaHeight }}>
+                <div
+                  className="slide"
+                  style={{
+                    /* .main margin-top: 90px — полная innerHeight даёт вынос за низ вьюпорта */
+                    height: Math.max(120, areaHeight - 90),
+                  }}
+                >
                   <h2 className="section-title">
                     Распределение по территориальному признаку (за период{" "}
                     {timeFormat(dateStart)}-{timeFormatY(dateEnd)} г.)
@@ -319,7 +325,7 @@ function Main() {
               </>
             )
           }
-        </SwiperSlide> */}
+        </SwiperSlide>
       </Swiper>
     </div>
   );

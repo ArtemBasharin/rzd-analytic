@@ -53,7 +53,7 @@ let originToolPalette = {
 let initialCustomCalendar = getCustomCalendar(
   initialDaysInGroup,
   initialStartDate,
-  initialEndDate
+  initialEndDate,
 );
 
 let initialPattern = getInitialPattern(initialEndDate);
@@ -62,7 +62,7 @@ let initialCheckedUnits = getUnitsList(
   arrSource,
   initialStartDate,
   initialEndDate,
-  initialCustomCalendar
+  initialCustomCalendar,
 );
 
 let initialAnalyzeState = getAnalyze(
@@ -71,7 +71,7 @@ let initialAnalyzeState = getAnalyze(
   date.getFullYear(),
   initialPattern,
   initialStartDate,
-  initialEndDate
+  initialEndDate,
 );
 
 let initialStackedState = getStackedArr(
@@ -79,7 +79,7 @@ let initialStackedState = getStackedArr(
   initialStartDate,
   initialEndDate,
   initialCustomCalendar,
-  initialCheckedUnits
+  initialCheckedUnits,
 );
 
 let initialSankeyState = getSankeyArr(
@@ -87,7 +87,7 @@ let initialSankeyState = getSankeyArr(
   initialStartDate,
   initialEndDate,
   initialMinvalue,
-  initialCheckedUnits
+  initialCheckedUnits,
 );
 
 let initialRidgelineArrState = getRidgelineArr(
@@ -95,7 +95,7 @@ let initialRidgelineArrState = getRidgelineArr(
   initialStartDate,
   initialEndDate,
   initialCustomCalendar,
-  initialCheckedUnits
+  initialCheckedUnits,
 );
 
 let initialSumLineArrState = [];
@@ -182,7 +182,7 @@ const filtersSlice = createSlice({
       state.customCalendar = getCustomCalendar(
         state.daysInGroup,
         state.dateStart,
-        state.dateEnd
+        state.dateEnd,
       );
 
       state.regexpPattern = getInitialPattern(state.dateEnd);
@@ -191,7 +191,7 @@ const filtersSlice = createSlice({
         action.payload,
         state.dateStart,
         state.dateEnd,
-        state.customCalendar
+        state.customCalendar,
       );
       state.stackedCheckList = unitsList;
       state.sankeyCheckList = unitsList;
@@ -204,7 +204,7 @@ const filtersSlice = createSlice({
         state.currentYear,
         state.regexpPattern,
         state.dateStart,
-        state.dateEnd
+        state.dateEnd,
       );
 
       state.stackedArrState = getStackedArr(
@@ -212,7 +212,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
-        state.stackedCheckList
+        state.stackedCheckList,
       );
 
       let sankeyArr = getSankeyArr(
@@ -220,7 +220,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.minValue,
-        state.sankeyCheckList
+        state.sankeyCheckList,
       );
 
       state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
@@ -231,7 +231,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
-        state.ridgelineCheckList
+        state.ridgelineCheckList,
       );
 
       state.reportSrcState = getReportArr(
@@ -239,7 +239,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.regexpPattern,
-        state.minValue
+        state.minValue,
       );
 
       state.reportStations = getReportStationsArr(
@@ -247,13 +247,13 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.regexpPattern,
-        state.minValue
+        state.minValue,
       );
 
       state.sumLineArrState = getSumLineArr(
         state.sourceState,
         state.customCalendar,
-        state.sumLineCheckList
+        state.sumLineCheckList,
       );
 
       // state.raceArrState = getRaceArr(
@@ -264,14 +264,18 @@ const filtersSlice = createSlice({
     },
 
     increment(state) {
-      if (state.minValue<1) {state.minValue = cutDecimals(state.minValue + 0.1)} else {state.minValue = state.minValue+1}
+      if (state.minValue < 1) {
+        state.minValue = cutDecimals(state.minValue + 0.1);
+      } else {
+        state.minValue = state.minValue + 1;
+      }
 
       let sankeyArr = getSankeyArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
         state.minValue,
-        state.sankeyCheckList
+        state.sankeyCheckList,
       );
 
       state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
@@ -279,17 +283,17 @@ const filtersSlice = createSlice({
     },
 
     decrement(state) {
-
-      if (state.minValue > 0 && state.minValue<=1) state.minValue = cutDecimals(state.minValue - 0.1)
-      if (state.minValue > 0 && state.minValue>1) state.minValue = cutDecimals(state.minValue - 1)
-
+      if (state.minValue > 0 && state.minValue <= 1)
+        state.minValue = cutDecimals(state.minValue - 0.1);
+      if (state.minValue > 0 && state.minValue > 1)
+        state.minValue = cutDecimals(state.minValue - 1);
 
       let sankeyArr = getSankeyArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
         state.minValue,
-        state.sankeyCheckList
+        state.sankeyCheckList,
       );
 
       state.sankeyArrState = { nodes: sankeyArr.nodes, links: sankeyArr.links };
@@ -301,19 +305,19 @@ const filtersSlice = createSlice({
       state.customCalendar = getCustomCalendar(
         state.daysInGroup,
         state.dateStart,
-        state.dateEnd
+        state.dateEnd,
       );
       state.stackedArrState = getStackedArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
-        state.stackedCheckList
+        state.stackedCheckList,
       );
       state.sumLineArrState = getSumLineArr(
         state.sourceState,
         state.customCalendar,
-        state.sumLineCheckList
+        state.sumLineCheckList,
       );
     },
 
@@ -322,19 +326,19 @@ const filtersSlice = createSlice({
       state.customCalendar = getCustomCalendar(
         state.daysInGroup,
         state.dateStart,
-        state.dateEnd
+        state.dateEnd,
       );
       state.stackedArrState = getStackedArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
-        state.stackedCheckList
+        state.stackedCheckList,
       );
       state.sumLineArrState = getSumLineArr(
         state.sourceState,
         state.customCalendar,
-        state.sumLineCheckList
+        state.sumLineCheckList,
       );
     },
 
@@ -343,7 +347,7 @@ const filtersSlice = createSlice({
       let periodDatesFromRegex = getPeriodDatesFromRegex(
         state.regexpPattern,
         state.currentYear,
-        state.pastYear
+        state.pastYear,
       );
 
       state.dateStart = periodDatesFromRegex.periodStart;
@@ -355,14 +359,14 @@ const filtersSlice = createSlice({
         state.currentYear,
         state.regexpPattern,
         state.dateStart,
-        state.dateEnd
+        state.dateEnd,
       );
 
       state.reportSrcState = getReportArr(
         state.sourceState,
         state.dateStart,
         state.dateEnd,
-        state.regexpPattern
+        state.regexpPattern,
       );
 
       state.reportStations = getReportStationsArr(
@@ -370,7 +374,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.regexpPattern,
-        state.minValue
+        state.minValue,
       );
     },
 
@@ -380,7 +384,7 @@ const filtersSlice = createSlice({
         state.sourceState,
         state.pastYear,
         state.currentYear,
-        state.regexpPattern
+        state.regexpPattern,
       );
     },
 
@@ -414,20 +418,20 @@ const filtersSlice = createSlice({
           state.currentYear,
           state.regexpPattern,
           state.dateStart,
-          state.dateEnd
+          state.dateEnd,
         );
 
         state.customCalendar = getCustomCalendar(
           state.daysInGroup,
           state.dateStart,
-          state.dateEnd
+          state.dateEnd,
         );
 
         let unitsList = getUnitsList(
           state.sourceState,
           state.dateStart,
           state.dateEnd,
-          state.customCalendar
+          state.customCalendar,
         );
         state.stackedCheckList = unitsList;
         state.sankeyCheckList = unitsList;
@@ -442,7 +446,7 @@ const filtersSlice = createSlice({
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
-          state.stackedCheckList
+          state.stackedCheckList,
         );
 
         state.sankeyArrState = getSankeyArr(
@@ -450,7 +454,7 @@ const filtersSlice = createSlice({
           state.dateStart,
           state.dateEnd,
           state.minValue,
-          state.sankeyCheckList
+          state.sankeyCheckList,
         );
 
         state.ridgelineArrState = getRidgelineArr(
@@ -458,7 +462,7 @@ const filtersSlice = createSlice({
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
-          state.stackedCheckList
+          state.stackedCheckList,
         );
       } else {
         state.loaderShow = {
@@ -473,7 +477,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.regexpPattern,
-        state.minValue
+        state.minValue,
       );
 
       state.reportStations = getReportStationsArr(
@@ -481,13 +485,13 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.regexpPattern,
-        state.minValue
+        state.minValue,
       );
 
       state.sumLineArrState = getSumLineArr(
         state.sourceState,
         state.customCalendar,
-        state.sumLineCheckList
+        state.sumLineCheckList,
       );
     },
 
@@ -511,20 +515,20 @@ const filtersSlice = createSlice({
           state.currentYear,
           state.regexpPattern,
           state.dateStart,
-          state.dateEnd
+          state.dateEnd,
         );
 
         state.customCalendar = getCustomCalendar(
           state.daysInGroup,
           state.dateStart,
-          state.dateEnd
+          state.dateEnd,
         );
 
         let unitsList = getUnitsList(
           state.sourceState,
           state.dateStart,
           state.dateEnd,
-          state.customCalendar
+          state.customCalendar,
         );
         state.stackedCheckList = unitsList;
         state.sankeyCheckList = unitsList;
@@ -539,7 +543,7 @@ const filtersSlice = createSlice({
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
-          state.stackedCheckList
+          state.stackedCheckList,
         );
 
         state.sankeyArrState = getSankeyArr(
@@ -547,7 +551,7 @@ const filtersSlice = createSlice({
           state.dateStart,
           state.dateEnd,
           state.minValue,
-          state.sankeyCheckList
+          state.sankeyCheckList,
         );
 
         state.ridgelineArrState = getRidgelineArr(
@@ -555,7 +559,7 @@ const filtersSlice = createSlice({
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
-          state.stackedCheckList
+          state.stackedCheckList,
         );
       } else {
         state.loaderShow = {
@@ -570,7 +574,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.regexpPattern,
-        state.minValue
+        state.minValue,
       );
 
       state.reportStations = getReportStationsArr(
@@ -578,13 +582,13 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.regexpPattern,
-        state.minValue
+        state.minValue,
       );
 
       state.sumLineArrState = getSumLineArr(
         state.sourceState,
         state.customCalendar,
-        state.sumLineCheckList
+        state.sumLineCheckList,
       );
     },
 
@@ -592,7 +596,7 @@ const filtersSlice = createSlice({
       state.customCalendar = getCustomCalendar(
         state.daysInGroup,
         state.dateStart,
-        state.dateEnd
+        state.dateEnd,
       );
     },
 
@@ -601,7 +605,7 @@ const filtersSlice = createSlice({
       state.customCalendar = getCustomCalendar(
         state.daysInGroup,
         state.dateStart,
-        state.dateEnd
+        state.dateEnd,
       );
     },
 
@@ -611,7 +615,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.minValue,
-        state.sankeyCheckList
+        state.sankeyCheckList,
       );
     },
 
@@ -671,7 +675,7 @@ const filtersSlice = createSlice({
       state.stackedCheckList = updateCheckedProperty(
         state.stackedCheckList,
         action.payload.guiltyUnit,
-        action.payload.checked
+        action.payload.checked,
       );
 
       state.stackedArrState = getStackedArr(
@@ -679,7 +683,7 @@ const filtersSlice = createSlice({
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
-        state.stackedCheckList
+        state.stackedCheckList,
       );
     },
 
@@ -687,7 +691,7 @@ const filtersSlice = createSlice({
       state.sankeyCheckList = updateCheckedProperty(
         state.sankeyCheckList,
         action.payload.guiltyUnit,
-        action.payload.checked
+        action.payload.checked,
       );
 
       if (state.sankeyCheckList.findIndex((el) => el.checked === true) === -1) {
@@ -706,7 +710,7 @@ const filtersSlice = createSlice({
           state.dateStart,
           state.dateEnd,
           state.minValue,
-          state.sankeyCheckList
+          state.sankeyCheckList,
         );
       }
     },
@@ -715,7 +719,7 @@ const filtersSlice = createSlice({
       state.ridgelineCheckList = updateCheckedProperty(
         state.ridgelineCheckList,
         action.payload.guiltyUnit,
-        action.payload.checked
+        action.payload.checked,
       );
 
       if (
@@ -736,7 +740,7 @@ const filtersSlice = createSlice({
           state.dateStart,
           state.dateEnd,
           state.minValue,
-          state.ridgelineCheckList
+          state.ridgelineCheckList,
         );
       }
     },
@@ -745,7 +749,7 @@ const filtersSlice = createSlice({
       state.sumLineCheckList = updateCheckedProperty(
         state.sumLineCheckList,
         action.payload.guiltyUnit,
-        action.payload.checked
+        action.payload.checked,
       );
 
       if (
@@ -764,7 +768,7 @@ const filtersSlice = createSlice({
         state.sumLineArrState = getSumLineArr(
           state.sourceState,
           state.customCalendar,
-          state.sumLineCheckList
+          state.sumLineCheckList,
         );
       }
     },
@@ -772,20 +776,20 @@ const filtersSlice = createSlice({
     invertCheckList(state, action) {
       if (action.payload === "stacked") {
         state.stackedCheckList.map((el) =>
-          el.checked ? (el.checked = false) : (el.checked = true)
+          el.checked ? (el.checked = false) : (el.checked = true),
         );
         state.stackedArrState = getStackedArr(
           state.sourceState,
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
-          state.stackedCheckList
+          state.stackedCheckList,
         );
       }
 
       if (action.payload === "sankey") {
         state.sankeyCheckList.map((el) =>
-          el.checked ? (el.checked = false) : (el.checked = true)
+          el.checked ? (el.checked = false) : (el.checked = true),
         );
 
         if (
@@ -806,13 +810,13 @@ const filtersSlice = createSlice({
           state.dateStart,
           state.dateEnd,
           state.minValue,
-          state.sankeyCheckList
+          state.sankeyCheckList,
         );
       }
 
       if (action.payload === "sumline") {
         state.sumLineCheckList.map((el) =>
-          el.checked ? (el.checked = false) : (el.checked = true)
+          el.checked ? (el.checked = false) : (el.checked = true),
         );
 
         if (
@@ -831,7 +835,7 @@ const filtersSlice = createSlice({
         state.sumLineArrState = getSumLineArr(
           state.sourceState,
           state.customCalendar,
-          state.sumLineCheckList
+          state.sumLineCheckList,
         );
       }
     },
@@ -841,7 +845,7 @@ const filtersSlice = createSlice({
         state.stackedCheckList.map((el) =>
           state.allCheckedCheckList.stacked
             ? (el.checked = false)
-            : (el.checked = true)
+            : (el.checked = true),
         );
         state.allCheckedCheckList.stacked
           ? (state.allCheckedCheckList.stacked = false)
@@ -852,7 +856,7 @@ const filtersSlice = createSlice({
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
-          state.stackedCheckList
+          state.stackedCheckList,
         );
       }
 
@@ -860,7 +864,7 @@ const filtersSlice = createSlice({
         state.sankeyCheckList.map((el) =>
           state.allCheckedCheckList.sankey
             ? (el.checked = false)
-            : (el.checked = true)
+            : (el.checked = true),
         );
         state.allCheckedCheckList.sankey
           ? (state.allCheckedCheckList.sankey = false)
@@ -885,7 +889,7 @@ const filtersSlice = createSlice({
           state.dateStart,
           state.dateEnd,
           state.minValue,
-          state.sankeyCheckList
+          state.sankeyCheckList,
         );
       }
 
@@ -893,7 +897,7 @@ const filtersSlice = createSlice({
         state.ridgelineCheckList.map((el) =>
           state.allCheckedCheckList.ridgeline
             ? (el.checked = false)
-            : (el.checked = true)
+            : (el.checked = true),
         );
         state.allCheckedCheckList.ridgeline
           ? (state.allCheckedCheckList.ridgeline = false)
@@ -918,7 +922,7 @@ const filtersSlice = createSlice({
           state.dateStart,
           state.dateEnd,
           state.minValue,
-          state.ridgelineCheckList
+          state.ridgelineCheckList,
         );
       }
 
@@ -926,7 +930,7 @@ const filtersSlice = createSlice({
         state.sumLineCheckList.map((el) =>
           state.allCheckedCheckList.sumline
             ? (el.checked = false)
-            : (el.checked = true)
+            : (el.checked = true),
         );
         state.allCheckedCheckList.sumline
           ? (state.allCheckedCheckList.sumline = false)
@@ -957,7 +961,7 @@ const filtersSlice = createSlice({
         state.chartCheckList.map((el) =>
           state.allCheckedCheckList.charts
             ? (el.checked = false)
-            : (el.checked = true)
+            : (el.checked = true),
         );
         state.allCheckedCheckList.charts
           ? (state.allCheckedCheckList.charts = false)
@@ -993,13 +997,13 @@ const filtersSlice = createSlice({
       state.chartCheckList = updateChartProperty(
         state.chartCheckList,
         action.payload.name,
-        action.payload.checked
+        action.payload.checked,
       );
 
       state.sumLineArrState = getSumLineArr(
         state.sourceState,
         state.customCalendar,
-        state.sumLineCheckList
+        state.sumLineCheckList,
       );
     },
   },

@@ -15,11 +15,60 @@
   justify-content: flex-start;
   /* height: 1000px; */
   flex-grow: 1;
+  min-height: 0;
 }
 
 .section-title {
   margin-top: 30px;
   text-align: center;
+}
+
+/*
+ * Карта: flex + min-height:0 по цепочке, чтобы высота была ограничена слайдом.
+ * SVG 100%×100% внутри padding — viewport совпадает с рамкой, preserveAspectRatio meet
+ * вписывает viewBox и по ширине, и по высоте (раньше absolute+width/height:auto давали
+ * огромную «натуральную» высоту и контент уезжал за экран).
+ */
+.map-svg-root {
+  --map-inset: 10px;
+  flex: 1 1 0;
+  align-self: stretch;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.map-svg-viewport {
+  flex: 1 1 0;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  padding: var(--map-inset);
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.map-svg-viewport > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Подписи: у <text> в классах нет stroke; «обводка» — у соседнего rect (.st1) */
+.map-svg-viewport svg g:has(> text) > rect {
+  stroke: none !important;
+  stroke-width: 0 !important;
+}
+
+.map-svg-viewport text,
+.map-svg-viewport tspan {
+  stroke: none !important;
+  paint-order: fill;
 }
 
 .horizontalSection {
