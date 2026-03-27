@@ -71,6 +71,30 @@
   paint-order: fill;
 }
 
+.map-hover-tooltip {
+  max-width: min(360px, 92vw);
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #0f172a;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
+  transition: left 0.14s ease-out, top 0.14s ease-out;
+}
+
+.map-hover-tooltip__title {
+  font-weight: 700;
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.map-hover-tooltip__line {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .horizontalSection {
   /* padding: 0 30px; */
   width: 100%;

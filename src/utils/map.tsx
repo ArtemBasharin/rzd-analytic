@@ -1,9 +1,27 @@
-import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { createPortal } from "react-dom";
+import { cutDecimals } from "./functions";
+
+export type MapPlaceTooltipDetails = {
+  placeLabel: string;
+  totalDelayed: number;
+  totalDuration: number;
+  units: ReadonlyArray<{ name: string; delayed: number; duration: number }>;
+};
 
 type Props = {
   className?: string;
   segmentDurationByName?: Record<string, number>;
   stationDurationByName?: Record<string, number>;
+  /** Агрегат по месту из отчёта станций (ключ — как в segment/station maps) */
+  placeDetailsByName?: Record<string, MapPlaceTooltipDetails>;
 };
 
 const MAP_CIRCLE_BASE_R = "data-map-base-r";
@@ -12,6 +30,8 @@ const MAP_ELLIPSE_BASE_RY = "data-map-base-ry";
 const MAP_PATH_CX = "data-map-station-dot-cx";
 const MAP_PATH_CY = "data-map-station-dot-cy";
 const MAP_OPEN_LINE_D_ORIG = "data-map-open-line-d-orig";
+const MAP_TOOLTIP_HIT = "data-map-tooltip-hit";
+const MAP_PLACE_KEY = "data-map-place-key";
 
 /**
  * round-cap удлиняет штрих на stroke/2 с каждого конца; укорачиваем M…L… на эту величину
@@ -88,6 +108,11 @@ function removeVisioPageProperties(pageGroup: Element) {
       el.remove();
     }
   }
+}
+
+/** Visio вставляет <title>Лист.NNN</title> — иначе браузер показывает второй (нативный) тултип */
+function removeVisioSvgTitles(svgRoot: SVGSVGElement) {
+  svgRoot.querySelectorAll("title").forEach((n) => n.remove());
 }
 
 /** Bounding box только отрисовываемого контента (без полей viewBox страницы) */
@@ -260,44 +285,163 @@ function nonNegativeNumericValues(record: Record<string, number>): number[] {
   );
 }
 
+function normalizeMapName(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/ё/g, "е")
+    .replace(/[^\p{L}\p{N}]+/gu, "")
+    .trim();
+}
+
+function resolveRecordKey(
+  name: string,
+  record: Record<string, number>,
+): string | undefined {
+  if (Object.prototype.hasOwnProperty.call(record, name)) return name;
+  const normalizedTarget = normalizeMapName(name);
+  const foundKey = Object.keys(record).find(
+    (key) => normalizeMapName(key) === normalizedTarget,
+  );
+  return foundKey;
+}
+
+function fmtTooltipNumber(n: number): string {
+  if (!Number.isFinite(n)) return "—";
+  const rounded = cutDecimals(n);
+  if (Math.abs(rounded - Math.round(rounded)) < 1e-6) {
+    return String(Math.round(rounded));
+  }
+  return String(rounded);
+}
+
+const MAP_TOOLTIP_GAP = 10;
+const MAP_TOOLTIP_VIEW_PAD = 8;
+/** Сдвиг тултипа выше относительно прежней вертикали (px) */
+const MAP_TOOLTIP_RAISE = 60;
+/** Дополнительный сдвиг тултипа левее от указателя (px) */
+const MAP_TOOLTIP_SHIFT_LEFT = 15;
+const MAP_TOOLTIP_SHOW_DELAY_MS = 500;
+const MAP_TOOLTIP_HIDE_DELAY_MS = 300;
+
+/** По умолчанию — ниже и левее курсора на GAP; у краёв экрана — выше и/или правее */
+function computeMapTooltipPosition(
+  cx: number,
+  cy: number,
+  tw: number,
+  th: number,
+  vw: number,
+  vh: number,
+): { left: number; top: number } {
+  const gap = MAP_TOOLTIP_GAP;
+  const pad = MAP_TOOLTIP_VIEW_PAD;
+  const raise = MAP_TOOLTIP_RAISE;
+  const thEff = Math.max(th, 1);
+  const twEff = Math.max(tw, 1);
+
+  const hx = MAP_TOOLTIP_SHIFT_LEFT;
+  let left = cx - twEff - gap - hx;
+  if (left < pad) {
+    left = cx + gap - hx;
+  }
+  if (left + twEff > vw - pad) {
+    left = Math.max(pad, vw - pad - twEff);
+  }
+
+  // Ниже курсора (raise — сдвиг вверх только для этого варианта)
+  let top = cy + gap - raise;
+  if (top + thEff > vh - pad) {
+    // Не помещается снизу — над указателем, нижний край у cy - gap (без raise)
+    top = cy - thEff - gap;
+  }
+  if (top + thEff > vh - pad) {
+    top = vh - pad - thEff;
+  }
+  if (top < pad) {
+    top = pad;
+  }
+  return { left, top };
+}
+
+function formatMapTooltipLines(d: MapPlaceTooltipDetails): string[] {
+  const lines = [
+    `Задержки поездов (всего): ${fmtTooltipNumber(d.totalDelayed)}`,
+    `Время по вине (всего): ${fmtTooltipNumber(d.totalDuration)} ч`,
+  ];
+  if (d.units.length > 0) {
+    lines.push("По подразделениям:");
+    const maxUnits = 14;
+    d.units.slice(0, maxUnits).forEach((u) => {
+      lines.push(
+        `  ${u.name}: задержки ${fmtTooltipNumber(u.delayed)}, время ${fmtTooltipNumber(u.duration)} ч`,
+      );
+    });
+    if (d.units.length > maxUnits) {
+      lines.push(`  … ещё ${d.units.length - maxUnits}`);
+    }
+  }
+  return lines;
+}
+
 const SvgMap = React.forwardRef<SVGSVGElement, Props>(
   (
-    { className, segmentDurationByName = {}, stationDurationByName = {} },
+    {
+      className,
+      segmentDurationByName = {},
+      stationDurationByName = {},
+      placeDetailsByName = {},
+    },
     ref,
   ) => {
     const containerRef = useRef<HTMLDivElement>(null);
+    const tooltipRef = useRef<HTMLDivElement | null>(null);
     const [svgMarkup, setSvgMarkup] = useState("");
+    const [mapTooltip, setMapTooltip] = useState<{
+      x: number;
+      y: number;
+      title: string;
+      lines: string[];
+    } | null>(null);
+    const [mapTooltipPos, setMapTooltipPos] = useState({ left: 0, top: 0 });
 
-    const normalizeName = (value: string) =>
-      value
-        .toLowerCase()
-        .replace(/ё/g, "е")
-        .replace(/[^\p{L}\p{N}]+/gu, "")
-        .trim();
+    useLayoutEffect(() => {
+      if (!mapTooltip || !tooltipRef.current) return;
+      const el = tooltipRef.current;
+      const { width, height } = el.getBoundingClientRect();
+      setMapTooltipPos(
+        computeMapTooltipPosition(
+          mapTooltip.x,
+          mapTooltip.y,
+          width,
+          height,
+          window.innerWidth,
+          window.innerHeight,
+        ),
+      );
+    }, [mapTooltip]);
 
     const parseEdgeName = (rawValue: string) => parseVt4Inner(rawValue);
 
-    const resolveSegmentDuration = (segmentName: string) => {
-      const direct = segmentDurationByName[segmentName];
-      if (typeof direct === "number") return direct;
+    const resolveSegmentDuration = useCallback(
+      (segmentName: string) => {
+        const direct = segmentDurationByName[segmentName];
+        if (typeof direct === "number") return direct;
 
-      const normalizedTarget = normalizeName(segmentName);
-      const foundKey = Object.keys(segmentDurationByName).find(
-        (key) => normalizeName(key) === normalizedTarget,
-      );
-      return foundKey ? segmentDurationByName[foundKey] : undefined;
-    };
+        const key = resolveRecordKey(segmentName, segmentDurationByName);
+        return key !== undefined ? segmentDurationByName[key] : undefined;
+      },
+      [segmentDurationByName],
+    );
 
-    const resolveStationDuration = (stationName: string) => {
-      const direct = stationDurationByName[stationName];
-      if (typeof direct === "number") return direct;
+    const resolveStationDuration = useCallback(
+      (stationName: string) => {
+        const direct = stationDurationByName[stationName];
+        if (typeof direct === "number") return direct;
 
-      const normalizedTarget = normalizeName(stationName);
-      const foundKey = Object.keys(stationDurationByName).find(
-        (key) => normalizeName(key) === normalizedTarget,
-      );
-      return foundKey ? stationDurationByName[foundKey] : undefined;
-    };
+        const key = resolveRecordKey(stationName, stationDurationByName);
+        return key !== undefined ? stationDurationByName[key] : undefined;
+      },
+      [stationDurationByName],
+    );
 
     useEffect(() => {
       let isMounted = true;
@@ -315,6 +459,7 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
           const svgEl = svg as SVGSVGElement;
           const pageG = firstDirectChildG(svgEl);
           if (pageG) removeVisioPageProperties(pageG);
+          removeVisioSvgTitles(svgEl);
 
           const contentBox = measureVisioContentBBox(svgEl);
           if (contentBox) {
@@ -348,8 +493,19 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
       const svgRoot = containerRef.current?.querySelector("svg");
       if (!svgRoot) return;
 
-      const edgesWithData: Array<{ paths: SVGPathElement[]; value: number }> =
-        [];
+      svgRoot
+        .querySelectorAll(`[${MAP_TOOLTIP_HIT}]`)
+        .forEach((n) => n.remove());
+      svgRoot.querySelectorAll(`[${MAP_PLACE_KEY}]`).forEach((el) => {
+        el.removeAttribute(MAP_PLACE_KEY);
+        (el as SVGElement).style.removeProperty("cursor");
+      });
+
+      const edgesWithData: Array<{
+        paths: SVGPathElement[];
+        value: number;
+        reportKey: string;
+      }> = [];
       const groups = Array.from(svgRoot.querySelectorAll("g"));
       const minStrokeWidth = 1.3;
       const maxStrokeWidth = 7;
@@ -410,21 +566,40 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
           return;
         }
 
-        edgesWithData.push({ paths: linePaths, value });
+        const reportKey = resolveRecordKey(segmentName, segmentDurationByName);
+        if (!reportKey) {
+          applyGray(linePaths);
+          return;
+        }
+
+        edgesWithData.push({ paths: linePaths, value, reportKey });
       });
 
-      edgesWithData.forEach(({ paths, value }) => {
+      edgesWithData.forEach(({ paths, value, reportKey }) => {
         const segRatio = valueToVisualRatio(
           value,
           minSegmentValue,
           maxSegmentValue,
         );
         const lineStyle = heatStyleFromRatio(segRatio);
+        const tip = placeDetailsByName[reportKey];
 
         paths.forEach((path) => {
           path.style.stroke = lineStyle.strokeColor;
           path.style.strokeWidth = `${lineStyle.strokeWidth}`;
           applySegmentOpenLineStrokeGeometry(path, lineStyle.strokeWidth);
+          if (tip) {
+            const hit = path.cloneNode(true) as SVGPathElement;
+            hit.setAttribute(MAP_PLACE_KEY, reportKey);
+            hit.setAttribute(MAP_TOOLTIP_HIT, "1");
+            hit.style.stroke = "transparent";
+            hit.style.fill = "none";
+            hit.style.pointerEvents = "stroke";
+            const w = Math.max(12, lineStyle.strokeWidth * 4);
+            hit.style.strokeWidth = `${w}`;
+            hit.style.cursor = "pointer";
+            path.parentNode?.insertBefore(hit, path.nextSibling);
+          }
         });
       });
 
@@ -469,6 +644,13 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
         paintData(heatColorFromRatio(ratio));
       };
 
+      const bindStationTooltipTarget = (el: SVGElement, label: string) => {
+        const rk = resolveRecordKey(label, stationDurationByName);
+        if (!rk || !placeDetailsByName[rk]) return;
+        el.setAttribute(MAP_PLACE_KEY, rk);
+        el.style.cursor = "pointer";
+      };
+
       /**
        * Точки-станции: только группы с VT4(одна станция) в custProps и кругом как path (A…Z).
        * Рамки rect с текстом на слое подписей не трогаем.
@@ -509,6 +691,7 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
             (fill) => paintStationMarkerFill(dotPath, fill),
             () => paintStationMarkerNoData(dotPath),
           );
+          bindStationTooltipTarget(dotPath, label);
           return;
         }
 
@@ -530,6 +713,7 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
             (fill) => paintStationMarkerFill(circle, fill),
             () => paintStationMarkerNoData(circle),
           );
+          bindStationTooltipTarget(circle, label);
           return;
         }
 
@@ -556,6 +740,7 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
             (fill) => paintStationMarkerFill(ellipse, fill),
             () => paintStationMarkerNoData(ellipse),
           );
+          bindStationTooltipTarget(ellipse, label);
         }
       });
 
@@ -576,7 +761,128 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
           }
         }
       });
-    }, [svgMarkup, segmentDurationByName, stationDurationByName]);
+    }, [
+      svgMarkup,
+      segmentDurationByName,
+      stationDurationByName,
+      placeDetailsByName,
+      resolveSegmentDuration,
+      resolveStationDuration,
+    ]);
+
+    useEffect(() => {
+      const root = containerRef.current;
+      if (!root) return;
+      const svg = root.querySelector("svg");
+      if (!svg) return;
+
+      let showTimer: ReturnType<typeof setTimeout> | null = null;
+      let hideTimer: ReturnType<typeof setTimeout> | null = null;
+      let pending: {
+        x: number;
+        y: number;
+        title: string;
+        lines: string[];
+      } | null = null;
+
+      const clearShowTimer = () => {
+        if (showTimer !== null) {
+          clearTimeout(showTimer);
+          showTimer = null;
+        }
+      };
+
+      const clearHideTimer = () => {
+        if (hideTimer !== null) {
+          clearTimeout(hideTimer);
+          hideTimer = null;
+        }
+      };
+
+      const onOver = (e: PointerEvent) => {
+        const el = (e.target as Element).closest(`[${MAP_PLACE_KEY}]`);
+        if (!el || !svg.contains(el)) return;
+        const key = el.getAttribute(MAP_PLACE_KEY);
+        if (!key) return;
+        const details = placeDetailsByName[key];
+        if (!details) return;
+
+        clearHideTimer();
+        clearShowTimer();
+
+        pending = {
+          x: e.clientX,
+          y: e.clientY,
+          title: details.placeLabel,
+          lines: formatMapTooltipLines(details),
+        };
+
+        showTimer = setTimeout(() => {
+          showTimer = null;
+          if (!pending) return;
+          const p = pending;
+          setMapTooltipPos(
+            computeMapTooltipPosition(
+              p.x,
+              p.y,
+              300,
+              120,
+              window.innerWidth,
+              window.innerHeight,
+            ),
+          );
+          setMapTooltip({
+            x: p.x,
+            y: p.y,
+            title: p.title,
+            lines: p.lines,
+          });
+        }, MAP_TOOLTIP_SHOW_DELAY_MS);
+      };
+
+      const onOut = (e: PointerEvent) => {
+        const related = e.relatedTarget as Element | null;
+        if (
+          related &&
+          svg.contains(related) &&
+          related.closest(`[${MAP_PLACE_KEY}]`)
+        ) {
+          return;
+        }
+
+        clearShowTimer();
+        pending = null;
+
+        clearHideTimer();
+        hideTimer = setTimeout(() => {
+          hideTimer = null;
+          setMapTooltip(null);
+        }, MAP_TOOLTIP_HIDE_DELAY_MS);
+      };
+
+      const onMove = (e: PointerEvent) => {
+        if (showTimer !== null && pending) {
+          pending.x = e.clientX;
+          pending.y = e.clientY;
+        }
+        setMapTooltip((prev) =>
+          prev ? { ...prev, x: e.clientX, y: e.clientY } : null,
+        );
+      };
+
+      svg.addEventListener("pointerover", onOver);
+      svg.addEventListener("pointerout", onOut);
+      svg.addEventListener("pointermove", onMove);
+      return () => {
+        clearShowTimer();
+        clearHideTimer();
+        pending = null;
+        svg.removeEventListener("pointerover", onOver);
+        svg.removeEventListener("pointerout", onOut);
+        svg.removeEventListener("pointermove", onMove);
+        setMapTooltip(null);
+      };
+    }, [svgMarkup, placeDetailsByName]);
 
     useImperativeHandle(ref, () => {
       const svg = containerRef.current?.querySelector("svg");
@@ -590,6 +896,30 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
           className="map-svg-viewport"
           dangerouslySetInnerHTML={{ __html: svgMarkup }}
         />
+        {mapTooltip && typeof document !== "undefined"
+          ? createPortal(
+              <div
+                ref={tooltipRef}
+                className="map-hover-tooltip"
+                role="tooltip"
+                style={{
+                  position: "fixed",
+                  left: mapTooltipPos.left,
+                  top: mapTooltipPos.top,
+                  zIndex: 10000,
+                  pointerEvents: "none",
+                }}
+              >
+                <div className="map-hover-tooltip__title">{mapTooltip.title}</div>
+                {mapTooltip.lines.map((line, i) => (
+                  <div key={i} className="map-hover-tooltip__line">
+                    {line}
+                  </div>
+                ))}
+              </div>,
+              document.body,
+            )
+          : null}
       </div>
     );
   },
