@@ -22,6 +22,27 @@
   line-height: 21.5px;
 }
 
+/* Как междустрочный интервал (line-height отчёта) между текстом и диаграммой;
+   после диаграммы — одна пустая строка до следующего абзаца / таблицы */
+.text_report_units_heading {
+  margin: 0 0 21.5px;
+}
+
+.text_report_sankey_unit .text_paragraph.text_inner {
+  margin: 0;
+}
+
+.text_report_sankey_unit .sankey-diagram--report {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  /* После абзаца — почти межстрочный зазор; после SVG — одна строка до следующего блока */
+  margin: 6px 0 21.5px;
+  box-sizing: border-box;
+}
+
+
 .text_inner {
   font-family: "Times New Roman", Times, serif;
   white-space: pre-wrap;

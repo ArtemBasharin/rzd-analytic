@@ -146,25 +146,26 @@ const TextReportTemplatePeriod = () => {
   let text: any[] = [];
   dictionary.forEach((unit: string, index: number) =>
     text.push(
-      <p className="text_paragraph text_inner">
-        <span className="text_unit">{unit.replace(/\n/g, " ")}</span>:{" "}
-        {/* {getOneUnitReport(arr, currentYear, unit)} (за аналогичный период */}
-        {getOneUnitReportWithCompare({
-          arr: arr,
-          currYear: currentYear,
-          pastYear: pastYear,
-          unit: unit,
-        })}{" "}
-        (за аналогичный период прошлого года:{" "}
-        {getOneUnitReport(arr, pastYear, unit) || "ТН не допущено"}). Причины:{" "}
-        {getArrReasons(currentYear, unit)}
-      </p>,
-      <SankeyDiagram 
-        svgId={`svg-${index}`}
-        mode="report"
-        singleUnit={unit}
-        filteredCheckList={undefined}
-      />,
+      <div key={`sankey-unit-${index}`} className="text_report_sankey_unit">
+        <p className="text_paragraph text_inner">
+          <span className="text_unit">{unit.replace(/\n/g, " ")}</span>:{" "}
+          {getOneUnitReportWithCompare({
+            arr: arr,
+            currYear: currentYear,
+            pastYear: pastYear,
+            unit: unit,
+          })}{" "}
+          (за аналогичный период прошлого года:{" "}
+          {getOneUnitReport(arr, pastYear, unit) || "ТН не допущено"}). Причины:{" "}
+          {getArrReasons(currentYear, unit)}
+        </p>
+        <SankeyDiagram
+          svgId={`svg-${index}`}
+          mode="report"
+          singleUnit={unit}
+          filteredCheckList={undefined}
+        />
+      </div>,
     ),
   );
 
@@ -613,10 +614,10 @@ const TextReportTemplatePeriod = () => {
           })}
         </p>
 
-        <p className="text_paragraph">
-          ТН по ответственности подразделений: {text.concat("")}
+        <p className="text_paragraph text_report_units_heading">
+          ТН по ответственности подразделений:
         </p>
-        <p style={{ lineHeight: "30px" }}>&nbsp;&nbsp;</p>
+        {text}
 
         <table className="table_bold">
           <tbody>
