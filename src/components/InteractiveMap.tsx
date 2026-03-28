@@ -13,6 +13,11 @@ interface RootState {
       year: number;
       report: Array<Record<string, unknown>>;
     }>;
+    sankeyCheckList: Array<{
+      guiltyUnit: string;
+      checked: boolean;
+      isDisabled?: boolean;
+    }>;
   };
 }
 
@@ -134,10 +139,73 @@ function mergeRowsToTooltipDetails(
   return acc;
 }
 
+function filterPlaceRowByGuiltyUnits(
+  row: Record<string, unknown>,
+  allowedUnits: Set<string>,
+): Record<string, unknown> | null {
+  const place = row.place;
+  if (typeof place !== "string" || !place.trim()) return null;
+
+  let freightDelayed = 0;
+  let freightDuration = 0;
+  let passDelayed = 0;
+  let passDuration = 0;
+  let subDelayed = 0;
+  let subDuration = 0;
+  let otherDelayed = 0;
+  let otherDuration = 0;
+  let count = 0;
+
+  const out: Record<string, unknown> = { place: place.trim() };
+
+  for (const [k, v] of Object.entries(row)) {
+    if (PLACE_ROW_BASE_KEYS.has(k)) continue;
+    if (!v || typeof v !== "object" || Array.isArray(v)) continue;
+    const o = v as Record<string, number>;
+    if (typeof o.count !== "number") continue;
+    if (!allowedUnits.has(k)) continue;
+    out[k] = { ...o };
+    count += o.count || 0;
+    freightDelayed += o.freightDelayed || 0;
+    freightDuration += o.freightDuration || 0;
+    passDelayed += o.passDelayed || 0;
+    passDuration += o.passDuration || 0;
+    subDelayed += o.subDelayed || 0;
+    subDuration += o.subDuration || 0;
+    otherDelayed += o.otherDelayed || 0;
+    otherDuration += o.otherDuration || 0;
+  }
+
+  out.count = count;
+  out.freightDelayed = freightDelayed;
+  out.freightDuration = freightDuration;
+  out.passDelayed = passDelayed;
+  out.passDuration = passDuration;
+  out.subDelayed = subDelayed;
+  out.subDuration = subDuration;
+  out.otherDelayed = otherDelayed;
+  out.otherDuration = otherDuration;
+  out.totalDelayed = cutDecimals(
+    freightDelayed + passDelayed + subDelayed + otherDelayed,
+  );
+  out.totalDuration = cutDecimals(
+    freightDuration + passDuration + subDuration + otherDuration,
+  );
+
+  const td = Number(out.totalDuration) || 0;
+  const tdel = Number(out.totalDelayed) || 0;
+  if (count === 0 && td === 0 && tdel === 0) return null;
+
+  return out;
+}
+
 const InteractiveMap = () => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const stationsReport = useSelector(
     (state: RootState) => state.filters.reportStations,
+  );
+  const sankeyCheckList = useSelector(
+    (state: RootState) => state.filters.sankeyCheckList,
   );
 
   const currentYearReport = useMemo(() => {
@@ -148,9 +216,29 @@ const InteractiveMap = () => {
     );
   }, [stationsReport]);
 
+  const allowedGuiltyUnits = useMemo(() => {
+    const names = sankeyCheckList
+      .filter((u) => u.checked)
+      .map((u) => u.guiltyUnit);
+    if (names.length === 0) return null;
+    return new Set(names);
+  }, [sankeyCheckList]);
+
+  const mapReportRows = useMemo(() => {
+    if (!allowedGuiltyUnits) return [];
+    return currentYearReport
+      .map((item) =>
+        filterPlaceRowByGuiltyUnits(
+          item as Record<string, unknown>,
+          allowedGuiltyUnits,
+        ),
+      )
+      .filter((x): x is Record<string, unknown> => x != null);
+  }, [currentYearReport, allowedGuiltyUnits]);
+
   const segmentDurationByName = useMemo(() => {
     const raw: Record<string, number> = {};
-    for (const item of currentYearReport) {
+    for (const item of mapReportRows) {
       const p = item.place;
       if (typeof p !== "string" || !p.trim()) continue;
       const k = p.trim();
@@ -179,10 +267,10 @@ const InteractiveMap = () => {
       }
     }
     return out;
-  }, [currentYearReport]);
+  }, [mapReportRows]);
 
   const stationDurationByName = useMemo(() => {
-    return currentYearReport.reduce<Record<string, number>>((acc, item) => {
+    return mapReportRows.reduce<Record<string, number>>((acc, item) => {
       const p = item.place;
       if (
         typeof p === "string" &&
@@ -195,11 +283,11 @@ const InteractiveMap = () => {
       }
       return acc;
     }, {});
-  }, [currentYearReport]);
+  }, [mapReportRows]);
 
   const placeDetailsByName = useMemo(() => {
     const rowsByPlace = new Map<string, Record<string, unknown>[]>();
-    for (const item of currentYearReport) {
+    for (const item of mapReportRows) {
       const p = item.place;
       if (typeof p !== "string" || !p.trim()) continue;
       const k = p.trim();
@@ -251,7 +339,7 @@ const InteractiveMap = () => {
     }
 
     return out;
-  }, [currentYearReport]);
+  }, [mapReportRows]);
 
   return (
     <SvgMap

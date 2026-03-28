@@ -18,6 +18,7 @@ interface RootState {
     ridgelineCheckList: any[];
     sumLineCheckList: any[];
     allCheckedCheckList: any;
+    toolPalette: { kind: string };
   };
 }
 
@@ -37,9 +38,19 @@ const DropdownUnits = () => {
   const allChecked = useSelector(
     (state: RootState) => state.filters.allCheckedCheckList
   );
-  const toolPalette = useSelector((state: any) => state.filters.toolPalette);
+  const toolPalette = useSelector(
+    (state: RootState) => state.filters.toolPalette,
+  );
 
   const dispatch = useDispatch();
+
+  /** Список подразделений для карты совпадает с Sankey (те же чекбоксы в Redux). */
+  const unitsKindForActions =
+    toolPalette.kind === "map" ? "sankey" : toolPalette.kind;
+  const unitsAllChecked =
+    toolPalette.kind === "map"
+      ? allChecked.sankey
+      : allChecked[toolPalette.kind];
 
   const [isOpen, setIsOpen] = useState<boolean>(false);
 
@@ -84,17 +95,15 @@ const DropdownUnits = () => {
           <div className="tools_buttons-container">
             <button
               className="tools tools_dropdown-button"
-              onClick={() => dispatch(checkAllCheckList(toolPalette.kind))}
-              key={"checkAllCheckList-button-" + toolPalette.kind}
+              onClick={() => dispatch(checkAllCheckList(unitsKindForActions))}
+              key={"checkAllCheckList-button-" + unitsKindForActions}
             >
-              {allChecked[toolPalette.kind]
-                ? "Снять выделение"
-                : "Отметить все"}
+              {unitsAllChecked ? "Снять выделение" : "Отметить все"}
             </button>
             <button
               className="tools tools_dropdown-button"
-              onClick={() => dispatch(invertCheckList(toolPalette.kind))}
-              key={"invertCheckList-button-" + toolPalette.kind}
+              onClick={() => dispatch(invertCheckList(unitsKindForActions))}
+              key={"invertCheckList-button-" + unitsKindForActions}
             >
               Инвертировать выбор
             </button>
@@ -127,7 +136,7 @@ const DropdownUnits = () => {
               </li>
             ))}
 
-          {toolPalette.kind === "sankey" &&
+          {(toolPalette.kind === "sankey" || toolPalette.kind === "map") &&
             sankeyCheckList.map((option) => (
               <li className="list_element" key={"li-" + option.guiltyUnit}>
                 <label

@@ -695,6 +695,15 @@ const filtersSlice = createSlice({
         state.toolPalette.periodVisibility = false;
         state.toolPalette.minValueVisibility = false;
       }
+      if (action.payload === "map") {
+        state.toolPalette = { ...state.toolPalette, kind: action.payload };
+        state.toolPalette.yearVisibility = false;
+        state.toolPalette.periodVisibility = false;
+        state.toolPalette.daysInGroupVisibility = false;
+        state.toolPalette.sumLineVisibility = false;
+        state.toolPalette.minValueVisibility = false;
+        state.toolPalette.unitsListVisibility = true;
+      }
     },
 
     setStackedCheckList(state, action) {
@@ -813,7 +822,7 @@ const filtersSlice = createSlice({
         );
       }
 
-      if (action.payload === "sankey") {
+      if (action.payload === "sankey" || action.payload === "map") {
         state.sankeyCheckList.map((el) =>
           el.checked ? (el.checked = false) : (el.checked = true),
         );
@@ -886,7 +895,7 @@ const filtersSlice = createSlice({
         );
       }
 
-      if (action.payload === "sankey") {
+      if (action.payload === "sankey" || action.payload === "map") {
         state.sankeyCheckList.map((el) =>
           state.allCheckedCheckList.sankey
             ? (el.checked = false)

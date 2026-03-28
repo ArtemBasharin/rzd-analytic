@@ -83,6 +83,7 @@ function Main() {
           if (activeSlideIndex === 6) dispatch(setToolPalette("ridgeline"));
           if (activeSlideIndex === 7) dispatch(setToolPalette("report"));
           if (activeSlideIndex === 8) dispatch(setToolPalette("sumline"));
+          if (activeSlideIndex === 9) dispatch(setToolPalette("map"));
         }}
         onSwiper={(swiper) => {}}
       >
