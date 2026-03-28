@@ -25,7 +25,8 @@ export const getReportStationsArr = (
   sourceArr: any[],
   dateStart: number,
   dateEnd: number,
-  minValue?: number
+  _regexpPattern?: string,
+  _minValue?: number,
 ) => {
   moment().tz("Europe/London").format();
   const calcTotalDuration = (obj: any) => {
@@ -46,49 +47,32 @@ export const getReportStationsArr = (
     return total;
   };
 
-  const getFilteredByPeriodArr = () => {
-    let srcArrayInDatesFrame: any[] = [];
-
-    if (dateStart && dateEnd) {
-      let daysBetweenDates: number = getDaysBetweenDates(dateStart, dateEnd);
-      let [dateStartCurrentYear, dateEndCurrentYear] = [dateStart, dateEnd];
-      let dateEndPastYear = new Date(dateEndCurrentYear);
-      dateEndPastYear.setFullYear(dateEndPastYear.getFullYear() - 1);
-
-      let dateStartPastYear =
-        dateEndPastYear.getTime() -
-        daysBetweenDates * 24 * 60 * 60 * 1000 +
-        1000;
-
-      sourceArr.forEach((el) => {
-        if (
-          (Date.parse(el[startTime]) >= dateStartCurrentYear &&
-            Date.parse(el[startTime]) <= dateEndCurrentYear) ||
-          (Date.parse(el[startTime]) >= dateStartPastYear &&
-            Date.parse(el[startTime]) <= dateEndPastYear.getTime())
-        ) {
-          srcArrayInDatesFrame.push({
-            ID: el[ID],
-            guiltyUnit: el[guiltyUnit],
-            startTime: el[startTime],
-            failReason: el[failReason],
-            failKind: el[failKind],
-            freightDuration: el[freightDuration] || 0,
-            passDuration: el[passDuration] || 0,
-            subDuration: el[subDuration] || 0,
-            otherDuration: el[otherDuration] || 0,
-            freightDelayed: el[freightDelayed] || 0,
-            passDelayed: el[passDelayed] || 0,
-            subDelayed: el[subDelayed] || 0,
-            otherDelayed: el[otherDelayed] || 0,
-            totalDelayed: calcTotalDelayed(el),
-            totalDuration: calcTotalDuration(el),
-            place: el[place],
-          });
-        }
+  /** Инциденты только внутри [fromMs, toMs] (включительно), как в datepicker. */
+  const mapSourceRowsInRange = (fromMs: number, toMs: number) => {
+    const out: any[] = [];
+    sourceArr.forEach((el) => {
+      const ts = Date.parse(el[startTime]);
+      if (!Number.isFinite(ts) || ts < fromMs || ts > toMs) return;
+      out.push({
+        ID: el[ID],
+        guiltyUnit: el[guiltyUnit],
+        startTime: el[startTime],
+        failReason: el[failReason],
+        failKind: el[failKind],
+        freightDuration: el[freightDuration] || 0,
+        passDuration: el[passDuration] || 0,
+        subDuration: el[subDuration] || 0,
+        otherDuration: el[otherDuration] || 0,
+        freightDelayed: el[freightDelayed] || 0,
+        passDelayed: el[passDelayed] || 0,
+        subDelayed: el[subDelayed] || 0,
+        otherDelayed: el[otherDelayed] || 0,
+        totalDelayed: calcTotalDelayed(el),
+        totalDuration: calcTotalDuration(el),
+        place: el[place],
       });
-    }
-    return srcArrayInDatesFrame.map((el) => {
+    });
+    return out.map((el) => {
       if (el.failReason)
         return { ...el, failReason: firstCharToLowerCase(el.failReason) };
       return el;
@@ -328,27 +312,31 @@ export const getReportStationsArr = (
     return resultArray;
   }
 
-   function aggregateDataWithYearAndReport(inputArray: any[]) {
-    const resultArray: any[] = [];
-
-    inputArray.forEach((item: any) => {
-      const year = new Date(item.startTime).getFullYear();
-      const existingItem = resultArray.find((element) => element.year === year);
-
-      if (existingItem) {
-        existingItem.report.push(item);
-      } else {
-        resultArray.push({ year, report: [item] });
-      }
-    });
-    resultArray.forEach((item) => {
-      item.report = aggregateData(item.report);
-    });
-
-    return resultArray;
+  if (!dateStart || !dateEnd) {
+    return [];
   }
 
-  return aggregateDataWithYearAndReport(getFilteredByPeriodArr());
+  const daysBetweenDates = getDaysBetweenDates(dateStart, dateEnd);
+  const dateEndPastYear = new Date(dateEnd);
+  dateEndPastYear.setFullYear(dateEndPastYear.getFullYear() - 1);
+  const dateStartPastYear =
+    dateEndPastYear.getTime() -
+    daysBetweenDates * 24 * 60 * 60 * 1000 +
+    1000;
+
+  const currentPeriodRows = mapSourceRowsInRange(dateStart, dateEnd);
+  const pastPeriodRows = mapSourceRowsInRange(
+    dateStartPastYear,
+    dateEndPastYear.getTime(),
+  );
+
+  const currentYearLabel = new Date(dateEnd).getFullYear();
+  const pastYearLabel = currentYearLabel - 1;
+
+  return [
+    { year: pastYearLabel, report: aggregateData(pastPeriodRows) },
+    { year: currentYearLabel, report: aggregateData(currentPeriodRows) },
+  ].sort((a, b) => a.year - b.year);
 };
 
 export {};

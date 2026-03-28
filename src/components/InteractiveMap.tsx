@@ -2,6 +2,10 @@ import { useMemo, useRef } from "react";
 import { useSelector } from "react-redux";
 import SvgMap, { MapPlaceTooltipDetails } from "../utils/map";
 import { cutDecimals } from "../utils/functions";
+import {
+  canonicalKeyFromPlace,
+  extractReportSegmentPair,
+} from "../utils/mapSegmentPlace";
 
 interface RootState {
   filters: {
@@ -70,12 +74,11 @@ function rowToTooltipDetails(
   };
 }
 
-/** «Станция А - Станция Б» → «Станция Б - Станция А» */
+/** Обратный порядок пары станций в подписи (как в отчёте / на карте). */
 function reverseSegmentPlace(place: string): string | null {
-  const t = place.trim();
-  const parts = t.split(" - ").map((p) => p.trim()).filter(Boolean);
-  if (parts.length !== 2) return null;
-  return `${parts[1]} - ${parts[0]}`;
+  const p = extractReportSegmentPair(place);
+  if (!p) return null;
+  return `${p[1].trim()} - ${p[0].trim()}`;
 }
 
 function mergeUnitLists(
@@ -115,6 +118,22 @@ function mergeSegmentTooltipDetails(
   };
 }
 
+/** Несколько строк отчёта с одним и тем же `place` — суммируем итоги и подразделения. */
+function mergeRowsToTooltipDetails(
+  placeLabel: string,
+  rows: ReadonlyArray<Record<string, unknown>>,
+): MapPlaceTooltipDetails | undefined {
+  let acc: MapPlaceTooltipDetails | undefined;
+  for (const row of rows) {
+    const d = rowToTooltipDetails(row);
+    if (!d) continue;
+    acc = acc
+      ? mergeSegmentTooltipDetails(placeLabel, acc, d)
+      : { ...d, placeLabel };
+  }
+  return acc;
+}
+
 const InteractiveMap = () => {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const stationsReport = useSelector(
@@ -132,67 +151,89 @@ const InteractiveMap = () => {
   const segmentDurationByName = useMemo(() => {
     const raw: Record<string, number> = {};
     for (const item of currentYearReport) {
-      if (typeof item.place === "string" && item.place.includes(" - ")) {
-        const k = item.place.trim();
-        raw[k] = Number(item.totalDuration) || 0;
-      }
+      const p = item.place;
+      if (typeof p !== "string" || !p.trim()) continue;
+      const k = p.trim();
+      if (!extractReportSegmentPair(k)) continue;
+      const v = Number(item.totalDuration) || 0;
+      raw[k] = (raw[k] ?? 0) + v;
     }
+
+    const canonSums = new Map<string, number>();
+    for (const k of Object.keys(raw)) {
+      const ck = canonicalKeyFromPlace(k);
+      if (!ck) continue;
+      canonSums.set(ck, (canonSums.get(ck) || 0) + raw[k]);
+    }
+
     const out: Record<string, number> = {};
     for (const k of Object.keys(raw)) {
-      const rev = reverseSegmentPlace(k);
-      const back = rev && Object.prototype.hasOwnProperty.call(raw, rev)
-        ? raw[rev]
-        : 0;
-      const sum = raw[k] + back;
+      const ck = canonicalKeyFromPlace(k);
+      if (!ck) continue;
+      const sum = canonSums.get(ck) ?? 0;
       out[k] = sum;
-      if (rev) out[rev] = sum;
+      const pr = extractReportSegmentPair(k);
+      if (pr) {
+        const revLabel = `${pr[1].trim()} - ${pr[0].trim()}`;
+        out[revLabel] = sum;
+      }
     }
     return out;
   }, [currentYearReport]);
 
   const stationDurationByName = useMemo(() => {
     return currentYearReport.reduce<Record<string, number>>((acc, item) => {
+      const p = item.place;
       if (
-        typeof item.place === "string" &&
-        item.place.trim() !== "" &&
-        !item.place.includes(" - ")
+        typeof p === "string" &&
+        p.trim() !== "" &&
+        !extractReportSegmentPair(p.trim())
       ) {
-        acc[item.place] = Number(item.totalDuration) || 0;
+        const k = p.trim();
+        const v = Number(item.totalDuration) || 0;
+        acc[k] = (acc[k] ?? 0) + v;
       }
       return acc;
     }, {});
   }, [currentYearReport]);
 
   const placeDetailsByName = useMemo(() => {
-    const rawRows = new Map<string, Record<string, unknown>>();
+    const rowsByPlace = new Map<string, Record<string, unknown>[]>();
     for (const item of currentYearReport) {
       const p = item.place;
-      if (typeof p === "string" && p.trim()) {
-        rawRows.set(p.trim(), item as Record<string, unknown>);
-      }
+      if (typeof p !== "string" || !p.trim()) continue;
+      const k = p.trim();
+      const list = rowsByPlace.get(k);
+      if (list) list.push(item as Record<string, unknown>);
+      else rowsByPlace.set(k, [item as Record<string, unknown>]);
     }
 
     const out: Record<string, MapPlaceTooltipDetails> = {};
 
-    for (const [k, row] of rawRows) {
-      if (k.includes(" - ")) continue;
-      const details = rowToTooltipDetails(row);
-      if (details) out[k] = details;
+    for (const [k, rows] of rowsByPlace) {
+      if (extractReportSegmentPair(k)) continue;
+      const merged = mergeRowsToTooltipDetails(k, rows);
+      if (merged) out[k] = merged;
     }
 
-    const segmentKeys = [...rawRows.keys()].filter((k) => k.includes(" - "));
+    const segmentKeys = [...rowsByPlace.keys()].filter((k) =>
+      extractReportSegmentPair(k),
+    );
     const doneSeg = new Set<string>();
 
     for (const k of segmentKeys) {
       if (doneSeg.has(k)) continue;
-      const rowK = rawRows.get(k);
-      if (!rowK) continue;
-      const dK = rowToTooltipDetails(rowK);
+      const rowsK = rowsByPlace.get(k);
+      if (!rowsK?.length) continue;
+      const dK = mergeRowsToTooltipDetails(k, rowsK);
       if (!dK) continue;
 
       const rev = reverseSegmentPlace(k);
-      const rowR = rev ? rawRows.get(rev) : undefined;
-      const dR = rowR ? rowToTooltipDetails(rowR) : null;
+      const rowsR = rev ? rowsByPlace.get(rev) : undefined;
+      const dR =
+        rev && rowsR?.length
+          ? mergeRowsToTooltipDetails(rev, rowsR)
+          : null;
 
       if (rev && dR) {
         out[k] = mergeSegmentTooltipDetails(k, dK, dR);

@@ -8,6 +8,14 @@ import React, {
 } from "react";
 import { createPortal } from "react-dom";
 import { cutDecimals } from "./functions";
+import {
+  canonicalKeyFromPlace,
+  canonicalPairFromPlainTwoStationLine,
+  extractReportSegmentPair,
+  lineContainsStationToken,
+  normalizeDashesInRouteLabel,
+  normalizeSegmentToken,
+} from "./mapSegmentPlace";
 
 export type MapPlaceTooltipDetails = {
   placeLabel: string;
@@ -192,8 +200,10 @@ function stationNameFromCustProps(group: Element): string | null {
   const cpNode = group.querySelector("v\\:cp, cp");
   if (!cpNode) return null;
   const parsed = parseVt4Inner(readCpVal(cpNode));
-  if (!parsed || parsed.includes(" - ")) return null;
-  return parsed.trim();
+  if (!parsed) return null;
+  const norm = normalizeDashesInRouteLabel(parsed);
+  if (norm.includes(" - ")) return null;
+  return norm.trim();
 }
 
 /** Круг Visio часто как замкнутый path с дугами A/a (в т.ч. «A1.5» без пробела после A) */
@@ -286,11 +296,7 @@ function nonNegativeNumericValues(record: Record<string, number>): number[] {
 }
 
 function normalizeMapName(value: string): string {
-  return value
-    .toLowerCase()
-    .replace(/ё/g, "е")
-    .replace(/[^\p{L}\p{N}]+/gu, "")
-    .trim();
+  return normalizeSegmentToken(value);
 }
 
 function resolveRecordKey(
@@ -303,6 +309,212 @@ function resolveRecordKey(
     (key) => normalizeMapName(key) === normalizedTarget,
   );
   return foundKey;
+}
+
+/** Станции из подписи линии на карте (все участки по « - ») */
+function segmentStationsNormalized(label: string): string[] {
+  const norm = normalizeDashesInRouteLabel(label);
+  return norm
+    .split(" - ")
+    .map((p) => normalizeSegmentToken(p.trim()))
+    .filter((s) => s.length > 0);
+}
+
+/** Ключ без направления для пары станций в записи отчёта (с учётом префикса «…,») */
+function canonicalSegmentPairKey(dataKey: string): string | null {
+  return canonicalKeyFromPlace(dataKey);
+}
+
+/**
+ * В отчёте — ровно две станции перегона (после extractReportSegmentPair);
+ * на линии карты — 2+ станции. Совпадение: обе станции записи есть среди станций линии.
+ */
+function lineLabelMatchesDataSegment(
+  lineLabel: string,
+  dataKey: string,
+): boolean {
+  const pair = extractReportSegmentPair(dataKey);
+  if (!pair) return false;
+  const dataSt = [
+    normalizeSegmentToken(pair[0]),
+    normalizeSegmentToken(pair[1]),
+  ].filter((s) => s.length > 0);
+  if (dataSt.length !== 2) return false;
+  const lineSt = segmentStationsNormalized(lineLabel);
+  if (lineSt.length < 2) return false;
+  const hits = dataSt.filter((s) => lineContainsStationToken(lineSt, s)).length;
+  return hits >= 2;
+}
+
+function resolveDetailsRecordKey(
+  name: string,
+  record: Record<string, MapPlaceTooltipDetails>,
+): string | undefined {
+  if (Object.prototype.hasOwnProperty.call(record, name)) return name;
+  const n = normalizeMapName(name);
+  return Object.keys(record).find((k) => normalizeMapName(k) === n);
+}
+
+function mergeMapTooltipDetails(
+  a: MapPlaceTooltipDetails,
+  b: MapPlaceTooltipDetails,
+): MapPlaceTooltipDetails {
+  const unitMap = new Map<string, { delayed: number; duration: number }>();
+  for (const u of a.units) {
+    unitMap.set(u.name, { delayed: u.delayed, duration: u.duration });
+  }
+  for (const u of b.units) {
+    const ex = unitMap.get(u.name);
+    if (ex) {
+      unitMap.set(u.name, {
+        delayed: cutDecimals(ex.delayed + u.delayed),
+        duration: cutDecimals(ex.duration + u.duration),
+      });
+    } else {
+      unitMap.set(u.name, { delayed: u.delayed, duration: u.duration });
+    }
+  }
+  const units = Array.from(unitMap.entries())
+    .map(([name, v]) => ({ name, delayed: v.delayed, duration: v.duration }))
+    .sort((x, y) => y.delayed - x.delayed);
+  return {
+    placeLabel: a.placeLabel,
+    totalDelayed: cutDecimals(a.totalDelayed + b.totalDelayed),
+    totalDuration: cutDecimals(a.totalDuration + b.totalDuration),
+    units,
+  };
+}
+
+/** Обратная подпись перегона для того же участка (для дедупликации ключей в словаре). */
+function reverseSegmentPlaceKey(place: string): string | null {
+  const p = extractReportSegmentPair(place);
+  if (!p) return null;
+  return `${p[1].trim()} - ${p[0].trim()}`;
+}
+
+/**
+ * Из ключей с одним canonicalKeyFromPlace оставляем по одному на пару направлений:
+ * «A - B» и «B - A» в placeDetailsByName — дубликаты одного агрегата (см. InteractiveMap).
+ */
+function representativeKeysForCanonicalMerge(keys: string[]): string[] {
+  const keySet = new Set(keys);
+  const consumed = new Set<string>();
+  const picked: string[] = [];
+  for (const k of keys) {
+    if (consumed.has(k)) continue;
+    picked.push(k);
+    consumed.add(k);
+    const rev = reverseSegmentPlaceKey(k);
+    if (rev && keySet.has(rev)) consumed.add(rev);
+  }
+  return picked;
+}
+
+/** Строки отчёта с одной канонической парой (разный текст place), без двойного учёта прямого/обратного. */
+function mergePlaceDetailsByCanonicalPair(
+  placeDetailsByName: Record<string, MapPlaceTooltipDetails>,
+  pairCanon: string,
+  lineLabel: string,
+): MapPlaceTooltipDetails | undefined {
+  const keys = Object.keys(placeDetailsByName).filter(
+    (k) => canonicalKeyFromPlace(k) === pairCanon,
+  );
+  if (keys.length === 0) return undefined;
+  const rep = representativeKeysForCanonicalMerge(keys);
+  let acc = placeDetailsByName[rep[0]];
+  if (!acc) return undefined;
+  for (let i = 1; i < rep.length; i++) {
+    const d = placeDetailsByName[rep[i]];
+    if (d) acc = mergeMapTooltipDetails(acc, d);
+  }
+  return { ...acc, placeLabel: lineLabel };
+}
+
+/** Сумма длительностей по всем записям перегонов, чьи две станции покрываются подписью линии */
+function resolveLineToSegmentDurationSum(
+  lineLabel: string,
+  segmentDurationByName: Record<string, number>,
+): number | undefined {
+  const direct = segmentDurationByName[lineLabel];
+  if (typeof direct === "number") return direct;
+
+  const resolvedKey = resolveRecordKey(lineLabel, segmentDurationByName);
+  if (resolvedKey !== undefined) return segmentDurationByName[resolvedKey];
+
+  const pairCanon = canonicalPairFromPlainTwoStationLine(lineLabel);
+  if (pairCanon) {
+    const byCanon = Object.keys(segmentDurationByName).find(
+      (k) => canonicalKeyFromPlace(k) === pairCanon,
+    );
+    if (byCanon !== undefined) return segmentDurationByName[byCanon];
+  }
+
+  const dataKeys = Object.keys(segmentDurationByName).filter(
+    (k) => canonicalKeyFromPlace(k) != null,
+  );
+  const canonicalSeen = new Set<string>();
+  let sum = 0;
+  let found = false;
+  for (const dk of dataKeys) {
+    if (!lineLabelMatchesDataSegment(lineLabel, dk)) continue;
+    const ck = canonicalSegmentPairKey(dk);
+    if (!ck || canonicalSeen.has(ck)) continue;
+    canonicalSeen.add(ck);
+    sum += segmentDurationByName[dk];
+    found = true;
+  }
+  return found ? sum : undefined;
+}
+
+/** Тултип перегона по подписи линии (в т.ч. три станции → несколько пар из отчёта) */
+function buildSegmentTooltipForLineLabel(
+  lineLabel: string,
+  placeDetailsByName: Record<string, MapPlaceTooltipDetails>,
+): MapPlaceTooltipDetails | undefined {
+  const linePairCanon = canonicalPairFromPlainTwoStationLine(lineLabel);
+  if (linePairCanon) {
+    const merged = mergePlaceDetailsByCanonicalPair(
+      placeDetailsByName,
+      linePairCanon,
+      lineLabel,
+    );
+    if (merged) return merged;
+  }
+
+  const directKey = resolveDetailsRecordKey(lineLabel, placeDetailsByName);
+  if (directKey) {
+    const dkCanon = canonicalKeyFromPlace(directKey);
+    if (dkCanon) {
+      const merged = mergePlaceDetailsByCanonicalPair(
+        placeDetailsByName,
+        dkCanon,
+        lineLabel,
+      );
+      if (merged) return merged;
+    }
+    const d = placeDetailsByName[directKey];
+    if (d) return { ...d, placeLabel: lineLabel };
+  }
+
+  const segmentKeys = Object.keys(placeDetailsByName).filter(
+    (k) => canonicalKeyFromPlace(k) != null,
+  );
+  const canonicalSeen = new Set<string>();
+  const chunk: MapPlaceTooltipDetails[] = [];
+  for (const dk of segmentKeys) {
+    if (!lineLabelMatchesDataSegment(lineLabel, dk)) continue;
+    const ck = canonicalSegmentPairKey(dk);
+    if (!ck || canonicalSeen.has(ck)) continue;
+    canonicalSeen.add(ck);
+    const d = placeDetailsByName[dk];
+    if (d) chunk.push(d);
+  }
+  if (chunk.length === 0) return undefined;
+  let acc = chunk[0];
+  for (let i = 1; i < chunk.length; i++) {
+    acc = mergeMapTooltipDetails(acc, chunk[i]);
+  }
+  return { ...acc, placeLabel: lineLabel };
 }
 
 function fmtTooltipNumber(n: number): string {
@@ -422,13 +634,8 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
     const parseEdgeName = (rawValue: string) => parseVt4Inner(rawValue);
 
     const resolveSegmentDuration = useCallback(
-      (segmentName: string) => {
-        const direct = segmentDurationByName[segmentName];
-        if (typeof direct === "number") return direct;
-
-        const key = resolveRecordKey(segmentName, segmentDurationByName);
-        return key !== undefined ? segmentDurationByName[key] : undefined;
-      },
+      (segmentName: string) =>
+        resolveLineToSegmentDurationSum(segmentName, segmentDurationByName),
       [segmentDurationByName],
     );
 
@@ -504,7 +711,7 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
       const edgesWithData: Array<{
         paths: SVGPathElement[];
         value: number;
-        reportKey: string;
+        segmentLabel: string;
       }> = [];
       const groups = Array.from(svgRoot.querySelectorAll("g"));
       const minStrokeWidth = 1.3;
@@ -553,7 +760,8 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
             cpNode.getAttribute("v\\:val"))
           : null;
 
-        const segmentName = routeRaw ? parseEdgeName(routeRaw) : null;
+        const rawSeg = routeRaw ? parseEdgeName(routeRaw) : null;
+        const segmentName = rawSeg ? normalizeDashesInRouteLabel(rawSeg) : null;
 
         if (!segmentName) {
           applyGray(linePaths);
@@ -566,23 +774,20 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
           return;
         }
 
-        const reportKey = resolveRecordKey(segmentName, segmentDurationByName);
-        if (!reportKey) {
-          applyGray(linePaths);
-          return;
-        }
-
-        edgesWithData.push({ paths: linePaths, value, reportKey });
+        edgesWithData.push({ paths: linePaths, value, segmentLabel: segmentName });
       });
 
-      edgesWithData.forEach(({ paths, value, reportKey }) => {
+      edgesWithData.forEach(({ paths, value, segmentLabel }) => {
         const segRatio = valueToVisualRatio(
           value,
           minSegmentValue,
           maxSegmentValue,
         );
         const lineStyle = heatStyleFromRatio(segRatio);
-        const tip = placeDetailsByName[reportKey];
+        const tip = buildSegmentTooltipForLineLabel(
+          segmentLabel,
+          placeDetailsByName,
+        );
 
         paths.forEach((path) => {
           path.style.stroke = lineStyle.strokeColor;
@@ -590,7 +795,7 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
           applySegmentOpenLineStrokeGeometry(path, lineStyle.strokeWidth);
           if (tip) {
             const hit = path.cloneNode(true) as SVGPathElement;
-            hit.setAttribute(MAP_PLACE_KEY, reportKey);
+            hit.setAttribute(MAP_PLACE_KEY, segmentLabel);
             hit.setAttribute(MAP_TOOLTIP_HIT, "1");
             hit.style.stroke = "transparent";
             hit.style.fill = "none";
@@ -804,7 +1009,10 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
         if (!el || !svg.contains(el)) return;
         const key = el.getAttribute(MAP_PLACE_KEY);
         if (!key) return;
-        const details = placeDetailsByName[key];
+        const details =
+          key.includes(" - ")
+            ? buildSegmentTooltipForLineLabel(key, placeDetailsByName)
+            : placeDetailsByName[key];
         if (!details) return;
 
         clearHideTimer();
