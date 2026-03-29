@@ -31,6 +31,10 @@ const REPORT_WORD_EMBEDDED_CSS = `
 .text_report_units_heading {
   margin: 0 0 21.5px;
 }
+/* Без красной строки у блока с диаграммой — иначе Word даёт отступ первой строки у картинки */
+.text_report_sankey_unit {
+  text-indent: 0 !important;
+}
 .text_report_sankey_unit .text_paragraph.text_inner {
   margin: 0;
 }
@@ -42,6 +46,7 @@ const REPORT_WORD_EMBEDDED_CSS = `
   height: auto;
   margin: 6px 0 21.5px;
   box-sizing: border-box;
+  text-indent: 0 !important;
 }
 .text_inner {
   font-family: "Times New Roman", Times, serif;
@@ -219,6 +224,19 @@ function inlineComputedStylesDeep(root) {
   copyComputedPresentationToInline(root);
   root.querySelectorAll("*").forEach((node) => {
     if (node instanceof HTMLElement) copyComputedPresentationToInline(node);
+  });
+}
+
+/** Word наследует text-indent с .text_container на блок диаграммы и PNG — сбрасываем после инлайна. */
+function applyWordExportSankeyUnitsTextIndentZero(root) {
+  if (!(root instanceof HTMLElement)) return;
+  root.querySelectorAll(".text_report_sankey_unit").forEach((el) => {
+    if (el instanceof HTMLElement)
+      el.style.setProperty("text-indent", "0", "important");
+  });
+  root.querySelectorAll(".text_report_sankey_unit img").forEach((el) => {
+    if (el instanceof HTMLElement)
+      el.style.setProperty("text-indent", "0", "important");
   });
 }
 
@@ -517,6 +535,8 @@ function DownloadButtons(props) {
     tempContainer.querySelectorAll("img").forEach((img) => {
       if (img instanceof HTMLElement) copyComputedPresentationToInline(img);
     });
+
+    applyWordExportSankeyUnitsTextIndentZero(reportClone);
 
     const range = document.createRange();
     range.selectNode(tempContainer);

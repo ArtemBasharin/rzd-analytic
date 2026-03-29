@@ -28,6 +28,10 @@
   margin: 0 0 21.5px;
 }
 
+.text_report_sankey_unit {
+  text-indent: 0;
+}
+
 .text_report_sankey_unit .text_paragraph.text_inner {
   margin: 0;
 }
