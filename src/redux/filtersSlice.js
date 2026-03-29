@@ -161,6 +161,8 @@ const filtersSlice = createSlice({
     },
     reportSrcState: [],
     reportStations: [],
+    /** Показывать блоки Sankey в текстовом отчёте (переключатель у кнопок DOC/XLS). */
+    reportSankeyBlocksVisible: true,
   },
 
   reducers: {
@@ -1041,6 +1043,10 @@ const filtersSlice = createSlice({
         state.sumLineCheckList,
       );
     },
+
+    setReportSankeyBlocksVisible(state, action) {
+      state.reportSankeyBlocksVisible = Boolean(action.payload);
+    },
   },
 });
 
@@ -1072,4 +1078,5 @@ export const {
   setPopup,
   checkAllCheckList,
   invertCheckList,
+  setReportSankeyBlocksVisible,
 } = filtersSlice.actions;

@@ -20,3 +20,39 @@
 .button-copy_icon {
   margin-right: 2px;
 }
+
+/* Как DOC: одна внешняя рамка; внутри только квадрат-бегунок (без второй рамки) */
+.button-copy.button-copy_toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  box-sizing: border-box;
+  vertical-align: middle;
+}
+.button-copy.button-copy_toggle:focus-visible {
+  outline: 2px solid rgb(5, 111, 173);
+  outline-offset: 2px;
+}
+.button-copy_toggle-track {
+  position: relative;
+  width: 39px;
+  height: 14px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+}
+.button-copy_toggle-knob {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border-radius: 2px;
+  background: rgb(5, 111, 173);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.button-copy_toggle[aria-checked="true"] .button-copy_toggle-knob {
+  transform: translateX(25px);
+}

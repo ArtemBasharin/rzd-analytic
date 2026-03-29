@@ -53,6 +53,7 @@ interface RootState {
     sankeyCheckList: any[];
     dateStart: number;
     dateEnd: number;
+    reportSankeyBlocksVisible?: boolean;
   };
 }
 
@@ -74,6 +75,10 @@ const TextReportTemplatePeriod = () => {
 
   const checkList = useSelector(
     (state: RootState) => state.filters.sankeyCheckList,
+  );
+
+  const reportSankeyBlocksVisible = useSelector(
+    (state: RootState) => state.filters.reportSankeyBlocksVisible ?? true,
   );
 
   const [sortConfig, setSortConfig] = useState<{
@@ -159,12 +164,14 @@ const TextReportTemplatePeriod = () => {
           {getOneUnitReport(arr, pastYear, unit) || "ТН не допущено"}). Причины:{" "}
           {getArrReasons(currentYear, unit)}
         </p>
-        <SankeyDiagram
-          svgId={`svg-${index}`}
-          mode="report"
-          singleUnit={unit}
-          filteredCheckList={undefined}
-        />
+        {reportSankeyBlocksVisible ? (
+          <SankeyDiagram
+            svgId={`svg-${index}`}
+            mode="report"
+            singleUnit={unit}
+            filteredCheckList={undefined}
+          />
+        ) : null}
       </div>,
     ),
   );

@@ -1,6 +1,7 @@
 import * as htmlToImage from "html-to-image";
 import { FaCopy, FaDownload } from "react-icons/fa6";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { setReportSankeyBlocksVisible } from "../redux/filtersSlice";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 
@@ -8,6 +9,12 @@ import { saveAs } from "file-saver";
 const REPORT_SANKEY_SVG_SELECTOR = "svg.sankey-diagram--report";
 
 const SANKEY_CAPTURE_PIXEL_RATIO = 2;
+
+/** Только для вставки в Word: подписи на PNG читаются мельче — увеличиваем отображаемый размер на +75%. Веб не меняется. */
+const SANKEY_WORD_DISPLAY_SCALE = 1.75;
+
+/** CSS px → pt (96 CSS px = 1in = 72pt); Word лучше уважает width в pt, чем только атрибут width в px. */
+const CSS_PX_TO_PT = 72 / 96;
 
 /**
  * Стили отчёта внутри фрагмента для буфера: Word не подтягивает внешние CSS из <link>.
@@ -38,11 +45,26 @@ const REPORT_WORD_EMBEDDED_CSS = `
 .text_report_sankey_unit .text_paragraph.text_inner {
   margin: 0;
 }
-.text_report_sankey_unit .sankey-diagram--report,
-.text_report_sankey_unit img {
+.text_report_sankey_unit:has(+ table.table_bold):not(
+    :has(svg.sankey-diagram--report)
+  ):not(:has(img))
+  .text_paragraph.text_inner {
+  margin-bottom: 21.5px !important;
+}
+.text_report_sankey_unit .sankey-diagram--report {
   display: block;
   width: 100%;
   max-width: 100%;
+  height: auto;
+  margin: 6px 0 21.5px;
+  box-sizing: border-box;
+  text-indent: 0 !important;
+}
+/* PNG для Word: размер задаётся инлайном (×SANKEY_WORD_DISPLAY_SCALE), не тянуть на 100% ширины */
+.text_report_sankey_unit img {
+  display: block;
+  width: auto;
+  max-width: none;
   height: auto;
   margin: 6px 0 21.5px;
   box-sizing: border-box;
@@ -176,9 +198,19 @@ function copyComputedPresentationToInline(el) {
     tag === "TBODY" ||
     tag === "TFOOT" ||
     tag === "TR";
+  const sankeyUnitImg =
+    tag === "IMG" &&
+    el.closest &&
+    el.closest(".text_report_sankey_unit");
 
   for (const prop of WORD_EXPORT_COMPUTED_PROPS) {
     if (isTable && (prop === "width" || prop === "max-width")) continue;
+    if (
+      sankeyUnitImg &&
+      (prop === "width" || prop === "max-width" || prop === "height")
+    ) {
+      continue;
+    }
     if (
       isTablePart &&
       (prop === "text-indent" ||
@@ -237,6 +269,20 @@ function applyWordExportSankeyUnitsTextIndentZero(root) {
   root.querySelectorAll(".text_report_sankey_unit img").forEach((el) => {
     if (el instanceof HTMLElement)
       el.style.setProperty("text-indent", "0", "important");
+  });
+}
+
+/** Ширина Sankey-PNG в pt — иначе Word подгоняет картинку к полям и визуальный масштаб (+75%) теряется. */
+function applyWordExportSankeyImgWidthPt(root) {
+  if (!(root instanceof HTMLElement)) return;
+  root.querySelectorAll(".text_report_sankey_unit img").forEach((el) => {
+    if (!(el instanceof HTMLElement)) return;
+    const wPx = parseInt(el.getAttribute("data-sankey-word-wpx") || "0", 10);
+    if (wPx <= 0) return;
+    const wPt = Math.max(1, Math.round(wPx * CSS_PX_TO_PT));
+    el.style.setProperty("width", `${wPt}pt`, "important");
+    el.style.setProperty("max-width", "none", "important");
+    el.style.setProperty("height", "auto", "important");
   });
 }
 
@@ -421,22 +467,23 @@ async function replaceSankeySvgsWithWordFriendlyImages(cloneRoot, sourceRoot) {
     const liveSvg = sourceSvgs[i];
     const rect = liveSvg.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width || liveSvg.clientWidth || 0));
-    const h = Math.max(1, Math.round(rect.height || liveSvg.clientHeight || 0));
+    const wWord = Math.max(1, Math.round(w * SANKEY_WORD_DISPLAY_SCALE));
     try {
+      /* pixelRatio×1.75 — плотнее растр при увеличенной вставке; финальная ширина задаётся в pt (applyWordExportSankeyImgWidthPt). */
       const dataUrl = await htmlToImage.toPng(liveSvg, {
         backgroundColor: "#ffffff",
-        pixelRatio: SANKEY_CAPTURE_PIXEL_RATIO,
+        pixelRatio:
+          SANKEY_CAPTURE_PIXEL_RATIO * SANKEY_WORD_DISPLAY_SCALE,
         cacheBust: true,
       });
       const img = document.createElement("img");
       img.src = dataUrl;
       img.alt = "Диаграмма";
-      img.setAttribute("width", String(w));
-      img.setAttribute("height", String(h));
+      img.setAttribute("data-sankey-word-wpx", String(wWord));
       img.setAttribute("border", "0");
       img.style.display = "block";
-      img.style.width = `${w}px`;
-      img.style.maxWidth = "100%";
+      img.style.width = `${wWord}px`;
+      img.style.maxWidth = "none";
       img.style.height = "auto";
       img.style.margin = "6px 0 21.5px";
       placeholderSvg.parentNode?.replaceChild(img, placeholderSvg);
@@ -447,7 +494,11 @@ async function replaceSankeySvgsWithWordFriendlyImages(cloneRoot, sourceRoot) {
 }
 
 function DownloadButtons(props) {
+  const dispatch = useDispatch();
   const toolPalette = useSelector((state) => state.filters.toolPalette);
+  const reportSankeyBlocksVisible = useSelector(
+    (state) => state.filters.reportSankeyBlocksVisible ?? true,
+  );
 
   function downloadElementAsSVG() {
     const selectedElement = props.reference.current;
@@ -537,6 +588,7 @@ function DownloadButtons(props) {
     });
 
     applyWordExportSankeyUnitsTextIndentZero(reportClone);
+    applyWordExportSankeyImgWidthPt(reportClone);
 
     const range = document.createRange();
     range.selectNode(tempContainer);
@@ -595,7 +647,7 @@ function DownloadButtons(props) {
     // Перебираем строки таблицы
     const rows = table.querySelectorAll("tr");
 
-    rows.forEach((row, rowIndex) => {
+    rows.forEach((row) => {
       const cells = row.querySelectorAll("td, th");
       const excelRow = worksheet.addRow(
         [...cells].map((cell) => cell.textContent || ""),
@@ -719,6 +771,32 @@ function DownloadButtons(props) {
         >
           <FaCopy className="button-copy_icon" />
           DOC
+        </button>
+      )}
+
+      {toolPalette.kind === "report" && (
+        <button
+          type="button"
+          className="button-copy button-copy_toggle"
+          role="switch"
+          aria-checked={reportSankeyBlocksVisible}
+          aria-label={
+            reportSankeyBlocksVisible
+              ? "Скрыть диаграммы в отчёте"
+              : "Показать диаграммы в отчёте"
+          }
+          title={
+            reportSankeyBlocksVisible
+              ? "Скрыть диаграммы в отчёте"
+              : "Показать диаграммы в отчёте"
+          }
+          onClick={() =>
+            dispatch(setReportSankeyBlocksVisible(!reportSankeyBlocksVisible))
+          }
+        >
+          <span className="button-copy_toggle-track" aria-hidden>
+            <span className="button-copy_toggle-knob" />
+          </span>
         </button>
       )}
 

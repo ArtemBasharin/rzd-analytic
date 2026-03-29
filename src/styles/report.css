@@ -36,6 +36,14 @@
   margin: 0;
 }
 
+/* Без диаграммы — одна строка только перед таблицей (не между абзацами подразделений) */
+.text_report_sankey_unit:has(+ table.table_bold):not(
+    :has(svg.sankey-diagram--report)
+  ):not(:has(img))
+  .text_paragraph.text_inner {
+  margin-bottom: 21.5px;
+}
+
 .text_report_sankey_unit .sankey-diagram--report {
   display: block;
   width: 100%;
