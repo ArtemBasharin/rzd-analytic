@@ -42,6 +42,14 @@
   box-sizing: border-box;
 }
 
+/* Подписи Sankey: pt на <g> в SVG часто не дают эффекта; явный размер — см. REPORT_TEXT_PT в SankeyDiagram.jsx */
+#text_report svg.sankey-diagram--report text,
+#text_report svg.sankey-diagram--report tspan {
+  font-size: 18pt !important;
+  font-family: "Times New Roman", Times, serif !important;
+  font-weight: 700 !important;
+}
+
 
 .text_inner {
   font-family: "Times New Roman", Times, serif;
@@ -69,9 +77,11 @@ td {
   border-spacing: 0;
   border: 1px solid black;
   border-collapse: collapse;
-  padding: 0 1px;
+  padding: 0 1mm;
+  box-sizing: border-box;
   text-align: center;
   white-space: nowrap;
+  line-height: 1;
 }
 
 .table_bold {
@@ -85,7 +95,7 @@ td {
 
 .table_fill {
   background-color: #d8d8d8;
-  line-height: 21.5px;
+  line-height: 1;
 }
 
 .text_header {

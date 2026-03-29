@@ -607,8 +607,9 @@ const TextReportTemplatePeriod = () => {
                   year: "numeric",
                 })}{" "}
                 г. , станция/перегон: {el[place]}, задержано поездов:{" "}
-                {el[allDelayed]} на {el[allDuration]} ч, причина:{" "}
-                {el[failReason].toLowerCase()} отнесено за {el[guiltyUnit]};
+                {el[allDelayed]} на {cutDecimals(Number(el[allDuration]))} ч,
+                причина: {el[failReason].toLowerCase()} отнесено за{" "}
+                {el[guiltyUnit]};
               </p>
             );
           })}

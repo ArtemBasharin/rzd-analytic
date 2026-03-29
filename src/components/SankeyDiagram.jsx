@@ -4,13 +4,13 @@ import { sankey, sankeyLinkHorizontal } from "d3-sankey";
 import { useSelector } from "react-redux";
 import { cutDecimals } from "../utils/functions";
 
-/** Как `.text_paragraph` в report.css (font-size: 14pt) */
-const REPORT_TEXT_PT = 14;
+/** Подписи Sankey в отчёте (крупнее абзаца 14pt); дублируется в report.css !important для надёжности */
+const REPORT_TEXT_PT = 18;
 const reportTextPx = (REPORT_TEXT_PT * 96) / 72;
 /** Как `.text_container` в report.css: margin слева и справа */
 const REPORT_PAGE_MARGIN_PX = 200;
-/** Как `.text_paragraph` line-height в report.css — зазор между «рядами» подписей */
-const REPORT_LABEL_LINE_HEIGHT_PX = 21.5;
+/** Межстрочный интервал подписей (масштаб от 14pt/21.5px текста отчёта) */
+const REPORT_LABEL_LINE_HEIGHT_PX = (21.5 * REPORT_TEXT_PT) / 14;
 /** Между соседними связями у одного узла (стопка у «чёрточки») — без просвета */
 const REPORT_LINK_NODE_STACK_GAP_PX = 0;
 /** Сколько параллельных рядов считать «мало» / «много» для интерполяции */
@@ -646,27 +646,45 @@ const SankeyDiagram = ({
       return raw;
     };
 
-    svg
-      .append("g")
-      .attr(
-        "font-family",
-        isReport ? '"Times New Roman", Times, serif' : "roboto",
-      )
-      .attr("font-size", () =>
-        isReport ? `${REPORT_TEXT_PT}pt` : `${fontSize}px`,
-      )
-      .attr("font-weight", isReport ? "700" : "900")
+    const reportFontPx = `${reportTextPx}px`;
+    const labelG = svg.append("g").attr("class", "sankey-diagram__labels");
+
+    if (isReport) {
+      labelG
+        .style("font-family", '"Times New Roman", Times, serif')
+        .style("font-size", reportFontPx)
+        .style("font-weight", "700");
+    } else {
+      labelG
+        .attr("font-family", "roboto")
+        .attr("font-size", `${fontSize}px`)
+        .attr("font-weight", "900");
+    }
+
+    const textNodes = labelG
       .selectAll("text")
       .data(nodes)
       .join("text")
       .attr("x", (d) => (labelOnLeftSide(d) ? d.x1 + 6 : d.x0 - 6))
       .attr("y", (d) => (d.y1 + d.y0) / 2)
       .attr("dy", "0.35em")
-      .attr("text-anchor", (d) => (labelOnLeftSide(d) ? "start" : "end"))
-      .text((d) => mainNameForNode(d))
+      .attr("text-anchor", (d) => (labelOnLeftSide(d) ? "start" : "end"));
+
+    if (isReport) {
+      textNodes.style("font-size", reportFontPx);
+    } else {
+      textNodes.attr("font-size", `${fontSize}px`);
+    }
+
+    textNodes.text((d) => mainNameForNode(d));
+
+    const tspans = textNodes
       .append("tspan")
-      .attr("fill-opacity", 0.7)
-      .text((d) => ` (${cutDecimals(nodeDisplayValue(d))} ч)`);
+      .attr("fill-opacity", 0.7);
+    if (isReport) {
+      tspans.style("font-size", reportFontPx);
+    }
+    tspans.text((d) => ` (${cutDecimals(nodeDisplayValue(d))} ч)`);
   }, [resData, checkList, svgId, mode, singleUnit, reportOuterWidth]);
 
   return (
