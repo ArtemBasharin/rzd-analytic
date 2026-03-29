@@ -319,9 +319,7 @@ const InteractiveMap = () => {
       const rev = reverseSegmentPlace(k);
       const rowsR = rev ? rowsByPlace.get(rev) : undefined;
       const dR =
-        rev && rowsR?.length
-          ? mergeRowsToTooltipDetails(rev, rowsR)
-          : null;
+        rev && rowsR?.length ? mergeRowsToTooltipDetails(rev, rowsR) : null;
 
       if (rev && dR) {
         out[k] = mergeSegmentTooltipDetails(k, dK, dR);

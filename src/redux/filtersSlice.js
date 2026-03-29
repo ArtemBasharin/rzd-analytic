@@ -162,7 +162,7 @@ const filtersSlice = createSlice({
     reportSrcState: [],
     reportStations: [],
     /** Показывать блоки Sankey в текстовом отчёте (переключатель у кнопок DOC/XLS). */
-    reportSankeyBlocksVisible: true,
+    reportSankeyBlocksVisible: false,
   },
 
   reducers: {

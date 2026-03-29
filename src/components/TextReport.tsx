@@ -468,6 +468,63 @@ const TextReportTemplatePeriod = () => {
     dictionaryStationsTableAsSet,
   );
 
+  if (stationsSortConfig) {
+    dictionaryStationsTable.sort((a: string, b: string) => {
+      let aValue: string | number;
+      let bValue: string | number;
+      if (stationsSortConfig.key === "pastYear") {
+        aValue =
+          Number(
+            stationsReport
+              .find((obj: any) => obj.year === pastYear)
+              ?.report.find((p: any) => p.place === a)?.totalDuration,
+          ) || 0;
+        bValue =
+          Number(
+            stationsReport
+              .find((obj: any) => obj.year === pastYear)
+              ?.report.find((p: any) => p.place === b)?.totalDuration,
+          ) || 0;
+      } else if (stationsSortConfig.key === "currentYear") {
+        aValue =
+          Number(
+            stationsReport
+              .find((obj: any) => obj.year === currentYear)
+              ?.report.find((p: any) => p.place === a)?.totalDuration,
+          ) || 0;
+        bValue =
+          Number(
+            stationsReport
+              .find((obj: any) => obj.year === currentYear)
+              ?.report.find((p: any) => p.place === b)?.totalDuration,
+          ) || 0;
+      } else {
+        aValue = a;
+        bValue = b;
+      }
+      if (stationsSortConfig.direction === "asc") {
+        return aValue > bValue ? 1 : -1;
+      }
+      return aValue < bValue ? 1 : -1;
+    });
+  } else {
+    dictionaryStationsTable.sort((a: string, b: string) => {
+      const aCurrentValue =
+        Number(
+          stationsReport
+            .find((obj: any) => obj.year === currentYear)
+            ?.report.find((p: any) => p.place === a)?.totalDuration,
+        ) || 0;
+      const bCurrentValue =
+        Number(
+          stationsReport
+            .find((obj: any) => obj.year === currentYear)
+            ?.report.find((p: any) => p.place === b)?.totalDuration,
+        ) || 0;
+      return bCurrentValue - aCurrentValue;
+    });
+  }
+
   const tableStationsLayout: any[] = dictionaryStationsTable.map(
     (el, index) => {
       const l = getOneRowStationsReport(el, index);
