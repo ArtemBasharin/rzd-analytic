@@ -1,5 +1,7 @@
 import React, { useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector as useReduxSelector } from "react-redux";
+import type { TypedUseSelectorHook } from "react-redux";
+import type { RootState } from "../redux/store";
 import { Swiper, SwiperSlide } from "swiper/react";
 import * as d3 from "d3";
 import {
@@ -24,7 +26,47 @@ import DownloadButtons from "./ToolDownloadButtons";
 import TextReportTemplatePeriod from "./TextReport";
 import SumLineDiagram from "./SumLineDiagram";
 import InteractiveMap from "./InteractiveMap";
-// import BarChartRaceDiagram from "./BarChartRace";
+import BarChartRaceDiagram from "./BarChartRace";
+
+const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
+const SwiperAny = Swiper as React.ComponentType<any>;
+
+const SLIDE_STORAGE_KEY = "rzd-active-slide";
+const SLIDE_COUNT = 11;
+
+function readSavedSlideIndex() {
+  try {
+    const index = Number(window.localStorage.getItem(SLIDE_STORAGE_KEY));
+    if (!Number.isInteger(index) || index < 0 || index >= SLIDE_COUNT) {
+      return 0;
+    }
+    return index;
+  } catch {
+    return 0;
+  }
+}
+
+function rememberSlide(index: number) {
+  try {
+    window.localStorage.setItem(SLIDE_STORAGE_KEY, String(index));
+  } catch {
+    // Private mode or a full storage quota should not block the slider.
+  }
+}
+
+function paletteForSlide(index: number) {
+  if (index === 0) return "analyze";
+  if (index >= 1 && index <= 3) return "groupedChart";
+  if (index === 4) return "stacked";
+  if (index === 5) return "sankey";
+  if (index === 6) return "ridgeline";
+  if (index === 7) return "report";
+  if (index === 8) return "sumline";
+  if (index === 9) return "map";
+  if (index === 10) return "race";
+  return "analyze";
+}
 
 function Main() {
   // console.time("Main");
@@ -38,6 +80,7 @@ function Main() {
   const dateStart = useSelector((state) => state.filters.dateStart);
   const dateEnd = useSelector((state) => state.filters.dateEnd);
   const dispatch = useDispatch();
+  const initialSlide = useRef(readSavedSlideIndex()).current;
 
   let areaWidth = window.innerWidth;
   let areaHeight = window.innerHeight;
@@ -64,7 +107,7 @@ function Main() {
   return (
     <div className="main">
       <DownloadButtons reference={downloadRef} />
-      <Swiper
+      <SwiperAny
         modules={[Navigation, Pagination, Scrollbar, A11y, Keyboard]}
         spaceBetween={50}
         navigation
@@ -73,19 +116,18 @@ function Main() {
         // spaceBetween={50}
         slidesPerView={1}
         keyboard
-        onSlideChange={(swiper) => {
-          let activeSlideIndex = swiper.activeIndex;
-          if (activeSlideIndex === 0) dispatch(setToolPalette("analyze"));
-          if (activeSlideIndex >= 1 && activeSlideIndex <= 3)
-            dispatch(setToolPalette("groupedChart"));
-          if (activeSlideIndex === 4) dispatch(setToolPalette("stacked"));
-          if (activeSlideIndex === 5) dispatch(setToolPalette("sankey"));
-          if (activeSlideIndex === 6) dispatch(setToolPalette("ridgeline"));
-          if (activeSlideIndex === 7) dispatch(setToolPalette("report"));
-          if (activeSlideIndex === 8) dispatch(setToolPalette("sumline"));
-          if (activeSlideIndex === 9) dispatch(setToolPalette("map"));
+        initialSlide={initialSlide}
+        onSlideChange={(swiper: any) => {
+          const activeSlideIndex = swiper.activeIndex;
+          rememberSlide(activeSlideIndex);
+          dispatch(setToolPalette(paletteForSlide(activeSlideIndex)));
         }}
-        onSwiper={(swiper) => {}}
+        onSwiper={(swiper: any) => {
+          if (swiper.activeIndex !== initialSlide) {
+            swiper.slideTo(initialSlide, 0);
+          }
+          dispatch(setToolPalette(paletteForSlide(initialSlide)));
+        }}
       >
         <SwiperSlide>
           {({ isActive }) =>
@@ -265,25 +307,6 @@ function Main() {
           }
         </SwiperSlide>
 
-        {/* <SwiperSlide>
-          {({ isActive }) =>
-            isActive && (
-              <>
-                <div className="slide" style={{ height: areaHeight }}>
-                 
-                  {showLoader.sankey ? (
-                    <Loader />
-                  ) : (
-                    <div id="text_report">
-                      <BarChartRaceDiagram />
-                    </div>
-                  )}
-                </div>
-              </>
-            )
-          }
-        </SwiperSlide> */}
-
         <SwiperSlide>
           {({ isActive }) =>
             isActive && (
@@ -327,7 +350,25 @@ function Main() {
             )
           }
         </SwiperSlide>
-      </Swiper>
+
+        <SwiperSlide>
+          {({ isActive }) =>
+            isActive && (
+              <>
+                <div className="slide" style={{ height: areaHeight }}>
+                  <h2 className="section-title">
+                    Динамика задержек поездов по виновным подразделениям (за
+                    период {timeFormat(dateStart)}-{timeFormatY(dateEnd)} г.)
+                  </h2>
+                  <div id="selectedElementId" ref={downloadRef}>
+                    <BarChartRaceDiagram />
+                  </div>
+                </div>
+              </>
+            )
+          }
+        </SwiperSlide>
+      </SwiperAny>
     </div>
   );
 }

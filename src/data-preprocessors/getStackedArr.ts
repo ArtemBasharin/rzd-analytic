@@ -8,21 +8,38 @@ import {
   otherDuration,
   guiltyUnit,
 } from "../utils/config";
+import { Violation } from "../types/violation";
 
-export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
-  const filterCheckedUnits = (srcArr, units) => {
-    let result = [];
+type CheckedUnit = { checked?: boolean; guiltyUnit: string };
+
+type DurationPoint = {
+  violationDate: Date;
+  totalDuration: number;
+  guiltyUnit: string;
+};
+
+type DateRow = { date: Date | number; [key: string]: any };
+
+export const getStackedArr = (
+  srcArray: Violation[],
+  _: unknown,
+  __: unknown,
+  customCalendar: number[],
+  unitsList?: CheckedUnit[] | null,
+) => {
+  const filterCheckedUnits = (srcArr: Violation[], units: string[]) => {
+    let result: Violation[] = [];
     srcArr.forEach((el) => units.includes(el[guiltyUnit]) && result.push(el));
     return result;
   };
 
-  let checkedUnitsSimpleArray = [];
+  let checkedUnitsSimpleArray: string[] = [];
   if (unitsList)
     unitsList.forEach(
       (el) => el.checked === true && checkedUnitsSimpleArray.push(el.guiltyUnit)
     );
 
-  let filteredArrByUncheckedUnits = [];
+  let filteredArrByUncheckedUnits: Violation[] = [];
   if (unitsList)
     filteredArrByUncheckedUnits = filterCheckedUnits(
       srcArray,
@@ -30,7 +47,7 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
     );
   else filteredArrByUncheckedUnits = srcArray;
 
-  const calcTotalDuration = (obj) => {
+  const calcTotalDuration = (obj: Violation) => {
     let freightDur,
       passDur,
       subDur,
@@ -45,7 +62,7 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
     return total;
   };
 
-  let summedDurationsList = [];
+  let summedDurationsList: DurationPoint[] = [];
   filteredArrByUncheckedUnits.forEach((el) =>
     summedDurationsList.push({
       violationDate: new Date(new Date(el[startTime]).setHours(0, 0, 0)),
@@ -54,9 +71,9 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
     })
   );
 
-  let result = [];
-  let units = new Set();
-  let dates = new Set();
+  let result: DateRow[] = [];
+  let units = new Set<string>();
+  let dates = new Set<Date>();
 
   for (let obj of summedDurationsList) {
     units.add(obj.guiltyUnit);
@@ -64,9 +81,9 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
   }
 
   for (let date of dates) {
-    let obj = { date };
-    for (let guiltyUnit of units) {
-      obj[guiltyUnit] = 0;
+    let obj: DateRow = { date };
+    for (let unitName of units) {
+      obj[unitName] = 0;
     }
     result.push(obj);
   }
@@ -75,13 +92,13 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
     let date = obj.violationDate;
     let unit = obj.guiltyUnit;
     let total = obj.totalDuration;
-    let targetObj = result.find((obj) => obj.date === date);
+    let targetObj = result.find((row) => row.date === date)!;
     targetObj[unit] += total;
   }
 
-  result.sort((a, b) => a.date - b.date);
+  result.sort((a, b) => +a.date - +b.date);
 
-  let unitedDatesResult = [];
+  let unitedDatesResult: DateRow[] = [];
   for (let i = 0; i < customCalendar.length - 1; i++) {
     const currentDate = customCalendar[i];
     const nextDate = customCalendar[i + 1];
@@ -99,7 +116,7 @@ export const getStackedArr = (srcArray, _, __, customCalendar, unitsList) => {
     });
   }
 
-  let yMaxArr = [];
+  let yMaxArr: number[] = [];
   unitedDatesResult.forEach((el) => {
     let acc = 0;
     for (const key in el) {

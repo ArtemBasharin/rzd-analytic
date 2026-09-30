@@ -15,6 +15,7 @@ import MinValueSetter from "./ToolMinValueSetter";
 import PeriodSetter from "./ToolPeriodSetter";
 import dummyArr from "../data-preprocessors/dummyArr";
 import ToolDropdownSum from "./ToolDropdownSum";
+import RaceTimingSetter from "./ToolRaceTiming";
 const { CSSTransition } = require("react-transition-group");
 
 const ToolPanel = () => {
@@ -138,6 +139,14 @@ const ToolPanel = () => {
         <div className="datepicker_container">
           <DateRangePicker />
         </div>
+      </CSSTransition>
+      <CSSTransition
+        in={toolPalette.raceTimingVisibility}
+        timeout={timeout}
+        classNames="fade"
+        unmountOnExit
+      >
+        <RaceTimingSetter />
       </CSSTransition>
       <CSSTransition
         in={toolPalette.sumLineVisibility}

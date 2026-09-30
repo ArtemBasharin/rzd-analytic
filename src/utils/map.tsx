@@ -7,7 +7,7 @@ import React, {
   useState,
 } from "react";
 import { createPortal } from "react-dom";
-import { cutDecimals } from "./functions";
+import { cutDecimals, displayUnitName } from "./functions";
 import {
   canonicalKeyFromPlace,
   canonicalPairFromPlainTwoStationLine,
@@ -584,7 +584,7 @@ function formatMapTooltipLines(d: MapPlaceTooltipDetails): string[] {
     const maxUnits = 14;
     d.units.slice(0, maxUnits).forEach((u) => {
       lines.push(
-        `  ${u.name}: задержки ${fmtTooltipNumber(u.delayed)}, время ${fmtTooltipNumber(u.duration)} ч`,
+        `  ${displayUnitName(u.name)}: задержки ${fmtTooltipNumber(u.delayed)}, время ${fmtTooltipNumber(u.duration)} ч`,
       );
     });
     if (d.units.length > maxUnits) {

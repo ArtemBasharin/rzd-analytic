@@ -1,9 +1,14 @@
 import * as htmlToImage from "html-to-image";
-import { FaCopy, FaDownload } from "react-icons/fa6";
-import { useSelector, useDispatch } from "react-redux";
+import { FaCopy, FaDownload, FaArrowRotateRight } from "react-icons/fa6";
+import { useSelector as useReduxSelector, useDispatch } from "react-redux";
+import type { TypedUseSelectorHook } from "react-redux";
+import type { RootState } from "../redux/store";
 import { setReportSankeyBlocksVisible } from "../redux/filtersSlice";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+
+const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
 
 /** Селектор диаграмм Sankey в отчёте — перед копированием в Word заменяем на PNG (Word 2007+ плохо понимает SVG в HTML). */
 const REPORT_SANKEY_SVG_SELECTOR = "svg.sankey-diagram--report";
@@ -175,7 +180,7 @@ const WORD_EXPORT_COMPUTED_PROPS = [
  * Дублирует вычисленные стили в инлайн — при вставке в Word не используются внешние таблицы стилей.
  * @param {HTMLElement} el
  */
-function copyComputedPresentationToInline(el) {
+function copyComputedPresentationToInline(el: any) {
   if (!(el instanceof HTMLElement)) return;
   if (el.tagName === "STYLE" || el.tagName === "SCRIPT") return;
 
@@ -251,7 +256,7 @@ function copyComputedPresentationToInline(el) {
   }
 }
 
-function inlineComputedStylesDeep(root) {
+function inlineComputedStylesDeep(root: any) {
   if (!(root instanceof HTMLElement)) return;
   copyComputedPresentationToInline(root);
   root.querySelectorAll("*").forEach((node) => {
@@ -260,7 +265,7 @@ function inlineComputedStylesDeep(root) {
 }
 
 /** Word наследует text-indent с .text_container на блок диаграммы и PNG — сбрасываем после инлайна. */
-function applyWordExportSankeyUnitsTextIndentZero(root) {
+function applyWordExportSankeyUnitsTextIndentZero(root: any) {
   if (!(root instanceof HTMLElement)) return;
   root.querySelectorAll(".text_report_sankey_unit").forEach((el) => {
     if (el instanceof HTMLElement)
@@ -273,7 +278,7 @@ function applyWordExportSankeyUnitsTextIndentZero(root) {
 }
 
 /** Ширина Sankey-PNG в pt — иначе Word подгоняет картинку к полям и визуальный масштаб (+75%) теряется. */
-function applyWordExportSankeyImgWidthPt(root) {
+function applyWordExportSankeyImgWidthPt(root: any) {
   if (!(root instanceof HTMLElement)) return;
   root.querySelectorAll(".text_report_sankey_unit img").forEach((el) => {
     if (!(el instanceof HTMLElement)) return;
@@ -287,7 +292,7 @@ function applyWordExportSankeyImgWidthPt(root) {
 }
 
 /** Нулевой отступ и ширина по окну — только для таблиц (абзацы и диаграммы не трогаем). */
-function applyWordExportTableLayoutOnly(root) {
+function applyWordExportTableLayoutOnly(root: any) {
   if (!(root instanceof HTMLElement)) return;
   root
     .querySelectorAll("table, caption, thead, tbody, tfoot, tr, th, td")
@@ -312,7 +317,7 @@ function applyWordExportTableLayoutOnly(root) {
  * @param {HTMLTableElement} table
  * @returns {number[]}
  */
-function tableLogicalColumnWeights(table) {
+function tableLogicalColumnWeights(table: any) {
   const numRows = table.rows.length;
   if (numRows === 0) return [];
 
@@ -329,7 +334,7 @@ function tableLogicalColumnWeights(table) {
     Array(ncol).fill(false),
   );
 
-  function addScores(r, c, cs, rs, cell) {
+  function addScores(r: any, c: any, cs: any, rs: any, cell: any) {
     const text = (cell.textContent || "").replace(/\s+/g, " ").trim();
     let w = Math.min(120, Math.max(text.length, 2));
     if (cell.querySelector(".text_increase, .text_decrease")) w += 6;
@@ -365,24 +370,24 @@ function tableLogicalColumnWeights(table) {
  * @param {number[]} weights
  * @returns {number[]}
  */
-function weightsToColumnPercents(weights) {
+function weightsToColumnPercents(weights: any) {
   if (!weights.length) return [];
-  let w = weights.map((x) => Math.max(x, 0.5));
-  const sumAll = w.reduce((a, b) => a + b, 0);
+  let w = weights.map((x: any) => Math.max(x, 0.5));
+  const sumAll = w.reduce((a: any, b: any) => a + b, 0);
   if (w[0] > sumAll * 0.34) w[0] = sumAll * 0.22;
-  const sum = w.reduce((a, b) => a + b, 0);
-  let pct = w.map((x) => (x / sum) * 100);
+  const sum = w.reduce((a: any, b: any) => a + b, 0);
+  let pct = w.map((x: any) => (x / sum) * 100);
   const minPct = 7;
-  pct = pct.map((p) => Math.max(p, minPct));
-  const sum2 = pct.reduce((a, b) => a + b, 0);
-  return pct.map((p) => (p / sum2) * 100);
+  pct = pct.map((p: any) => Math.max(p, minPct));
+  const sum2 = pct.reduce((a: any, b: any) => a + b, 0);
+  return pct.map((p: any) => (p / sum2) * 100);
 }
 
 /**
  * @param {HTMLTableElement} table
  * @param {number[]} percents
  */
-function applyColgroupPercentWidths(table, percents) {
+function applyColgroupPercentWidths(table: any, percents: any) {
   if (!(table instanceof HTMLTableElement) || percents.length === 0) return;
   let colgroup = table.getElementsByTagName("colgroup")[0];
   if (!colgroup || colgroup.parentElement !== table) {
@@ -392,7 +397,7 @@ function applyColgroupPercentWidths(table, percents) {
     else table.appendChild(colgroup);
   }
   colgroup.replaceChildren();
-  percents.forEach((p) => {
+  percents.forEach((p: any) => {
     const col = document.createElement("col");
     const v = `${p.toFixed(2)}%`;
     col.style.width = v;
@@ -407,7 +412,7 @@ function applyColgroupPercentWidths(table, percents) {
 /**
  * Пары table.table_bold в клоне и на экране — одинаковый порядок в #text_report.
  */
-function applyWordExportTableColumnAutofit(cloneRoot, sourceRoot) {
+function applyWordExportTableColumnAutofit(cloneRoot: any, sourceRoot: any) {
   const srcList = Array.from(sourceRoot.querySelectorAll("table.table_bold"));
   const dstList = Array.from(cloneRoot.querySelectorAll("table.table_bold"));
   const n = Math.min(srcList.length, dstList.length);
@@ -424,7 +429,7 @@ function applyWordExportTableColumnAutofit(cloneRoot, sourceRoot) {
 }
 
 /** Одинарный line-height; отступы ячейки 1 mm только слева/справа (и для Word). */
-function applyWordExportTableCellLineAndPadding(root) {
+function applyWordExportTableCellLineAndPadding(root: any) {
   if (!(root instanceof HTMLElement)) return;
   root
     .querySelectorAll("table.table_bold th, table.table_bold td")
@@ -449,7 +454,7 @@ function applyWordExportTableCellLineAndPadding(root) {
  * @param {HTMLElement} cloneRoot — клон отчёта для копирования
  * @param {HTMLElement} sourceRoot — живой #text_report на экране
  */
-async function replaceSankeySvgsWithWordFriendlyImages(cloneRoot, sourceRoot) {
+async function replaceSankeySvgsWithWordFriendlyImages(cloneRoot: any, sourceRoot: any) {
   const cloneSvgs = Array.from(
     cloneRoot.querySelectorAll(REPORT_SANKEY_SVG_SELECTOR),
   );
@@ -463,8 +468,8 @@ async function replaceSankeySvgsWithWordFriendlyImages(cloneRoot, sourceRoot) {
     );
   }
   for (let i = 0; i < n; i++) {
-    const placeholderSvg = cloneSvgs[i];
-    const liveSvg = sourceSvgs[i];
+    const placeholderSvg = cloneSvgs[i] as Element;
+    const liveSvg = sourceSvgs[i] as HTMLElement;
     const rect = liveSvg.getBoundingClientRect();
     const w = Math.max(1, Math.round(rect.width || liveSvg.clientWidth || 0));
     const wWord = Math.max(1, Math.round(w * SANKEY_WORD_DISPLAY_SCALE));
@@ -493,7 +498,7 @@ async function replaceSankeySvgsWithWordFriendlyImages(cloneRoot, sourceRoot) {
   }
 }
 
-function DownloadButtons(props) {
+function DownloadButtons(props: any) {
   const dispatch = useDispatch();
   const toolPalette = useSelector((state) => state.filters.toolPalette);
   const reportSankeyBlocksVisible = useSelector(
@@ -592,8 +597,8 @@ function DownloadButtons(props) {
 
     const range = document.createRange();
     range.selectNode(tempContainer);
-    window.getSelection().removeAllRanges();
-    window.getSelection().addRange(range);
+    window.getSelection()!.removeAllRanges();
+    window.getSelection()!.addRange(range);
 
     try {
       const ok = document.execCommand("copy");
@@ -611,12 +616,12 @@ function DownloadButtons(props) {
       }
     }
 
-    window.getSelection().removeAllRanges();
+    window.getSelection()!.removeAllRanges();
     document.body.removeChild(tempContainer);
   };
 
   /** Word понимает text/html с картинками data:image/png; MS Office с 2007. */
-  async function copyReportHtmlViaClipboardApi(container) {
+  async function copyReportHtmlViaClipboardApi(container: any) {
     if (!navigator.clipboard?.write || typeof ClipboardItem === "undefined") {
       return;
     }
@@ -698,7 +703,13 @@ function DownloadButtons(props) {
 
         // Выравнивание
         excelCell.style.alignment = {
-          horizontal: window.getComputedStyle(cell).textAlign,
+          horizontal: window.getComputedStyle(cell).textAlign as
+            | "left"
+            | "center"
+            | "right"
+            | "justify"
+            | "fill"
+            | undefined,
           vertical: "middle",
         };
 
@@ -726,7 +737,7 @@ function DownloadButtons(props) {
     );
   }
 
-  function rgbToArgb(rgb) {
+  function rgbToArgb(rgb: any) {
     const result = rgb.match(/\d+/g)?.map(Number);
     if (!result || result.length < 3) return "FFFFFFFF"; // Белый по умолчанию
 
@@ -755,6 +766,19 @@ function DownloadButtons(props) {
         <button className="button-copy" onClick={downloadElementAsPNG}>
           <FaDownload className="button-copy_icon" />
           PNG
+        </button>
+      )}
+
+      {toolPalette.kind === "race" && (
+        <button
+          type="button"
+          className="button-copy button-copy_replay"
+          onClick={() =>
+            window.dispatchEvent(new CustomEvent("rzd-race-replay"))
+          }
+        >
+          <FaArrowRotateRight className="button-copy_icon" />
+          ПОВТОР
         </button>
       )}
 

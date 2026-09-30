@@ -4,8 +4,8 @@ const DrawerMenu = () => {
   return (
     <div>
       <label
-        for="menu-opener"
-        tabindex="0"
+        htmlFor="menu-opener"
+        tabIndex={0}
         aria-haspopup="true"
         role="button"
         aria-controls="menu"
@@ -24,14 +24,14 @@ const DrawerMenu = () => {
       >
         <nav className="Menu">
           <h2>Awesome CSS Menu</h2>
-          <div role="menuitem" tabindex="-1">
+          <div role="menuitem" tabIndex={-1}>
             Menu Item 01
           </div>
-          <div role="menuitem" tabindex="-1">
+          <div role="menuitem" tabIndex={-1}>
             Menu Item 02
           </div>
         </nav>
-        <label for="menu-opener" className="MenuOverlay"></label>
+        <label htmlFor="menu-opener" className="MenuOverlay"></label>
       </aside>
     </div>
   );

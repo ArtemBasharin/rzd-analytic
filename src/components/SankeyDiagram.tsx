@@ -1,8 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import { sankey, sankeyLinkHorizontal } from "d3-sankey";
-import { useSelector } from "react-redux";
-import { cutDecimals } from "../utils/functions";
+import { useSelector as useReduxSelector } from "react-redux";
+import type { TypedUseSelectorHook } from "react-redux";
+import type { RootState } from "../redux/store";
+import { cutDecimals, displayUnitName } from "../utils/functions";
+
+const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
 
 /** Подписи Sankey в отчёте (крупнее абзаца 14pt); дублируется в report.css !important для надёжности */
 const REPORT_TEXT_PT = 18;
@@ -29,8 +34,13 @@ const SankeyDiagram = ({
   filteredCheckList,
   mode = "slide",
   singleUnit,
+}: {
+  svgId?: string;
+  filteredCheckList?: any;
+  mode?: string;
+  singleUnit?: any;
 }) => {
-  const svgRef6 = useRef();
+  const svgRef6 = useRef<SVGSVGElement>(null);
   const [reportOuterWidth, setReportOuterWidth] = useState(() => {
     if (typeof window === "undefined") return 600;
     return Math.max(280, window.innerWidth - 2 * REPORT_PAGE_MARGIN_PX);
@@ -74,25 +84,25 @@ const SankeyDiagram = ({
       isReport && singleUnit
         ? [singleUnit]
         : checkList
-            .filter((item) => item.checked)
-            .map((item) => item.guiltyUnit);
-    const filteredLinks = resData.links.filter((link) =>
+            .filter((item: any) => item.checked)
+            .map((item: any) => item.guiltyUnit);
+    const filteredLinks = resData.links.filter((link: any) =>
       checkedUnits.includes(link.names[0]),
     );
 
     // Get all node indices that are referenced in filtered links
     const usedNodeIndices = new Set();
-    filteredLinks.forEach((link) => {
+    filteredLinks.forEach((link: any) => {
       usedNodeIndices.add(link.source);
       usedNodeIndices.add(link.target);
     });
 
     // Filter nodes and create index mapping
-    const filteredNodes = resData.nodes.filter((node, index) =>
+    const filteredNodes = resData.nodes.filter((node: any, index: any) =>
       usedNodeIndices.has(index),
     );
     const indexMap = new Map();
-    filteredNodes.forEach((node, newIndex) => {
+    filteredNodes.forEach((node: any, newIndex: any) => {
       const oldIndex = resData.nodes.indexOf(node);
       indexMap.set(oldIndex, newIndex);
     });
@@ -100,23 +110,23 @@ const SankeyDiagram = ({
     d3.select(svgRef6.current).selectAll("g").remove();
     d3.select(svgRef6.current).selectAll("g").remove();
 
-    let margin;
-    let width;
-    let height;
-    let fontSize;
-    let nodePadding;
-    let nodeWidth;
-    let shiftAmount;
+    let margin: { top: number; right: number; bottom: number; left: number };
+    let width = 0;
+    let height = 0;
+    let fontSize = 0;
+    let nodePadding = 0;
+    let nodeWidth = 0;
+    let shiftAmount = 0;
 
     if (isReport) {
       const nN = filteredNodes.length;
       const remappedIdxLinks = filteredLinks
-        .map((l) => ({
+        .map((l: any) => ({
           source: indexMap.get(l.source),
           target: indexMap.get(l.target),
         }))
         .filter(
-          (l) => l.source !== undefined && l.target !== undefined,
+          (l: any) => l.source !== undefined && l.target !== undefined,
         );
 
       let maxParallelEdges = 1;
@@ -124,7 +134,7 @@ const SankeyDiagram = ({
       if (nN > 0) {
         const outD = new Array(nN).fill(0);
         const inD = new Array(nN).fill(0);
-        remappedIdxLinks.forEach((l) => {
+        remappedIdxLinks.forEach((l: any) => {
           outD[l.source]++;
           inD[l.target]++;
         });
@@ -132,7 +142,7 @@ const SankeyDiagram = ({
 
         const dDepth = new Array(nN).fill(0);
         for (let it = 0; it < nN; it++) {
-          remappedIdxLinks.forEach((l) => {
+          remappedIdxLinks.forEach((l: any) => {
             dDepth[l.target] = Math.max(dDepth[l.target], dDepth[l.source] + 1);
           });
         }
@@ -212,8 +222,8 @@ const SankeyDiagram = ({
     svg.selectAll("*").remove();
 
     const sankeyGenerator = sankey()
-      .nodeSort((a, b) => b.value - a.value)
-      .linkSort((a, b) => b.value - a.value)
+      .nodeSort((a: any, b: any) => b.value - a.value)
+      .linkSort((a: any, b: any) => b.value - a.value)
       .nodeWidth(nodeWidth)
       .nodePadding(nodePadding)
       .extent([
@@ -221,12 +231,12 @@ const SankeyDiagram = ({
         [width, height - 10],
       ]);
 
-    let sankeyNodesInput = filteredNodes.map((d) => ({ ...d }));
+    let sankeyNodesInput = filteredNodes.map((d: any) => ({ ...d }));
     if (isReport && filteredNodes.length > 0) {
       const nN = filteredNodes.length;
       const flowIn = new Array(nN).fill(0);
       const flowOut = new Array(nN).fill(0);
-      filteredLinks.forEach((l) => {
+      filteredLinks.forEach((l: any) => {
         const s = indexMap.get(l.source);
         const t = indexMap.get(l.target);
         if (s !== undefined && t !== undefined) {
@@ -236,7 +246,7 @@ const SankeyDiagram = ({
       });
       const globalMaxFlow = Math.max(1e-12, ...flowIn, ...flowOut);
       const floorFlow = globalMaxFlow * REPORT_LAYOUT_MIN_FLOW_FRAC;
-      sankeyNodesInput = filteredNodes.map((d, i) => {
+      sankeyNodesInput = filteredNodes.map((d: any, i: any) => {
         const thru = Math.max(flowIn[i], flowOut[i]);
         const trueV = d.value !== undefined && d.value !== null ? d.value : thru;
         return {
@@ -247,9 +257,9 @@ const SankeyDiagram = ({
       });
     }
 
-    const { nodes, links } = sankeyGenerator({
-      nodes: sankeyNodesInput.map((d) => ({ ...d })),
-      links: filteredLinks.map((d) => ({
+    const { nodes, links }: { nodes: any[]; links: any[] } = sankeyGenerator({
+      nodes: sankeyNodesInput.map((d: any) => ({ ...d })),
+      links: filteredLinks.map((d: any) => ({
         ...d,
         source: indexMap.get(d.source),
         target: indexMap.get(d.target),
@@ -260,18 +270,18 @@ const SankeyDiagram = ({
     const maxLinkStrokePx = fontSize * 1.15;
 
     if (isReport && links.length > 0) {
-      const vals = links.map((l) => l.value);
+      const vals = links.map((l: any) => l.value);
       const vMin = Math.min(...vals);
       const vMax = Math.max(...vals);
-      links.forEach((link) => {
+      links.forEach((link: any) => {
         const t = vMax <= vMin ? 0.5 : (link.value - vMin) / (vMax - vMin);
         link.reportStrokeWidth =
           minLinkStrokePx + t * (maxLinkStrokePx - minLinkStrokePx);
       });
     } else if (links.length > 0) {
       // Нелинейное масштабирование ширины связей (слайд)
-      const maxWidth = Math.max(...links.map((l) => l.width));
-      links.forEach((link) => {
+      const maxWidth = Math.max(...links.map((l: any) => l.width));
+      links.forEach((link: any) => {
         link.originalWidth = link.width;
         link.width = Math.sqrt(link.width / maxWidth) * maxWidth;
       });
@@ -281,7 +291,7 @@ const SankeyDiagram = ({
     const centerX = width / 2;
 
     // Смещаем только те узлы, которые находятся на "центральной линии" или близко к ней
-    nodes.forEach((node) => {
+    nodes.forEach((node: any) => {
       const nodeCenter = (node.x0 + node.x1) / 2;
 
       // Пример — если узел находится ближе к центру, сдвигаем его
@@ -299,7 +309,7 @@ const SankeyDiagram = ({
       const g = REPORT_LABEL_VERTICAL_GAP_PX;
       const linkGapLoc = REPORT_LINK_NODE_STACK_GAP_PX;
 
-      const stackExtentR = (linkArr, measure) => {
+      const stackExtentR = (linkArr: any, measure: any) => {
         if (!linkArr.length) return 0;
         let s = 0;
         for (let i = 0; i < linkArr.length; i++) {
@@ -308,17 +318,17 @@ const SankeyDiagram = ({
         }
         return s;
       };
-      const br = (link) => link.reportStrokeWidth;
-      const nodeStackPx = (n) => {
+      const br = (link: any) => link.reportStrokeWidth;
+      const nodeStackPx = (n: any) => {
         const ss = stackExtentR(n.sourceLinks, br);
         const st = stackExtentR(n.targetLinks, br);
         if (ss <= 0 && st <= 0) return 0;
         return Math.max(ss, st, 1e-6);
       };
-      const slotHFor = (n) => Math.max(L, nodeStackPx(n));
+      const slotHFor = (n: any) => Math.max(L, nodeStackPx(n));
 
       /** @returns {{ spanBot: number }} */
-      const layoutColumnAt = (sorted, y0Top) => {
+      const layoutColumnAt = (sorted: any, y0Top: any) => {
         if (!sorted.length) return { spanBot: y0Top };
         const S0 = slotHFor(sorted[0]);
         let c = y0Top + S0 / 2;
@@ -335,7 +345,7 @@ const SankeyDiagram = ({
         return { spanBot: sorted[sorted.length - 1].y1 };
       };
 
-      const columnHeightIfAt = (sorted, y0Top) => {
+      const columnHeightIfAt = (sorted: any, y0Top: any) => {
         if (!sorted.length) return 0;
         const { spanBot } = layoutColumnAt(sorted, y0Top);
         return spanBot - y0Top;
@@ -350,20 +360,20 @@ const SankeyDiagram = ({
         const maxD = depthsOrd[depthsOrd.length - 1];
 
         const refD = depthsOrd.reduce((best, d) =>
-          byDepth.get(d).length > byDepth.get(best).length ? d : best,
+          byDepth.get(d)!.length > byDepth.get(best)!.length ? d : best,
         );
 
-        const refCol = [...byDepth.get(refD)].sort((a, b) => a.y0 - b.y0);
+        const refCol = [...byDepth.get(refD)!].sort((a: any, b: any) => a.y0 - b.y0);
         const { spanBot } = layoutColumnAt(refCol, yTopStart);
         const spanH = spanBot - yTopStart;
 
-        const placeColumnAt = (d, y0Top) => {
-          const col = [...byDepth.get(d)].sort((a, b) => a.y0 - b.y0);
+        const placeColumnAt = (d: any, y0Top: any) => {
+          const col = [...byDepth.get(d)!].sort((a: any, b: any) => a.y0 - b.y0);
           layoutColumnAt(col, y0Top);
         };
 
         if (minD !== refD) {
-          const leftCol = [...byDepth.get(minD)].sort((a, b) => a.y0 - b.y0);
+          const leftCol = [...byDepth.get(minD)!].sort((a: any, b: any) => a.y0 - b.y0);
           if (leftCol.length === 1) {
             leftCol[0].y0 = yTopStart;
             leftCol[0].y1 = spanBot;
@@ -373,7 +383,7 @@ const SankeyDiagram = ({
         }
 
         if (maxD !== refD) {
-          const rightCol = [...byDepth.get(maxD)].sort((a, b) => a.y0 - b.y0);
+          const rightCol = [...byDepth.get(maxD)!].sort((a: any, b: any) => a.y0 - b.y0);
           const hR = columnHeightIfAt(rightCol, 0);
           const yr = yTopStart + Math.max(0, (spanH - hR) / 2);
           layoutColumnAt(rightCol, yr);
@@ -387,7 +397,7 @@ const SankeyDiagram = ({
     }
 
     if (isReport && nodes.length > 0) {
-      nodes.forEach((node) => {
+      nodes.forEach((node: any) => {
         node.reportCy = (node.y0 + node.y1) / 2;
         node.reportBarH = nodeWidth;
       });
@@ -398,7 +408,7 @@ const SankeyDiagram = ({
     // отсчитываются от одного node.y0 параллельно, а не друг под другом (иначе «лестница»).
     if (isReport && links.length > 0) {
       const linkGap = REPORT_LINK_NODE_STACK_GAP_PX;
-      const stackExtent = (linkArr, measure) => {
+      const stackExtent = (linkArr: any, measure: any) => {
         if (!linkArr.length) return 0;
         let s = 0;
         for (let i = 0; i < linkArr.length; i++) {
@@ -411,7 +421,7 @@ const SankeyDiagram = ({
       for (const node of nodes) {
         const srcLinks = node.sourceLinks;
         const tgtLinks = node.targetLinks;
-        const b = (link) => link.reportStrokeWidth;
+        const b = (link: any) => link.reportStrokeWidth;
         const sumSrc = stackExtent(srcLinks, b);
         const sumTgt = stackExtent(tgtLinks, b);
         if (sumSrc <= 0 && sumTgt <= 0) continue;
@@ -490,7 +500,7 @@ const SankeyDiagram = ({
       .append("title")
       .text(function (d) {
         const v = d.reportTrueValue ?? d.value;
-        return `${d.name}\n${cutDecimals(v)}`;
+        return `${displayUnitName(d.name)}\n${cutDecimals(v)}`;
       });
 
     //draw tooltips
@@ -503,7 +513,7 @@ const SankeyDiagram = ({
       .attr("d", sankeyLinkHorizontal())
       .attr("stroke", function (d) {
         return (
-          checkList.find((el) => el.guiltyUnit === d.names[0])?.checkboxColor ||
+          checkList.find((el: any) => el.guiltyUnit === d.names[0])?.checkboxColor ||
           "default-color"
         );
       })
@@ -515,7 +525,10 @@ const SankeyDiagram = ({
       .append("title")
       .text(
         (d) =>
-          `${d.names?.join(" → ") || `${d.source.name} → ${d.target.name}`}\n${d.value.toLocaleString()}`,
+          `${
+            d.names?.map((name: string) => displayUnitName(name)).join(" → ") ||
+            `${displayUnitName(d.source.name)} → ${displayUnitName(d.target.name)}`
+          }\n${d.value.toLocaleString()}`,
       );
 
     const nodeCount = nodes.length;
@@ -550,16 +563,16 @@ const SankeyDiagram = ({
       Math.floor(rightSpaceWidth / Math.max(fontSize * 0.55, 6)) - 6,
     );
 
-    const labelOnLeftSide = (d) => {
+    const labelOnLeftSide = (d: any) => {
       if (d.depth === minDepth) return true;
       if (d.depth === maxDepth) return false;
       return (d.x0 + d.x1) / 2 < width / 2;
     };
 
-    const nodeDisplayValue = (d) => d.reportTrueValue ?? d.value;
-    const suffixFor = (d) => ` (${cutDecimals(nodeDisplayValue(d))} ч)`;
+    const nodeDisplayValue = (d: any) => d.reportTrueValue ?? d.value;
+    const suffixFor = (d: any) => ` (${cutDecimals(nodeDisplayValue(d))} ч)`;
 
-    const truncateMainToCharBudget = (raw, suffix, budgetChars) => {
+    const truncateMainToCharBudget = (raw: any, suffix: any, budgetChars: any) => {
       const r = raw || "";
       if (r.length + suffix.length <= budgetChars) return r;
       const ell = " ...";
@@ -570,15 +583,15 @@ const SankeyDiagram = ({
       return r.length > n ? r.substr(0, n) + ell : r;
     };
 
-    const provisionalMainMiddleOrOther = (d) => {
-      const raw = d.name || "";
+    const provisionalMainMiddleOrOther = (d: any) => {
+      const raw = displayUnitName(d.name || "");
       if (raw.length >= allowedCharsAmount) {
         return raw.substr(0, allowedCharsAmount) + " ...";
       }
       return raw;
     };
 
-    const estimatedMiddleLabelRightX = (M) => {
+    const estimatedMiddleLabelRightX = (M: any) => {
       if (!labelOnLeftSide(M)) return 0;
       const main = provisionalMainMiddleOrOther(M);
       const suf = suffixFor(M);
@@ -599,7 +612,7 @@ const SankeyDiagram = ({
     }
 
     /** Правый край подписей тех средних узлов, из которых идут рёбра в данный правый */
-    const clearanceForRightNodeLabel = (d) => {
+    const clearanceForRightNodeLabel = (d: any) => {
       let c = 0;
       for (const link of d.targetLinks || []) {
         const M = link.source;
@@ -609,12 +622,15 @@ const SankeyDiagram = ({
       return c > 0 ? c : maxMiddleLabelRightX;
     };
 
-    const mainNameForNode = (d) => {
-      const raw = d.name || "";
+    const mainNameForNode = (d: any) => {
+      const raw = displayUnitName(d.name || "");
       const suffix = suffixFor(d);
       const isLeftCol = d.depth === minDepth && d.sourceLinks?.length > 0;
       if (isLeftCol) {
-        const minTargetX = d3.min(d.sourceLinks, (l) => l.target.x0);
+        const minTargetX = d3.min(
+          d.sourceLinks,
+          (l: any) => l.target.x0,
+        ) as unknown as number;
         const maxRightPx = Math.max(
           avgCharPx * 6,
           minTargetX - d.x1 - 6 - labelPadPx,

@@ -1,21 +1,26 @@
 import React, { useEffect, useRef, useState } from "react";
 import { TiArrowSortedDown } from "react-icons/ti";
-import { useDispatch, useSelector } from "react-redux";
-import { setPastYear } from "../redux/filtersSlice";
+import { useDispatch, useSelector as useReduxSelector } from "react-redux";
+import type { TypedUseSelectorHook } from "react-redux";
+import type { RootState } from "../redux/store";
+import { setCurrentYear } from "../redux/filtersSlice";
 import { CSSTransition } from "react-transition-group";
 
-const DropdownPastYear = () => {
+const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
+
+const DropdownCurrentYear = () => {
   const minDate = new Date(useSelector((state) => state.filters.minCutoffDate));
   const maxDate = new Date(useSelector((state) => state.filters.maxCutoffDate));
-  const pastYear = useSelector((state) => state.filters.pastYear);
+  const currentYear = useSelector((state) => state.filters.currentYear);
   const dispatch = useDispatch();
 
   const getOptions = () => {
-    const arr = [];
-    // for (let i = minDate.getFullYear(); i < maxDate.getFullYear(); i++) {
+    const arr: number[] = [];
+    // for (let i = minDate.getFullYear(); i <= maxDate.getFullYear(); i++) {
     //   arr.push(i);
     // }
-    for (let i = 2012; i < 2025; i++) {
+    for (let i = 2012; i < 2026; i++) {
       arr.push(i);
     }
     return arr;
@@ -24,17 +29,17 @@ const DropdownPastYear = () => {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const dropdownPastYearRef = useRef(null);
+  const dropdownCurrentYearRef = useRef<HTMLDivElement>(null);
 
   const handleToggle = () => {
     setIsOpen(!isOpen);
   };
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (
-        dropdownPastYearRef.current &&
-        !dropdownPastYearRef.current.contains(event.target)
+        dropdownCurrentYearRef.current &&
+        !dropdownCurrentYearRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
       }
@@ -51,7 +56,7 @@ const DropdownPastYear = () => {
         className="tools tools_text-button list_element_year tools_text-button_year"
         onClick={handleToggle}
       >
-        {pastYear}
+        {currentYear}
         <TiArrowSortedDown
           className={`tools_dropdown-icon${isOpen ? "_rotate" : ""}`}
         />
@@ -68,7 +73,7 @@ const DropdownPastYear = () => {
               className={`list_element list_input_big ${option + "li"}`}
               key={option + "li"}
               onClick={() => {
-                dispatch(setPastYear(option));
+                dispatch(setCurrentYear(option));
                 handleToggle();
               }}
             >
@@ -77,9 +82,9 @@ const DropdownPastYear = () => {
           ))}
         </ul>
       </CSSTransition>
-      <span className="input-label">Прошлый</span>
+      <span className="input-label">Текущий</span>
     </div>
   );
 };
 
-export default DropdownPastYear;
+export default DropdownCurrentYear;

@@ -10,6 +10,7 @@ import {
 } from "../redux/filtersSlice";
 import { CSSTransition } from "react-transition-group";
 import { TiArrowSortedDown } from "react-icons/ti";
+import { displayUnitName } from "../utils/functions";
 
 interface RootState {
   filters: {
@@ -122,7 +123,7 @@ const DropdownTerritory = () => {
                     }
                     style={{ accentColor: option.checkboxColor }}
                   />
-                  {option.guiltyUnit}, ({option.value} ч)
+                  {displayUnitName(option.guiltyUnit)}, ({option.value} ч)
                 </label>
               </li>
             ))}
@@ -150,7 +151,7 @@ const DropdownTerritory = () => {
                     }
                     style={{ accentColor: option.checkboxColor }}
                   />
-                  {option.guiltyUnit}, ({option.value} ч)
+                  {displayUnitName(option.guiltyUnit)}, ({option.value} ч)
                 </label>
               </li>
             ))}
@@ -179,7 +180,7 @@ const DropdownTerritory = () => {
                     }}
                     style={{ accentColor: option.checkboxColor }}
                   />
-                  {option.guiltyUnit}, ({option.value} ч)
+                  {displayUnitName(option.guiltyUnit)}, ({option.value} ч)
                 </label>
               </li>
             ))}
@@ -208,7 +209,7 @@ const DropdownTerritory = () => {
                     }}
                     style={{ accentColor: option.checkboxColor }}
                   />
-                  {option.guiltyUnit}, ({option.value} ч)
+                  {displayUnitName(option.guiltyUnit)}, ({option.value} ч)
                 </label>
               </li>
             ))}

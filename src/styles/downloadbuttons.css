@@ -21,6 +21,12 @@
   margin-right: 2px;
 }
 
+.button-copy.button-copy_replay {
+  width: auto;
+  min-width: 55px;
+  padding: 0 8px;
+}
+
 /* Как DOC: одна внешняя рамка; внутри только квадрат-бегунок (без второй рамки) */
 .button-copy.button-copy_toggle {
   display: inline-flex;

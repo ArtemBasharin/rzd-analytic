@@ -12,8 +12,8 @@ import { cutDecimals } from "../utils/functions";
 
 export const getUnitsList = (
   arr: any[],
-  startDate: Date,
-  endDate: Date,
+  startDate: any,
+  endDate: any,
   customCalendar?: number[]
 ) => {
   let result = new Set();

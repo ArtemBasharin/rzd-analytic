@@ -1,21 +1,26 @@
 import React, { useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector as useReduxSelector } from "react-redux";
+import type { TypedUseSelectorHook } from "react-redux";
+import type { RootState } from "../redux/store";
 import { setPopup } from "../redux/filtersSlice";
 
+const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
+
 const Popup = () => {
-  const popupRef = useRef(null);
+  const popupRef = useRef<HTMLDivElement>(null);
   const popup = useSelector((state) => state.filters.popup);
   const dispatch = useDispatch();
 
-  const handleOnClose = (event) => {
-    if (popupRef.current && popupRef.current.contains(event.target)) {
+  const handleOnClose = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (popupRef.current && popupRef.current.contains(event.target as Node)) {
       dispatch(setPopup(false));
     }
   };
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (popupRef.current && !popupRef.current.contains(event.target)) {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
         dispatch(setPopup(false));
       }
     };

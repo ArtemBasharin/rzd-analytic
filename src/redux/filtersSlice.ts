@@ -17,16 +17,18 @@ import {
 } from "../utils/functions";
 import { getReportArr } from "../data-preprocessors/getReportArr";
 import { getSumLineArr } from "../data-preprocessors/getSumLineArr";
+import { getRaceArr } from "../data-preprocessors/getRaceArr";
 import { initialChartCheckList } from "../utils/initialChartCheckList";
 import { getReportStationsArr } from "../data-preprocessors/getReportStationsArr";
 import { startTime as violationStartKey } from "../utils/config";
-// import { getRaceArr } from "../data-preprocessors/getRaceArr";
+import { Violation } from "../types/violation";
+import { readRaceTiming } from "../utils/raceTiming";
 
 let date = new Date();
 let arrSource = dummyArr(date.getFullYear() - 1, date.getFullYear());
 let initialMinvalue = 0;
 let initialDaysInGroup = 1;
-let cutoffDates = getCutoffDates(arrSource);
+let cutoffDates = getCutoffDates(arrSource)!;
 let initialEndDate = new Date(cutoffDates.max).setHours(23, 59, 59);
 let initialStartDate = getStartDate(initialEndDate);
 
@@ -38,6 +40,7 @@ let initialToolPalette = {
   datePickerVisibility: true,
   unitsListVisibility: false,
   sumLineVisibility: false,
+  raceTimingVisibility: false,
 };
 
 let originToolPalette = {
@@ -49,6 +52,7 @@ let originToolPalette = {
   daysInGroupVisibility: true,
   unitsListVisibility: true,
   sumLineVisibility: true,
+  raceTimingVisibility: false,
 };
 
 let initialCustomCalendar = getCustomCalendar(
@@ -99,15 +103,14 @@ let initialRidgelineArrState = getRidgelineArr(
   initialCheckedUnits,
 );
 
-let initialSumLineArrState = [];
+let initialSumLineArrState: any = [];
 // getSumLineArr(arrSource, initialCustomCalendar, initialCheckedUnits);
 
-// let initialraceArrState = getRaceArr(
-//   arrSource,
-//   initialStartDate,
-//   initialEndDate,
-//   initialCheckedUnits
-// );
+let initialraceArrState = getRaceArr(
+  arrSource,
+  initialStartDate,
+  initialEndDate,
+);
 
 let initialLoaderShow = {
   analyze: false,
@@ -123,28 +126,30 @@ const filtersSlice = createSlice({
   initialState: {
     pageWidth: window.innerWidth,
     pageHeight: window.innerHeight,
-    sourceState: [],
+    sourceState: [] as Violation[],
     minValue: initialMinvalue,
     daysInGroup: initialDaysInGroup,
     currentYear: new Date(initialEndDate).getFullYear(),
     pastYear: new Date(initialEndDate).getFullYear() - 1,
-    dateStart: initialStartDate,
-    dateEnd: initialEndDate,
+    dateStart: initialStartDate as any,
+    dateEnd: initialEndDate as any,
     customCalendar: initialCustomCalendar,
     regexpPattern: initialPattern,
     analyzeState: initialAnalyzeState,
     stackedArrState: initialStackedState,
-    sankeyArrState: initialSankeyState,
+    sankeyArrState: initialSankeyState as any,
     ridgelineArrState: initialRidgelineArrState,
     sumLineArrState: initialSumLineArrState,
-    // raceArrState: initialraceArrState,
-    toolPalette: initialToolPalette,
+    raceArrState: initialraceArrState,
+    raceStepSec: readRaceTiming().stepSec,
+    raceDurationSec: readRaceTiming().durationSec,
+    toolPalette: initialToolPalette as any,
     stackedCheckList: initialCheckedUnits,
     sankeyCheckList: initialCheckedUnits,
     ridgelineCheckList: initialCheckedUnits,
     sumLineCheckList: initialCheckedUnits,
     chartCheckList: initialChartCheckList(),
-    loaderShow: initialLoaderShow,
+    loaderShow: initialLoaderShow as any,
     minCutoffDate: cutoffDates.min,
     maxCutoffDate: cutoffDates.max,
     popup: {
@@ -159,8 +164,8 @@ const filtersSlice = createSlice({
       sumline: true,
       charts: true,
     },
-    reportSrcState: [],
-    reportStations: [],
+    reportSrcState: [] as any[],
+    reportStations: [] as any[],
     /** Показывать блоки Sankey в текстовом отчёте (переключатель у кнопок DOC/XLS). */
     reportSankeyBlocksVisible: false,
   },
@@ -262,11 +267,11 @@ const filtersSlice = createSlice({
         state.sumLineCheckList,
       );
 
-      // state.raceArrState = getRaceArr(
-      //   state.sourceState,
-      //   state.dateStart,
-      //   state.dateEnd
-      // );
+      state.raceArrState = getRaceArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+      );
     },
 
     /** Границы по /violations/meta до прихода полного массива (datepicker). */
@@ -404,6 +409,12 @@ const filtersSlice = createSlice({
         state.regexpPattern,
         state.minValue,
       );
+
+      state.raceArrState = getRaceArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+      );
     },
 
     setMinValue(state, action) {
@@ -521,6 +532,12 @@ const filtersSlice = createSlice({
         state.customCalendar,
         state.sumLineCheckList,
       );
+
+      state.raceArrState = getRaceArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+      );
     },
 
     setDateEnd(state, action) {
@@ -618,6 +635,12 @@ const filtersSlice = createSlice({
         state.customCalendar,
         state.sumLineCheckList,
       );
+
+      state.raceArrState = getRaceArr(
+        state.sourceState,
+        state.dateStart,
+        state.dateEnd,
+      );
     },
 
     setCustomCalendar(state) {
@@ -706,6 +729,23 @@ const filtersSlice = createSlice({
         state.toolPalette.minValueVisibility = false;
         state.toolPalette.unitsListVisibility = true;
       }
+      if (action.payload === "race") {
+        state.toolPalette = { ...state.toolPalette, kind: action.payload };
+        state.toolPalette.yearVisibility = false;
+        state.toolPalette.daysInGroupVisibility = false;
+        state.toolPalette.unitsListVisibility = false;
+        state.toolPalette.minValueVisibility = false;
+        state.toolPalette.sumLineVisibility = false;
+        state.toolPalette.raceTimingVisibility = true;
+      }
+    },
+
+    setRaceStepSec(state, action) {
+      state.raceStepSec = action.payload;
+    },
+
+    setRaceDurationSec(state, action) {
+      state.raceDurationSec = action.payload;
     },
 
     setStackedCheckList(state, action) {
@@ -1058,12 +1098,10 @@ export const {
   decrementDaysIngroup,
   setPattern,
   setMinValue,
-  setAnalyzeState,
   setPastYear,
   setCurrentYear,
   setSourceState,
   setCutoffDatesFromMeta,
-  stackedArrState,
   setDateStart,
   setDateEnd,
   setDaysInGroup,
@@ -1079,4 +1117,6 @@ export const {
   checkAllCheckList,
   invertCheckList,
   setReportSankeyBlocksVisible,
+  setRaceStepSec,
+  setRaceDurationSec,
 } = filtersSlice.actions;

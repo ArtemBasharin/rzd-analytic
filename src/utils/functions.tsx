@@ -91,7 +91,7 @@ export const updateChartProperty = (
   return updatedArray;
 };
 
-export const getInitialPattern = (date: string) => {
+export const getInitialPattern = (date: string | number) => {
   let period = new Date(date).getMonth() + 1;
   if (period < 10) {
     return "0" + period;
@@ -369,6 +369,25 @@ export const getWordOnly = (
   }
   return editedArr[1];
 };
+
+/** Подпись: «ООО ЛокоТех-Сервис» скрыт, номера СЛД переименованы. Исходное имя для фильтров и расчётов не меняется. */
+const SLD_DISPLAY_RENAMES: [RegExp, string][] = [
+  [/СЛД-18(?!\d)/g, "СЛД-64"],
+  [/СЛД-9(?!\d)/g, "СЛД-63"],
+];
+
+export function displayUnitName(name: string): string {
+  if (!name) return name;
+  const cleaned = name.replace(
+    /ООО\s*[«"„']?\s*ЛокоТех-Сервис\s*[»"“']?\s*/gi,
+    "",
+  );
+  const visible = cleaned.length > 0 ? cleaned : name;
+  return SLD_DISPLAY_RENAMES.reduce(
+    (label, [pattern, replacement]) => label.replace(pattern, replacement),
+    visible,
+  );
+}
 
 export const firstCharToLowerCase = (el: string) => {
   if (el) {

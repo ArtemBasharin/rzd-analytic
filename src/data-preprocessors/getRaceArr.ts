@@ -10,9 +10,8 @@ import {
 
 export const getRaceArr = (
   srcArray: any[],
-  dateStart: string,
-  dateEnd: string
-  // unitsList: any[]
+  dateStart: any,
+  dateEnd: any,
 ) => {
   const calcTotalDurationValue = (obj: any) => {
     let freightDur,
@@ -25,7 +24,7 @@ export const getRaceArr = (
     obj[passDuration] ? (passDur = obj[passDuration]) : (passDur = 0);
     obj[subDuration] ? (subDur = obj[subDuration]) : (subDur = 0);
     obj[otherDuration] ? (otherDur = obj[otherDuration]) : (otherDur = 0);
-    let total = (freightDur + passDur + subDur + otherDur) / 60;
+    let total = freightDur + passDur + subDur + otherDur;
     return total;
   };
 
@@ -39,10 +38,10 @@ export const getRaceArr = (
         date: new Date(new Date(el[startTime]).setHours(0, 0, 0)),
         name: el[guiltyUnit],
         totalDuration: calcTotalDurationValue(el),
-        freightDuration: el[freightDuration] / 60 || 0,
-        passDuration: el[passDuration] / 60 || 0,
-        subDuration: el[subDuration] / 60 || 0,
-        otherDuration: el[otherDuration] / 60 || 0,
+        freightDuration: Number(el[freightDuration]) || 0,
+        passDuration: Number(el[passDuration]) || 0,
+        subDuration: Number(el[subDuration]) || 0,
+        otherDuration: Number(el[otherDuration]) || 0,
       });
     }
   });

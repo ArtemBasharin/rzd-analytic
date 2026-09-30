@@ -1,18 +1,23 @@
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector as useReduxSelector } from "react-redux";
+import type { TypedUseSelectorHook } from "react-redux";
+import type { RootState } from "../redux/store";
 import * as d3 from "d3";
-// import "../App.css";
 import descendArrow from "../images/descendArrow.svg";
 import increaseArrow from "../images/increaseArrow.svg";
 import transparentArrow from "../images/transparentArrow.svg";
 import { cutDecimals } from "../utils/functions";
 
-const BarChart2Bars = (props) => {
+const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
+// import "../App.css";
+
+const BarChart2Bars = (props: any) => {
   const minValue = useSelector((state) => state.filters.minValue);
   const dateStart = useSelector((state) => state.filters.dateStart);
   const dateEnd = useSelector((state) => state.filters.dateEnd);
   useEffect(() => {
-    let resData = props.stats;
+    let resData: any[] = props.stats;
     const margin = { top: 80, right: 5, bottom: 55, left: 5 },
       width = props.width - margin.left - margin.right,
       // height = 350 - margin.top - margin.bottom;
@@ -26,12 +31,12 @@ const BarChart2Bars = (props) => {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
-    let x = d3.map(resData, (d) => d.label);
+    let x = d3.map(resData, (d: any) => d.label);
 
     // X axis: scale and draw
     let X = d3
       .scaleBand()
-      .domain(resData.map((d) => d.label)) // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
+      .domain(resData.map((d: any) => d.label)) // can use this instead of 1000 to have the max of data: d3.max(data, function(d) { return +d.price })
       .range([0, width])
       .paddingInner(0.2)
       .paddingOuter(0.1);
@@ -64,30 +69,30 @@ const BarChart2Bars = (props) => {
     //draw bars
     bars
       .append("rect")
-      .attr("x", function (d) {
-        return X(d.label);
+      .attr("x", function (d: any) {
+        return X(d.label)!;
       })
-      .attr("y", function (d) {
-        return y(d.value);
+      .attr("y", function (d: any) {
+        return y(d.value)!;
       })
       .attr("width", X.bandwidth())
-      .attr("height", function (d) {
-        return height - y(d.value);
+      .attr("height", function (d: any) {
+        return height - y(d.value)!;
       })
-      .attr("fill", (d) => color(d.label))
+      .attr("fill", (d: any) => color(d.label) as string)
       .attr("filter", "drop-shadow(1px -1px 3px rgb(0 0 0 / 0.2))");
 
     //draw labels
     bars
       .append("text")
-      .text(function (d) {
+      .text(function (d: any) {
         return Math.round(d.value * 100) / 100;
       })
-      .attr("x", function (d) {
-        return X(d.label) + X.bandwidth() / 2;
+      .attr("x", function (d: any) {
+        return X(d.label)! + X.bandwidth() / 2;
       })
-      .attr("y", function (d) {
-        return y(d.value) - 10;
+      .attr("y", function (d: any) {
+        return y(d.value)! - 10;
       })
       .attr("font-family", "roboto")
       .attr("font-size", "19px")
@@ -99,7 +104,7 @@ const BarChart2Bars = (props) => {
     let chartTitle = svg.selectAll("chartTitle").data(resData).enter();
     chartTitle
       .append("text")
-      .text(function (d) {
+      .text(function (d: any) {
         return d.title;
       })
       .attr("x", function () {
@@ -141,7 +146,7 @@ const BarChart2Bars = (props) => {
       if (resData[0].value < resData[1].value) arrowKind = increaseArrow;
       if (
         resData[0].value === resData[1].value ||
-        createComparisonText().toString().includes("-")
+        createComparisonText()!.toString().includes("-")
       ) {
         return "rgb(0, 128, 0)";
       } else {
@@ -152,7 +157,7 @@ const BarChart2Bars = (props) => {
     let compareTitle = svg.selectAll("compareTitle").data(resData).enter();
     compareTitle
       .append("text")
-      .text(createComparisonText)
+      .text(createComparisonText as () => string)
       .attr("x", function () {
         return width / 2;
       })

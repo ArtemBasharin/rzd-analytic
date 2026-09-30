@@ -11,6 +11,7 @@ import {
   getOneUnitReport,
   getOneUnitReportWithCompare,
   sumValuesByKey,
+  displayUnitName,
 } from "../utils/functions";
 
 import { cutDecimals } from "../utils/functions";
@@ -153,7 +154,7 @@ const TextReportTemplatePeriod = () => {
     text.push(
       <div key={`sankey-unit-${index}`} className="text_report_sankey_unit">
         <p className="text_paragraph text_inner">
-          <span className="text_unit">{unit.replace(/\n/g, " ")}</span>:{" "}
+          <span className="text_unit">{displayUnitName(unit).replace(/\n/g, " ")}</span>:{" "}
           {getOneUnitReportWithCompare({
             arr: arr,
             currYear: currentYear,
@@ -198,7 +199,7 @@ const TextReportTemplatePeriod = () => {
     return {
       layout: (
         <tr key={unit}>
-          <td className="table_bold_right">{unit}</td>
+          <td className="table_bold_right">{displayUnitName(unit)}</td>
           <td>{pastYearUnitTotalDuration}</td>
           <td className="table_bold_right">{currentYearUnitTotalDuration}</td>
           {cellComparingPercents(
@@ -673,7 +674,7 @@ const TextReportTemplatePeriod = () => {
                 г. , станция/перегон: {el[place]}, задержано поездов:{" "}
                 {el[allDelayed]} на {cutDecimals(Number(el[allDuration]))} ч,
                 причина: {el[failReason].toLowerCase()} отнесено за{" "}
-                {el[guiltyUnit]};
+                {displayUnitName(el[guiltyUnit])};
               </p>
             );
           })}
@@ -791,7 +792,7 @@ const TextReportTemplatePeriod = () => {
                         fontSize: "12px",
                       }}
                     >
-                      {unit}
+                      {displayUnitName(unit)}
                     </th>
                   );
                 })}

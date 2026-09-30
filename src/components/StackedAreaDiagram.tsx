@@ -1,16 +1,22 @@
 import React, { useRef, useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector as useReduxSelector } from "react-redux";
+import type { TypedUseSelectorHook } from "react-redux";
+import type { RootState } from "../redux/store";
 import * as d3 from "d3";
-import { convertUnixToDate } from "../utils/functions";
+import { convertUnixToDate, displayUnitName } from "../utils/functions";
+
+const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
 
 const StackedAreaDiagram = () => {
-  const svgRef5 = useRef();
+  const svgRef5 = useRef<SVGSVGElement>(null);
   const stackedArrState = useSelector((state) => state.filters.stackedArrState);
   const minValue = useSelector((state) => state.filters.minValue);
   const period = useSelector((state) => state.filters.regexpPattern);
   const checkList = useSelector((state) => state.filters.stackedCheckList);
   const dateStart = useSelector((state) => state.filters.dateStart);
   const dateEnd = useSelector((state) => state.filters.dateEnd);
+  const stackedKeys = (stackedArrState as { keys?: unknown }).keys;
 
   d3.select("#id21").selectAll("g").remove();
 
@@ -22,7 +28,7 @@ const StackedAreaDiagram = () => {
       width = window.innerWidth - margin.left - margin.right,
       height = window.innerHeight - 180 - margin.top - margin.bottom;
 
-    let datesArr = [];
+    let datesArr: any[] = [];
     resData.forEach((el) => datesArr.push(el.date));
 
     // append the svg object to the body of the page
@@ -34,8 +40,8 @@ const StackedAreaDiagram = () => {
       .append("g")
       .attr("transform", `translate(${margin.left}, ${margin.top})`);
 
-    let keys = [];
-    let colorArr = [];
+    let keys: any[] = [];
+    let colorArr: any[] = [];
 
     // collect colors in right order from checklist checkboxes
     checkList.forEach((el) => {
@@ -49,9 +55,9 @@ const StackedAreaDiagram = () => {
     const x = d3
       .scaleLinear()
       .domain(
-        d3.extent(resData, function (d) {
+        d3.extent(resData, function (d: any) {
           return d.date;
-        })
+        }) as [number, number]
       )
       .range([0, width - 200]);
 
@@ -65,7 +71,7 @@ const StackedAreaDiagram = () => {
       .tickSize(0)
       .tickValues(datesArr.filter((_, i) => i % step === 0)) // Filter dates according to step
       .tickFormat(function (d) {
-        return convertUnixToDate(d);
+        return convertUnixToDate(Number(d));
       });
 
     svg
@@ -82,7 +88,7 @@ const StackedAreaDiagram = () => {
       // .scalePow()
       // .exponent(0.5)
       .scaleLinear()
-      .domain([0, stackedArrState.yMax])
+      .domain([0, stackedArrState.yMax as number])
       .range([height, 0]);
     svg.append("g").call(d3.axisLeft(y));
 
@@ -113,23 +119,23 @@ const StackedAreaDiagram = () => {
       .selectAll("mylayers")
       .data(stackedData)
       .join("path")
-      .style("fill", function (d) {
-        return color(d.key);
+      .style("fill", function (d: any) {
+        return color(d.key) as string;
       })
       .attr("stroke", "#888")
       .attr("stroke-width", 1)
       .attr(
         "d",
         d3
-          .area()
-          .x(function (d, i) {
-            return x(d.data.date);
+          .area<any>()
+          .x(function (d) {
+            return x(d.data.date)!;
           })
           .y0(function (d) {
-            return y(d[0]);
+            return y(d[0])!;
           })
           .y1(function (d) {
-            return y(d[1]);
+            return y(d[1])!;
           })
           // .curve(d3.curveCardinal.tension(0.8))
           // .curve(d3.curveStep)
@@ -137,7 +143,7 @@ const StackedAreaDiagram = () => {
       );
 
     // Add one circle in the legend for each name.
-    let newKeys = [];
+    let newKeys: any[] = [];
     keys.length > 46 ? (newKeys = keys.slice(0, 46)) : (newKeys = keys);
     svg
       .selectAll("mydots")
@@ -149,8 +155,8 @@ const StackedAreaDiagram = () => {
         return i * 15;
       })
       .attr("r", 7)
-      .style("fill", function (d, i) {
-        return color(i);
+      .style("fill", function (_d: any, i: number) {
+        return color(i as unknown as string) as string;
       });
 
     // Add text in the legend for each name.
@@ -166,10 +172,11 @@ const StackedAreaDiagram = () => {
       .attr("font-size", "12px")
       .style("fill", "#000")
       .text(function (d) {
-        if (d.guiltyUnit.length >= 36) {
-          return "- " + d.guiltyUnit.substr(0, 35) + ` ... ${d.value} ч)`;
+        const name = displayUnitName(d.guiltyUnit);
+        if (name.length >= 36) {
+          return "- " + name.substr(0, 35) + ` ... ${d.value} ч)`;
         } else {
-          return "- " + d.guiltyUnit + ` (${d.value} ч)`;
+          return "- " + name + ` (${d.value} ч)`;
         }
       })
       .attr("text-anchor", "left")
@@ -190,7 +197,7 @@ const StackedAreaDiagram = () => {
     minValue,
     period,
     stackedArrState.yMax,
-    stackedArrState.keys,
+    stackedKeys,
     checkList,
     dateStart,
     dateEnd,

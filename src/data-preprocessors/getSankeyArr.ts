@@ -13,15 +13,36 @@ import {
   failReason,
   place,
 } from "../utils/config";
+import { Violation } from "../types/violation";
+
+type UnitRow = {
+  guiltyUnit: string;
+  checked?: boolean;
+  isDisabled?: boolean;
+  [key: string]: any;
+};
+
+type SankeyDetail = {
+  guiltyUnit: string;
+  failReason: any;
+  totalDuration: number;
+  freightDuration: number;
+  passDuration: number;
+  subDuration: number;
+  otherDuration: number;
+  failCategory: any;
+  failKind: any;
+  place: any;
+};
 
 export const getSankeyArr = (
-  srcArray,
-  dateStart,
-  dateEnd,
-  minValue,
-  unitsList
+  srcArray: Violation[],
+  dateStart: number,
+  dateEnd: number,
+  minValue: number,
+  unitsList?: UnitRow[] | null,
 ) => {
-  const calcTotalDurationValue = (obj) => {
+  const calcTotalDurationValue = (obj: Violation) => {
     return (
       (obj[freightDuration] || 0) +
       (obj[passDuration] || 0) +
@@ -51,13 +72,13 @@ export const getSankeyArr = (
     }));
 
   // 2. Сумма totalDuration по уникальным guiltyUnit
-  const mergedByUnit = new Map();
+  const mergedByUnit = new Map<string, SankeyDetail>();
   srcArrayInDatesFrame.forEach((obj) => {
     const key = obj.guiltyUnit;
     if (!mergedByUnit.has(key)) {
       mergedByUnit.set(key, { ...obj });
     } else {
-      const item = mergedByUnit.get(key);
+      const item = mergedByUnit.get(key)!;
       item.totalDuration += obj.totalDuration;
       item.freightDuration += obj.freightDuration;
       item.passDuration += obj.passDuration;
@@ -67,7 +88,7 @@ export const getSankeyArr = (
   });
 
   // 3. Оставить guiltyUnit, у которых totalDuration >= minValue
-  const unitsAboveThreshold = new Set();
+  const unitsAboveThreshold = new Set<string>();
   mergedByUnit.forEach((val, key) => {
     if (val.totalDuration >= minValue) {
       unitsAboveThreshold.add(key);
@@ -75,7 +96,7 @@ export const getSankeyArr = (
   });
 
   // 4. Сгруппировать по уникальной комбинации полей
-  const mergedDetailed = new Map();
+  const mergedDetailed = new Map<string, SankeyDetail>();
   srcArrayInDatesFrame.forEach((obj) => {
     if (!unitsAboveThreshold.has(obj.guiltyUnit)) return;
     const key = JSON.stringify([
@@ -88,7 +109,7 @@ export const getSankeyArr = (
     if (!mergedDetailed.has(key)) {
       mergedDetailed.set(key, { ...obj });
     } else {
-      const item = mergedDetailed.get(key);
+      const item = mergedDetailed.get(key)!;
       item.totalDuration += obj.totalDuration;
       item.freightDuration += obj.freightDuration;
       item.passDuration += obj.passDuration;
@@ -100,21 +121,21 @@ export const getSankeyArr = (
   let dataFiltered = Array.from(mergedDetailed.values());
 
   // 5. Применить фильтр по unitsList
-  let checkedUnits = null;
+  let checkedUnits: Set<string> | null = null;
   if (unitsList) {
     checkedUnits = new Set(
       unitsList.filter((el) => el.checked).map((el) => el.guiltyUnit)
     );
-    dataFiltered = dataFiltered.filter((d) => checkedUnits.has(d.guiltyUnit));
+    dataFiltered = dataFiltered.filter((d) => checkedUnits!.has(d.guiltyUnit));
   }
 
   // 6. Объединить place < minValue в "Остальные"
-  const placeTotals = new Map();
+  const placeTotals = new Map<any, number>();
   dataFiltered.forEach((d) => {
     placeTotals.set(d.place, (placeTotals.get(d.place) || 0) + d.totalDuration);
   });
 
-  const lowValuePlaces = new Set();
+  const lowValuePlaces = new Set<any>();
   placeTotals.forEach((val, key) => {
     if (val < minValue) lowValuePlaces.add(key);
   });
@@ -127,12 +148,17 @@ export const getSankeyArr = (
   }));
 
   // 7. Создать nodes и links
-  const keys = ["guiltyUnit", "place", "failReason"];
+  const keys = ["guiltyUnit", "place", "failReason"] as const;
   let index = -1;
-  const nodes = [];
-  const nodeByKey = new d3.InternMap([], JSON.stringify);
-  const indexByKey = new d3.InternMap([], JSON.stringify);
-  const links = [];
+  const nodes: { name: any }[] = [];
+  const nodeByKey = new (d3.InternMap as any)([], JSON.stringify);
+  const indexByKey = new (d3.InternMap as any)([], JSON.stringify);
+  const links: {
+    source: any;
+    target: any;
+    names: any[];
+    value: number;
+  }[] = [];
 
   for (const k of keys) {
     for (const d of dataFiltered) {
@@ -149,12 +175,14 @@ export const getSankeyArr = (
     const a = keys[i - 1];
     const b = keys[i];
     const prefix = keys.slice(0, i + 1);
-    const linkByKey = new d3.InternMap([], JSON.stringify);
+    const linkByKey = new (d3.InternMap as any)([], JSON.stringify);
 
     for (const d of dataFiltered) {
       const names = prefix.map((k) => d[k]);
       const value = d.totalDuration || 0;
-      let link = linkByKey.get(names);
+      let link = linkByKey.get(names) as
+        | { source: any; target: any; names: any[]; value: number }
+        | undefined;
       if (link) {
         link.value += value;
         continue;

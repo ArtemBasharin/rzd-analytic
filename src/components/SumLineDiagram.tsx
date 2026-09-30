@@ -1,6 +1,11 @@
 import React, { useEffect } from "react";
-import { useSelector } from "react-redux";
+import { useSelector as useReduxSelector } from "react-redux";
+import type { TypedUseSelectorHook } from "react-redux";
+import type { RootState } from "../redux/store";
 import * as d3 from "d3";
+
+const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
 
 const SumLineDiagram = () => {
   const src = useSelector((state) => state.filters.sumLineArrState);
@@ -15,8 +20,8 @@ const SumLineDiagram = () => {
       width = window.innerWidth - margin.left - margin.right,
       height = window.innerHeight - 180 - margin.top - margin.bottom;
 
-    let datesArr = [];
-    resData.forEach((el) => datesArr.push(el.date));
+    let datesArr: any[] = [];
+    resData.forEach((el: any) => datesArr.push(el.date));
 
     const svg = d3
       .select("#id24")
@@ -29,9 +34,9 @@ const SumLineDiagram = () => {
     const x = d3
       .scaleLinear()
       .domain(
-        d3.extent(resData, function (d) {
+        d3.extent(resData, function (d: any) {
           return d.date;
-        })
+        }) as unknown as [number, number]
       )
       .range([0, width - 200]);
 
@@ -45,7 +50,7 @@ const SumLineDiagram = () => {
           .tickValues(datesArr.filter((_, i) => i % step === 0))
           .tickFormat(function (d) {
             let format = d3.timeFormat("%0d.%0m");
-            return format(d);
+            return format(d as Date);
           })
       );
 
@@ -60,7 +65,7 @@ const SumLineDiagram = () => {
     }, []);
 
     let yMax = src.yMax;
-    const getChartProps = (prop) => {
+    const getChartProps = (prop: any) => {
       let arr = [];
       let strokeDash = "";
       let strokeWidth = "";
@@ -111,7 +116,7 @@ const SumLineDiagram = () => {
       const name = checkedOnlyList[i].name;
       let chartProp = getChartProps(name);
       let maxDomainValue = chartProp.yMax;
-      let data = resData.map((el) => {
+      let data = resData.map((el: any) => {
         return { date: el.date, value: el[name] || 0 };
       });
 
@@ -134,12 +139,12 @@ const SumLineDiagram = () => {
         .attr(
           "d",
           d3
-            .line()
+            .line<{ date: any; value: any }>()
             .x(function (d) {
-              return x(d.date);
+              return x(d.date)!;
             })
             .y(function (d) {
-              return y(d.value);
+              return y(d.value)!;
             })
             .curve(d3.curveBumpX)
           // .curve(d3.curveStep)

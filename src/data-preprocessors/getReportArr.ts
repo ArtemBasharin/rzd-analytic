@@ -24,7 +24,8 @@ export const getReportArr = (
   sourceArr: any[],
   dateStart: number,
   dateEnd: number,
-  minValue?: number,
+  minValue?: number | string,
+  _minValue?: number,
 ) => {
   moment().tz("Europe/London").format();
   const calcTotalDuration = (obj: any) => {

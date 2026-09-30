@@ -1,5 +1,6 @@
 import axios from "axios";
 import dummyArr from "../data-preprocessors/dummyArr";
+import { Violation } from "../types/violation";
 
 axios.defaults.baseURL = "http://localhost:3001";
 axios.defaults.timeout = 1200000; //120secs is not enough when handling 30k docs to mongoDB
@@ -51,11 +52,11 @@ export async function fetchViolationsMeta(
 export async function fetchAllViolationsPageable(
   params: ViolationsYearParams,
   limit = VIOLATIONS_PAGE_LIMIT,
-): Promise<any[]> {
-  const all: any[] = [];
+): Promise<Violation[]> {
+  const all: Violation[] = [];
   let page = 1;
   while (true) {
-    const res = await axios.get<any[]>("/violations", {
+    const res = await axios.get<Violation[]>("/violations", {
       params: { ...params, limit, page },
     });
     const chunk = Array.isArray(res.data) ? res.data : [];
@@ -86,7 +87,7 @@ const getViolationsArray = (startDate: string, endDate: string) => {
     });
 };
 
-const postViolationsArray = (arr: any[]) => {
+const postViolationsArray = (arr: Violation[]) => {
   axios
     .post("/add-bulk-of-violations", arr)
     .then(function (res) {

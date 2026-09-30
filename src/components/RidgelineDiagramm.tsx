@@ -1,10 +1,15 @@
 import React, { useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useSelector as useReduxSelector } from "react-redux";
+import type { TypedUseSelectorHook } from "react-redux";
+import type { RootState } from "../redux/store";
 import * as d3 from "d3";
-import { convertUnixToDate, cutDecimals } from "../utils/functions";
+import { convertUnixToDate, cutDecimals, displayUnitName } from "../utils/functions";
+
+const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
 
 const RidgelineDiagram = () => {
-  const svgRef7 = useRef();
+  const svgRef7 = useRef<SVGSVGElement>(null);
   let resData = useSelector((state) => state.filters.ridgelineArrState);
   let checkList = useSelector((state) => state.filters.ridgelineCheckList);
 
@@ -70,7 +75,7 @@ const RidgelineDiagram = () => {
 
     const x = d3
       .scaleLinear()
-      .domain(d3.extent(dates))
+      .domain(d3.extent(dates) as [number, number])
       .range([margin.left + 285, width + 25]);
     // .tickFormat(d3.timeFormat("%d %b %Y")) // Форматирование даты
     // .tickFormat((d) => daysOfWeekRU[d.getDay()]) // Форматирование дня недели
@@ -95,14 +100,14 @@ const RidgelineDiagram = () => {
 
     // Create the area generator and its top-line generator.
     const area = d3
-      .area()
+      .area<number>()
       // .curve(d3.curveBasis)
       .curve(d3.curveBumpX)
       // .curve(d3.curveStep)
       .defined((d) => !isNaN(d))
-      .x((d, i) => x(dates[i]))
+      .x((_d, i) => x(dates[i])!)
       .y0(0)
-      .y1((d) => z(d));
+      .y1((d) => z(d)!);
 
     const line = area.lineY1();
 
@@ -116,7 +121,7 @@ const RidgelineDiagram = () => {
       .tickSize(0)
       .tickValues(dates.filter((_, i) => i % step === 0)) // Filter dates according to step
       .tickFormat(function (d) {
-        return convertUnixToDate(d);
+        return convertUnixToDate(Number(d));
       });
 
     svg
@@ -141,11 +146,11 @@ const RidgelineDiagram = () => {
       .attr("font-weight", "600")
       .attr("text-anchor", "end")
       .text(function (d) {
-        // console.log(d);
-        if (d.name.length >= 36) {
-          return d.name.substr(0, 36) + " ...";
+        const name = displayUnitName(d.name);
+        if (name.length >= 36) {
+          return name.substr(0, 36) + " ...";
         } else {
-          return d.name;
+          return name;
         }
       })
       .append("tspan")
@@ -158,7 +163,7 @@ const RidgelineDiagram = () => {
       .selectAll("g")
       .data(series)
       .join("g")
-      .attr("transform", (d) => `translate(0,${y(d.name) + 1})`);
+      .attr("transform", (d) => `translate(0,${y(d.name)! + 1})`);
 
     group
       .append("path")

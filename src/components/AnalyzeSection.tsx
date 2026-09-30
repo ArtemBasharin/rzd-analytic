@@ -1,10 +1,16 @@
 import React from "react";
+import { useSelector as useReduxSelector } from "react-redux";
+import type { TypedUseSelectorHook } from "react-redux";
+import type { RootState } from "../redux/store";
+import * as d3 from "d3";
+import BarChart2Bars from "./BarChart2Bars";
+
 // import * as htmlToImage from "html-to-image";
 // import { toPng, toJpeg, toBlob, toPixelData, toSvg } from "html-to-image";
 // import download from "downloadjs";
-import { useSelector } from "react-redux";
-import * as d3 from "d3";
-import BarChart2Bars from "./BarChart2Bars";
+
+const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
 
 function AnalyzeSection() {
   // console.time("AnalyzeSection");
@@ -31,7 +37,7 @@ function AnalyzeSection() {
     width: chartFailsWidth,
   };
 
-  let layoutFails = [];
+  let layoutFails: React.ReactElement[] = [];
   paramsFailsSection.ids.forEach((item) => {
     layoutFails.push(
       <BarChart2Bars
@@ -51,7 +57,7 @@ function AnalyzeSection() {
     ids: [7, 8, 9, 10], //this prop need to create unique #id svg elements
     width: chartDelaysWidth,
   };
-  let layoutDelays = [];
+  let layoutDelays: React.ReactElement[] = [];
   paramsDelaysSection.ids.forEach((item) => {
     layoutDelays.push(
       <BarChart2Bars
@@ -71,7 +77,7 @@ function AnalyzeSection() {
     ids: [11, 12, 13, 14], //this prop need to create unique #id svg elements
     width: chartDelaysWidth,
   };
-  let layoutDurations = [];
+  let layoutDurations: React.ReactElement[] = [];
   paramsDurationsSection.ids.forEach((item) => {
     layoutDurations.push(
       <BarChart2Bars

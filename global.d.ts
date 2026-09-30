@@ -14,4 +14,6 @@ interface SankeyData {
   links: SankeyLink[];
 }
 
+declare module "xlsx/xlsx.mjs";
+
 export {};

@@ -11,9 +11,9 @@ import {
 
 export const getRidgelineArr = (
   srcArray: any,
-  dateStart: Date,
-  dateEnd: Date,
-  _: string[],
+  dateStart: any,
+  dateEnd: any,
+  _: any,
   unitsList: any[]
 ) => {
   const filterUnits = (srcArr: any[], units: any[]) => {

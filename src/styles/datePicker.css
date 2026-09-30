@@ -14,23 +14,28 @@ div.calendar_container {
   border-top-right-radius: 4px;
   font-size: 12px;
   z-index: 999;
-  overflow: hidden;
+  transform-origin: top left;
 }
 
-.my-selected:not([disabled]) {
-  font-weight: bold;
-  border: 2px solid currentColor;
+.calendar-dropdown-enter {
+  opacity: 0;
+  transform: translateY(-4px);
 }
-.my-selected:not([enabled]) {
-  font-weight: bold;
-  border: 2px solid var(--main-bg-color);
+
+.calendar-dropdown-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 150ms ease, transform 150ms ease;
 }
-.my-selected:hover:not([disabled]) {
-  border-color: var(--main-bg-color);
-  color: var(--main-bg-color);
+
+.calendar-dropdown-exit {
+  opacity: 1;
+  transform: translateY(0);
 }
-.my-today {
-  font-weight: bold;
-  font-size: 140%;
-  color: red;
+
+.calendar-dropdown-exit-active {
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 150ms ease, transform 150ms ease;
+  pointer-events: none;
 }

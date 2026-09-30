@@ -5,20 +5,20 @@ import * as XLSX from "xlsx/xlsx.mjs";
 import { postViolationsArray } from "../utils/requests";
 import { guiltyUnit, guiltyNew } from "../utils/config";
 
-let initialData = [];
+let initialData: any[] = [];
 
 function DropZoneParser() {
-  const onDrop = useCallback((acceptedFiles) => {
+  const onDrop = useCallback((acceptedFiles: File[]) => {
     const reader = new FileReader();
     reader.readAsBinaryString(acceptedFiles[0]);
     reader.onload = function (e) {
-      var data = e.target.result;
+      var data = e.target!.result;
       var workbook = XLSX.read(data, {
         type: "binary",
         cellDates: true,
       });
-      var result = {};
-      workbook.SheetNames.forEach(function (sheetName) {
+      var result: Record<string, any> = {};
+      workbook.SheetNames.forEach(function (sheetName: string) {
         var roa = XLSX.utils.sheet_to_row_object_array(
           workbook.Sheets[sheetName],
         );
@@ -39,9 +39,9 @@ function DropZoneParser() {
 
       initialData = resultArray;
 
-      const filterArray = (arr) => {
-        let result = [];
-        arr.forEach((el) => {
+      const filterArray = (arr: any[]) => {
+        let result: any[] = [];
+        arr.forEach((el: any) => {
           if (el["ID отказа"] || el["#"]) {
             if (el[guiltyNew]) {
               el[guiltyNew] = el[guiltyNew].replace(/Московская,$/, "");

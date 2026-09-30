@@ -1,11 +1,15 @@
 import React from "react";
-
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch, useSelector as useReduxSelector } from "react-redux";
+import type { TypedUseSelectorHook } from "react-redux";
+import type { RootState } from "../redux/store";
 import {
   incrementDaysIngroup,
   decrementDaysIngroup,
   setDaysInGroup,
 } from "../redux/filtersSlice";
+
+const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
 
 const DaysInGroupSetter = () => {
   const daysInGroup = useSelector((state) => state.filters.daysInGroup);
