@@ -13,6 +13,7 @@
 @import url("../src/styles/report.css");
 @import url("../src/styles/tables.css");
 @import url("../src/styles/svgmap.css");
+@import url("./styles/chart-builder.css");
 
 :root {
   --main-bg-color: #2979ff;

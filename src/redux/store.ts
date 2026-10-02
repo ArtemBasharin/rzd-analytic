@@ -1,8 +1,10 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import filtersSlice from "./filtersSlice";
+import chartBuilderSlice from "./chartBuilderSlice";
 
 const rootReducer = combineReducers({
   filters: filtersSlice,
+  chartBuilder: chartBuilderSlice,
 });
 
 export const store = configureStore({

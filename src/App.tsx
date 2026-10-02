@@ -3,6 +3,7 @@ import "./App.css";
 import Navbar from "./components/Navbar";
 import Main from "./components/Main";
 import Popup from "./components/Popup";
+import ChartBuilderOverlay from "./components/chart-builder/ChartBuilderOverlay";
 import { useSelector } from "react-redux";
 
 function App() {
@@ -12,6 +13,7 @@ function App() {
       {popup.isOpened && <Popup />}
       <Navbar />
       <Main />
+      <ChartBuilderOverlay />
     </div>
   );
 }
