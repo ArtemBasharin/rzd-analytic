@@ -9,6 +9,7 @@ import {
   setRounded,
   setShadow,
   setShowGrid,
+  setShowLabels,
   setShowYAxis,
   setStrokeColor,
   setStrokeWidth,
@@ -115,6 +116,16 @@ const BuilderStyleToolbar: React.FC = () => {
             onClick={() => dispatch(setShowGrid(!style.showGrid))}
           >
             Сетка
+          </button>
+        </Tooltip>
+        <Tooltip title="Подписи значений" arrow>
+          <button
+            type="button"
+            className={style.showLabels !== false ? "builder-toggle is-on" : "builder-toggle"}
+            aria-pressed={style.showLabels !== false}
+            onClick={() => dispatch(setShowLabels(style.showLabels === false))}
+          >
+            Подписи
           </button>
         </Tooltip>
         <Tooltip title="Вертикальная ось (Y)" arrow>

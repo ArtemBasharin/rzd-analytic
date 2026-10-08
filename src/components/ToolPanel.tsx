@@ -1,10 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { setCutoffDatesFromMeta, setSourceState } from "../redux/filtersSlice";
-import {
-  fetchAllViolationsPageable,
-  fetchViolationsMeta,
-} from "../utils/requests";
+import { loadViolationsIntoStore } from "../utils/loadViolations";
 import "../utils/requests";
 import DateRangePicker from "./ToolDatePicker";
 import DropdownUnits from "./ToolDropdownUnits";
@@ -13,7 +9,6 @@ import DropdownCurrentYear from "./ToolDropdownCurrentYear";
 import DaysInGroupSetter from "./ToolDaysInGroupSetter";
 import MinValueSetter from "./ToolMinValueSetter";
 import PeriodSetter from "./ToolPeriodSetter";
-import dummyArr from "../data-preprocessors/dummyArr";
 import ToolDropdownSum from "./ToolDropdownSum";
 import RaceTimingSetter from "./ToolRaceTiming";
 const { CSSTransition } = require("react-transition-group");
@@ -24,54 +19,7 @@ const ToolPanel = () => {
 
   useEffect(() => {
     let cancelled = false;
-    const calendarYear = new Date().getFullYear();
-    const yearParams = { fromYear: 2000, toYear: calendarYear + 1 };
-
-    (async () => {
-      try {
-        const meta = await fetchViolationsMeta(yearParams);
-        if (cancelled) return;
-        if (
-          meta &&
-          meta.minDate != null &&
-          meta.maxDate != null &&
-          meta.total > 0
-        ) {
-          dispatch(
-            setCutoffDatesFromMeta({
-              minDate: meta.minDate,
-              maxDate: meta.maxDate,
-            }),
-          );
-        }
-
-        const data = await fetchAllViolationsPageable(yearParams);
-        if (cancelled) return;
-
-        if (process.env.NODE_ENV === "development") {
-          const totalHint =
-            meta?.total != null ? ` (meta.total=${meta.total})` : "";
-          console.log(
-            "[ToolPanel] GET /violations — записей:",
-            data.length,
-            totalHint,
-          );
-        }
-        dispatch(setSourceState(data));
-      } catch (error) {
-        if (cancelled) return;
-        console.log("axios violations load error:", error);
-        if (process.env.NODE_ENV === "development") {
-          console.log(
-            "[ToolPanel] подставляем dummyArr — отчёт не из БД или старый API",
-          );
-        }
-        dispatch(
-          setSourceState(dummyArr(calendarYear - 1, calendarYear)),
-        );
-      }
-    })();
-
+    loadViolationsIntoStore(dispatch, { shouldApply: () => !cancelled });
     return () => {
       cancelled = true;
     };

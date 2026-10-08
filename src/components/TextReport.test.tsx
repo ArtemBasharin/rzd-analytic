@@ -46,6 +46,7 @@ const mockState = {
       { year: 2025, report: [{ place: 'Станция 1', totalDuration: 120 }] }
     ],
     sankeyCheckList: [],
+    reportSankeyBlocksVisible: false,
     dateStart: new Date('2025-01-01').getTime(),
     dateEnd: new Date('2025-12-31').getTime()
   }
@@ -58,6 +59,25 @@ const createMockStore = (state: any) => configureStore({
 });
 
 describe('TextReportTemplatePeriod', () => {
+  test('does not crash before report data is loaded', () => {
+    const store = createMockStore({
+      filters: {
+        sourceState: [],
+        reportSrcState: [],
+        reportStations: [],
+        sankeyCheckList: [],
+        dateStart: new Date('2025-01-01').getTime(),
+        dateEnd: new Date('2025-12-31').getTime(),
+      },
+    });
+    render(
+      <Provider store={store}>
+        <TextReportTemplatePeriod />
+      </Provider>
+    );
+    expect(screen.queryByText(/За рассматриваемый период допущено/i)).not.toBeInTheDocument();
+  });
+
   test('renders report with data', () => {
     const store = createMockStore(mockState);
     render(

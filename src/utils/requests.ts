@@ -1,6 +1,7 @@
 import axios from "axios";
 import dummyArr from "../data-preprocessors/dummyArr";
 import { Violation } from "../types/violation";
+import { pushToast, recordsLabel, updateToast, ToastStatus } from "./toast";
 
 axios.defaults.baseURL = "http://localhost:3001";
 axios.defaults.timeout = 1200000; //120secs is not enough when handling 30k docs to mongoDB
@@ -46,25 +47,78 @@ export async function fetchViolationsMeta(
   }
 }
 
+const PAGE_CONCURRENCY = 4;
+
+function asRows(data: unknown): Violation[] {
+  return Array.isArray(data) ? data : [];
+}
+
+async function fetchViolationPage(
+  params: ViolationsYearParams,
+  limit: number,
+  page: number,
+) {
+  return axios.get<Violation[]>("/violations", {
+    params: { ...params, limit, page },
+  });
+}
+
 /**
- * GET /violations с limit/page и заголовком X-Total-Count — собирает все страницы.
+ * GET /violations с limit/page и заголовком X-Total-Count.
+ * Первая страница, затем остальные параллельно пачками.
+ * Если сервер проигнорировал limit и отдал весь массив — повторных запросов нет.
  */
 export async function fetchAllViolationsPageable(
   params: ViolationsYearParams,
   limit = VIOLATIONS_PAGE_LIMIT,
 ): Promise<Violation[]> {
-  const all: Violation[] = [];
-  let page = 1;
-  while (true) {
-    const res = await axios.get<Violation[]>("/violations", {
-      params: { ...params, limit, page },
-    });
-    const chunk = Array.isArray(res.data) ? res.data : [];
+  const first = await fetchViolationPage(params, limit, 1);
+  const firstChunk = asRows(first.data);
+  if (firstChunk.length === 0) return [];
+
+  const total = parseTotalCount(first.headers);
+
+  if (total == null && firstChunk.length !== limit) return firstChunk;
+  if (total != null && firstChunk.length >= total) return firstChunk;
+
+  const pageCount = total != null ? Math.ceil(total / limit) : 0;
+  if (pageCount > 1) {
+    const pages: number[] = [];
+    for (let page = 2; page <= pageCount; page += 1) pages.push(page);
+
+    const all = firstChunk.slice();
+    for (let i = 0; i < pages.length; i += PAGE_CONCURRENCY) {
+      const batch = pages.slice(i, i + PAGE_CONCURRENCY);
+      const results = await Promise.all(
+        batch.map((page) => fetchViolationPage(params, limit, page)),
+      );
+      results.forEach((res) => {
+        all.push(...asRows(res.data));
+      });
+    }
+    return all;
+  }
+
+  if (total != null) return firstChunk;
+
+  const second = await fetchViolationPage(params, limit, 2);
+  const secondChunk = asRows(second.data);
+  if (secondChunk.length === 0) return firstChunk;
+  if (secondChunk.length >= limit && secondChunk.length === firstChunk.length) {
+    return firstChunk;
+  }
+
+  const all = firstChunk.concat(secondChunk);
+  let page = 3;
+  const maxPages = 50;
+  while (page <= maxPages) {
+    const res = await fetchViolationPage(params, limit, page);
+    const chunk = asRows(res.data);
     all.push(...chunk);
-    const total = parseTotalCount(res.headers);
+    const pageTotal = parseTotalCount(res.headers);
     if (chunk.length === 0) break;
-    if (total != null && all.length >= total) break;
-    if (total == null && chunk.length < limit) break;
+    if (pageTotal != null && all.length >= pageTotal) break;
+    if (chunk.length < limit) break;
     page += 1;
   }
   return all;
@@ -87,28 +141,98 @@ const getViolationsArray = (startDate: string, endDate: string) => {
     });
 };
 
-const postViolationsArray = (arr: Violation[]) => {
-  axios
-    .post("/add-bulk-of-violations", arr)
-    .then(function (res) {
-      console.log("post response:", res.data);
-    })
-    .catch(function (error) {
-      console.log("axios.post error:", error);
-    })
-    .finally(function () {});
+export type BulkUploadSummary = {
+  matchedCount?: number;
+  modifiedCount?: number;
+  upsertedCount?: number;
+  total?: number;
 };
 
-const deleteCollection = () => {
-  axios
-    .delete("/violations")
-    .then(function (res) {
-      console.log("post response:", res.data);
-    })
-    .catch(function (error) {
-      console.log("axios.post error:", error);
-    })
-    .finally(function () {});
+export type DeleteCollectionResult = {
+  deletedCount?: number;
+  acknowledged?: boolean;
+};
+
+export function requestErrorText(error: unknown, fallback: string): string {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data;
+    if (data && typeof data === "object" && "error" in data) {
+      const message = (data as { error?: unknown }).error;
+      if (typeof message === "string" && message.trim()) return message;
+    }
+  }
+  return fallback;
+}
+
+export function describeBulkUpload(
+  summary: BulkUploadSummary,
+  sent: number,
+): { message: string; status: ToastStatus } {
+  const total = Number(summary?.total ?? sent);
+  const added = Number(summary?.upsertedCount ?? 0);
+  const updated = Number(summary?.modifiedCount ?? 0);
+  const matched = Number(summary?.matchedCount ?? 0);
+
+  if (!Number.isFinite(total) || total <= 0) {
+    return {
+      status: "fail",
+      message: "Файл не распознан: нет колонок «ID отказа» или «Ответственный»",
+    };
+  }
+
+  if (added === 0 && updated === 0) {
+    if (matched > 0) {
+      return {
+        status: "success",
+        message: `Файл обработан: ${matched} ${recordsLabel(matched)} уже в базе, изменений нет`,
+      };
+    }
+    return {
+      status: "success",
+      message: `Файл обработан: ${total} ${recordsLabel(total)}, совпадений в базе нет`,
+    };
+  }
+
+  return {
+    status: "success",
+    message: `Загружено ${total} ${recordsLabel(total)}: добавлено ${added}, обновлено ${updated}`,
+  };
+}
+
+const postViolationsArray = async (
+  arr: Violation[],
+  noticeId?: number,
+): Promise<BulkUploadSummary> => {
+  const sending = `Отправка ${arr.length} ${recordsLabel(arr.length)}…`;
+  const id =
+    noticeId != null ? noticeId : pushToast(sending, "info", true);
+  if (noticeId != null) updateToast(id, sending, "info", true);
+
+  try {
+    const res = await axios.post<BulkUploadSummary>("/add-bulk-of-violations", arr);
+    console.log("post response:", res.data);
+    return res.data ?? {};
+  } catch (error) {
+    console.log("axios.post error:", error);
+    const serverText = requestErrorText(error, "Не удалось загрузить файл");
+    updateToast(
+      id,
+      serverText === "Пустой массив" ? "Файл пустой или не распознан" : serverText,
+      "fail",
+    );
+    throw error;
+  }
+};
+
+const deleteCollection = async (): Promise<DeleteCollectionResult> => {
+  try {
+    const res = await axios.delete<DeleteCollectionResult>("/violations");
+    console.log("delete response:", res.data);
+    return res.data ?? {};
+  } catch (error) {
+    console.log("axios.delete error:", error);
+    throw error;
+  }
 };
 
 export {

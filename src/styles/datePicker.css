@@ -1,20 +1,153 @@
+.year-switch {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  border: 1px solid var(--main-border-color);
+  border-radius: 7px;
+  color: white;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.year-switch__btn {
+  width: 32px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.year-switch__btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.year-switch__btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.year-switch__value {
+  min-width: 48px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.date-range__trigger {
+  gap: 8px;
+  white-space: nowrap;
+  padding: 10px 12px;
+}
+
+.date-range__trigger:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.date-range__icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.date-range__value {
+  font-variant-numeric: tabular-nums;
+}
+
+.date-range__chevron {
+  margin-left: 2px;
+  transition: transform 150ms ease;
+}
+
 div.calendar_container {
   position: absolute;
   margin: 0;
-  top: 100%;
-  left: 7px;
+  top: calc(100% + 6px);
+  left: 0;
   background-color: #fff;
-  color: black;
-  padding: 10px;
-  border: 1px solid #ccc;
+  color: #1a1a1a;
+  padding: 12px;
+  border: 1px solid #d0d7de;
   box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.2),
     0px 8px 10px 1px rgba(0, 0, 0, 0.14), 0px 3px 14px 2px rgba(0, 0, 0, 0.12);
-  border-bottom-left-radius: 4px;
-  border-bottom-right-radius: 4px;
-  border-top-right-radius: 4px;
-  font-size: 12px;
-  z-index: 999;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 3;
   transform-origin: top left;
+}
+
+.calendar-preset {
+  display: block;
+  width: 100%;
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border: 1px solid #2979ff;
+  border-radius: 6px;
+  background: #2979ff;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: center;
+}
+
+.calendar-preset:hover {
+  background: #1c6cf0;
+}
+
+.calendar-preset.is-active {
+  box-shadow: inset 0 0 0 2px #003c8f;
+}
+
+.calendar-years {
+  display: flex;
+  gap: 4px;
+  overflow-x: auto;
+  margin: 0 0 10px;
+  padding-bottom: 4px;
+  max-width: 560px;
+}
+
+.calendar-years button {
+  flex: 0 0 auto;
+  border: 1px solid #cfd8dc;
+  background: #fff;
+  color: #1a1a1a;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.calendar-years button:hover {
+  background: #e3f2fd;
+}
+
+.calendar-years button.is-selected {
+  background: #2979ff;
+  border-color: #2979ff;
+  color: #fff;
+}
+
+.calendar-hint {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #005397;
+}
+
+.calendar_container .rdp {
+  --rdp-cell-size: 36px;
+  --rdp-accent-color: #2979ff;
+  --rdp-background-color: #e3f2fd;
+  margin: 0;
+}
+
+.calendar_container .rdp-dropdown {
+  color: #1a1a1a;
 }
 
 .calendar-dropdown-enter {

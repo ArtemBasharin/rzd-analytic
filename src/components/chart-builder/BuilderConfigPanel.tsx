@@ -5,16 +5,23 @@ import StackedBarChartIcon from "@mui/icons-material/StackedBarChart";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import PieChartIcon from "@mui/icons-material/PieChart";
 import type { RootState } from "../../redux/store";
+import { filterViolationsByPlace } from "../../utils/placeParts";
 import {
   clearDataFilters,
-  setAggregation,
+  addMeasure,
+  removeMeasure,
   setBuilderDates,
   setCategoryField,
   setChartType,
+  setColorField,
   setCompareMode,
   setDataFilter,
+  setMeasureAggregation,
+  setMeasureAxis,
+  setSeriesLayout,
+  setSortBy,
+  setSortDir,
   setTopN,
-  setValueField,
   addComparePeriod,
   updateComparePeriod,
   removeComparePeriod,
@@ -26,13 +33,24 @@ import {
   findField,
   measureFields,
 } from "../../chart-builder/fieldCatalog";
-import { collectFilterOptions } from "../../chart-builder/dataFilters";
+import { resolveCompareSeries } from "../../chart-builder/aggregate";
+import {
+  collectFilterOptions,
+  FilterOption,
+  ListFilterKey,
+} from "../../chart-builder/dataFilters";
 import {
   Aggregation,
   ChartDataFilters,
   ChartType,
   CompareMode,
+  MeasureSlot,
+  SeriesLayout,
+  SortBy,
+  SortDir,
   defaultDataFilters,
+  y2Measures,
+  yMeasures,
 } from "../../chart-builder/types";
 
 type IconComponent = React.ComponentType<{
@@ -46,7 +64,29 @@ const chartTypes: { type: ChartType; label: string; Icon: IconComponent }[] = [
   { type: "pie", label: "Круговая", Icon: PieChartIcon },
 ];
 
-type ListFilterKey = "units" | "places" | "categories" | "kinds" | "reasons";
+const AGG_OPTIONS: { id: Aggregation; label: string }[] = [
+  { id: "sum", label: "Сумма" },
+  { id: "count", label: "Количество" },
+  { id: "avg", label: "Среднее" },
+  { id: "min", label: "Минимум" },
+  { id: "max", label: "Максимум" },
+  { id: "countUnique", label: "Уникальные" },
+];
+
+function aggregationOptions(fieldId: string) {
+  if (fieldId === "__count__") {
+    return AGG_OPTIONS.filter((o) => o.id === "count" || o.id === "countUnique");
+  }
+  return AGG_OPTIONS;
+}
+
+const FILTER_LABELS: Record<ListFilterKey, string> = {
+  units: "Виновное предприятие",
+  places: "Место",
+  categories: "Категория",
+  kinds: "Вид нарушения",
+  reasons: "Причина",
+};
 
 function toDateInputValue(ms: number | null): string {
   if (ms == null) return "";
@@ -70,7 +110,7 @@ function fromDateInputValue(value: string, endOfDay: boolean): number | null {
 const MultiCheckFilter: React.FC<{
   label: string;
   filterKey: ListFilterKey;
-  options: string[];
+  options: FilterOption[];
   selected: string[];
 }> = ({ label, filterKey, options, selected }) => {
   const dispatch = useDispatch();
@@ -80,7 +120,7 @@ const MultiCheckFilter: React.FC<{
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return options;
-    return options.filter((o) => o.toLowerCase().includes(q));
+    return options.filter((o) => o.value.toLowerCase().includes(q));
   }, [options, query]);
 
   const summary =
@@ -132,19 +172,32 @@ const MultiCheckFilter: React.FC<{
               <p className="builder-filter-empty">Нет значений</p>
             )}
             {filtered.map((opt) => {
-              const checked = selected.includes(opt);
+              const checked = selected.includes(opt.value);
+              const empty = opt.count === 0;
               return (
-                <label key={opt} className="builder-filter-item">
+                <label
+                  key={opt.value}
+                  className={
+                    empty
+                      ? "builder-filter-item is-empty"
+                      : "builder-filter-item"
+                  }
+                >
                   <input
                     type="checkbox"
                     checked={checked}
                     onChange={() =>
                       dispatch(
-                        toggleFilterValue({ key: filterKey, value: opt }),
+                        toggleFilterValue({ key: filterKey, value: opt.value }),
                       )
                     }
                   />
-                  <span title={opt}>{opt}</span>
+                  <span className="builder-filter-item-name" title={opt.value}>
+                    {opt.value}
+                  </span>
+                  <span className="builder-filter-count">
+                    {opt.count.toLocaleString("ru-RU")}
+                  </span>
                 </label>
               );
             })}
@@ -155,22 +208,110 @@ const MultiCheckFilter: React.FC<{
   );
 };
 
+const MeasureRow: React.FC<{
+  slot: MeasureSlot;
+  index: number;
+  canRemove: boolean;
+  y2Supported: boolean;
+  yCount: number;
+}> = ({ slot, index, canRemove, y2Supported, yCount }) => {
+  const dispatch = useDispatch();
+  const name = findField(slot.fieldId)?.label ?? slot.fieldId;
+  const onY2 = slot.axis === "y2";
+  const canMoveToY2 = y2Supported && !onY2 && yCount > 1;
+
+  return (
+    <div className="builder-measure-row">
+      <span className="builder-measure-name">
+        {onY2 ? "Y2 · " : "Y · "}
+        {name}
+      </span>
+      <select
+        aria-label={`Агрегация: ${name}`}
+        value={slot.aggregation}
+        onChange={(e) =>
+          dispatch(
+            setMeasureAggregation({
+              index,
+              aggregation: e.target.value as Aggregation,
+            }),
+          )
+        }
+      >
+        {aggregationOptions(slot.fieldId).map((opt) => (
+          <option key={opt.id} value={opt.id}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      {y2Supported && (
+        <button
+          type="button"
+          className="builder-clear-slot"
+          disabled={onY2 ? false : !canMoveToY2}
+          onClick={() =>
+            dispatch(
+              setMeasureAxis({ index, axis: onY2 ? "y" : "y2" }),
+            )
+          }
+        >
+          {onY2 ? "На Y" : "На Y2"}
+        </button>
+      )}
+      {canRemove && (
+        <button
+          type="button"
+          className="builder-clear-slot"
+          onClick={() => dispatch(removeMeasure(index))}
+        >
+          Убрать
+        </button>
+      )}
+    </div>
+  );
+};
+
 const BuilderConfigPanel: React.FC = () => {
   const dispatch = useDispatch();
   const spec = useSelector((s: RootState) => s.chartBuilder.spec);
-  const sourceState = useSelector((s: RootState) => s.filters.sourceState);
+  const loadedRows = useSelector((s: RootState) => s.filters.sourceState);
+  const railwayFilter = useSelector((s: RootState) => s.filters.railwayFilter);
+  const regionFilter = useSelector((s: RootState) => s.filters.regionFilter);
+  const sourceState = useMemo(
+    () => filterViolationsByPlace(loadedRows || [], railwayFilter, regionFilter),
+    [loadedRows, railwayFilter, regionFilter],
+  );
   const dateStart = useSelector((s: RootState) => s.filters.dateStart);
   const dateEnd = useSelector((s: RootState) => s.filters.dateEnd);
   const category = findField(spec.categoryField);
-  const measure = findField(spec.valueField);
   const filters: ChartDataFilters = spec.filters ?? defaultDataFilters();
+  const measures = spec.measures?.length ? spec.measures : yMeasures(spec);
+  const comparing = spec.compareMode === "yoy" || spec.compareMode === "custom";
+  const y2Supported = spec.chartType === "bar" || spec.chartType === "line";
+  const layoutSupported = spec.chartType === "bar" || spec.chartType === "hbar";
+  const isIndicator = spec.chartType === "indicator";
 
   const displayFrom = spec.dateFrom ?? Number(dateStart) ?? null;
   const displayTo = spec.dateTo ?? Number(dateEnd) ?? null;
 
-  const options = useMemo(
-    () => collectFilterOptions(sourceState || []),
-    [sourceState],
+  const periods = useMemo(
+    () =>
+      resolveCompareSeries({
+        ...spec,
+        dateFrom: displayFrom,
+        dateTo: displayTo,
+        compareMode: spec.compareMode ?? "none",
+        comparePeriods: spec.comparePeriods ?? [],
+      }).map((period) => ({
+        dateFrom: period.dateFrom,
+        dateTo: period.dateTo,
+      })),
+    [spec, displayFrom, displayTo],
+  );
+
+  const facets = useMemo(
+    () => collectFilterOptions(sourceState || [], filters, periods),
+    [sourceState, filters, periods],
   );
 
   const activeFilterCount =
@@ -238,48 +379,127 @@ const BuilderConfigPanel: React.FC = () => {
       </div>
 
       <div className="builder-config-block">
-        <label className="builder-label" htmlFor="builder-value">
-          Значение
-        </label>
+        <span className="builder-label">Показатели</span>
+        {measures.map((slot, index) => (
+          <MeasureRow
+            key={`${slot.fieldId}-${slot.axis}-${index}`}
+            slot={slot}
+            index={index}
+            canRemove={measures.length > 1}
+            y2Supported={y2Supported && !comparing}
+            yCount={measures.filter((m) => m.axis !== "y2").length}
+          />
+        ))}
         <select
-          id="builder-value"
-          value={spec.valueField ?? ""}
-          onChange={(e) => dispatch(setValueField(e.target.value || null))}
+          id="builder-add-measure"
+          aria-label="Добавить показатель"
+          value=""
+          onChange={(e) => {
+            if (e.target.value) dispatch(addMeasure(e.target.value));
+          }}
         >
-          <option value="">— не выбрано —</option>
-          {measureFields.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.label}
-            </option>
-          ))}
+          <option value="">+ Добавить показатель</option>
+          {measureFields
+            .filter((f) => !measures.some((m) => m.fieldId === f.id))
+            .map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.label}
+              </option>
+            ))}
         </select>
-        {measure && (
-          <button
-            type="button"
-            className="builder-clear-slot"
-            onClick={() => dispatch(setValueField(null))}
-          >
-            Очистить
-          </button>
+        {isIndicator && (
+          <p className="builder-filter-empty">
+            Индикатор показывает первый показатель оси Y.
+          </p>
         )}
       </div>
 
-      <div className="builder-config-block">
-        <label className="builder-label" htmlFor="builder-agg">
-          Агрегация
-        </label>
-        <select
-          id="builder-agg"
-          value={spec.aggregation}
-          onChange={(e) =>
-            dispatch(setAggregation(e.target.value as Aggregation))
-          }
-        >
-          <option value="sum">Сумма</option>
-          <option value="count">Количество</option>
-          <option value="avg">Среднее</option>
-        </select>
-      </div>
+      {!isIndicator && (
+        <div className="builder-config-block">
+          <label className="builder-label" htmlFor="builder-color">
+            Цвет
+          </label>
+          <select
+            id="builder-color"
+            value={comparing ? "" : spec.colorField ?? ""}
+            disabled={comparing}
+            onChange={(e) => dispatch(setColorField(e.target.value || null))}
+          >
+            <option value="">— по показателям —</option>
+            {dimensionFields
+              .filter((f) => f.id !== spec.categoryField)
+              .map((f) => (
+                <option key={f.id} value={f.id}>
+                  {f.label}
+                </option>
+              ))}
+          </select>
+          {comparing && (
+            <p className="builder-filter-empty">
+              Сравнение периодов строится по первому показателю. Цвет и вторая ось
+              недоступны.
+            </p>
+          )}
+          {!comparing && spec.colorField && yMeasures(spec).length > 1 && (
+            <p className="builder-filter-empty">
+              Цвет применяется, когда на оси Y один показатель.
+            </p>
+          )}
+          {!comparing && spec.colorField && y2Measures(spec).length > 0 && (
+            <p className="builder-filter-empty">
+              Цвет не смешивается со второй осью.
+            </p>
+          )}
+        </div>
+      )}
+
+      {layoutSupported && (
+        <div className="builder-config-block">
+          <span className="builder-label">Раскладка столбцов</span>
+          <div className="builder-compare-modes" role="radiogroup" aria-label="Раскладка">
+            {(
+              [
+                { id: "grouped", label: "Рядом" },
+                { id: "stacked", label: "Накопление" },
+                { id: "normalized", label: "Доли" },
+              ] as { id: SeriesLayout; label: string }[]
+            ).map((m) => (
+              <label key={m.id} className="builder-filter-item builder-filter-toggle">
+                <input
+                  type="radio"
+                  name="series-layout"
+                  checked={(spec.seriesLayout ?? "grouped") === m.id}
+                  onChange={() => dispatch(setSeriesLayout(m.id))}
+                />
+                <span>{m.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!isIndicator && (
+        <div className="builder-config-block">
+          <span className="builder-label">Сортировка</span>
+          <select
+            aria-label="Поле сортировки"
+            value={spec.sortBy ?? "auto"}
+            onChange={(e) => dispatch(setSortBy(e.target.value as SortBy))}
+          >
+            <option value="auto">По умолчанию</option>
+            <option value="category">По категории</option>
+            <option value="value">По значению</option>
+          </select>
+          <select
+            aria-label="Направление сортировки"
+            value={spec.sortDir ?? "desc"}
+            onChange={(e) => dispatch(setSortDir(e.target.value as SortDir))}
+          >
+            <option value="desc">По убыванию</option>
+            <option value="asc">По возрастанию</option>
+          </select>
+        </div>
+      )}
 
       <div className="builder-config-block">
         <span className="builder-label">Период</span>
@@ -447,38 +667,77 @@ const BuilderConfigPanel: React.FC = () => {
           )}
         </div>
 
-        <MultiCheckFilter
-          label="Подразделение"
-          filterKey="units"
-          options={options.units}
-          selected={filters.units}
-        />
-        <MultiCheckFilter
-          label="Место возникновения"
-          filterKey="places"
-          options={options.places}
-          selected={filters.places}
-        />
-        <MultiCheckFilter
-          label="Категория"
-          filterKey="categories"
-          options={options.categories}
-          selected={filters.categories}
-        />
-        <MultiCheckFilter
-          label="Вид нарушения"
-          filterKey="kinds"
-          options={options.kinds}
-          selected={filters.kinds}
-        />
-        <MultiCheckFilter
-          label="Причина"
-          filterKey="reasons"
-          options={options.reasons}
-          selected={filters.reasons}
-        />
+        <p className="builder-filter-hint">
+          Число справа — сколько строк останется с этим значением при остальных
+          условиях.
+        </p>
+        {activeFilterCount > 0 && (
+          <div className="builder-filter-chips">
+            {(Object.keys(FILTER_LABELS) as ListFilterKey[]).flatMap((key) =>
+              filters[key].map((value) => (
+                <span key={`${key}:${value}`} className="builder-filter-chip">
+                  <span className="builder-filter-chip-text" title={`${FILTER_LABELS[key]}: ${value}`}>
+                    {FILTER_LABELS[key]}: {value}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label={`Снять ${FILTER_LABELS[key]}: ${value}`}
+                    onClick={() =>
+                      dispatch(toggleFilterValue({ key, value }))
+                    }
+                  >
+                    ×
+                  </button>
+                </span>
+              )),
+            )}
+            {filters.onlyWithDelays && (
+              <span className="builder-filter-chip">
+                <span className="builder-filter-chip-text">
+                  Только с задержками
+                </span>
+                <button
+                  type="button"
+                  aria-label="Снять только с задержками"
+                  onClick={() =>
+                    dispatch(
+                      setDataFilter({ key: "onlyWithDelays", value: false }),
+                    )
+                  }
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            {filters.minDelayHours > 0 && (
+              <span className="builder-filter-chip">
+                <span className="builder-filter-chip-text">
+                  Мин. задержка: {filters.minDelayHours} ч
+                </span>
+                <button
+                  type="button"
+                  aria-label="Снять минимальную задержку"
+                  onClick={() =>
+                    dispatch(setDataFilter({ key: "minDelayHours", value: 0 }))
+                  }
+                >
+                  ×
+                </button>
+              </span>
+            )}
+          </div>
+        )}
+        <p className="builder-filter-match">
+          Подошло {facets.matched.toLocaleString("ru-RU")} из{" "}
+          {facets.scoped.toLocaleString("ru-RU")}
+        </p>
+        {facets.matched === 0 && activeFilterCount > 0 && (
+          <p className="builder-filter-hint">Нет строк по выбранным условиям</p>
+        )}
 
         <div className="builder-config-block">
+          <span className="builder-label">Задержки</span>
+          <p className="builder-filter-hint">Ограничивают все списки.</p>
           <label className="builder-filter-item builder-filter-toggle">
             <input
               type="checkbox"
@@ -494,9 +753,6 @@ const BuilderConfigPanel: React.FC = () => {
             />
             <span>Только с задержками поездов</span>
           </label>
-        </div>
-
-        <div className="builder-config-block">
           <label className="builder-label" htmlFor="builder-min-delay">
             Мин. задержка, ч
           </label>
@@ -517,6 +773,16 @@ const BuilderConfigPanel: React.FC = () => {
             }
           />
         </div>
+
+        {(Object.keys(FILTER_LABELS) as ListFilterKey[]).map((key) => (
+          <MultiCheckFilter
+            key={key}
+            label={FILTER_LABELS[key]}
+            filterKey={key}
+            options={facets.options[key]}
+            selected={filters[key]}
+          />
+        ))}
       </div>
 
       <button

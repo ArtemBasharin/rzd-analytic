@@ -104,7 +104,8 @@ export const getStackedArr = (
     const nextDate = customCalendar[i + 1];
     unitedDatesResult.push({ date: currentDate });
     result.forEach((el) => {
-      if (el.date >= currentDate && el.date < nextDate) {
+      const rowDate = Number(el.date);
+      if (rowDate >= currentDate && rowDate < nextDate) {
         for (let key in el) {
           if (unitedDatesResult[i].hasOwnProperty(key) && key !== "date") {
             unitedDatesResult[i][key] = unitedDatesResult[i][key] + el[key];

@@ -11,6 +11,7 @@ import {
   passDelayed,
   passDuration,
   place,
+  startTime as startTimeKey,
   subDelayed,
   subDuration,
 } from "../utils/config";
@@ -38,29 +39,127 @@ function hasAnyDelay(row: Violation): boolean {
   return totalDelayHours(row) > 0;
 }
 
-/** Unique sorted values for a dimension column (within optional date window). */
-export function uniqueFieldValues(
-  rows: Violation[],
-  key: string,
-  limit = 200,
-): string[] {
-  const set = new Set<string>();
-  for (const row of rows) {
-    set.add(cell(row, key));
-    if (set.size > limit * 2) break;
-  }
-  return Array.from(set)
-    .sort((a, b) => a.localeCompare(b, "ru"))
-    .slice(0, limit);
+const LIST_FILTERS = [
+  ["units", guiltyUnit],
+  ["places", place],
+  ["categories", failCategory],
+  ["kinds", failKind],
+  ["reasons", failReason],
+] as const;
+
+export type ListFilterKey = (typeof LIST_FILTERS)[number][0];
+
+export interface DateWindow {
+  dateFrom: number | null;
+  dateTo: number | null;
 }
 
-export function collectFilterOptions(rows: Violation[]) {
+export interface FilterOption {
+  value: string;
+  count: number;
+}
+
+export interface FilterFacetResult {
+  options: Record<ListFilterKey, FilterOption[]>;
+  /** Rows left after every filter, including delays. */
+  matched: number;
+  /** Rows inside the chart periods, before dimension and delay filters. */
+  scoped: number;
+}
+
+function rowTimeMs(row: Violation): number | null {
+  const raw = row[startTimeKey] ?? row.startTime;
+  if (raw == null || raw === "") return null;
+  const t = new Date(raw as string | number | Date).getTime();
+  return Number.isFinite(t) ? t : null;
+}
+
+function inWindow(ms: number | null, window: DateWindow): boolean {
+  if (window.dateFrom == null && window.dateTo == null) return true;
+  if (ms == null) return false;
+  if (window.dateFrom != null && ms < window.dateFrom) return false;
+  if (window.dateTo != null && ms > window.dateTo) return false;
+  return true;
+}
+
+/** A row is in scope when it falls into any chart period. Empty periods mean no date limit. */
+function inPeriods(row: Violation, periods: DateWindow[]): boolean {
+  if (periods.length === 0) return true;
+  const ms = rowTimeMs(row);
+  return periods.some((window) => inWindow(ms, window));
+}
+
+function passesDelay(row: Violation, filters: ChartDataFilters): boolean {
+  if (filters.onlyWithDelays && !hasAnyDelay(row)) return false;
+  if (filters.minDelayHours > 0 && totalDelayHours(row) < filters.minDelayHours)
+    return false;
+  return true;
+}
+
+function passesLists(
+  row: Violation,
+  filters: ChartDataFilters,
+  skip?: ListFilterKey,
+): boolean {
+  for (const [key, field] of LIST_FILTERS) {
+    if (key === skip) continue;
+    if (!allows(filters[key], cell(row, field))) return false;
+  }
+  return true;
+}
+
+function sortOptions(options: FilterOption[], selected: string[]): FilterOption[] {
+  const selectedSet = new Set(selected);
+  return options.sort((a, b) => {
+    const aSel = selectedSet.has(a.value) ? 0 : 1;
+    const bSel = selectedSet.has(b.value) ? 0 : 1;
+    if (aSel !== bSel) return aSel - bSel;
+    if (b.count !== a.count) return b.count - a.count;
+    return a.value.localeCompare(b.value, "ru");
+  });
+}
+
+/**
+ * Each list shows values left by every other list, the chart periods, and delay
+ * limits. A list does not narrow itself. Selected values stay even at count 0.
+ */
+export function collectFilterOptions(
+  rows: Violation[],
+  filters?: Partial<ChartDataFilters> | null,
+  periods: DateWindow[] = [],
+): FilterFacetResult {
+  const f = normalizeFilters(filters);
+  const scopedRows = rows.filter((row) => inPeriods(row, periods));
+  const base = scopedRows.filter((row) => passesDelay(row, f));
+
+  const options: Record<ListFilterKey, FilterOption[]> = {
+    units: [],
+    places: [],
+    categories: [],
+    kinds: [],
+    reasons: [],
+  };
+
+  for (const [key, field] of LIST_FILTERS) {
+    const counts = new Map<string, number>();
+    for (const row of base) {
+      if (!passesLists(row, f, key)) continue;
+      const value = cell(row, field);
+      counts.set(value, (counts.get(value) ?? 0) + 1);
+    }
+    for (const value of f[key]) {
+      if (!counts.has(value)) counts.set(value, 0);
+    }
+    options[key] = sortOptions(
+      Array.from(counts, ([value, count]) => ({ value, count })),
+      f[key],
+    );
+  }
+
   return {
-    units: uniqueFieldValues(rows, guiltyUnit),
-    places: uniqueFieldValues(rows, place),
-    categories: uniqueFieldValues(rows, failCategory),
-    kinds: uniqueFieldValues(rows, failKind),
-    reasons: uniqueFieldValues(rows, failReason),
+    options,
+    matched: applyDataFilters(scopedRows, f).length,
+    scoped: scopedRows.length,
   };
 }
 
@@ -111,9 +210,6 @@ export function applyDataFilters(
     if (!allows(f.categories, cell(row, failCategory))) return false;
     if (!allows(f.kinds, cell(row, failKind))) return false;
     if (!allows(f.reasons, cell(row, failReason))) return false;
-    if (f.onlyWithDelays && !hasAnyDelay(row)) return false;
-    if (f.minDelayHours > 0 && totalDelayHours(row) < f.minDelayHours)
-      return false;
-    return true;
+    return passesDelay(row, f);
   });
 }

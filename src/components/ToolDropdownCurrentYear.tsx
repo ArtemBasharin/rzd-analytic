@@ -10,22 +10,18 @@ const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
 
 
 const DropdownCurrentYear = () => {
-  const minDate = new Date(useSelector((state) => state.filters.minCutoffDate));
-  const maxDate = new Date(useSelector((state) => state.filters.maxCutoffDate));
+  const minCutoffMs = useSelector((state) => state.filters.minCutoffDate);
+  const maxCutoffMs = useSelector((state) => state.filters.maxCutoffDate);
   const currentYear = useSelector((state) => state.filters.currentYear);
   const dispatch = useDispatch();
 
-  const getOptions = () => {
-    const arr: number[] = [];
-    // for (let i = minDate.getFullYear(); i <= maxDate.getFullYear(); i++) {
-    //   arr.push(i);
-    // }
-    for (let i = 2012; i < 2026; i++) {
-      arr.push(i);
-    }
-    return arr;
-  };
-  let options = getOptions();
+  const minYear = new Date(minCutoffMs).getFullYear();
+  const maxYear = new Date(maxCutoffMs).getFullYear();
+  const from = Number.isFinite(minYear) ? Math.min(minYear, currentYear) : currentYear;
+  const to = Number.isFinite(maxYear) ? Math.max(maxYear, currentYear) : currentYear;
+  const options: number[] = [];
+  for (let year = from; year <= to; year += 1) options.push(year);
+  if (options.length === 0) options.push(currentYear);
 
   const [isOpen, setIsOpen] = useState(false);
 

@@ -61,6 +61,27 @@ export const dimensionFields: FieldDef[] = [
     kind: "dimension",
     derived: "day",
   },
+  {
+    id: "week",
+    key: startTime,
+    label: "Неделя отказа",
+    kind: "dimension",
+    derived: "week",
+  },
+  {
+    id: "quarter",
+    key: startTime,
+    label: "Квартал отказа",
+    kind: "dimension",
+    derived: "quarter",
+  },
+  {
+    id: "year",
+    key: startTime,
+    label: "Год отказа",
+    kind: "dimension",
+    derived: "year",
+  },
 ];
 
 export const measureFields: FieldDef[] = [
@@ -69,6 +90,20 @@ export const measureFields: FieldDef[] = [
     key: COUNT_FIELD_ID,
     label: "Число отказов",
     kind: "measure",
+  },
+  {
+    id: "allDuration",
+    key: "__all_duration__",
+    label: "Все задержки, ч",
+    kind: "measure",
+    composeKeys: [freightDuration, passDuration, subDuration, otherDuration],
+  },
+  {
+    id: "allDelayed",
+    key: "__all_delayed__",
+    label: "Все поезда",
+    kind: "measure",
+    composeKeys: [freightDelayed, passDelayed, subDelayed, otherDelayed],
   },
   {
     id: "freightDuration",

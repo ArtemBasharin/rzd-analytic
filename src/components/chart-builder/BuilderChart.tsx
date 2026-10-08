@@ -1,16 +1,27 @@
 ﻿import React, { useEffect, useRef, useState } from "react";
 import * as d3 from "d3";
 import {
+  formatParetoPct,
+  PARETO_THRESHOLD,
+  paretoOf,
+  paretoSeries,
+  ParetoResult,
+  ParetoStep,
+} from "../../chart-builder/pareto";
+import {
   AggregatedPoint,
   ChartSeriesMeta,
   ChartStyle,
   ChartType,
+  IndicatorSummary,
+  SeriesLayout,
   defaultChartStyle,
 } from "../../chart-builder/types";
 
 const FONT = "Verdana, Geneva, sans-serif";
 const GRID = "#D0D0D0";
 const AXIS = "#1a1a1a";
+const PARETO_COLOR = "#800000";
 const SHADOW_FILTER_ID = "builder-bar-shadow";
 
 interface BuilderChartProps {
@@ -20,14 +31,17 @@ interface BuilderChartProps {
   valueLabel: string;
   categoryLabel: string;
   style?: ChartStyle;
+  layout?: SeriesLayout;
+  indicator?: IndicatorSummary | null;
+  /** Shown when the chart has no points but the axes are already chosen. */
+  emptyMessage?: string;
 }
 
 const MARGIN = { top: 36, right: 28, bottom: 110, left: 64 };
 
 function formatValue(n: number): string {
-  if (Math.abs(n) >= 1000)
-    return n.toLocaleString("ru-RU", { maximumFractionDigits: 1 });
-  return String(n);
+  if (!Number.isFinite(n)) return "";
+  return n.toLocaleString("ru-RU", { maximumFractionDigits: 2 });
 }
 
 /** Fix mojibake ellipsis and normalize truncation marker. */
@@ -43,6 +57,14 @@ function seriesColor(style: ChartStyle, i: number): string {
     ? style.fillColors
     : defaultChartStyle().fillColors;
   return colors[i % colors.length];
+}
+
+function seriesFill(
+  style: ChartStyle,
+  series: ChartSeriesMeta & { colorIndex?: number },
+  index: number,
+): string {
+  return seriesColor(style, series.colorIndex ?? index);
 }
 
 function pointValue(d: AggregatedPoint, seriesId: string): number {
@@ -64,14 +86,29 @@ function tipHtml(
   d: AggregatedPoint,
   series: ChartSeriesMeta[],
   valueLabel: string,
+  suffix = "",
 ): string {
   const rows = series
     .map(
       (s) =>
-        `${s.label}: <strong>${formatValue(pointValue(d, s.id))}</strong>`,
+        `${s.label}: <strong>${formatValue(pointValue(d, s.id))}${suffix}</strong>`,
     )
     .join("<br/>");
   return `<strong>${d.label}</strong><br/><span style="opacity:.85">${valueLabel}</span><br/>${rows}`;
+}
+
+function axisSeries(series: ChartSeriesMeta[], axis: "y" | "y2"): ChartSeriesMeta[] {
+  return series.filter((s) => (s.axis ?? "y") === axis);
+}
+
+function stackExtent(data: AggregatedPoint[], series: ChartSeriesMeta[]): number {
+  let max = 0;
+  for (const d of data) {
+    let sum = 0;
+    for (const s of series) sum += Math.max(0, pointValue(d, s.id));
+    max = Math.max(max, sum);
+  }
+  return max;
 }
 
 function drawLegend(
@@ -79,12 +116,18 @@ function drawLegend(
   series: ChartSeriesMeta[],
   style: ChartStyle,
   width: number,
+  hidden: ReadonlySet<string>,
+  onToggle: (id: string) => void,
 ) {
   if (series.length <= 1) return;
   const g = svg.append("g").attr("class", "builder-legend").attr("transform", `translate(${MARGIN.left}, 8)`);
   let x = 0;
   series.forEach((s, i) => {
     const item = g.append("g").attr("transform", `translate(${x}, 0)`);
+    item
+      .style("cursor", "pointer")
+      .style("opacity", hidden.has(s.id) ? 0.35 : 1)
+      .on("click", () => onToggle(s.id));
     item
       .append("rect")
       .attr("width", 12)
@@ -209,11 +252,372 @@ function measureTextWidth(text: string, fontSize = "12px"): number {
   return ctx.measureText(text).width;
 }
 
+/** One font size for every value label on a chart. */
+const VALUE_LABEL_MAX_PX = 16;
+const VALUE_LABEL_MIN_PX = 8;
+const VALUE_LABEL_PAD = 2;
+
+/**
+ * Bar label text.
+ * (0.1, 10) → at most two digits (1.08 → 1,1).
+ * (0, 0.1) → 0,XX.
+ */
+function formatBarLabel(n: number): string {
+  if (!Number.isFinite(n)) return "";
+  const sign = n < 0 ? "-" : "";
+  const a = Math.abs(n);
+  if (a === 0) return "0";
+  if (a < 0.1) {
+    return (
+      sign +
+      a.toLocaleString("ru-RU", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    );
+  }
+  if (a < 10) {
+    const rounded = Math.round(a * 10) / 10;
+    if (rounded >= 10) return sign + "10";
+    if (rounded === 0) return "0";
+    return (
+      sign +
+      rounded.toLocaleString("ru-RU", {
+        maximumFractionDigits: 1,
+      })
+    );
+  }
+  if (a >= 1000) {
+    return sign + a.toLocaleString("ru-RU", { maximumFractionDigits: 1 });
+  }
+  return sign + a.toLocaleString("ru-RU", { maximumFractionDigits: 2 });
+}
+
+function labelOnFill(fill: string): string {
+  const hex = fill.replace("#", "");
+  if (hex.length < 6) return "#fff";
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+  return luma < 165 ? "#fff" : AXIS;
+}
+
+interface BarLabelLayout {
+  fontPx: number;
+  vertical: boolean;
+}
+
+function maxLabelWidth(probe: SVGTextElement, labels: string[], fontPx: number): number {
+  const text = d3.select(probe);
+  text.attr("font-size", `${fontPx}px`).attr("transform", null).attr("dy", null);
+  let max = 0;
+  for (const label of labels) {
+    text.text(label);
+    max = Math.max(max, probe.getComputedTextLength());
+  }
+  return max;
+}
+
+/**
+ * Shared size for the chart. Horizontal while every label fits in the bar
+ * at >= 8px. If any label does not, the whole chart switches to vertical
+ * and the font stays at least 8px.
+ */
+function resolveBarLabelLayout(
+  probe: SVGTextElement,
+  labels: string[],
+  barWidth: number,
+): BarLabelLayout {
+  const available = Math.max(0, barWidth - VALUE_LABEL_PAD * 2);
+  const atMin = maxLabelWidth(probe, labels, VALUE_LABEL_MIN_PX);
+  if (atMin > available) {
+    return { fontPx: verticalLabelFont(probe, barWidth), vertical: true };
+  }
+
+  let fontPx = VALUE_LABEL_MAX_PX;
+  const atMax = maxLabelWidth(probe, labels, VALUE_LABEL_MAX_PX);
+  if (atMax > available && atMax > 0) {
+    fontPx = VALUE_LABEL_MAX_PX * (available / atMax);
+  }
+  fontPx = Math.min(VALUE_LABEL_MAX_PX, Math.max(VALUE_LABEL_MIN_PX, fontPx));
+  const fitted = maxLabelWidth(probe, labels, fontPx);
+  if (fitted > available && fitted > 0) {
+    const next = fontPx * (available / fitted);
+    if (next < VALUE_LABEL_MIN_PX) {
+      return { fontPx: verticalLabelFont(probe, barWidth), vertical: true };
+    }
+    fontPx = next;
+  }
+  d3.select(probe).text("").attr("transform", null).attr("dy", null);
+  return { fontPx, vertical: false };
+}
+
+/** Largest vertical size that stays inside the column, never under 8px. */
+function verticalLabelFont(probe: SVGTextElement, barWidth: number): number {
+  const text = d3.select(probe);
+  text.attr("dy", "0.35em").attr("transform", "rotate(-90)").text("8");
+  let size = Math.min(VALUE_LABEL_MAX_PX, Math.max(VALUE_LABEL_MIN_PX, barWidth - 1));
+  text.attr("font-size", `${size}px`);
+  const ctm = probe.getScreenCTM();
+  const scale = ctm ? Math.hypot(ctm.a, ctm.b) || 1 : 1;
+  const limit = Math.max(1, barWidth * scale);
+  const painted = probe.getBoundingClientRect().width;
+  if (painted > limit && painted > 0) {
+    size = Math.max(VALUE_LABEL_MIN_PX, size * (limit / painted));
+  }
+  text.text("").attr("transform", null).attr("dy", null);
+  return size;
+}
+
+function appendBarValueLabel(
+  parent: d3.Selection<d3.BaseType, unknown, null, undefined>,
+  label: string,
+  cx: number,
+  barTop: number,
+  barHeight: number,
+  fill: string,
+  layout: BarLabelLayout,
+) {
+  if (!label) return;
+  const text = parent
+    .append("text")
+    .attr("class", "bar-value-label")
+    .attr("pointer-events", "none")
+    .attr("font-family", FONT)
+    .attr("font-weight", "700")
+    .attr("font-size", `${layout.fontPx}px`)
+    .attr("fill", AXIS)
+    .text(label);
+
+  const numeric = Number(label.replace(/\s/g, "").replace(",", "."));
+  if (!layout.vertical || numeric === 0) {
+    text.attr("text-anchor", "middle").attr("x", cx).attr("y", barTop - 4);
+    return;
+  }
+
+  const len = text.node()?.getComputedTextLength() ?? 0;
+  const aboveRoom = Math.max(0, barTop - 2);
+  const inside = len + 2 > aboveRoom && barHeight - 6 >= len + 2;
+  if (inside) {
+    text
+      .attr("fill", labelOnFill(fill))
+      .attr("text-anchor", "end")
+      .attr("dy", "0.35em")
+      .attr("transform", `translate(${cx}, ${barTop + 4}) rotate(-90)`);
+  } else {
+    text
+      .attr("text-anchor", "start")
+      .attr("dy", "0.35em")
+      .attr("transform", `translate(${cx}, ${barTop - 3}) rotate(-90)`);
+  }
+}
+
+/** Keep the tallest bar low enough that its value label stays inside the plot. */
+function ensureLabelHeadroom(
+  y: d3.ScaleLinear<number, number>,
+  dataMax: number,
+  innerH: number,
+  reservePx: number,
+) {
+  if (dataMax <= 0 || innerH <= reservePx + 8) return;
+  if (y(dataMax) >= reservePx) return;
+  const frac = 1 - reservePx / innerH;
+  if (frac <= 0.05) return;
+  const needed = dataMax / frac;
+  if (needed > y.domain()[1]) y.domain([0, needed]);
+}
+
+/** Keep the longest strip short enough that its value label stays inside the plot. */
+function ensureHBarLabelRoom(
+  x: d3.ScaleLinear<number, number>,
+  dataMax: number,
+  innerW: number,
+  reservePx: number,
+) {
+  if (dataMax <= 0 || innerW <= reservePx + 8) return;
+  if (innerW - x(dataMax) >= reservePx) return;
+  const frac = 1 - reservePx / innerW;
+  if (frac <= 0.05) return;
+  const needed = dataMax / frac;
+  if (needed > x.domain()[1]) x.domain([0, needed]);
+}
+
+/**
+ * Shared size for strip value labels.
+ * Fitted to the strip thickness and to the series step so neighbors do not collide.
+ */
+function hbarValueFont(barHeight: number, step: number): number {
+  const bySlot = Math.floor(Math.max(0, step) * 0.72);
+  const byBar = Math.floor(Math.max(0, barHeight - 1));
+  const fitted = Math.min(VALUE_LABEL_MAX_PX, bySlot || VALUE_LABEL_MAX_PX, byBar || VALUE_LABEL_MAX_PX);
+  return Math.min(VALUE_LABEL_MAX_PX, Math.max(VALUE_LABEL_MIN_PX, fitted));
+}
+
+function maxFormattedLabelWidth(labels: string[], fontPx: number): number {
+  let max = 0;
+  for (const label of labels) {
+    max = Math.max(max, measureTextWidth(label, `${fontPx}px`));
+  }
+  return max;
+}
+
+const HBAR_LABEL_GAP = 4;
+const LINE_POINT_R = 4;
+const LINE_LABEL_GAP = 4;
+
+function lineLabelFont(labels: string[], slotWidth: number): number {
+  const available = Math.max(8, slotWidth);
+  let fontPx = VALUE_LABEL_MAX_PX;
+  const atMax = maxFormattedLabelWidth(labels, fontPx);
+  if (atMax > available && atMax > 0) {
+    fontPx = fontPx * (available / atMax);
+  }
+  fontPx = Math.min(VALUE_LABEL_MAX_PX, Math.max(VALUE_LABEL_MIN_PX, fontPx));
+  const fitted = maxFormattedLabelWidth(labels, fontPx);
+  if (fitted > available && fitted > 0) {
+    fontPx = Math.max(VALUE_LABEL_MIN_PX, fontPx * (available / fitted));
+  }
+  return fontPx;
+}
+
+interface LabelBox {
+  l: number;
+  r: number;
+  t: number;
+  b: number;
+}
+
+function lineLabelBox(
+  cx: number,
+  baseline: number,
+  w: number,
+  fontPx: number,
+): LabelBox {
+  return {
+    l: cx - w / 2,
+    r: cx + w / 2,
+    t: baseline - fontPx * 0.92,
+    b: baseline + fontPx * 0.18,
+  };
+}
+
+function boxesOverlap(a: LabelBox, b: LabelBox): boolean {
+  return a.r > b.l + 0.5 && a.l < b.r - 0.5 && a.b > b.t + 0.5 && a.t < b.b - 0.5;
+}
+
+/** Prefer a label just above the point; step aside when another label is already there. */
+function resolveLineLabelBaseline(
+  cx: number,
+  cy: number,
+  w: number,
+  fontPx: number,
+  innerH: number,
+  occupied: LabelBox[],
+): number {
+  const above = cy - LINE_POINT_R - LINE_LABEL_GAP;
+  const below = cy + LINE_POINT_R + LINE_LABEL_GAP + fontPx * 0.85;
+  const candidates = [above, below];
+  for (let i = 1; i <= 2; i++) candidates.push(above - i * (fontPx + 2));
+  candidates.push(below + fontPx + 2);
+
+  const fits = (baseline: number) => {
+    const box = lineLabelBox(cx, baseline, w, fontPx);
+    if (box.t < -1 || box.b > innerH + 2) return false;
+    return !occupied.some((o) => boxesOverlap(box, o));
+  };
+
+  for (const baseline of candidates) {
+    if (!fits(baseline)) continue;
+    occupied.push(lineLabelBox(cx, baseline, w, fontPx));
+    return baseline;
+  }
+  occupied.push(lineLabelBox(cx, above, w, fontPx));
+  return above;
+}
+
+function drawLineValueLabels(
+  g: d3.Selection<SVGGElement, unknown, null, undefined>,
+  data: AggregatedPoint[],
+  series: ChartSeriesMeta[],
+  x: (label: string) => number | undefined,
+  y: d3.ScaleLinear<number, number>,
+  fontPx: number,
+  innerH: number,
+) {
+  const occupied: LabelBox[] = [];
+  const items = series.flatMap((s) =>
+    data.map((d) => {
+      const text = formatBarLabel(pointValue(d, s.id));
+      return {
+        text,
+        cx: x(d.label) ?? 0,
+        cy: y(pointValue(d, s.id)),
+        w: measureTextWidth(text, `${fontPx}px`),
+      };
+    }),
+  );
+  items.sort((a, b) => a.cy - b.cy || a.cx - b.cx);
+
+  for (const item of items) {
+    if (!item.text) continue;
+    const baseline = resolveLineLabelBaseline(
+      item.cx,
+      item.cy,
+      item.w,
+      fontPx,
+      innerH,
+      occupied,
+    );
+    g.append("text")
+      .attr("class", "line-value-label")
+      .attr("pointer-events", "none")
+      .attr("font-family", FONT)
+      .attr("font-weight", "700")
+      .attr("font-size", `${fontPx}px`)
+      .attr("fill", AXIS)
+      .attr("stroke", "#ffffff")
+      .attr("stroke-width", 3)
+      .attr("paint-order", "stroke")
+      .attr("stroke-linejoin", "round")
+      .attr("text-anchor", "middle")
+      .attr("x", item.cx)
+      .attr("y", baseline)
+      .text(item.text);
+  }
+}
+
+function appendHBarValueLabel(
+  parent: d3.Selection<d3.BaseType, unknown, null, undefined>,
+  label: string,
+  barEnd: number,
+  barY: number,
+  barHeight: number,
+  fontPx: number,
+) {
+  if (!label) return;
+  parent
+    .append("text")
+    .attr("class", "bar-value-label")
+    .attr("pointer-events", "none")
+    .attr("font-family", FONT)
+    .attr("font-weight", "700")
+    .attr("font-size", `${fontPx}px`)
+    .attr("fill", AXIS)
+    .attr("text-anchor", "start")
+    .attr("x", barEnd + HBAR_LABEL_GAP)
+    .attr("y", barY + barHeight / 2)
+    .attr("dy", "0.35em")
+    .text(label);
+}
+
 const DASH_ONLY = /^[\-\u2013\u2014]$/;
 
 const AXIS_LABEL_LINE_H = 13;
 /** Gap between the horizontal axis line and the start of labels. */
 const AXIS_LABEL_AXIS_GAP = 10;
+/** Horizontal spacing of -45° label tracks (= one line height along the strip normal). */
+const AXIS_LABEL_TRACK_GAP = AXIS_LABEL_LINE_H * Math.SQRT2;
 /** Safety only — real limit comes from category step (no neighbor overlap). */
 const AXIS_LABEL_HARD_MAX_LINES = 16;
 
@@ -364,8 +768,8 @@ function wrapLabelBySpaces(
 
 /**
  * Place wrapped axis label inside the category corridor.
- * Tracks run right→left across the band; each line hangs from the axis
- * at -45° (readable, not upside-down).
+ * Lines are packed left→right with a fixed track step and centered in the
+ * band, leaving a blank-line gap on each side so neighbors stay separated.
  */
 function setCorridorAxisLabel(
   tickG: SVGGElement,
@@ -386,14 +790,19 @@ function setCorridorAxisLabel(
 
   const n = Math.max(1, lines.length);
   const half = corridorWidth / 2;
-  const edgePad = Math.min(half * 0.06, 4);
-  const left = -half + edgePad;
-  const right = half - edgePad;
+  // Reserve half a blank line on each edge → one empty line between neighbors
+  const edgePad = Math.min(half * 0.45, AXIS_LABEL_TRACK_GAP / 2);
+  const usableLeft = -half + edgePad;
+  const usableRight = half - edgePad;
+  const blockW = (n - 1) * AXIS_LABEL_TRACK_GAP;
+  // Center the packed block; clamp into the usable corridor
+  let startX = n === 1 ? 0 : -blockW / 2;
+  if (n > 1) {
+    startX = Math.max(usableLeft, Math.min(startX, usableRight - blockW));
+  }
 
   lines.forEach((line, i) => {
-    // Left → right: first wrap line on the left edge of the corridor
-    const t = n === 1 ? 0.5 : i / (n - 1);
-    const xOff = left + t * (right - left);
+    const xOff = n === 1 ? 0 : startX + i * AXIS_LABEL_TRACK_GAP;
     tick
       .append("text")
       .attr(
@@ -413,17 +822,19 @@ function setCorridorAxisLabel(
 
 /**
  * Corridor under a category: width = band (bar group) width.
- * Lines are separate -45° tracks anchored on the axis across that width.
+ * Lines are separate -45° tracks; one blank-line gap reserved for neighbors.
  */
 function labelLayoutForCorridor(
   corridorWidth: number,
   fontSize = "11px",
   alongBudget?: number,
 ): { maxLineWidth: number; maxLines: number } {
-  // Horizontal spacing of axis anchors so baselines are ~1 line apart
-  const trackSpacing = AXIS_LABEL_LINE_H * Math.SQRT2;
-  const usable = Math.max(trackSpacing, corridorWidth - 4);
-  let maxLines = Math.floor(usable / trackSpacing) + 1;
+  // Usable width excludes one blank-line gap split across both edges
+  const usable = Math.max(
+    AXIS_LABEL_TRACK_GAP,
+    corridorWidth - AXIS_LABEL_TRACK_GAP,
+  );
+  let maxLines = Math.floor(usable / AXIS_LABEL_TRACK_GAP) + 1;
   maxLines = Math.max(1, Math.min(AXIS_LABEL_HARD_MAX_LINES, maxLines));
 
   // Along-corridor length; with extra bottom space allow longer lines
@@ -472,8 +883,8 @@ function estimateLeftMargin(
 }
 
 /**
- * Adaptive bottom margin — grows with label length along the corridor.
- * Long labels get +70% extra height.
+ * Adaptive bottom margin — fits actual label extent along the corridor,
+ * with a small pad (no large empty field below the text).
  */
 function estimateBottomMargin(
   labels: string[],
@@ -482,12 +893,12 @@ function estimateBottomMargin(
   corridorWidth: number,
   alongBudget?: number,
 ): number {
-  const minMargin = 64;
+  const minMargin = 48;
   const layout = labelLayoutForCorridor(corridorWidth, fontSize, alongBudget);
-  const pad = 12 + AXIS_LABEL_AXIS_GAP;
+  // Axis gap already offsets labels; keep a thin pad under the lowest glyph
+  const pad = 6 + AXIS_LABEL_AXIS_GAP;
 
   let needed = minMargin;
-  let longLabels = false;
   for (const label of labels) {
     const lines = wrapSegmentLabel(
       label,
@@ -495,22 +906,15 @@ function estimateBottomMargin(
       fontSize,
       layout.maxLines,
     );
-    if (lines.length > 1 || label.length > 36) longLabels = true;
     const longest = Math.max(
       0,
       ...lines.map((l) => measureTextWidth(l, fontSize)),
     );
+    // -45° line of length L extends ~L/√2 below the axis
     needed = Math.max(needed, Math.ceil(longest * Math.SQRT1_2 + pad));
   }
 
-  if (longLabels) {
-    needed = Math.ceil(needed * 1.7);
-  }
-
-  const maxMargin = Math.max(
-    minMargin,
-    Math.floor(chartHeight * (longLabels ? 0.85 : 0.72)),
-  );
+  const maxMargin = Math.max(minMargin, Math.floor(chartHeight * 0.55));
   return Math.min(maxMargin, Math.max(minMargin, needed));
 }
 
@@ -555,6 +959,39 @@ function setMultilineLabel(
   });
 }
 
+function IndicatorView({ summary }: { summary: IndicatorSummary | null }) {
+  if (!summary) {
+    return (
+      <div className="builder-chart-empty">
+        <p>Добавьте показатель — число появится здесь</p>
+      </div>
+    );
+  }
+  const delta =
+    summary.compareValue != null ? summary.value - summary.compareValue : null;
+  const pct =
+    delta != null && summary.compareValue
+      ? (delta / summary.compareValue) * 100
+      : null;
+  const sign = delta != null && delta > 0 ? "+" : "";
+  return (
+    <div className="builder-indicator">
+      <div className="builder-indicator-label">{summary.label}</div>
+      <div className="builder-indicator-value">{formatValue(summary.value)}</div>
+      {delta != null && (
+        <div className="builder-indicator-delta">
+          {sign}
+          {formatValue(delta)}
+          {pct != null && Number.isFinite(pct)
+            ? ` (${pct > 0 ? "+" : ""}${pct.toLocaleString("ru-RU", { maximumFractionDigits: 1 })}%)`
+            : ""}
+          {summary.compareLabel ? ` · ${summary.compareLabel}` : ""}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const BuilderChart: React.FC<BuilderChartProps> = ({
   data,
   series: seriesProp,
@@ -562,8 +999,12 @@ const BuilderChart: React.FC<BuilderChartProps> = ({
   valueLabel,
   categoryLabel,
   style: styleProp,
+  layout = "grouped",
+  indicator = null,
+  emptyMessage,
 }) => {
   const style = styleProp ?? defaultChartStyle();
+  const showLabels = style.showLabels !== false;
   const series: ChartSeriesMeta[] =
     seriesProp && seriesProp.length > 0
       ? seriesProp
@@ -571,6 +1012,12 @@ const BuilderChart: React.FC<BuilderChartProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [size, setSize] = useState({ width: 600, height: 400 });
+  const [hidden, setHidden] = useState<string[]>([]);
+  const seriesKey = series.map((s) => s.id).join("\n");
+
+  useEffect(() => {
+    setHidden([]);
+  }, [seriesKey, chartType]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -590,7 +1037,17 @@ const BuilderChart: React.FC<BuilderChartProps> = ({
   useEffect(() => {
     const container = containerRef.current;
     const svgEl = svgRef.current;
-    if (!container || !svgEl || !data.length) return;
+    if (!container || !svgEl || !data.length || chartType === "indicator") return;
+
+    const hiddenSet = new Set(hidden);
+    const visible = series
+      .map((s, colorIndex) => ({ ...s, colorIndex }))
+      .filter((s) => !hiddenSet.has(s.id));
+    const toggle = (id: string) => {
+      setHidden((prev) =>
+        prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
+      );
+    };
 
     const { width, height } = size;
     const svg = d3.select(svgEl);
@@ -598,7 +1055,6 @@ const BuilderChart: React.FC<BuilderChartProps> = ({
     svg.attr("width", width).attr("height", height);
     paintBackground(svg, width, height);
     if (style.shadow) ensureShadowFilter(svg);
-    drawLegend(svg, series, style, width);
 
     const tooltip = d3
       .select(container)
@@ -608,34 +1064,64 @@ const BuilderChart: React.FC<BuilderChartProps> = ({
       .attr("class", "builder-chart-tooltip")
       .style("opacity", "0");
 
+    const suffix =
+      (chartType === "bar" || chartType === "hbar") && layout === "normalized"
+        ? "%"
+        : "";
+    const pareto =
+      chartType === "bar" && style.showPareto !== false
+        ? paretoOf(data, paretoSeries(series, layout))
+        : null;
     const showTip = (event: MouseEvent, d: AggregatedPoint) => {
+      const hitIndex = pareto?.steps.findIndex((step) => step.label === d.label) ?? -1;
+      const hit = hitIndex >= 0 ? pareto?.steps[hitIndex] : undefined;
+      const extra =
+        hit && pareto && pareto.total > 0
+          ? `<br/>Накопление: <strong>${formatParetoPct(hit.cumulative)}%</strong>${
+              hitIndex === pareto.hitIndex ? " · здесь ≥ 80%" : ""
+            }`
+          : "";
       tooltip
         .style("opacity", "1")
-        .html(tipHtml(d, series, valueLabel))
+        .html(tipHtml(d, visible, valueLabel, suffix) + extra)
         .style("left", `${event.offsetX + 12}px`)
         .style("top", `${event.offsetY + 12}px`);
     };
     const hideTip = () => tooltip.style("opacity", "0");
+    const markOpts = { layout, showLabels };
 
     if (chartType === "pie") {
-      drawPie(svg, data, width, height, showTip, hideTip, style);
+      drawPie(svg, data, width, height, showTip, hideTip, style, showLabels, hiddenSet, toggle);
       return;
     }
+    drawLegend(svg, series, style, width, hiddenSet, toggle);
+    if (!visible.length) return;
     if (chartType === "hbar") {
-      drawHBar(svg, data, width, height, showTip, hideTip, style, series);
+      drawHBar(svg, data, width, height, showTip, hideTip, style, visible, markOpts);
       return;
     }
-    if (chartType === "line") {
-      drawLine(svg, data, width, height, showTip, hideTip, style, series);
+    const mixedMarks =
+      (chartType === "bar" || chartType === "line") &&
+      visible.some((s) => s.mark === "bar") &&
+      visible.some((s) => s.mark === "line");
+    if (chartType === "line" && !mixedMarks) {
+      drawLine(svg, data, width, height, showTip, hideTip, style, visible, markOpts);
       return;
     }
-    drawBar(svg, data, width, height, showTip, hideTip, style, series);
-  }, [data, series, chartType, valueLabel, categoryLabel, size, style]);
+    drawBar(svg, data, width, height, showTip, hideTip, style, visible, markOpts, pareto);
+  }, [data, series, chartType, valueLabel, categoryLabel, size, style, layout, showLabels, hidden]);
+
+  if (chartType === "indicator") {
+    return <IndicatorView summary={indicator ?? null} />;
+  }
 
   if (!data.length) {
     return (
       <div className="builder-chart-empty" ref={containerRef}>
-        <p>Выберите измерение (ось X) и показатель — график появится здесь</p>
+        <p>
+          {emptyMessage ??
+            "Выберите измерение (ось X) и показатель — график появится здесь"}
+        </p>
       </div>
     );
   }
@@ -647,6 +1133,273 @@ const BuilderChart: React.FC<BuilderChartProps> = ({
   );
 };
 
+type PlotGroup = d3.Selection<SVGGElement, unknown, null, undefined>;
+
+function drawParetoShade(
+  g: PlotGroup,
+  data: AggregatedPoint[],
+  hitIndex: number,
+  x0: d3.ScaleBand<string>,
+  innerH: number,
+) {
+  const label = data[hitIndex]?.label;
+  if (label == null) return;
+  const x = x0(label) ?? 0;
+  g.append("rect")
+    .attr("class", "pareto-zone")
+    .attr("x", 0)
+    .attr("y", 0)
+    .attr("width", Math.max(0, x + x0.bandwidth()))
+    .attr("height", innerH)
+    .attr("fill", "rgba(128, 0, 0, 0.08)")
+    .attr("pointer-events", "none");
+}
+
+function drawParetoOverlay(
+  g: PlotGroup,
+  pareto: ParetoResult,
+  x0: d3.ScaleBand<string>,
+  innerW: number,
+  innerH: number,
+  showPercentAxis: boolean,
+  showScaleHint: boolean,
+  /** Horizontal center of the rightmost bar inside a category band. */
+  barCenter: number,
+) {
+  const yP = d3.scaleLinear().domain([0, 100]).range([innerH, 0]);
+  const xMid = (label: string) => (x0(label) ?? 0) + barCenter;
+  const y80 = yP(PARETO_THRESHOLD);
+  const hit = pareto.steps[pareto.hitIndex];
+  const layer = g.append("g").attr("class", "pareto-layer").attr("pointer-events", "none");
+
+  const line = d3
+    .line<ParetoStep>()
+    .x((d) => xMid(d.label))
+    .y((d) => yP(d.cumulative));
+
+  if (pareto.steps.length >= 2) {
+    layer
+      .append("path")
+      .datum(pareto.steps)
+      .attr("fill", "none")
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 5)
+      .attr("stroke-linejoin", "round")
+      .attr("d", line);
+    layer
+      .append("path")
+      .datum(pareto.steps)
+      .attr("fill", "none")
+      .attr("stroke", PARETO_COLOR)
+      .attr("stroke-width", 2.25)
+      .attr("stroke-linejoin", "round")
+      .attr("d", line);
+  }
+
+  layer
+    .append("line")
+    .attr("class", "pareto-threshold")
+    .attr("x1", 0)
+    .attr("x2", innerW)
+    .attr("y1", y80)
+    .attr("y2", y80)
+    .attr("stroke", PARETO_COLOR)
+    .attr("stroke-opacity", 0.75)
+    .attr("stroke-width", 1.25)
+    .attr("stroke-dasharray", "6 4");
+
+  layer
+    .append("text")
+    .attr("class", "pareto-threshold-label")
+    .attr("x", innerW - 8)
+    .attr("y", y80 < 16 ? y80 + 14 : y80 - 6)
+    .attr("text-anchor", "end")
+    .attr("font-family", FONT)
+    .attr("font-size", "11px")
+    .attr("font-weight", "700")
+    .attr("fill", PARETO_COLOR)
+    .attr("stroke", "#fff")
+    .attr("stroke-width", 3)
+    .attr("paint-order", "stroke")
+    .text("порог 80%");
+
+  const xEnd = (x0(hit.label) ?? 0) + x0.bandwidth();
+  layer
+    .append("line")
+    .attr("class", "pareto-cutoff")
+    .attr("x1", xEnd)
+    .attr("x2", xEnd)
+    .attr("y1", 0)
+    .attr("y2", innerH)
+    .attr("stroke", PARETO_COLOR)
+    .attr("stroke-width", 1.5)
+    .attr("stroke-dasharray", "4 3");
+
+  if (pareto.hitIndex > 0) {
+    const prev = pareto.steps[pareto.hitIndex - 1];
+    const span = hit.cumulative - prev.cumulative;
+    const t = span <= 1e-6 ? 1 : (PARETO_THRESHOLD - prev.cumulative) / span;
+    const clamped = Math.max(0, Math.min(1, t));
+    const crossX = xMid(prev.label) + (xMid(hit.label) - xMid(prev.label)) * clamped;
+    const r = 5.5;
+    layer
+      .append("path")
+      .attr("class", "pareto-cross")
+      .attr(
+        "d",
+        `M${crossX},${y80 - r} L${crossX + r},${y80} L${crossX},${y80 + r} L${crossX - r},${y80} Z`,
+      )
+      .attr("fill", "#fff")
+      .attr("stroke", PARETO_COLOR)
+      .attr("stroke-width", 2);
+  }
+
+  layer
+    .selectAll("circle.pareto-dot")
+    .data(pareto.steps)
+    .join("circle")
+    .attr("class", "pareto-dot")
+    .attr("cx", (d) => xMid(d.label))
+    .attr("cy", (d) => yP(d.cumulative))
+    .attr("r", (_d, i) => (i === pareto.hitIndex ? 6 : 3.5))
+    .attr("fill", (_d, i) => (i === pareto.hitIndex ? PARETO_COLOR : "#fff"))
+    .attr("stroke", PARETO_COLOR)
+    .attr("stroke-width", 2);
+
+  if (pareto.steps.length <= 12) {
+    pareto.steps.forEach((step, index) => {
+      if (index === pareto.hitIndex) return;
+      const x = xMid(step.label);
+      const y = yP(step.cumulative);
+      layer
+        .append("text")
+        .attr("x", x)
+        .attr("y", y > 16 ? y - 8 : y + 14)
+        .attr("text-anchor", "middle")
+        .attr("font-family", FONT)
+        .attr("font-size", "10px")
+        .attr("font-weight", "700")
+        .attr("fill", PARETO_COLOR)
+        .attr("stroke", "#fff")
+        .attr("stroke-width", 3)
+        .attr("paint-order", "stroke")
+        .text(`${formatParetoPct(step.cumulative)}%`);
+    });
+  }
+
+  if (showPercentAxis) {
+    const axis = layer
+      .append("g")
+      .attr("class", "pareto-axis")
+      .attr("transform", `translate(${innerW},0)`)
+      .call(
+        d3
+          .axisRight(yP)
+          .tickValues([0, 20, 40, 60, 80, 100])
+          .tickFormat((d) => `${d}%`)
+          .tickSize(0),
+      );
+    axis.select(".domain").attr("stroke", PARETO_COLOR).attr("stroke-opacity", 0.45);
+    axis
+      .selectAll("text")
+      .attr("font-family", FONT)
+      .attr("font-size", "11px")
+      .attr("font-weight", "700")
+      .attr("fill", PARETO_COLOR);
+    axis
+      .selectAll(".tick")
+      .filter((d) => Number(d) === PARETO_THRESHOLD)
+      .select("text")
+      .attr("font-weight", "900")
+      .attr("font-size", "12px");
+    layer
+      .append("text")
+      .attr("x", innerW)
+      .attr("y", -8)
+      .attr("text-anchor", "end")
+      .attr("font-family", FONT)
+      .attr("font-size", "11px")
+      .attr("font-weight", "700")
+      .attr("fill", PARETO_COLOR)
+      .text("накопление");
+  } else if (showScaleHint) {
+    layer
+      .append("text")
+      .attr("x", innerW - 4)
+      .attr("y", 14)
+      .attr("text-anchor", "end")
+      .attr("font-family", FONT)
+      .attr("font-size", "11px")
+      .attr("font-weight", "700")
+      .attr("fill", PARETO_COLOR)
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 3)
+      .attr("paint-order", "stroke")
+      .text("накопление, %");
+  }
+}
+
+function drawValueLines(
+  g: d3.Selection<SVGGElement, unknown, null, undefined>,
+  data: AggregatedPoint[],
+  lineSeries: Array<ChartSeriesMeta & { colorIndex?: number }>,
+  yScale: d3.ScaleLinear<number, number>,
+  xMid: (label: string) => number,
+  style: ChartStyle,
+  showTip: (e: MouseEvent, d: AggregatedPoint) => void,
+  hideTip: () => void,
+  showLabels: boolean,
+  innerH: number,
+  step: number,
+  classPrefix: string,
+) {
+  lineSeries.forEach((s, si) => {
+    const color = seriesFill(style, s, si);
+    const line = d3
+      .line<AggregatedPoint>()
+      .x((d) => xMid(d.label))
+      .y((d) => yScale(pointValue(d, s.id)))
+      .defined((d) => Number.isFinite(pointValue(d, s.id)));
+    const width = Math.max(2.5, style.strokeWidth || 2.5);
+    g.append("path")
+      .datum(data)
+      .attr("fill", "none")
+      .attr("stroke", "#fff")
+      .attr("stroke-width", width + 3)
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
+      .attr("d", line);
+    g.append("path")
+      .datum(data)
+      .attr("class", "series-line")
+      .attr("fill", "none")
+      .attr("stroke", color)
+      .attr("stroke-width", width)
+      .attr("stroke-linejoin", "round")
+      .attr("stroke-linecap", "round")
+      .attr("d", line);
+    g.selectAll(`.${classPrefix}-${si}`)
+      .data(data)
+      .join("circle")
+      .attr("cx", (d) => xMid(d.label))
+      .attr("cy", (d) => yScale(pointValue(d, s.id)))
+      .attr("r", 5)
+      .attr("fill", color)
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 1.5)
+      .on("mousemove", function (event, d) {
+        showTip(event as MouseEvent, d);
+      })
+      .on("mouseleave", hideTip);
+  });
+  if (!showLabels || !lineSeries.length) return;
+  const fontPx = lineLabelFont(
+    data.flatMap((d) => lineSeries.map((s) => formatBarLabel(pointValue(d, s.id)))),
+    Math.max(16, step - 6),
+  );
+  drawLineValueLabels(g, data, lineSeries, xMid, yScale, fontPx, innerH);
+}
+
 function drawBar(
   svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
   data: AggregatedPoint[],
@@ -656,19 +1409,37 @@ function drawBar(
   hideTip: () => void,
   style: ChartStyle,
   series: ChartSeriesMeta[],
+  opts: { layout: SeriesLayout; showLabels: boolean },
+  pareto: ParetoResult | null,
 ) {
+  const explicitCombo =
+    series.some((s) => s.mark === "bar") && series.some((s) => s.mark === "line");
+  const ySeries = explicitCombo
+    ? series.filter((s) => s.mark === "bar")
+    : axisSeries(series, "y");
+  // Line measures use the right axis so a larger column scale cannot flatten them.
+  const y2Series = explicitCombo
+    ? series.filter((s) => s.mark === "line")
+    : axisSeries(series, "y2");
+  const stacked =
+    !explicitCombo && (opts.layout === "stacked" || opts.layout === "normalized");
+  const normalized = !explicitCombo && opts.layout === "normalized";
+  const paretoActive = !!pareto && pareto.total > 0 && pareto.hitIndex >= 0;
+  const paretoAxis = paretoActive && y2Series.length === 0 && style.showYAxis;
+  const right = y2Series.length ? 72 : paretoAxis ? 64 : MARGIN.right;
   const labelFont = "11px";
   const topPad = series.length > 1 ? 28 : 0;
   const labels = data.map((d) => d.label);
+  const barSeries = ySeries;
 
-  // Refine left/bottom so layout matches the final category band width
+  // Refine left/bottom so layout matches the final category step (full slot)
   let left = MARGIN.left;
   let bottom = MARGIN.bottom;
   let corridorW = 80;
   for (let pass = 0; pass < 2; pass++) {
-    const inner = Math.max(80, width - left - MARGIN.right);
-    // Approximate band width with same padding as the scale below
-    corridorW = (inner / Math.max(data.length, 1)) * (1 - 0.28);
+    const inner = Math.max(80, width - left - right);
+    // Full category step — includes padding used as neighbor blank-line gap
+    corridorW = inner / Math.max(data.length, 1);
     const along = Math.max(40, bottom - AXIS_LABEL_AXIS_GAP);
     left = estimateLeftMargin(labels, width, labelFont, corridorW, along);
     bottom = estimateBottomMargin(labels, height, labelFont, corridorW, along);
@@ -676,6 +1447,7 @@ function drawBar(
   const margin = {
     ...MARGIN,
     left,
+    right,
     top: MARGIN.top + topPad,
     bottom,
   };
@@ -693,12 +1465,25 @@ function drawBar(
 
   const x1 = d3
     .scaleBand()
-    .domain(series.map((s) => s.id))
+    .domain((stacked ? ["stack"] : barSeries.map((s) => s.id)))
     .range([0, x0.bandwidth()])
-    .padding(0.12);
+    .padding(stacked ? 0 : 0.12);
 
-  const yMax = maxPointValue(data, series) || 0;
+  const yMax = normalized
+    ? 100
+    : stacked
+      ? stackExtent(data, barSeries) || 0
+      : maxPointValue(data, barSeries) || 0;
   const y = d3.scaleLinear().domain([0, yMax]).nice().range([innerH, 0]);
+  if (normalized) y.domain([0, 100]);
+  if (opts.showLabels && !stacked) {
+    ensureLabelHeadroom(
+      y,
+      yMax,
+      innerH,
+      VALUE_LABEL_MAX_PX + 6,
+    );
+  }
 
   if (style.showGrid) {
     g.append("g")
@@ -725,16 +1510,34 @@ function drawBar(
     setCorridorAxisLabel(
       this as SVGGElement,
       String(d),
-      x0.bandwidth(),
+      x0.step(),
       labelFont,
       Math.max(40, bottom - AXIS_LABEL_AXIS_GAP),
     );
   });
+  if (paretoActive && pareto) {
+    const hitLabel = data[pareto.hitIndex]?.label;
+    xAxis
+      .selectAll(".tick")
+      .filter((d) => d === hitLabel)
+      .selectAll("text")
+      .attr("fill", PARETO_COLOR);
+  }
 
   if (style.showYAxis) {
-    const yAxis = g.append("g").call(d3.axisLeft(y).ticks(6).tickSize(0));
+    const yAxis = g.append("g").call(
+      d3
+        .axisLeft(y)
+        .ticks(6)
+        .tickSize(0)
+        .tickFormat((d) => (normalized ? `${d}%` : formatValue(Number(d)))),
+    );
     yAxis.select(".domain").attr("stroke", AXIS).attr("stroke-width", 2);
     styleAxisText(yAxis.selectAll("text"), "12px");
+  }
+
+  if (paretoActive && pareto) {
+    drawParetoShade(g, data, pareto.hitIndex, x0, innerH);
   }
 
   const groups = g
@@ -744,42 +1547,164 @@ function drawBar(
     .attr("class", "bar-group")
     .attr("transform", (d) => `translate(${x0(d.label)},0)`);
 
-  series.forEach((s, si) => {
-    const bw = x1.bandwidth();
-    const rx = style.rounded ? Math.min(5, bw / 4) : 0;
+  const bw = stacked ? x0.bandwidth() : x1.bandwidth();
+  const barLabelTexts = data.flatMap((d) =>
+    barSeries.map((s) => formatBarLabel(pointValue(d, s.id))),
+  );
+  const labelProbe = g
+    .append("text")
+    .attr("font-family", FONT)
+    .attr("font-weight", "700")
+    .attr("visibility", "hidden");
+  const labelLayout = resolveBarLabelLayout(
+    labelProbe.node()!,
+    barLabelTexts,
+    bw,
+  );
+  labelProbe.remove();
+
+  const stackStart = new Map<string, Map<string, number>>();
+  if (stacked) {
+    for (const d of data) {
+      let acc = 0;
+      const starts = new Map<string, number>();
+      for (const s of barSeries) {
+        starts.set(s.id, acc);
+        acc += Math.max(0, pointValue(d, s.id));
+      }
+      stackStart.set(d.label, starts);
+    }
+  }
+
+  barSeries.forEach((s, si) => {
+    const rx = style.rounded && !stacked ? Math.min(5, bw / 4) : 0;
+    const fill = seriesFill(style, s, si);
     groups
       .append("path")
       .attr("class", "bar")
       .attr("d", (d) => {
-        const v = pointValue(d, s.id);
-        const bx = x1(s.id)!;
-        const by = y(v);
-        const bh = Math.max(0, innerH - y(v));
+        const v = Math.max(0, pointValue(d, s.id));
+        const start = stacked ? stackStart.get(d.label)?.get(s.id) ?? 0 : 0;
+        const bx = stacked ? 0 : x1(s.id)!;
+        const by = y(start + v);
+        const bh = Math.max(0, y(start) - y(start + v));
         return barPathTopRounded(bx, by, bw, bh, rx);
       })
-      .attr("fill", seriesColor(style, si))
-      .attr("stroke", style.strokeWidth > 0 ? style.strokeColor : "none")
-      .attr("stroke-width", style.strokeWidth)
+      .attr("fill", fill)
+      .attr("fill-opacity", (_d, i) =>
+        paretoActive && pareto && i > pareto.hitIndex ? 0.38 : 1,
+      )
+      .attr("stroke", (_d, i) => {
+        if (paretoActive && pareto && i === pareto.hitIndex) return PARETO_COLOR;
+        return style.strokeWidth > 0 ? style.strokeColor : "none";
+      })
+      .attr("stroke-width", (_d, i) => {
+        if (paretoActive && pareto && i === pareto.hitIndex) {
+          return Math.max(1.75, style.strokeWidth);
+        }
+        return style.strokeWidth;
+      })
       .attr("filter", style.shadow ? `url(#${SHADOW_FILTER_ID})` : "none")
       .on("mousemove", function (event, d) {
         showTip(event as MouseEvent, d);
       })
       .on("mouseleave", hideTip);
 
-    if (series.length === 1) {
-      groups
-        .append("text")
-        .attr("class", "bar-value-label")
-        .attr("x", x1(s.id)! + bw / 2)
-        .attr("y", (d) => y(pointValue(d, s.id)) - 8)
-        .attr("text-anchor", "middle")
-        .attr("font-family", FONT)
-        .attr("font-size", "14px")
-        .attr("font-weight", "700")
-        .attr("fill", AXIS)
-        .text((d) => formatValue(pointValue(d, s.id)));
-    }
+    if (!opts.showLabels) return;
+    groups.each(function (d) {
+      const v = pointValue(d, s.id);
+      if (stacked) {
+        const start = stackStart.get(d.label)?.get(s.id) ?? 0;
+        const top = start + Math.max(0, v);
+        const segTop = y(top);
+        const segH = Math.max(0, y(start) - y(top));
+        if (segH < 12 || !v) return;
+        d3.select(this)
+          .append("text")
+          .attr("class", "bar-value-label")
+          .attr("pointer-events", "none")
+          .attr("text-anchor", "middle")
+          .attr("x", bw / 2)
+          .attr("y", segTop + segH / 2)
+          .attr("dy", "0.35em")
+          .attr("font-family", FONT)
+          .attr("font-weight", "700")
+          .attr("font-size", "11px")
+          .attr("fill", labelOnFill(fill))
+          .text(formatBarLabel(v));
+        return;
+      }
+      const barTop = y(v);
+      appendBarValueLabel(
+        d3.select(this),
+        formatBarLabel(v),
+        x1(s.id)! + bw / 2,
+        barTop,
+        Math.max(0, innerH - barTop),
+        fill,
+        labelLayout,
+      );
+    });
   });
+
+  const barCenter = (label: string) => {
+    const band = x0(label) ?? 0;
+    if (barSeries.length === 1) {
+      const id = barSeries[0].id;
+      return band + (x1(id) ?? 0) + x1.bandwidth() / 2;
+    }
+    return band + x0.bandwidth() / 2;
+  };
+
+  if (paretoActive && pareto) {
+    const lastBar = barSeries[barSeries.length - 1];
+    const paretoBarCenter =
+      stacked || !lastBar
+        ? x0.bandwidth() / 2
+        : (x1(lastBar.id) ?? 0) + x1.bandwidth() / 2;
+    drawParetoOverlay(
+      g,
+      pareto,
+      x0,
+      innerW,
+      innerH,
+      paretoAxis,
+      !paretoAxis,
+      paretoBarCenter,
+    );
+  }
+
+  if (y2Series.length) {
+    const y2Max = maxPointValue(data, y2Series) || 0;
+    const y2 = d3.scaleLinear().domain([0, y2Max]).nice().range([innerH, 0]);
+    if (opts.showLabels) {
+      ensureLabelHeadroom(y2, y2Max, innerH, 18);
+    }
+    if (style.showYAxis) {
+      const axisColor = explicitCombo ? seriesFill(style, y2Series[0], 0) : AXIS;
+      const y2Axis = g
+        .append("g")
+        .attr("transform", `translate(${innerW},0)`)
+        .call(d3.axisRight(y2).ticks(5).tickSize(0));
+      y2Axis.select(".domain").attr("stroke", axisColor).attr("stroke-width", 2);
+      styleAxisText(y2Axis.selectAll("text"), "12px");
+      if (explicitCombo) y2Axis.selectAll("text").attr("fill", axisColor);
+    }
+    drawValueLines(
+      g,
+      data,
+      y2Series,
+      y2,
+      barCenter,
+      style,
+      showTip,
+      hideTip,
+      opts.showLabels,
+      innerH,
+      x0.step(),
+      "y2",
+    );
+  }
 }
 
 function drawHBar(
@@ -791,10 +1716,13 @@ function drawHBar(
   hideTip: () => void,
   style: ChartStyle,
   series: ChartSeriesMeta[],
+  opts: { layout: SeriesLayout; showLabels: boolean },
 ) {
+  const stacked = opts.layout === "stacked" || opts.layout === "normalized";
+  const normalized = opts.layout === "normalized";
   const left = 160;
   const topPad = series.length > 1 ? 24 : 0;
-  const margin = { top: 20 + topPad, right: 48, bottom: 36, left };
+  const margin = { top: 20 + topPad, right: opts.showLabels && !stacked ? 72 : 48, bottom: 36, left };
   const innerW = width - margin.left - margin.right;
   const innerH = height - margin.top - margin.bottom;
   const g = svg
@@ -811,13 +1739,26 @@ function drawHBar(
     .scaleBand()
     .domain(series.map((s) => s.id))
     .range([0, y0.bandwidth()])
-    .padding(0.1);
+    .padding(stacked ? 0 : 0.1);
 
-  const x = d3
-    .scaleLinear()
-    .domain([0, maxPointValue(data, series) || 0])
-    .nice()
-    .range([0, innerW]);
+  const xMax = normalized
+    ? 100
+    : stacked
+      ? stackExtent(data, series) || 0
+      : maxPointValue(data, series) || 0;
+  const x = d3.scaleLinear().domain([0, xMax]).nice().range([0, innerW]);
+  if (normalized) x.domain([0, 100]);
+
+  const bh = stacked ? y0.bandwidth() : y1.bandwidth();
+  const labelFontPx = hbarValueFont(bh, y1.step());
+  const barLabelTexts = data.flatMap((d) =>
+    series.map((s) => formatBarLabel(pointValue(d, s.id))),
+  );
+  const labelReserve =
+    maxFormattedLabelWidth(barLabelTexts, labelFontPx) + HBAR_LABEL_GAP + 2;
+  if (opts.showLabels && !stacked && !normalized) {
+    ensureHBarLabelRoom(x, xMax, innerW, labelReserve);
+  }
 
   if (style.showGrid) {
     g.append("g")
@@ -837,7 +1778,13 @@ function drawHBar(
   const xAxis = g
     .append("g")
     .attr("transform", `translate(0,${innerH})`)
-    .call(d3.axisBottom(x).ticks(5).tickSize(0));
+    .call(
+      d3
+        .axisBottom(x)
+        .ticks(5)
+        .tickSize(0)
+        .tickFormat((d) => (normalized ? `${d}%` : formatValue(Number(d)))),
+    );
   xAxis.select(".domain").attr("stroke", AXIS).attr("stroke-width", 2);
   styleAxisText(xAxis.selectAll("text"), "12px");
 
@@ -864,17 +1811,34 @@ function drawHBar(
     .attr("class", "bar-group")
     .attr("transform", (d) => `translate(0,${y0(d.label)})`);
 
+  const stackStart = new Map<string, Map<string, number>>();
+  if (stacked) {
+    for (const d of data) {
+      let acc = 0;
+      const starts = new Map<string, number>();
+      for (const s of series) {
+        starts.set(s.id, acc);
+        acc += Math.max(0, pointValue(d, s.id));
+      }
+      stackStart.set(d.label, starts);
+    }
+  }
+
   series.forEach((s, si) => {
-    const bh = y1.bandwidth();
-    const rx = style.rounded ? Math.min(5, bh / 2) : 0;
+    const rx = style.rounded && !stacked ? Math.min(5, bh / 2) : 0;
+    const fill = seriesFill(style, s, si);
     groups
       .append("path")
       .attr("class", "bar")
       .attr("d", (d) => {
-        const bw = Math.max(2, x(pointValue(d, s.id)));
-        return barPathEndRounded(0, y1(s.id)!, bw, bh, rx);
+        const v = Math.max(0, pointValue(d, s.id));
+        const start = stacked ? stackStart.get(d.label)?.get(s.id) ?? 0 : 0;
+        const x0pos = x(start);
+        const bw = Math.max(0, x(start + v) - x0pos);
+        const by = stacked ? 0 : y1(s.id)!;
+        return barPathEndRounded(x0pos, by, Math.max(bw, v > 0 ? 1 : 0), bh, rx);
       })
-      .attr("fill", seriesColor(style, si))
+      .attr("fill", fill)
       .attr("stroke", style.strokeWidth > 0 ? style.strokeColor : "none")
       .attr("stroke-width", style.strokeWidth)
       .attr("filter", style.shadow ? `url(#${SHADOW_FILTER_ID})` : "none")
@@ -882,6 +1846,38 @@ function drawHBar(
         showTip(event as MouseEvent, d);
       })
       .on("mouseleave", hideTip);
+
+    if (!opts.showLabels) return;
+    groups.each(function (d) {
+      const v = pointValue(d, s.id);
+      if (stacked) {
+        const start = stackStart.get(d.label)?.get(s.id) ?? 0;
+        const segW = x(start + Math.max(0, v)) - x(start);
+        if (segW < 18 || !v) return;
+        d3.select(this)
+          .append("text")
+          .attr("class", "bar-value-label")
+          .attr("pointer-events", "none")
+          .attr("text-anchor", "middle")
+          .attr("x", x(start) + segW / 2)
+          .attr("y", bh / 2)
+          .attr("dy", "0.35em")
+          .attr("font-family", FONT)
+          .attr("font-weight", "700")
+          .attr("font-size", "11px")
+          .attr("fill", labelOnFill(fill))
+          .text(formatBarLabel(v));
+        return;
+      }
+      appendHBarValueLabel(
+        d3.select(this),
+        formatBarLabel(v),
+        Math.max(2, x(v)),
+        y1(s.id)!,
+        bh,
+        labelFontPx,
+      );
+    });
   });
 }
 
@@ -894,7 +1890,12 @@ function drawLine(
   hideTip: () => void,
   style: ChartStyle,
   series: ChartSeriesMeta[],
+  opts: { layout: SeriesLayout; showLabels: boolean },
 ) {
+  const y2Series = axisSeries(series, "y2");
+  const ySeries = axisSeries(series, "y");
+  const leftSeries = ySeries.length ? ySeries : series.filter((s) => s.axis !== "y2");
+  const right = y2Series.length ? 72 : MARGIN.right;
   const labelFont = "11px";
   const topPad = series.length > 1 ? 28 : 0;
   const labels = data.map((d) => d.label);
@@ -903,11 +1904,10 @@ function drawLine(
   let bottom = MARGIN.bottom;
   let corridorW = 80;
   for (let pass = 0; pass < 2; pass++) {
-    const inner = Math.max(80, width - left - MARGIN.right);
+    const inner = Math.max(80, width - left - right);
     const stepApprox =
       data.length > 1 ? inner / Math.max(data.length - 1, 1) : inner;
-    // Point scale has no band; use ~80% of step as the corridor
-    corridorW = Math.max(40, stepApprox * 0.8);
+    corridorW = Math.max(40, stepApprox);
     const along = Math.max(40, bottom - AXIS_LABEL_AXIS_GAP);
     left = estimateLeftMargin(labels, width, labelFont, corridorW, along);
     bottom = estimateBottomMargin(labels, height, labelFont, corridorW, along);
@@ -915,6 +1915,7 @@ function drawLine(
   const margin = {
     ...MARGIN,
     left,
+    right,
     top: MARGIN.top + topPad,
     bottom,
   };
@@ -930,11 +1931,22 @@ function drawLine(
     .range([0, innerW])
     .padding(0.5);
 
-  const y = d3
-    .scaleLinear()
-    .domain([0, maxPointValue(data, series) || 0])
-    .nice()
-    .range([innerH, 0]);
+  const yMax = maxPointValue(data, leftSeries) || 0;
+  const y = d3.scaleLinear().domain([0, yMax]).nice().range([innerH, 0]);
+  const y2Max = maxPointValue(data, y2Series) || 0;
+  const y2 = d3.scaleLinear().domain([0, y2Max]).nice().range([innerH, 0]);
+  const valueTexts = data.flatMap((d) =>
+    series.map((s) => formatBarLabel(pointValue(d, s.id))),
+  );
+  const fontPx = lineLabelFont(valueTexts, Math.max(16, x.step() - 6));
+  if (opts.showLabels) {
+    ensureLabelHeadroom(
+      y,
+      yMax,
+      innerH,
+      fontPx + LINE_POINT_R + LINE_LABEL_GAP + 2,
+    );
+  }
 
   if (style.showGrid) {
     g.append("g")
@@ -958,7 +1970,7 @@ function drawLine(
   xAxis.select(".domain").attr("stroke", AXIS).attr("stroke-width", 2);
   const step =
     data.length > 1 ? innerW / Math.max(data.length - 1, 1) : innerW;
-  const lineCorridor = Math.max(40, step * 0.8);
+  const lineCorridor = Math.max(40, step);
   xAxis.selectAll(".tick").each(function (d) {
     setCorridorAxisLabel(
       this as SVGGElement,
@@ -973,30 +1985,40 @@ function drawLine(
     const yAxis = g.append("g").call(d3.axisLeft(y).ticks(6).tickSize(0));
     yAxis.select(".domain").attr("stroke", AXIS).attr("stroke-width", 2);
     styleAxisText(yAxis.selectAll("text"), "12px");
+    if (y2Series.length) {
+      const y2Axis = g
+        .append("g")
+        .attr("transform", `translate(${innerW},0)`)
+        .call(d3.axisRight(y2).ticks(5).tickSize(0));
+      y2Axis.select(".domain").attr("stroke", AXIS).attr("stroke-width", 2);
+      styleAxisText(y2Axis.selectAll("text"), "12px");
+    }
   }
 
   series.forEach((s, si) => {
+    const scale = s.axis === "y2" ? y2 : y;
+    const color = seriesFill(style, s, si);
     const line = d3
       .line<AggregatedPoint>()
       .x((d) => x(d.label)!)
-      .y((d) => y(pointValue(d, s.id)));
+      .y((d) => scale(pointValue(d, s.id)));
 
     g.append("path")
       .datum(data)
       .attr("fill", "none")
-      .attr("stroke", seriesColor(style, si))
+      .attr("stroke", color)
       .attr("stroke-width", Math.max(2, style.strokeWidth || 2.5))
       .attr("filter", style.shadow ? `url(#${SHADOW_FILTER_ID})` : "none")
       .attr("d", line);
 
-    g.selectAll(`.point-${s.id}`)
+    g.selectAll(`.point-${si}`)
       .data(data)
       .join("circle")
-      .attr("class", `point-${s.id}`)
+      .attr("class", `point-${si}`)
       .attr("cx", (d) => x(d.label)!)
-      .attr("cy", (d) => y(pointValue(d, s.id)))
+      .attr("cy", (d) => scale(pointValue(d, s.id)))
       .attr("r", 4)
-      .attr("fill", seriesColor(style, si))
+      .attr("fill", color)
       .attr("stroke", style.strokeWidth > 0 ? style.strokeColor : "#fff")
       .attr("stroke-width", style.strokeWidth > 0 ? style.strokeWidth : 1.5)
       .on("mousemove", function (event, d) {
@@ -1004,7 +2026,161 @@ function drawLine(
       })
       .on("mouseleave", hideTip);
   });
+
+  if (opts.showLabels) {
+    if (leftSeries.length) drawLineValueLabels(g, data, leftSeries, (label) => x(label), y, fontPx, innerH);
+    if (y2Series.length) drawLineValueLabels(g, data, y2Series, (label) => x(label), y2, fontPx, innerH);
+  }
 }
+/** Point on a d3 pie arc. Angle 0 is 12 o'clock, clockwise. */
+function pieRim(angle: number, r: number): [number, number] {
+  return [Math.sin(angle) * r, -Math.cos(angle) * r];
+}
+
+function formatPieShare(part: number, total: number): string {
+  if (!(total > 0) || !(part > 0)) return "0%";
+  const pct = (part / total) * 100;
+  if (pct < 0.5) return "<1%";
+  if (pct >= 10) return `${Math.round(pct).toLocaleString("ru-RU")}%`;
+  return `${pct.toLocaleString("ru-RU", { maximumFractionDigits: 1 })}%`;
+}
+
+/** Slice color as caption ink when it stays readable on white, otherwise the axis color. */
+function pieMetaInk(fill: string): string {
+  return labelOnFill(fill) === "#fff" ? fill : AXIS;
+}
+
+interface PieCallout {
+  side: 1 | -1;
+  y: number;
+  h: number;
+  mid: number;
+  lines: string[];
+  meta: string;
+  color: string;
+  metaColor: string;
+}
+
+function pieCalloutLines(
+  name: string,
+  maxWidth: number,
+  fontPx: number,
+  allowTwo: boolean,
+): string[] {
+  const font = `${fontPx}px`;
+  const clean = cleanLabelText(name);
+  if (!allowTwo || measureTextWidth(clean, font) <= maxWidth) {
+    return [truncateToWidth(clean, maxWidth, font)];
+  }
+  const wrapped = wrapLabelBySpaces(clean, maxWidth, font, 2);
+  return wrapped.length ? wrapped : [truncateToWidth(clean, maxWidth, font)];
+}
+
+function segmentHitsCircle(
+  x1: number,
+  y1: number,
+  x2: number,
+  y2: number,
+  r: number,
+): boolean {
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len2 = dx * dx + dy * dy;
+  const t = len2 > 0 ? Math.max(0, Math.min(1, -(x1 * dx + y1 * dy) / len2)) : 0;
+  const px = x1 + t * dx;
+  const py = y1 + t * dy;
+  return px * px + py * py < r * r;
+}
+
+/**
+ * Callouts leave the pie on separate horizontal tracks, drop on a
+ * private vertical lane, then run a parallel tail to the label.
+ * Vertical lanes step outward from the pie so they stay side by side.
+ */
+const PIE_LANE_GAP = 8;
+const PIE_LANE_TAIL = 16;
+
+function spreadShelves(ys: number[], gap: number): number[] {
+  const out = ys.slice();
+  for (let i = 1; i < out.length; i++) {
+    const min = out[i - 1] + gap;
+    if (out[i] < min) out[i] = min;
+  }
+  return out;
+}
+
+function clearOfCircle(y: number, side: 1 | -1, radius: number): number {
+  const limit = radius + 8;
+  if (Math.abs(y) >= limit - 1) return side * 8;
+  return side * Math.sqrt(Math.max(0, limit * limit - y * y));
+}
+
+function pieLeaderPath(
+  mid: number,
+  radius: number,
+  side: 1 | -1,
+  labelY: number,
+  lane: number,
+  laneCount: number,
+  shelfY: number,
+): { d: string; textX: number; dot: [number, number] } {
+  const [rimX, rimY] = pieRim(mid, radius);
+  const [stubX, stubY] = pieRim(mid, radius + 6);
+  const band = Math.max(0, laneCount - 1) * PIE_LANE_GAP;
+  const outer = radius + 16 + band;
+  const gateX = clearOfCircle(shelfY, side, radius);
+  const laneX =
+    side *
+    Math.min(outer, Math.max(radius + 16 + lane * PIE_LANE_GAP, Math.abs(gateX) + 6));
+  const textX = side * (outer + PIE_LANE_TAIL);
+  let toGate = `L${gateX},${shelfY}`;
+  if (segmentHitsCircle(stubX, stubY, gateX, shelfY, radius + 1.5)) {
+    const mx = (stubX + gateX) / 2;
+    const my = (stubY + shelfY) / 2;
+    const mag = Math.hypot(mx, my) || 1;
+    const cMag = Math.max(radius + 22, mag + 14);
+    toGate = `Q${(mx / mag) * cMag},${(my / mag) * cMag} ${gateX},${shelfY}`;
+  }
+  return {
+    d: `M${rimX},${rimY} L${stubX},${stubY} ${toGate} L${laneX},${shelfY} L${laneX},${labelY} L${textX},${labelY}`,
+    textX,
+    dot: [rimX, rimY],
+  };
+}
+
+function spreadPieCallouts(items: PieCallout[], minY: number, maxY: number) {
+  if (!items.length) return;
+  items.sort((a, b) => a.y - b.y);
+  const gap = 8;
+  const tops = items.map((it) => it.y - it.h / 2);
+  tops[0] = Math.max(minY, tops[0]);
+  for (let i = 1; i < items.length; i++) {
+    const minTop = tops[i - 1] + items[i - 1].h + gap;
+    if (tops[i] < minTop) tops[i] = minTop;
+  }
+  const last = items.length - 1;
+  if (tops[last] + items[last].h > maxY) {
+    tops[last] = maxY - items[last].h;
+    for (let i = last - 1; i >= 0; i--) {
+      const maxTop = tops[i + 1] - gap - items[i].h;
+      if (tops[i] > maxTop) tops[i] = maxTop;
+    }
+  }
+  if (tops[0] < minY) {
+    const totalH = items.reduce((sum, it) => sum + it.h, 0);
+    const room = Math.max(1, maxY - minY);
+    const tight = Math.max(2, (room - totalH) / Math.max(1, items.length - 1));
+    let y = minY;
+    for (let i = 0; i < items.length; i++) {
+      tops[i] = y;
+      y += items[i].h + tight;
+    }
+  }
+  items.forEach((it, i) => {
+    it.y = tops[i] + it.h / 2;
+  });
+}
+
 function drawPie(
   svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
   data: AggregatedPoint[],
@@ -1013,16 +2189,54 @@ function drawPie(
   showTip: (e: MouseEvent, d: AggregatedPoint) => void,
   hideTip: () => void,
   style: ChartStyle,
+  showLabels: boolean,
+  hidden: ReadonlySet<string>,
+  onToggle: (label: string) => void,
 ) {
-  const legendW = Math.min(240, width * 0.35);
-  const radius = Math.min(width - legendW, height) / 2 - 20;
-  const cx = (width - legendW) / 2;
-  const cy = height / 2;
+  const hiddenLabels = data.filter((d) => hidden.has(d.label));
+  if (hiddenLabels.length) {
+    const chips = svg.append("g").attr("transform", "translate(12, 16)");
+    let chipX = 0;
+    hiddenLabels.forEach((d) => {
+      const item = chips.append("g").attr("transform", `translate(${chipX}, 0)`);
+      item.style("cursor", "pointer").style("opacity", 0.45).on("click", () => onToggle(d.label));
+      const caption = d.label.length > 18 ? d.label.slice(0, 16) + "..." : d.label;
+      item
+        .append("text")
+        .attr("font-family", FONT)
+        .attr("font-size", "11px")
+        .attr("font-weight", "700")
+        .attr("fill", AXIS)
+        .text(`вернуть: ${caption}`);
+      chipX += (item.node()?.getBBox().width || 80) + 16;
+    });
+  }
 
+  const labelCol = Math.min(210, Math.max(108, Math.floor(width * 0.22)));
+  const slices = data.filter((d) => d.value > 0 && !hidden.has(d.label));
+  const total = d3.sum(slices, (d) => d.value);
   const pie = d3
     .pie<AggregatedPoint>()
     .value((d) => d.value)
     .sort(null);
+  const laid = pie(slices);
+  const countSide = (side: 1 | -1) =>
+    laid.filter((d) => {
+      const mid = (d.startAngle + d.endAngle) / 2;
+      return (Math.sin(mid) >= 0 ? 1 : -1) === side;
+    }).length;
+  const maxOnSide = Math.max(countSide(1), countSide(-1), 1);
+  const leader =
+    20 +
+    Math.max(0, maxOnSide - 1) * PIE_LANE_GAP +
+    PIE_LANE_TAIL +
+    20;
+  const radius = Math.max(
+    36,
+    Math.min(height / 2 - 28, width / 2 - labelCol - leader),
+  );
+  const cx = width / 2;
+  const cy = height / 2;
 
   const arc = d3
     .arc<d3.PieArcDatum<AggregatedPoint>>()
@@ -1033,51 +2247,242 @@ function drawPie(
 
   const color = d3
     .scaleOrdinal<string>()
-    .domain(data.map((d) => d.label))
-    .range(data.map((_d, i) => seriesColor(style, i)));
+    .domain(slices.map((d) => d.label))
+    .range(slices.map((_d, i) => seriesColor(style, i)));
+
+  const arcs = laid;
 
   g.selectAll("path")
-    .data(pie(data))
+    .data(arcs)
     .join("path")
     .attr("d", arc)
     .attr("fill", (d) => color(d.data.label) as string)
     .attr("stroke", style.strokeWidth > 0 ? style.strokeColor : "#fff")
     .attr("stroke-width", style.strokeWidth > 0 ? style.strokeWidth : 2)
     .attr("filter", style.shadow ? `url(#${SHADOW_FILTER_ID})` : "none")
+    .style("cursor", "pointer")
     .on("mousemove", function (event, d) {
       showTip(event as MouseEvent, d.data);
     })
-    .on("mouseleave", hideTip);
-
-  const legend = svg
-    .append("g")
-    .attr("transform", `translate(${width - legendW + 8}, 28)`);
-
-  const items = legend
-    .selectAll("g")
-    .data(data.slice(0, 12))
-    .join("g")
-    .attr("transform", (_d, i) => `translate(0, ${i * 22})`);
-
-  items
-    .append("rect")
-    .attr("width", 14)
-    .attr("height", 14)
-    .attr("rx", style.rounded ? 3 : 0)
-    .attr("fill", (d) => color(d.label) as string);
-
-  items
-    .append("text")
-    .attr("x", 20)
-    .attr("y", 11)
-    .attr("font-family", FONT)
-    .attr("font-size", "12px")
-    .attr("font-weight", "700")
-    .attr("fill", AXIS)
-    .text((d) => {
-      const name = d.label.length > 22 ? d.label.slice(0, 20) + "..." : d.label;
-      return `${name}  ${formatValue(d.value)}`;
+    .on("mouseleave", hideTip)
+    .on("click", function (_event, d) {
+      onToggle(d.data.label);
     });
+
+  if (!showLabels || !arcs.length || radius < 20) return;
+
+  const textWidth = Math.max(72, labelCol - 8);
+  const minY = -height / 2 + 8;
+  const maxY = height / 2 - 8;
+  const shareBoxes: LabelBox[] = [];
+
+  const drawShare = (
+    d: d3.PieArcDatum<AggregatedPoint>,
+    share: string,
+    fill: string,
+  ) => {
+    const angle = d.endAngle - d.startAngle;
+    const depth = angle > Math.PI ? radius * 0.46 : radius * 0.62;
+    const [x, y] = pieRim((d.startAngle + d.endAngle) / 2, depth);
+    const fontPx = Math.min(15, Math.max(11, Math.round(radius / 16)));
+    const shareW = measureTextWidth(share, `${fontPx}px`);
+    const arcRoom = angle * depth;
+    if (angle < 0.38 || arcRoom < shareW + 8) return false;
+    const box: LabelBox = {
+      l: x - shareW / 2 - 2,
+      r: x + shareW / 2 + 2,
+      t: y - fontPx / 2 - 1,
+      b: y + fontPx / 2 + 1,
+    };
+    if (shareBoxes.some((o) => boxesOverlap(box, o))) return false;
+    shareBoxes.push(box);
+    g.append("text")
+      .attr("class", "pie-share-label")
+      .attr("pointer-events", "none")
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "middle")
+      .attr("x", x)
+      .attr("y", y)
+      .attr("font-family", FONT)
+      .attr("font-weight", "700")
+      .attr("font-size", `${fontPx}px`)
+      .attr("fill", labelOnFill(fill))
+      .text(share);
+    return true;
+  };
+
+  if (arcs.length === 1) {
+    const only = arcs[0];
+    const fill = color(only.data.label) as string;
+    const share = formatPieShare(only.data.value, total);
+    const shareFont = Math.min(18, Math.max(13, Math.round(radius / 10)));
+    g.append("text")
+      .attr("class", "pie-share-label")
+      .attr("pointer-events", "none")
+      .attr("text-anchor", "middle")
+      .attr("dominant-baseline", "middle")
+      .attr("x", 0)
+      .attr("y", 0)
+      .attr("font-family", FONT)
+      .attr("font-weight", "700")
+      .attr("font-size", `${shareFont}px`)
+      .attr("fill", labelOnFill(fill))
+      .text(share);
+    const fontPx = Math.min(15, Math.max(12, Math.round(radius / 14)));
+    const valueFont = Math.max(11, fontPx - 1);
+    const lines = pieCalloutLines(only.data.label, Math.min(textWidth * 1.6, width - 32), fontPx, true);
+    const meta = `${formatBarLabel(only.data.value)} · ${share}`;
+    const nameStep = fontPx + 2;
+    let y = radius + 22 + fontPx;
+    const anchorX = 0;
+    const text = g
+      .append("text")
+      .attr("class", "pie-callout-label")
+      .attr("pointer-events", "none")
+      .attr("text-anchor", "middle")
+      .attr("font-family", FONT)
+      .attr("font-weight", "700");
+    for (const line of lines) {
+      if (y > height / 2 - 8) break;
+      text
+        .append("tspan")
+        .attr("x", anchorX)
+        .attr("y", y)
+        .attr("font-size", `${fontPx}px`)
+        .attr("fill", AXIS)
+        .text(line);
+      y += nameStep;
+    }
+    if (y <= height / 2 - 4) {
+      text
+        .append("tspan")
+        .attr("x", anchorX)
+        .attr("y", y)
+        .attr("font-size", `${valueFont}px`)
+        .attr("fill", pieMetaInk(fill))
+        .text(meta);
+    }
+    return;
+  }
+
+  const sideCount = (side: 1 | -1) =>
+    arcs.filter((d) => {
+      const mid = (d.startAngle + d.endAngle) / 2;
+      return (Math.sin(mid) >= 0 ? 1 : -1) === side;
+    }).length;
+  const heavier = Math.max(sideCount(1), sideCount(-1), 1);
+  let fontPx = Math.round(Math.min(14, Math.max(11, radius / 16)));
+  let valueFont = Math.max(10, fontPx - 1);
+  let allowTwo = true;
+  const blockGuess = (two: boolean) =>
+    (two ? 2 : 1) * (fontPx + 2) + valueFont + 12;
+  while (heavier * blockGuess(allowTwo) > height - 16 && (allowTwo || fontPx > 10)) {
+    if (allowTwo) allowTwo = false;
+    else {
+      fontPx -= 1;
+      valueFont = Math.max(9, fontPx - 1);
+    }
+  }
+
+  const nameStep = fontPx + 2;
+  const callouts: PieCallout[] = arcs.map((d) => {
+    const mid = (d.startAngle + d.endAngle) / 2;
+    const fill = color(d.data.label) as string;
+    const share = formatPieShare(d.data.value, total);
+    const inside = drawShare(d, share, fill);
+    const lines = pieCalloutLines(d.data.label, textWidth, fontPx, allowTwo);
+    const meta = inside
+      ? formatBarLabel(d.data.value)
+      : `${formatBarLabel(d.data.value)} · ${share}`;
+    const [, naturalY] = pieRim(mid, radius + 12);
+    return {
+      side: Math.sin(mid) >= 0 ? 1 : -1,
+      y: naturalY,
+      h: lines.length * nameStep + valueFont + 4,
+      mid,
+      lines,
+      meta,
+      color: fill,
+      metaColor: pieMetaInk(fill),
+    };
+  });
+
+  spreadPieCallouts(
+    callouts.filter((c) => c.side > 0),
+    minY,
+    maxY,
+  );
+  spreadPieCallouts(
+    callouts.filter((c) => c.side < 0),
+    minY,
+    maxY,
+  );
+
+  for (const side of [1, -1] as const) {
+    const group = callouts
+      .filter((item) => item.side === side)
+      .sort((a, b) => a.y - b.y);
+    const shelves = spreadShelves(
+      group.map((item) => pieRim(item.mid, radius + 6)[1]),
+      PIE_LANE_GAP,
+    );
+    group.forEach((item, lane) => {
+    const leader = pieLeaderPath(
+      item.mid,
+      radius,
+      item.side,
+      item.y,
+      lane,
+      group.length,
+      shelves[lane],
+    );
+    const textX = leader.textX;
+    g.append("path")
+      .attr("class", "pie-callout-line")
+      .attr("pointer-events", "none")
+      .attr("fill", "none")
+      .attr("stroke", item.color)
+      .attr("stroke-width", 1.35)
+      .attr("stroke-linecap", "round")
+      .attr("stroke-linejoin", "round")
+      .attr("d", leader.d);
+    g.append("circle")
+      .attr("class", "pie-callout-dot")
+      .attr("pointer-events", "none")
+      .attr("cx", leader.dot[0])
+      .attr("cy", leader.dot[1])
+      .attr("r", 2.4)
+      .attr("fill", item.color)
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 1.3);
+
+    const text = g
+      .append("text")
+      .attr("class", "pie-callout-label")
+      .attr("pointer-events", "none")
+      .attr("text-anchor", item.side > 0 ? "start" : "end")
+      .attr("font-family", FONT)
+      .attr("font-weight", "700");
+    let ly = item.y - item.h / 2 + fontPx * 0.86;
+    for (const line of item.lines) {
+      text
+        .append("tspan")
+        .attr("x", textX)
+        .attr("y", ly)
+        .attr("font-size", `${fontPx}px`)
+        .attr("fill", AXIS)
+        .text(line);
+      ly += nameStep;
+    }
+    text
+      .append("tspan")
+      .attr("x", textX)
+      .attr("y", ly)
+      .attr("font-size", `${valueFont}px`)
+      .attr("fill", item.metaColor)
+      .text(item.meta);
+    });
+  }
 }
 
 export default BuilderChart;

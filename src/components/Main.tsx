@@ -79,6 +79,9 @@ function Main() {
   const showLoader = useSelector((state) => state.filters.loaderShow);
   const dateStart = useSelector((state) => state.filters.dateStart);
   const dateEnd = useSelector((state) => state.filters.dateEnd);
+  const railwayFilter = useSelector((state) => state.filters.railwayFilter);
+  const regionFilter = useSelector((state) => state.filters.regionFilter);
+  const placeFilterOn = Boolean(railwayFilter || regionFilter);
   const dispatch = useDispatch();
   const initialSlide = useRef(readSavedSlideIndex()).current;
 
@@ -294,7 +297,7 @@ function Main() {
                     (за период {timeFormat(dateStart)}-{timeFormatY(dateEnd)}{" "}
                     г.)
                   </h2>
-                  {showLoader.sankey ? (
+                  {showLoader.sankey && !placeFilterOn ? (
                     <Loader />
                   ) : (
                     <div id="text_report" ref={downloadRef}>

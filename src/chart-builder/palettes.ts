@@ -64,6 +64,8 @@ export function styleFromPalette(paletteId: string, prev?: ChartStyle): ChartSty
       rounded: true,
       showGrid: true,
       showYAxis: true,
+      showLabels: true,
+      showPareto: true,
     }),
     paletteId: pal.id,
     fillColors: [...pal.colors],

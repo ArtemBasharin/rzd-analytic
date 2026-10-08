@@ -3,6 +3,7 @@ import "./App.css";
 import Navbar from "./components/Navbar";
 import Main from "./components/Main";
 import Popup from "./components/Popup";
+import ToastStack from "./components/ToastStack";
 import ChartBuilderOverlay from "./components/chart-builder/ChartBuilderOverlay";
 import { useSelector } from "react-redux";
 
@@ -14,6 +15,7 @@ function App() {
       <Navbar />
       <Main />
       <ChartBuilderOverlay />
+      <ToastStack />
     </div>
   );
 }

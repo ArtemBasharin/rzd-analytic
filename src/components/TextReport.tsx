@@ -15,7 +15,7 @@ import {
 } from "../utils/functions";
 
 import { cutDecimals } from "../utils/functions";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   startTime,
@@ -30,10 +30,14 @@ import {
   guiltyUnit,
 } from "../utils/config";
 import SankeyDiagram from "./SankeyDiagram";
+import { Loader } from "./Loader";
+import { filterViolationsByPlace } from "../utils/placeParts";
 
 interface RootState {
   filters: {
     sourceState: any[];
+    railwayFilter?: string;
+    regionFilter?: string;
     analyzeState: {
       failsArray: any[];
       failsYmax: number;
@@ -55,6 +59,7 @@ interface RootState {
     dateStart: number;
     dateEnd: number;
     reportSankeyBlocksVisible?: boolean;
+    reportUnitSort?: "count" | "delayed" | "duration";
   };
 }
 
@@ -80,6 +85,9 @@ const TextReportTemplatePeriod = () => {
 
   const reportSankeyBlocksVisible = useSelector(
     (state: RootState) => state.filters.reportSankeyBlocksVisible ?? true,
+  );
+  const reportUnitSort = useSelector(
+    (state: RootState) => state.filters.reportUnitSort ?? "count",
   );
 
   const [sortConfig, setSortConfig] = useState<{
@@ -119,7 +127,17 @@ const TextReportTemplatePeriod = () => {
     setRightTableVisible(!isRightTableVisible);
   };
 
-  let sourceArr = useSelector((state: RootState) => state.filters.sourceState);
+  const sourceRows = useSelector((state: RootState) => state.filters.sourceState);
+  const railwayFilter = useSelector(
+    (state: RootState) => state.filters.railwayFilter ?? "",
+  );
+  const regionFilter = useSelector(
+    (state: RootState) => state.filters.regionFilter ?? "",
+  );
+  const sourceArr = useMemo(
+    () => filterViolationsByPlace(sourceRows, railwayFilter, regionFilter),
+    [sourceRows, railwayFilter, regionFilter],
+  );
   let topCases: any = [];
   let start = new Date(
     useSelector((state: RootState) => state.filters.dateStart),
@@ -136,9 +154,36 @@ const TextReportTemplatePeriod = () => {
   let currentYear: number = d3.max(arr.map((el) => el.year));
   let pastYear: number = currentYear - 1;
 
+  // Слайд отчёта может открыться из сохранённого индекса до setSourceState:
+  // reportSrcState ещё [] и строки за год нет.
+  const currentYearRow = arr.find((obj) => obj.year === currentYear);
+  const pastYearRow = arr.find((obj) => obj.year === pastYear);
+  if (!currentYearRow?.report || !pastYearRow?.report) {
+    if (!sourceArr?.length) return <Loader />;
+    return (
+      <p className="text_paragraph">
+        Нет данных для отчёта за выбранный период.
+      </p>
+    );
+  }
+
   let dictionary: any[] = [];
-  let arrForDict = arr.find((obj) => obj.year === currentYear);
+  let arrForDict = currentYearRow;
   arrForDict.report.forEach((el: any) => dictionary.push(el.guiltyUnit));
+  const paragraphMetric =
+    reportUnitSort === "delayed"
+      ? "totalDelayed"
+      : reportUnitSort === "duration"
+        ? "totalDuration"
+        : "count";
+  dictionary.sort((a: string, b: string) => {
+    const aRow = arrForDict.report.find((unit: any) => unit.guiltyUnit === a);
+    const bRow = arrForDict.report.find((unit: any) => unit.guiltyUnit === b);
+    const aValue = Number(aRow?.[paragraphMetric]) || 0;
+    const bValue = Number(bRow?.[paragraphMetric]) || 0;
+    if (bValue !== aValue) return bValue - aValue;
+    return String(a).localeCompare(String(b), "ru");
+  });
 
   const getArrReasons = (year: number, unit: string) => {
     const currentYearArr: any[] = arr.find((obj) => obj.year === year).report;
@@ -393,16 +438,14 @@ const TextReportTemplatePeriod = () => {
 
   ////////////////////////////////////////////////////////////////////////////////////
   const getOneRowStationsReport = (place: string, index: number) => {
-    const currentYearArr: any[] = stationsReport.find(
-      (obj) => obj.year === currentYear,
-    ).report;
+    const currentYearArr: any[] =
+      stationsReport.find((obj) => obj.year === currentYear)?.report ?? [];
     const currentYearPlace: any = currentYearArr.find(
       (objUnit) => objUnit.place === place,
     );
 
-    const pastYearArr: any[] = stationsReport.find(
-      (obj) => obj.year === pastYear,
-    ).report;
+    const pastYearArr: any[] =
+      stationsReport.find((obj) => obj.year === pastYear)?.report ?? [];
     const pastYearPlace: any = pastYearArr.find(
       (objUnit) => objUnit.place === place,
     );
@@ -461,7 +504,7 @@ const TextReportTemplatePeriod = () => {
 
   const dictionaryStationsTableAsSet: Set<string> = new Set();
   stationsReport.forEach((el) => {
-    el.report.forEach((el2: any) => {
+    el?.report?.forEach((el2: any) => {
       dictionaryStationsTableAsSet.add(el2.place);
     });
   });
@@ -551,13 +594,13 @@ const TextReportTemplatePeriod = () => {
         dicUnitForTableStations.map((unit) => {
           const pastCell = (
             <td key={"past-" + unit}>
-              {cutDecimals(sumValuesByKey(stationsReport[0].report, unit))}
+              {cutDecimals(sumValuesByKey(stationsReport[0]?.report ?? [], unit))}
             </td>
           );
 
           const currentCell = (
             <td key={"cur-" + unit}>
-              {cutDecimals(sumValuesByKey(stationsReport[1].report, unit))}
+              {cutDecimals(sumValuesByKey(stationsReport[1]?.report ?? [], unit))}
             </td>
           );
 

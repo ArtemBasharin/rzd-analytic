@@ -1,15 +1,23 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { DayPicker } from "react-day-picker";
+import type { DateRange } from "react-day-picker";
 import { format } from "date-fns";
 import { ru } from "date-fns/locale";
 import "react-day-picker/dist/style.css";
 import { CSSTransition } from "react-transition-group";
+import { TiArrowSortedDown } from "react-icons/ti";
 import { useDispatch, useSelector as useReduxSelector } from "react-redux";
 import type { TypedUseSelectorHook } from "react-redux";
 import type { RootState } from "../redux/store";
-import { setDateStart, setDateEnd } from "../redux/filtersSlice";
+import {
+  setCurrentYear,
+  setDateRange,
+  setPattern,
+} from "../redux/filtersSlice";
 
 const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
+
+const JANUARY_TO_OCTOBER = "01|02|03|04|05|06|07|08|09|10";
 
 const startOfDay = (date: Date) => {
   const next = new Date(date);
@@ -23,142 +31,265 @@ const endOfDay = (date: Date) => {
   return next.getTime();
 };
 
+function listDataYears(minMs: number, maxMs: number, currentYear: number) {
+  const minYear = new Date(minMs).getFullYear();
+  const maxYear = new Date(maxMs).getFullYear();
+  const from = Number.isFinite(minYear) ? Math.min(minYear, currentYear) : currentYear;
+  const to = Number.isFinite(maxYear) ? Math.max(maxYear, currentYear) : currentYear;
+  const years: number[] = [];
+  for (let year = from; year <= to; year += 1) years.push(year);
+  return years.length > 0 ? years : [currentYear];
+}
+
+function isJanuaryThroughOctober(start: Date, end: Date, year: number) {
+  return (
+    start.getFullYear() === year &&
+    end.getFullYear() === year &&
+    start.getMonth() === 0 &&
+    start.getDate() === 1 &&
+    end.getMonth() === 9 &&
+    end.getDate() === 31
+  );
+}
+
+function CalendarIcon() {
+  return (
+    <svg className="date-range__icon" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M7 2h2v2h6V2h2v2h3a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h3V2zm13 8H4v10h16V10zM8 14h2v2H8v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z"
+      />
+    </svg>
+  );
+}
+
 const DateRangePicker = () => {
-  const calendarStartRef = useRef<HTMLDivElement>(null);
-  const calendarEndRef = useRef<HTMLDivElement>(null);
-  const dropdownStartRef = useRef<HTMLDivElement>(null);
-  const dropdownEndRef = useRef<HTMLDivElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   const dateStartMs = useSelector((state) => state.filters.dateStart);
   const dateEndMs = useSelector((state) => state.filters.dateEnd);
   const minCutoffMs = useSelector((state) => state.filters.minCutoffDate);
   const maxCutoffMs = useSelector((state) => state.filters.maxCutoffDate);
+  const currentYear = useSelector((state) => state.filters.currentYear);
 
   const dateStart = new Date(dateStartMs);
   const dateEnd = new Date(dateEndMs);
-  const minDate = new Date(minCutoffMs);
-  const maxDate = new Date(maxCutoffMs);
 
   const dispatch = useDispatch();
+  const [isOpen, setIsOpen] = useState(false);
+  const [draft, setDraft] = useState<DateRange | undefined>();
+  const [month, setMonth] = useState(() => new Date(dateStartMs));
 
-  const [isOpenStart, setIsOpenStart] = useState(false);
-  const [isOpenEnd, setIsOpenEnd] = useState(false);
+  const years = useMemo(
+    () => listDataYears(minCutoffMs, maxCutoffMs, currentYear),
+    [minCutoffMs, maxCutoffMs, currentYear],
+  );
+  const fromYear = years[0];
+  const toYear = years[years.length - 1];
+  const bounds = useMemo(
+    () => ({
+      fromDate: new Date(fromYear, 0, 1),
+      toDate: new Date(toYear, 11, 31),
+    }),
+    [fromYear, toYear],
+  );
 
-  const handleDateStart = (date: Date | undefined) => {
-    if (date) {
-      dispatch(setDateStart(startOfDay(date)));
+  const canGoPrev = years.includes(currentYear - 1);
+  const canGoNext = years.includes(currentYear + 1);
+  const januaryOctoberActive = isJanuaryThroughOctober(
+    dateStart,
+    dateEnd,
+    currentYear,
+  );
+
+  const close = () => {
+    setIsOpen(false);
+    setDraft(undefined);
+  };
+
+  const shiftYear = (year: number) => {
+    setDraft(undefined);
+    dispatch(setCurrentYear(year));
+  };
+
+  const handleToggle = () => {
+    setDraft(undefined);
+    setMonth(new Date(dateStartMs));
+    setIsOpen((open) => !open);
+  };
+
+  const handleSelect = (_range: DateRange | undefined, selectedDay: Date) => {
+    if (!draft?.from || draft.to) {
+      setDraft({ from: selectedDay, to: undefined });
+      return;
     }
-    setIsOpenStart(false);
+    const from =
+      draft.from.getTime() <= selectedDay.getTime() ? draft.from : selectedDay;
+    const to =
+      draft.from.getTime() <= selectedDay.getTime() ? selectedDay : draft.from;
+    dispatch(setDateRange({ start: startOfDay(from), end: endOfDay(to) }));
+    close();
   };
 
-  const handleDateEnd = (date: Date | undefined) => {
-    if (date) {
-      dispatch(setDateEnd(endOfDay(date)));
-    }
-    setIsOpenEnd(false);
-  };
-
-  const handleToggleStart = () => {
-    setIsOpenStart((open) => !open);
-    setIsOpenEnd(false);
-  };
-
-  const handleToggleEnd = () => {
-    setIsOpenEnd((open) => !open);
-    setIsOpenStart(false);
+  const applyJanuaryToOctober = () => {
+    dispatch(setPattern(JANUARY_TO_OCTOBER));
+    close();
   };
 
   useEffect(() => {
-    if (!isOpenStart && !isOpenEnd) return;
+    setMonth(new Date(dateStartMs));
+  }, [dateStartMs]);
+
+  useEffect(() => {
+    if (!isOpen) return;
 
     const handleClickOutside = (event: Event) => {
       const target = event.target as Node | null;
-      if (!target) return;
-
-      if (isOpenStart && !calendarStartRef.current?.contains(target)) {
-        setIsOpenStart(false);
-      }
-      if (isOpenEnd && !calendarEndRef.current?.contains(target)) {
-        setIsOpenEnd(false);
-      }
+      if (!target || rootRef.current?.contains(target)) return;
+      close();
+    };
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") close();
     };
 
-    // capture: true — срабатывает даже если ниже по дереву зовут stopPropagation
     document.addEventListener("pointerdown", handleClickOutside, true);
+    document.addEventListener("keydown", handleKey);
     return () => {
       document.removeEventListener("pointerdown", handleClickOutside, true);
+      document.removeEventListener("keydown", handleKey);
     };
-  }, [isOpenStart, isOpenEnd]);
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const popup = dropdownRef.current;
+    if (!popup) return;
+    popup.style.left = "0px";
+    const rect = popup.getBoundingClientRect();
+    const margin = 12;
+    let shift = 0;
+    if (rect.right > window.innerWidth - margin) {
+      shift = window.innerWidth - margin - rect.right;
+    }
+    popup.style.left = `${shift}px`;
+    const next = popup.getBoundingClientRect();
+    if (next.left < margin) {
+      popup.style.left = `${shift + (margin - next.left)}px`;
+    }
+
+    const row = popup.querySelector<HTMLElement>(".calendar-years");
+    const chip = popup.querySelector<HTMLElement>(".calendar-years .is-selected");
+    if (row && chip) {
+      row.scrollLeft = chip.offsetLeft - row.clientWidth / 2 + chip.clientWidth / 2;
+    }
+  }, [isOpen, currentYear, years]);
+
+  const shownRange: DateRange = draft?.from
+    ? draft
+    : { from: dateStart, to: dateEnd };
 
   return (
     <>
-      <div className="list_container" ref={calendarStartRef}>
+      <div className="year-switch" role="group" aria-label="Год">
         <button
           type="button"
-          id="datepicker-btn-start"
-          onClick={handleToggleStart}
-          className="tools tools_text-button list_element_year "
-          aria-expanded={isOpenStart}
-          aria-haspopup="dialog"
-          aria-labelledby="datepicker-label-start datepicker-btn-start"
+          className="year-switch__btn"
+          aria-label="Предыдущий год"
+          disabled={!canGoPrev}
+          onClick={() => shiftYear(currentYear - 1)}
         >
-          {format(dateStart, "dd/MM/yyyy")}
+          ‹
         </button>
-        <span className="input-label" id="datepicker-label-start">
-          От:
-        </span>
-        <CSSTransition
-          in={isOpenStart}
-          timeout={150}
-          classNames="calendar-dropdown"
-          nodeRef={dropdownStartRef}
-          unmountOnExit
+        <span className="year-switch__value">{currentYear}</span>
+        <button
+          type="button"
+          className="year-switch__btn"
+          aria-label="Следующий год"
+          disabled={!canGoNext}
+          onClick={() => shiftYear(currentYear + 1)}
         >
-          <div ref={dropdownStartRef} className="calendar_container">
-            <DayPicker
-              mode="single"
-              selected={dateStart}
-              onSelect={handleDateStart}
-              locale={ru}
-              defaultMonth={dateStart}
-              fromDate={minDate}
-              toDate={dateEnd}
-            />
-          </div>
-        </CSSTransition>
+          ›
+        </button>
       </div>
 
-      <div className="list_container" ref={calendarEndRef}>
+      <div className="list_container" ref={rootRef}>
         <button
           type="button"
-          id="datepicker-btn-end"
-          onClick={handleToggleEnd}
-          className="tools tools_text-button list_element_year "
-          aria-expanded={isOpenEnd}
+          id="datepicker-btn"
+          onClick={handleToggle}
+          className="tools tools_text-button date-range__trigger"
+          aria-expanded={isOpen}
           aria-haspopup="dialog"
-          aria-labelledby="datepicker-label-end datepicker-btn-end"
+          aria-controls="date-range-popup"
         >
-          {format(dateEnd, "dd/MM/yyyy")}
+          <CalendarIcon />
+          <span className="date-range__value">
+            {format(dateStart, "dd.MM.yyyy")} — {format(dateEnd, "dd.MM.yyyy")}
+          </span>
+          <TiArrowSortedDown
+            className={`date-range__chevron${isOpen ? " tools_dropdown-icon_rotate" : ""}`}
+          />
         </button>
-        <span className="input-label" id="datepicker-label-end">
-          До:
+        <span className="input-label" id="datepicker-label">
+          Даты
         </span>
         <CSSTransition
-          in={isOpenEnd}
+          in={isOpen}
           timeout={150}
           classNames="calendar-dropdown"
-          nodeRef={dropdownEndRef}
+          nodeRef={dropdownRef}
           unmountOnExit
         >
-          <div ref={dropdownEndRef} className="calendar_container">
+          <div
+            ref={dropdownRef}
+            id="date-range-popup"
+            className="calendar_container"
+            role="dialog"
+            aria-label="Выбор дат"
+          >
+            <button
+              type="button"
+              className={
+                januaryOctoberActive
+                  ? "calendar-preset is-active"
+                  : "calendar-preset"
+              }
+              aria-pressed={januaryOctoberActive}
+              onClick={applyJanuaryToOctober}
+            >
+              1 января — 31 октября
+            </button>
+            <div className="calendar-years" role="listbox" aria-label="Годы">
+              {years.map((year) => (
+                <button
+                  type="button"
+                  key={year}
+                  role="option"
+                  aria-selected={year === currentYear}
+                  className={year === currentYear ? "is-selected" : undefined}
+                  onClick={() => shiftYear(year)}
+                >
+                  {year}
+                </button>
+              ))}
+            </div>
+            {draft?.from && !draft.to && (
+              <p className="calendar-hint">Выберите дату окончания</p>
+            )}
             <DayPicker
-              mode="single"
-              selected={dateEnd}
-              onSelect={handleDateEnd}
+              mode="range"
+              selected={shownRange}
+              onSelect={handleSelect}
               locale={ru}
-              defaultMonth={dateEnd}
-              fromDate={dateStart}
-              toDate={maxDate}
+              month={month}
+              onMonthChange={setMonth}
+              numberOfMonths={2}
+              captionLayout="dropdown"
+              fromYear={fromYear}
+              toYear={toYear}
+              fromDate={bounds.fromDate}
+              toDate={bounds.toDate}
             />
           </div>
         </CSSTransition>

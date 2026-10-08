@@ -23,6 +23,11 @@ import { getReportStationsArr } from "../data-preprocessors/getReportStationsArr
 import { startTime as violationStartKey } from "../utils/config";
 import { Violation } from "../types/violation";
 import { readRaceTiming } from "../utils/raceTiming";
+import {
+  collectPlaceOptions,
+  filterViolationsByPlace,
+} from "../utils/placeParts";
+import { readReportUnitSort } from "../utils/reportUnitSort";
 
 let date = new Date();
 let arrSource = dummyArr(date.getFullYear() - 1, date.getFullYear());
@@ -120,6 +125,150 @@ let initialLoaderShow = {
   ridgeline: false,
 };
 
+function chartRows(state: {
+  sourceState: Violation[];
+  railwayFilter?: string;
+  regionFilter?: string;
+}) {
+  const allRows = state.sourceState;
+  return filterViolationsByPlace(
+    allRows,
+    state.railwayFilter || "",
+    state.regionFilter || "",
+  );
+}
+
+function prunePlaceFilters(state: {
+  sourceState: Violation[];
+  railwayFilter: string;
+  regionFilter: string;
+}) {
+  const allRows = state.sourceState;
+  const railways = new Set(
+    collectPlaceOptions(allRows, "").railways.map((item) => item.value),
+  );
+  if (state.railwayFilter && !railways.has(state.railwayFilter)) {
+    state.railwayFilter = "";
+  }
+  const regions = new Set(
+    collectPlaceOptions(allRows, state.railwayFilter).regions.map(
+      (item) => item.value,
+    ),
+  );
+  if (state.regionFilter && !regions.has(state.regionFilter)) {
+    state.regionFilter = "";
+  }
+}
+
+/** Пересчёт графиков и отчёта по строкам с учётом дороги и региона. Даты не трогает. */
+function refreshDerived(state: any) {
+  const rows = chartRows(state);
+
+  state.analyzeState = getAnalyze(
+    rows,
+    state.pastYear,
+    state.currentYear,
+    state.regexpPattern,
+    state.dateStart,
+    state.dateEnd,
+  );
+
+  const unitsList =
+    rows.length > 0
+      ? getUnitsList(rows, state.dateStart, state.dateEnd, state.customCalendar)
+      : [];
+  state.stackedCheckList = unitsList;
+  state.sankeyCheckList = unitsList;
+  state.ridgelineCheckList = unitsList;
+  state.sumLineCheckList = unitsList;
+
+  if (unitsList.length > 0) {
+    state.loaderShow = initialLoaderShow;
+    state.stackedArrState = getStackedArr(
+      rows,
+      state.dateStart,
+      state.dateEnd,
+      state.customCalendar,
+      state.stackedCheckList,
+    );
+    state.sankeyArrState = getSankeyArr(
+      rows,
+      state.dateStart,
+      state.dateEnd,
+      state.minValue,
+      state.sankeyCheckList,
+    );
+    state.ridgelineArrState = getRidgelineArr(
+      rows,
+      state.dateStart,
+      state.dateEnd,
+      state.customCalendar,
+      state.ridgelineCheckList,
+    );
+  } else {
+    state.loaderShow = {
+      ...state.loaderShow,
+      stacked: true,
+      sankey: true,
+      ridgeline: true,
+    };
+    state.stackedArrState = [];
+    state.sankeyArrState = { nodes: [], links: [] };
+    state.ridgelineArrState = [];
+  }
+
+  state.reportSrcState = getReportArr(
+    rows,
+    state.dateStart,
+    state.dateEnd,
+    state.regexpPattern,
+    state.minValue,
+  );
+
+  state.reportStations = getReportStationsArr(
+    rows,
+    state.dateStart,
+    state.dateEnd,
+    state.regexpPattern,
+    state.minValue,
+  );
+
+  state.sumLineArrState = getSumLineArr(
+    rows,
+    state.customCalendar,
+    state.sumLineCheckList,
+  );
+
+  state.raceArrState = getRaceArr(rows, state.dateStart, state.dateEnd);
+}
+
+function commitRange(state: any, start: number, end: number) {
+  state.dateStart = start;
+  state.dateEnd = end;
+  state.customCalendar = getCustomCalendar(
+    state.daysInGroup,
+    state.dateStart,
+    state.dateEnd,
+  );
+  state.loaderShow = initialLoaderShow;
+  refreshDerived(state);
+}
+
+function toMs(value: number | Date) {
+  return value instanceof Date ? value.getTime() : new Date(value).getTime();
+}
+
+/** Тот же месяц, день и время в другом году. 29 февраля сдвигается на последний день месяца. */
+function shiftToYear(value: number | Date, year: number) {
+  const date = new Date(value);
+  const month = date.getMonth();
+  const day = date.getDate();
+  const lastDay = new Date(year, month + 1, 0).getDate();
+  const next = new Date(date.getTime());
+  next.setFullYear(year, month, Math.min(day, lastDay));
+  return next.getTime();
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 const filtersSlice = createSlice({
   name: "filters",
@@ -168,6 +317,12 @@ const filtersSlice = createSlice({
     reportStations: [] as any[],
     /** Показывать блоки Sankey в текстовом отчёте (переключатель у кнопок DOC/XLS). */
     reportSankeyBlocksVisible: false,
+    /** Сортировка абзацев подразделений. Живёт до закрытия вкладки. */
+    reportUnitSort: readReportUnitSort(),
+    /** Пустая строка — все дороги. Значение — первый фрагмент поля «Место». */
+    railwayFilter: "",
+    /** Пустая строка — все регионы. Значение вида РЕГ-2. */
+    regionFilter: "",
   },
 
   reducers: {
@@ -197,9 +352,10 @@ const filtersSlice = createSlice({
       );
 
       state.regexpPattern = getInitialPattern(state.dateEnd);
+      prunePlaceFilters(state);
 
       let unitsList = getUnitsList(
-        action.payload,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
@@ -210,7 +366,7 @@ const filtersSlice = createSlice({
       state.sumLineCheckList = unitsList;
 
       state.analyzeState = getAnalyze(
-        state.sourceState,
+        chartRows(state),
         state.pastYear,
         state.currentYear,
         state.regexpPattern,
@@ -219,7 +375,7 @@ const filtersSlice = createSlice({
       );
 
       state.stackedArrState = getStackedArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
@@ -227,7 +383,7 @@ const filtersSlice = createSlice({
       );
 
       let sankeyArr = getSankeyArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.minValue,
@@ -238,7 +394,7 @@ const filtersSlice = createSlice({
       // state.sankeyCheckList = sankeyArr.unitsList;
 
       state.ridgelineArrState = getRidgelineArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
@@ -246,7 +402,7 @@ const filtersSlice = createSlice({
       );
 
       state.reportSrcState = getReportArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.regexpPattern,
@@ -254,7 +410,7 @@ const filtersSlice = createSlice({
       );
 
       state.reportStations = getReportStationsArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.regexpPattern,
@@ -262,13 +418,13 @@ const filtersSlice = createSlice({
       );
 
       state.sumLineArrState = getSumLineArr(
-        state.sourceState,
+        chartRows(state),
         state.customCalendar,
         state.sumLineCheckList,
       );
 
       state.raceArrState = getRaceArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
       );
@@ -304,7 +460,7 @@ const filtersSlice = createSlice({
       }
 
       let sankeyArr = getSankeyArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.minValue,
@@ -322,7 +478,7 @@ const filtersSlice = createSlice({
         state.minValue = cutDecimals(state.minValue - 1);
 
       let sankeyArr = getSankeyArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.minValue,
@@ -341,14 +497,14 @@ const filtersSlice = createSlice({
         state.dateEnd,
       );
       state.stackedArrState = getStackedArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
         state.stackedCheckList,
       );
       state.sumLineArrState = getSumLineArr(
-        state.sourceState,
+        chartRows(state),
         state.customCalendar,
         state.sumLineCheckList,
       );
@@ -362,14 +518,14 @@ const filtersSlice = createSlice({
         state.dateEnd,
       );
       state.stackedArrState = getStackedArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
         state.stackedCheckList,
       );
       state.sumLineArrState = getSumLineArr(
-        state.sourceState,
+        chartRows(state),
         state.customCalendar,
         state.sumLineCheckList,
       );
@@ -377,50 +533,22 @@ const filtersSlice = createSlice({
 
     setPattern(state, action) {
       state.regexpPattern = action.payload;
-      let periodDatesFromRegex = getPeriodDatesFromRegex(
+      const periodDatesFromRegex = getPeriodDatesFromRegex(
         state.regexpPattern,
         state.currentYear,
         state.pastYear,
       );
-
-      state.dateStart = periodDatesFromRegex.periodStart;
-      state.dateEnd = periodDatesFromRegex.periodEnd;
-
-      state.analyzeState = getAnalyze(
-        state.sourceState,
-        state.pastYear,
-        state.currentYear,
-        state.regexpPattern,
-        state.dateStart,
-        state.dateEnd,
-      );
-
-      state.reportSrcState = getReportArr(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd,
-        state.regexpPattern,
-      );
-
-      state.reportStations = getReportStationsArr(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd,
-        state.regexpPattern,
-        state.minValue,
-      );
-
-      state.raceArrState = getRaceArr(
-        state.sourceState,
-        state.dateStart,
-        state.dateEnd,
-      );
+      const start = new Date(periodDatesFromRegex.periodStart);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(periodDatesFromRegex.periodEnd);
+      end.setHours(23, 59, 59, 0);
+      commitRange(state, start.getTime(), end.getTime());
     },
 
     setMinValue(state, action) {
       state.minValue = action.payload;
       state.analyzeState = getAnalyze(
-        state.sourceState,
+        chartRows(state),
         state.pastYear,
         state.currentYear,
         state.regexpPattern,
@@ -433,8 +561,36 @@ const filtersSlice = createSlice({
     },
 
     setCurrentYear(state, action) {
-      state.currentYear = action.payload;
-      state.pastYear = state.currentYear - 1;
+      const year = Number(action.payload);
+      if (!Number.isFinite(year)) return;
+      const start = shiftToYear(state.dateStart, year);
+      let end = shiftToYear(state.dateEnd, year);
+      const sameSelection =
+        state.currentYear === year &&
+        state.pastYear === year - 1 &&
+        toMs(state.dateStart) === start &&
+        toMs(state.dateEnd) === end;
+      state.currentYear = year;
+      state.pastYear = year - 1;
+      if (sameSelection) return;
+      if (start >= end) {
+        const endDate = new Date(start);
+        endDate.setHours(23, 59, 59, 0);
+        end = endDate.getTime();
+      }
+      commitRange(state, start, end);
+    },
+
+    setDateRange(state, action) {
+      const start = Number(action.payload?.start);
+      const end = Number(action.payload?.end);
+      if (!Number.isFinite(start) || !Number.isFinite(end) || start >= end) {
+        state.popup.isOpened = true;
+        state.popup.message = "Начальная дата равна или больше конечной";
+        state.popup.status = "fail";
+        return;
+      }
+      commitRange(state, start, end);
     },
 
     setDateStart(state, action) {
@@ -452,7 +608,7 @@ const filtersSlice = createSlice({
         state.dateStart = action.payload;
 
         state.analyzeState = getAnalyze(
-          state.sourceState,
+          chartRows(state),
           state.pastYear,
           state.currentYear,
           state.regexpPattern,
@@ -467,7 +623,7 @@ const filtersSlice = createSlice({
         );
 
         let unitsList = getUnitsList(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
@@ -481,7 +637,7 @@ const filtersSlice = createSlice({
       if (state.stackedCheckList.length > 0) {
         state.loaderShow = initialLoaderShow;
         state.stackedArrState = getStackedArr(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
@@ -489,7 +645,7 @@ const filtersSlice = createSlice({
         );
 
         state.sankeyArrState = getSankeyArr(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.minValue,
@@ -497,7 +653,7 @@ const filtersSlice = createSlice({
         );
 
         state.ridgelineArrState = getRidgelineArr(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
@@ -512,7 +668,7 @@ const filtersSlice = createSlice({
       }
 
       state.reportSrcState = getReportArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.regexpPattern,
@@ -520,7 +676,7 @@ const filtersSlice = createSlice({
       );
 
       state.reportStations = getReportStationsArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.regexpPattern,
@@ -528,13 +684,13 @@ const filtersSlice = createSlice({
       );
 
       state.sumLineArrState = getSumLineArr(
-        state.sourceState,
+        chartRows(state),
         state.customCalendar,
         state.sumLineCheckList,
       );
 
       state.raceArrState = getRaceArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
       );
@@ -555,7 +711,7 @@ const filtersSlice = createSlice({
         state.dateEnd = action.payload;
 
         state.analyzeState = getAnalyze(
-          state.sourceState,
+          chartRows(state),
           state.pastYear,
           state.currentYear,
           state.regexpPattern,
@@ -570,7 +726,7 @@ const filtersSlice = createSlice({
         );
 
         let unitsList = getUnitsList(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
@@ -584,7 +740,7 @@ const filtersSlice = createSlice({
       if (state.stackedCheckList.length > 0) {
         state.loaderShow = initialLoaderShow;
         state.stackedArrState = getStackedArr(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
@@ -592,7 +748,7 @@ const filtersSlice = createSlice({
         );
 
         state.sankeyArrState = getSankeyArr(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.minValue,
@@ -600,7 +756,7 @@ const filtersSlice = createSlice({
         );
 
         state.ridgelineArrState = getRidgelineArr(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
@@ -615,7 +771,7 @@ const filtersSlice = createSlice({
       }
 
       state.reportSrcState = getReportArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.regexpPattern,
@@ -623,7 +779,7 @@ const filtersSlice = createSlice({
       );
 
       state.reportStations = getReportStationsArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.regexpPattern,
@@ -631,13 +787,13 @@ const filtersSlice = createSlice({
       );
 
       state.sumLineArrState = getSumLineArr(
-        state.sourceState,
+        chartRows(state),
         state.customCalendar,
         state.sumLineCheckList,
       );
 
       state.raceArrState = getRaceArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
       );
@@ -662,7 +818,7 @@ const filtersSlice = createSlice({
 
     setSankeyArrState(state) {
       state.sankeyArrState = getSankeyArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.minValue,
@@ -756,7 +912,7 @@ const filtersSlice = createSlice({
       );
 
       state.stackedArrState = getStackedArr(
-        state.sourceState,
+        chartRows(state),
         state.dateStart,
         state.dateEnd,
         state.customCalendar,
@@ -783,7 +939,7 @@ const filtersSlice = createSlice({
         };
 
         state.sankeyArrState = getSankeyArr(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.minValue,
@@ -813,7 +969,7 @@ const filtersSlice = createSlice({
         };
 
         state.ridgelineArrState = getRidgelineArr(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.minValue,
@@ -843,7 +999,7 @@ const filtersSlice = createSlice({
         };
 
         state.sumLineArrState = getSumLineArr(
-          state.sourceState,
+          chartRows(state),
           state.customCalendar,
           state.sumLineCheckList,
         );
@@ -856,7 +1012,7 @@ const filtersSlice = createSlice({
           el.checked ? (el.checked = false) : (el.checked = true),
         );
         state.stackedArrState = getStackedArr(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
@@ -883,7 +1039,7 @@ const filtersSlice = createSlice({
           };
         }
         state.sankeyArrState = getSankeyArr(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.minValue,
@@ -910,7 +1066,7 @@ const filtersSlice = createSlice({
           };
         }
         state.sumLineArrState = getSumLineArr(
-          state.sourceState,
+          chartRows(state),
           state.customCalendar,
           state.sumLineCheckList,
         );
@@ -929,7 +1085,7 @@ const filtersSlice = createSlice({
           : (state.allCheckedCheckList.stacked = true);
 
         state.stackedArrState = getStackedArr(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.customCalendar,
@@ -962,7 +1118,7 @@ const filtersSlice = createSlice({
         }
 
         state.sankeyArrState = getSankeyArr(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.minValue,
@@ -995,7 +1151,7 @@ const filtersSlice = createSlice({
         }
 
         state.ridgelineArrState = getRidgelineArr(
-          state.sourceState,
+          chartRows(state),
           state.dateStart,
           state.dateEnd,
           state.minValue,
@@ -1028,7 +1184,7 @@ const filtersSlice = createSlice({
         }
 
         // state.sumLineArrState = getSumLineArr(
-        //   state.sourceState,
+        //   chartRows(state),
         //   state.customCalendar,
         //   state.sumLineCheckList
         // );
@@ -1059,7 +1215,7 @@ const filtersSlice = createSlice({
         }
 
         // state.sumLineArrState = getSumLineArr(
-        //   state.sourceState,
+        //   chartRows(state),
         //   state.customCalendar,
         //   state.sumLineCheckList
         // );
@@ -1078,7 +1234,7 @@ const filtersSlice = createSlice({
       );
 
       state.sumLineArrState = getSumLineArr(
-        state.sourceState,
+        chartRows(state),
         state.customCalendar,
         state.sumLineCheckList,
       );
@@ -1086,6 +1242,33 @@ const filtersSlice = createSlice({
 
     setReportSankeyBlocksVisible(state, action) {
       state.reportSankeyBlocksVisible = Boolean(action.payload);
+    },
+
+    setReportUnitSort(state, action) {
+      const next = action.payload;
+      state.reportUnitSort =
+        next === "delayed" || next === "duration" || next === "count"
+          ? next
+          : "count";
+    },
+
+    setRailwayFilter(state, action) {
+      state.railwayFilter = String(action.payload ?? "").trim();
+      const regions = new Set(
+        collectPlaceOptions(state.sourceState, state.railwayFilter).regions.map(
+          (item) => item.value,
+        ),
+      );
+      if (state.regionFilter && !regions.has(state.regionFilter)) {
+        state.regionFilter = "";
+      }
+      refreshDerived(state);
+    },
+
+    setRegionFilter(state, action) {
+      const next = String(action.payload ?? "").trim().toUpperCase();
+      state.regionFilter = next;
+      refreshDerived(state);
     },
   },
 });
@@ -1100,6 +1283,7 @@ export const {
   setMinValue,
   setPastYear,
   setCurrentYear,
+  setDateRange,
   setSourceState,
   setCutoffDatesFromMeta,
   setDateStart,
@@ -1117,6 +1301,9 @@ export const {
   checkAllCheckList,
   invertCheckList,
   setReportSankeyBlocksVisible,
+  setReportUnitSort,
   setRaceStepSec,
   setRaceDurationSec,
+  setRailwayFilter,
+  setRegionFilter,
 } = filtersSlice.actions;
