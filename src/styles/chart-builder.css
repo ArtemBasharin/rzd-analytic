@@ -246,10 +246,39 @@
   border-left: 1px solid #d0d7e2;
 }
 
+.builder-config-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
 .builder-panel-title {
-  margin: 0 0 6px;
+  margin: 0;
   font-size: 0.875rem;
   font-weight: 600;
+}
+
+.builder-pareto-btn {
+  flex: 0 0 auto;
+  border: 1px solid #c5ced9;
+  background: #f7f9fc;
+  color: #1a1a1a;
+  border-radius: 4px;
+  font-family: Verdana, Geneva, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1.2;
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.builder-pareto-btn.is-on {
+  border-color: #2979ff;
+  background: #e3efff;
+  color: #005397;
 }
 
 .builder-hint {

@@ -98,6 +98,8 @@ export interface ChartSeriesMeta {
   axis?: MeasureAxis;
   /** Columns or line. Set for measure series; omitted for period and color splits. */
   mark?: MeasureMark;
+  /** Line series with the same key share one scale. Periods of one measure stay comparable. */
+  scaleKey?: string;
 }
 
 export interface AggregatedPoint {

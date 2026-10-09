@@ -12,24 +12,6 @@
   z-index: 2100;
 }
 
-.navbar-pareto-btn {
-  text-transform: none !important;
-  white-space: nowrap;
-  color: #fff !important;
-  border: 1px solid rgba(255, 255, 255, 0.9) !important;
-  border-radius: 4px !important;
-  font-weight: 700 !important;
-  min-width: 0 !important;
-  padding: 4px 12px !important;
-  line-height: 1.2 !important;
-}
-
-.navbar-pareto-btn.is-on {
-  background: #fff !important;
-  color: #005397 !important;
-  border-color: #fff !important;
-}
-
 .right-section {
   position: relative;
   display: flex;

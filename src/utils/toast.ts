@@ -5,6 +5,7 @@ export type ToastItem = {
   message: string;
   status: ToastStatus;
   leaving: boolean;
+  progress: number | null;
 };
 
 type Listener = () => void;
@@ -77,9 +78,12 @@ export function pushToast(
   message: string,
   status: ToastStatus,
   sticky = false,
+  progress: number | null = null,
 ): number {
   const id = ++seq;
-  items = [...items, { id, message, status, leaving: false }].slice(-MAX_TOASTS);
+  items = [...items, { id, message, status, leaving: false, progress }].slice(
+    -MAX_TOASTS,
+  );
   emit();
   if (!sticky) armHide(id);
   return id;
@@ -90,13 +94,16 @@ export function updateToast(
   message: string,
   status: ToastStatus,
   sticky = false,
+  progress: number | null = null,
 ) {
   if (!items.some((item) => item.id === id)) {
-    pushToast(message, status, sticky);
+    pushToast(message, status, sticky, progress);
     return;
   }
   items = items.map((item) =>
-    item.id === id ? { ...item, message, status, leaving: false } : item,
+    item.id === id
+      ? { ...item, message, status, leaving: false, progress }
+      : item,
   );
   emit();
   if (sticky) {

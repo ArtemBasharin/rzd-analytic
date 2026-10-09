@@ -1,10 +1,8 @@
-import * as htmlToImage from "html-to-image";
 import { FaCopy, FaDownload, FaArrowRotateRight } from "react-icons/fa6";
 import { useSelector as useReduxSelector, useDispatch } from "react-redux";
 import type { TypedUseSelectorHook } from "react-redux";
 import type { RootState } from "../redux/store";
 import { setReportSankeyBlocksVisible } from "../redux/filtersSlice";
-import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 
 const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
@@ -467,6 +465,7 @@ async function replaceSankeySvgsWithWordFriendlyImages(cloneRoot: any, sourceRoo
       "Число диаграмм в клоне и в отчёте не совпало при копировании",
     );
   }
+  const htmlToImage = await import("html-to-image");
   for (let i = 0; i < n; i++) {
     const placeholderSvg = cloneSvgs[i] as Element;
     const liveSvg = sourceSvgs[i] as HTMLElement;
@@ -507,8 +506,8 @@ function DownloadButtons(props: any) {
 
   function downloadElementAsSVG() {
     const selectedElement = props.reference.current;
-    htmlToImage
-      .toSvg(selectedElement)
+    import("html-to-image")
+      .then((htmlToImage) => htmlToImage.toSvg(selectedElement))
       .then(function (dataUrl) {
         const link = document.createElement("a");
         link.download = "slide.svg";
@@ -523,8 +522,8 @@ function DownloadButtons(props: any) {
   function downloadElementAsPNG() {
     const selectedElement = props.reference.current;
     if (selectedElement) {
-      htmlToImage
-        .toPng(selectedElement)
+      import("html-to-image")
+        .then((htmlToImage) => htmlToImage.toPng(selectedElement))
         .then(function (dataUrl) {
           const link = document.createElement("a");
           link.download = "slide.png";
@@ -644,7 +643,7 @@ function DownloadButtons(props: any) {
       return;
     }
 
-    // Создаем рабочую книгу и лист
+    const ExcelJS = (await import("exceljs")).default;
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Sheet 1");
 

@@ -69,6 +69,29 @@
   line-height: 1.35;
 }
 
+.toast_progress {
+  width: min(440px, 100%);
+}
+
+.toast__bar {
+  margin-top: 10px;
+  height: 8px;
+  background: #e6e6e6;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.toast__bar-fill {
+  height: 100%;
+  background: #2979ff;
+  border-radius: 99px;
+  transition: width 0.2s ease;
+}
+
+.toast_fail .toast__bar-fill {
+  background: #d32f2f;
+}
+
 .toast__close {
   border: none;
   background: transparent;
@@ -109,5 +132,9 @@
   .toast,
   .toast_leaving {
     animation: none;
+  }
+
+  .toast__bar-fill {
+    transition: none;
   }
 }

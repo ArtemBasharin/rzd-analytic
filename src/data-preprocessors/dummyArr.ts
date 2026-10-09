@@ -52,12 +52,12 @@ const getRandomizedValue = (min: number, max: number) => {
   return Math.round(Math.random() * (max - min) + min);
 };
 
+const pad2 = (value: number) => String(value).padStart(2, "0");
 const generateElement = () =>
   testArr.push({
-    "Начало отказа": `${getRandomizedValue(pastYear, currentYear)}-0${getRandomizedValue(
-      1,
-      12
-    )}-0${getRandomizedValue(1, 12)}T00:00:01.000Z`,
+    "Начало отказа": `${getRandomizedValue(pastYear, currentYear)}-${pad2(
+      getRandomizedValue(1, 12)
+    )}-${pad2(getRandomizedValue(1, 28))}T00:00:01.000Z`,
     "Категория": `${getRandomizedValue(1, 2)}`,
     "Виновное предприятие":
       unitsList[getRandomizedValue(0, unitsList.length - 1)],

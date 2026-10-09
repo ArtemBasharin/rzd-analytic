@@ -27,7 +27,11 @@ export function paretoSeries(
 ): ChartSeriesMeta[] {
   const bars = series.filter((s) => s.mark === "bar");
   const lines = series.filter((s) => s.mark === "line");
-  if (bars.length && lines.length) return bars;
+  if (bars.length && lines.length) {
+    if (bars.length === 1) return bars;
+    const current = bars.find((s) => s.id === "current");
+    return [current ?? bars[0]];
+  }
   const y = series.filter((s) => (s.axis ?? "y") !== "y2");
   if (y.length <= 1) return y;
   if (layout === "stacked" || layout === "normalized") return y;

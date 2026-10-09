@@ -12,7 +12,7 @@ const ToastStack = () => {
           key={toast.id}
           className={`toast toast_${toast.status}${
             toast.leaving ? " toast_leaving" : ""
-          }`}
+          }${toast.progress != null ? " toast_progress" : ""}`}
           role="status"
         >
           <div className="toast__body">
@@ -24,6 +24,21 @@ const ToastStack = () => {
                   : "Ошибка"}
             </span>
             <p className="toast__message">{toast.message}</p>
+            {toast.progress != null && (
+              <div
+                className="toast__bar"
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={toast.progress}
+                aria-label="Ход загрузки"
+              >
+                <div
+                  className="toast__bar-fill"
+                  style={{ width: `${toast.progress}%` }}
+                />
+              </div>
+            )}
           </div>
           <button
             type="button"

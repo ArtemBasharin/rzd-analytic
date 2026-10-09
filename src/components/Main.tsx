@@ -77,6 +77,9 @@ function Main() {
   const minValue = useSelector((state) => state.filters.minValue);
   // const checkedUnits = useSelector((state) => state.filters.stackedCheckList);
   const showLoader = useSelector((state) => state.filters.loaderShow);
+  const noRows = useSelector(
+    (state) => state.filters.sourceReady && state.filters.sourceState.length === 0,
+  );
   const dateStart = useSelector((state) => state.filters.dateStart);
   const dateEnd = useSelector((state) => state.filters.dateEnd);
   const railwayFilter = useSelector((state) => state.filters.railwayFilter);
@@ -229,7 +232,9 @@ function Main() {
                     Соотношение потерь по подразделениям (за период{" "}
                     {timeFormat(dateStart)}-{timeFormatY(dateEnd)} г.)
                   </h2>
-                  {showLoader.stacked ? (
+                  {noRows ? (
+                    <p className="text_paragraph">Нет данных за выбранный период.</p>
+                  ) : showLoader.stacked ? (
                     <Loader />
                   ) : (
                     <div id="selectedElementId" ref={downloadRef}>
@@ -252,7 +257,9 @@ function Main() {
                     (за период {timeFormat(dateStart)}-{timeFormatY(dateEnd)}{" "}
                     г.)
                   </h2>
-                  {showLoader.sankey ? (
+                  {noRows ? (
+                    <p className="text_paragraph">Нет данных за выбранный период.</p>
+                  ) : showLoader.sankey ? (
                     <Loader />
                   ) : (
                     <div id="selectedElementId" ref={downloadRef}>
@@ -274,7 +281,9 @@ function Main() {
                     Соотношение потерь по подразделениям (за период{" "}
                     {timeFormat(dateStart)}-{timeFormatY(dateEnd)} г.)
                   </h2>
-                  {showLoader.sankey ? (
+                  {noRows ? (
+                    <p className="text_paragraph">Нет данных за выбранный период.</p>
+                  ) : showLoader.sankey ? (
                     <Loader />
                   ) : (
                     <div id="selectedElementId" ref={downloadRef}>
@@ -297,7 +306,7 @@ function Main() {
                     (за период {timeFormat(dateStart)}-{timeFormatY(dateEnd)}{" "}
                     г.)
                   </h2>
-                  {showLoader.sankey && !placeFilterOn ? (
+                  {showLoader.sankey && !placeFilterOn && !noRows ? (
                     <Loader />
                   ) : (
                     <div id="text_report" ref={downloadRef}>
@@ -319,7 +328,9 @@ function Main() {
                     Сводная аналитика (за период {timeFormat(dateStart)}-
                     {timeFormatY(dateEnd)} г.)
                   </h2>
-                  {showLoader.sumline ? (
+                  {noRows ? (
+                    <p className="text_paragraph">Нет данных за выбранный период.</p>
+                  ) : showLoader.sumline ? (
                     <Loader />
                   ) : (
                     <div id="selectedElementId" ref={downloadRef}>

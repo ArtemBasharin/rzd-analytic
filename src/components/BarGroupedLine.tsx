@@ -17,6 +17,7 @@ const BarGroupedLine = (props: any) => {
 
   useEffect(() => {
     d3.select(`#id${props.id}`).selectAll("g").remove();
+    if (!Array.isArray(props.stats) || props.stats.length === 0) return;
     const findTrimIndex = (arr: any, minValue: any) => {
       for (let i = 0; i < arr.length; ++i) {
         if (arr[i][currentYear] < minValue) return i;

@@ -20,6 +20,8 @@ const SumLineDiagram = () => {
       width = window.innerWidth - margin.left - margin.right,
       height = window.innerHeight - 180 - margin.top - margin.bottom;
 
+    if (!Array.isArray(resData) || resData.length === 0) return;
+
     let datesArr: any[] = [];
     resData.forEach((el: any) => datesArr.push(el.date));
 

@@ -1,5 +1,6 @@
-﻿import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import * as d3 from "d3";
+import { findPalette } from "../../chart-builder/palettes";
 import {
   formatParetoPct,
   PARETO_THRESHOLD,
@@ -38,6 +39,8 @@ interface BuilderChartProps {
 }
 
 const MARGIN = { top: 36, right: 28, bottom: 110, left: 64 };
+/** Horizontal step between right axes when several line measures are shown. */
+const LINE_AXIS_STEP = 58;
 
 function formatValue(n: number): string {
   if (!Number.isFinite(n)) return "";
@@ -53,10 +56,13 @@ function cleanLabelText(text: string): string {
 }
 
 function seriesColor(style: ChartStyle, i: number): string {
-  const colors = style.fillColors?.length
-    ? style.fillColors
-    : defaultChartStyle().fillColors;
-  return colors[i % colors.length];
+  const palette = findPalette(style.paletteId || "traffic").colors;
+  const base = style.fillColors?.length ? style.fillColors : palette;
+  if (i < base.length) return base[i];
+  const used = new Set(base.map((c) => c.toLowerCase()));
+  const extra = palette.filter((c) => !used.has(c.toLowerCase()));
+  const pool = extra.length ? base.concat(extra) : base;
+  return pool[i % pool.length];
 }
 
 function seriesFill(
@@ -428,6 +434,41 @@ function ensureLabelHeadroom(
   if (needed > y.domain()[1]) y.domain([0, needed]);
 }
 
+/** Periods of one measure share a scale; different measures stay separate. */
+function lineScaleGroups(series: ChartSeriesMeta[]): ChartSeriesMeta[][] {
+  const groups: ChartSeriesMeta[][] = [];
+  const index = new Map<string, number>();
+  for (const seriesItem of series) {
+    const key = seriesItem.scaleKey ?? seriesItem.id;
+    const at = index.get(key);
+    if (at == null) {
+      index.set(key, groups.length);
+      groups.push([seriesItem]);
+    } else {
+      groups[at].push(seriesItem);
+    }
+  }
+  return groups;
+}
+
+/** Scale for one measure. A zero series stays on the baseline instead of collapsing to NaN. */
+function valueScale(
+  data: AggregatedPoint[],
+  series: ChartSeriesMeta[],
+  innerH: number,
+  labelRoom: number,
+): d3.ScaleLinear<number, number> {
+  const max = maxPointValue(data, series);
+  const plotH = Math.max(0, innerH);
+  const y = d3
+    .scaleLinear()
+    .domain([0, max > 0 ? max : 1])
+    .nice()
+    .range([plotH, 0]);
+  if (max > 0 && labelRoom > 0) ensureLabelHeadroom(y, max, plotH, labelRoom);
+  return y;
+}
+
 /** Keep the longest strip short enough that its value label stays inside the plot. */
 function ensureHBarLabelRoom(
   x: d3.ScaleLinear<number, number>,
@@ -541,7 +582,7 @@ function drawLineValueLabels(
   data: AggregatedPoint[],
   series: ChartSeriesMeta[],
   x: (label: string) => number | undefined,
-  y: d3.ScaleLinear<number, number>,
+  y: (seriesId: string, value: number) => number,
   fontPx: number,
   innerH: number,
 ) {
@@ -552,7 +593,7 @@ function drawLineValueLabels(
       return {
         text,
         cx: x(d.label) ?? 0,
-        cy: y(pointValue(d, s.id)),
+        cy: y(s.id, pointValue(d, s.id)),
         w: measureTextWidth(text, `${fontPx}px`),
       };
     }),
@@ -611,7 +652,7 @@ function appendHBarValueLabel(
     .text(label);
 }
 
-const DASH_ONLY = /^[\-\u2013\u2014]$/;
+const DASH_ONLY = /^[-\u2013\u2014]$/;
 
 const AXIS_LABEL_LINE_H = 13;
 /** Gap between the horizontal axis line and the start of labels. */
@@ -1005,15 +1046,19 @@ const BuilderChart: React.FC<BuilderChartProps> = ({
 }) => {
   const style = styleProp ?? defaultChartStyle();
   const showLabels = style.showLabels !== false;
-  const series: ChartSeriesMeta[] =
-    seriesProp && seriesProp.length > 0
-      ? seriesProp
-      : [{ id: "current", label: "Текущий период" }];
+  const series = useMemo<ChartSeriesMeta[]>(
+    () =>
+      seriesProp && seriesProp.length > 0
+        ? seriesProp
+        : [{ id: "current", label: "Текущий период" }],
+    [seriesProp],
+  );
   const containerRef = useRef<HTMLDivElement>(null);
   const svgRef = useRef<SVGSVGElement>(null);
   const [size, setSize] = useState({ width: 600, height: 400 });
   const [hidden, setHidden] = useState<string[]>([]);
   const seriesKey = series.map((s) => s.id).join("\n");
+  const hasData = data.length > 0;
 
   useEffect(() => {
     setHidden([]);
@@ -1032,7 +1077,7 @@ const BuilderChart: React.FC<BuilderChartProps> = ({
     const ro = new ResizeObserver(update);
     ro.observe(container);
     return () => ro.disconnect();
-  }, [data.length > 0]);
+  }, [hasData]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -1343,7 +1388,7 @@ function drawValueLines(
   g: d3.Selection<SVGGElement, unknown, null, undefined>,
   data: AggregatedPoint[],
   lineSeries: Array<ChartSeriesMeta & { colorIndex?: number }>,
-  yScale: d3.ScaleLinear<number, number>,
+  yFor: (seriesId: string) => d3.ScaleLinear<number, number>,
   xMid: (label: string) => number,
   style: ChartStyle,
   showTip: (e: MouseEvent, d: AggregatedPoint) => void,
@@ -1354,6 +1399,7 @@ function drawValueLines(
   classPrefix: string,
 ) {
   lineSeries.forEach((s, si) => {
+    const yScale = yFor(s.id);
     const color = seriesFill(style, s, si);
     const line = d3
       .line<AggregatedPoint>()
@@ -1397,7 +1443,15 @@ function drawValueLines(
     data.flatMap((d) => lineSeries.map((s) => formatBarLabel(pointValue(d, s.id)))),
     Math.max(16, step - 6),
   );
-  drawLineValueLabels(g, data, lineSeries, xMid, yScale, fontPx, innerH);
+  drawLineValueLabels(
+    g,
+    data,
+    lineSeries,
+    xMid,
+    (seriesId, value) => yFor(seriesId)(value),
+    fontPx,
+    innerH,
+  );
 }
 
 function drawBar(
@@ -1417,7 +1471,7 @@ function drawBar(
   const ySeries = explicitCombo
     ? series.filter((s) => s.mark === "bar")
     : axisSeries(series, "y");
-  // Line measures use the right axis so a larger column scale cannot flatten them.
+  // Each line measure has its own right axis, so a larger line cannot flatten the rest.
   const y2Series = explicitCombo
     ? series.filter((s) => s.mark === "line")
     : axisSeries(series, "y2");
@@ -1426,7 +1480,16 @@ function drawBar(
   const normalized = !explicitCombo && opts.layout === "normalized";
   const paretoActive = !!pareto && pareto.total > 0 && pareto.hitIndex >= 0;
   const paretoAxis = paretoActive && y2Series.length === 0 && style.showYAxis;
-  const right = y2Series.length ? 72 : paretoAxis ? 64 : MARGIN.right;
+  const lineGroups = explicitCombo ? lineScaleGroups(y2Series) : [];
+  const right = y2Series.length
+    ? style.showYAxis
+      ? explicitCombo
+        ? 18 + Math.max(lineGroups.length, 1) * LINE_AXIS_STEP
+        : 72
+      : MARGIN.right
+    : paretoAxis
+      ? 64
+      : MARGIN.right;
   const labelFont = "11px";
   const topPad = series.length > 1 ? 28 : 0;
   const labels = data.map((d) => d.label);
@@ -1675,26 +1738,43 @@ function drawBar(
   }
 
   if (y2Series.length) {
-    const y2Max = maxPointValue(data, y2Series) || 0;
-    const y2 = d3.scaleLinear().domain([0, y2Max]).nice().range([innerH, 0]);
-    if (opts.showLabels) {
-      ensureLabelHeadroom(y2, y2Max, innerH, 18);
+    const labelRoom = opts.showLabels ? 18 : 0;
+    const scales = new Map<string, d3.ScaleLinear<number, number>>();
+    const groups = explicitCombo ? lineGroups : [y2Series];
+    for (const group of groups) {
+      const shared = valueScale(data, group, innerH, labelRoom);
+      for (const s of group) scales.set(s.id, shared);
     }
     if (style.showYAxis) {
-      const axisColor = explicitCombo ? seriesFill(style, y2Series[0], 0) : AXIS;
-      const y2Axis = g
-        .append("g")
-        .attr("transform", `translate(${innerW},0)`)
-        .call(d3.axisRight(y2).ticks(5).tickSize(0));
-      y2Axis.select(".domain").attr("stroke", axisColor).attr("stroke-width", 2);
-      styleAxisText(y2Axis.selectAll("text"), "12px");
-      if (explicitCombo) y2Axis.selectAll("text").attr("fill", axisColor);
+      groups.forEach((group, i) => {
+        const y2 = scales.get(group[0].id)!;
+        const color = explicitCombo ? seriesFill(style, group[0], i) : AXIS;
+        const y2Axis = g
+          .append("g")
+          .attr(
+            "transform",
+            `translate(${innerW + (explicitCombo ? i * LINE_AXIS_STEP : 0)},0)`,
+          )
+          .call(
+            d3
+              .axisRight(y2)
+              .ticks(explicitCombo && groups.length > 1 ? 4 : 5)
+              .tickSize(0)
+              .tickFormat((d) => formatValue(Number(d))),
+          );
+        y2Axis.select(".domain").attr("stroke", color).attr("stroke-width", 2);
+        styleAxisText(
+          y2Axis.selectAll("text"),
+          explicitCombo && groups.length > 1 ? "11px" : "12px",
+        );
+        if (explicitCombo) y2Axis.selectAll("text").attr("fill", color);
+      });
     }
     drawValueLines(
       g,
       data,
       y2Series,
-      y2,
+      (id) => scales.get(id) ?? valueScale(data, [], innerH, 0),
       barCenter,
       style,
       showTip,
@@ -2028,8 +2108,12 @@ function drawLine(
   });
 
   if (opts.showLabels) {
-    if (leftSeries.length) drawLineValueLabels(g, data, leftSeries, (label) => x(label), y, fontPx, innerH);
-    if (y2Series.length) drawLineValueLabels(g, data, y2Series, (label) => x(label), y2, fontPx, innerH);
+    if (leftSeries.length) {
+      drawLineValueLabels(g, data, leftSeries, (label) => x(label), (_id, v) => y(v), fontPx, innerH);
+    }
+    if (y2Series.length) {
+      drawLineValueLabels(g, data, y2Series, (label) => x(label), (_id, v) => y2(v), fontPx, innerH);
+    }
   }
 }
 /** Point on a d3 pie arc. Angle 0 is 12 o'clock, clockwise. */

@@ -58,4 +58,14 @@ describe("paretoSeries", () => {
       "y:hours:1",
     ]);
   });
+
+  it("keeps the current period when comparison bars are mixed with lines", () => {
+    const mixed: ChartSeriesMeta[] = [
+      { id: "current", label: "Текущий", mark: "bar" },
+      { id: "yoy", label: "Прошлый год", mark: "bar" },
+      { id: "current:freight", label: "Грузовые", mark: "line", scaleKey: "freight" },
+      { id: "yoy:freight", label: "Грузовые · прошлый", mark: "line", scaleKey: "freight" },
+    ];
+    expect(paretoSeries(mixed, "grouped").map((s) => s.id)).toEqual(["current"]);
+  });
 });

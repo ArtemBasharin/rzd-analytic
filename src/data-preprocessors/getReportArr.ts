@@ -1,4 +1,3 @@
-import moment from "moment-timezone";
 import {
   ID,
   startTime,
@@ -27,7 +26,6 @@ export const getReportArr = (
   minValue?: number | string,
   _minValue?: number,
 ) => {
-  moment().tz("Europe/London").format();
   const calcTotalDuration = (obj: any) => {
     let freightDur = obj[freightDuration] || 0;
     let passDur = obj[passDuration] || 0;

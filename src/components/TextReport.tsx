@@ -55,7 +55,6 @@ interface RootState {
     regexpPattern: string;
     reportSrcState: any[];
     reportStations: any[];
-    sankeyCheckList: any[];
     dateStart: number;
     dateEnd: number;
     reportSankeyBlocksVisible?: boolean;
@@ -77,10 +76,6 @@ const TextReportTemplatePeriod = () => {
 
   const stationsReport = useSelector(
     (state: RootState) => state.filters.reportStations,
-  );
-
-  const checkList = useSelector(
-    (state: RootState) => state.filters.sankeyCheckList,
   );
 
   const reportSankeyBlocksVisible = useSelector(

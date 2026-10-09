@@ -276,6 +276,8 @@ const filtersSlice = createSlice({
     pageWidth: window.innerWidth,
     pageHeight: window.innerHeight,
     sourceState: [] as Violation[],
+    /** true после первого успешного setSourceState, в том числе пустого. */
+    sourceReady: false,
     minValue: initialMinvalue,
     daysInGroup: initialDaysInGroup,
     currentYear: new Date(initialEndDate).getFullYear(),
@@ -328,7 +330,7 @@ const filtersSlice = createSlice({
   reducers: {
     setSourceState(state, action) {
       const rows = Array.isArray(action.payload) ? action.payload : [];
-      state.sourceState = rows.map((row) => {
+      const normalized = rows.map((row) => {
         const hasRu =
           row[violationStartKey] != null && row[violationStartKey] !== "";
         if (!hasRu && row.startTime != null && row.startTime !== "") {
@@ -336,8 +338,18 @@ const filtersSlice = createSlice({
         }
         return row;
       });
-      let cutoffDates = getCutoffDates(state.sourceState);
-      if (!cutoffDates) return;
+      let cutoffDates = getCutoffDates(normalized);
+      if (!cutoffDates) {
+        if (normalized.length === 0) {
+          state.sourceState = [];
+          state.sourceReady = true;
+          prunePlaceFilters(state);
+          refreshDerived(state);
+        }
+        return;
+      }
+      state.sourceState = normalized;
+      state.sourceReady = true;
       state.minCutoffDate = cutoffDates.min;
       state.maxCutoffDate = cutoffDates.max;
       state.dateStart = getStartDate(cutoffDates.max);

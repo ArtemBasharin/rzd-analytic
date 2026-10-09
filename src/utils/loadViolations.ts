@@ -17,13 +17,18 @@ function yearWindow() {
  */
 export async function loadViolationsIntoStore(
   dispatch: AppDispatch,
-  options?: { fallbackToDummy?: boolean; shouldApply?: () => boolean },
+  options?: {
+    fallbackToDummy?: boolean;
+    shouldApply?: () => boolean;
+    onProgress?: (done: number, total: number) => void;
+  },
 ): Promise<void> {
   const fallbackToDummy = options?.fallbackToDummy !== false;
   const apply = options?.shouldApply ?? (() => true);
   const { calendarYear, yearParams } = yearWindow();
 
   try {
+    options?.onProgress?.(0, 1);
     const meta = await fetchViolationsMeta(yearParams);
     if (!apply()) return;
     if (
@@ -40,7 +45,11 @@ export async function loadViolationsIntoStore(
       );
     }
 
-    const data = await fetchAllViolationsPageable(yearParams);
+    const data = await fetchAllViolationsPageable(
+      yearParams,
+      undefined,
+      options?.onProgress,
+    );
     if (!apply()) return;
 
     if (process.env.NODE_ENV === "development") {
@@ -53,7 +62,12 @@ export async function loadViolationsIntoStore(
       );
     }
 
-    if (data.length === 0 && !fallbackToDummy) {
+    if (data.length === 0) {
+      // Удалены все периоды: meta подтверждает пустую базу, графики нужно очистить.
+      if (meta != null && Number(meta.total) === 0) {
+        dispatch(setSourceState([]));
+        return;
+      }
       throw new Error("После загрузки сервер вернул пустой список");
     }
 

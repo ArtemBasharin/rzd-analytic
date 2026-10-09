@@ -6,7 +6,6 @@ import {
   passDuration,
   subDuration,
   // otherDuration,
-  place,
   similarColors,
 } from "../utils/config";
 import { cutDecimals } from "../utils/functions";

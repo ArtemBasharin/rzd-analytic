@@ -55,7 +55,8 @@ const BarChart2Bars = (props: any) => {
 
     // Y axis: scale and draw
     const y = d3.scalePow().exponent(0.4).range([height, 0]);
-    y.domain([0, props.yMax]);
+    const yMax = Number(props.yMax);
+    y.domain([0, yMax > 0 ? yMax : 1]);
     //svg.append("g").call(d3.axisLeft(y)); //temporary remove leftAxis
 
     let bars = svg.selectAll("mybar").data(resData).enter();

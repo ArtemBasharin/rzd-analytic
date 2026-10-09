@@ -9,7 +9,12 @@ import {
 } from "../utils/config";
 
 export const getArrGuiltDuration = (srcArray: any[]) => {
+  if (!Array.isArray(srcArray) || srcArray.length === 0) {
+    return { arr: [], y: 0 };
+  }
+
   const maxYearKey = (arr: any[]) => {
+    if (!arr?.[0]) return undefined;
     let maxKeyArr: any[] = [];
     Object.keys(arr[0]).forEach((el2: any) => {
       if (!isNaN(el2)) maxKeyArr.push(el2);
@@ -83,6 +88,7 @@ export const getArrGuiltDuration = (srcArray: any[]) => {
       });
     }
 
+    if (result.length === 0) return result;
     return result.sort(byField(maxYearKey(result)));
   };
 
@@ -105,8 +111,10 @@ export const getArrGuiltDuration = (srcArray: any[]) => {
   };
 
   const paretoArrayGen = (src: any[]) => {
+    const values = arrayByField(src);
+    if (values.length === 0) return [];
     let result = [];
-    let totalSum = arrayByField(src).reduce((sum, current) => {
+    let totalSum = values.reduce((sum, current) => {
       result.push(sum);
       return sum + current;
     });

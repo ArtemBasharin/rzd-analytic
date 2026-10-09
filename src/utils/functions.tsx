@@ -10,12 +10,17 @@ function violationTimeMs(element: any): number | null {
 }
 
 export const getCutoffDates = (arr: any[]) => {
-  const times = arr
-    .map(violationTimeMs)
-    .filter((t): t is number => t != null);
-  if (times.length === 0) return undefined;
-  const minValue = Math.min(...times);
-  const maxValue = Math.max(...times);
+  let minValue = Infinity;
+  let maxValue = -Infinity;
+  let found = false;
+  for (let i = 0; i < arr.length; i += 1) {
+    const t = violationTimeMs(arr[i]);
+    if (t == null) continue;
+    found = true;
+    if (t < minValue) minValue = t;
+    if (t > maxValue) maxValue = t;
+  }
+  if (!found) return undefined;
   const minDate = new Date(minValue).setHours(0, 0, 0);
   const maxDate = new Date(maxValue).setHours(23, 59, 59);
   return { min: minDate, max: maxDate };

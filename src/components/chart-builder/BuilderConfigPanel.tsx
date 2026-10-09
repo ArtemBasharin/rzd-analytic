@@ -26,6 +26,7 @@ import {
   updateComparePeriod,
   removeComparePeriod,
   resetBuilderSpec,
+  setShowPareto,
   toggleFilterValue,
 } from "../../redux/chartBuilderSlice";
 import {
@@ -274,6 +275,9 @@ const MeasureRow: React.FC<{
 const BuilderConfigPanel: React.FC = () => {
   const dispatch = useDispatch();
   const spec = useSelector((s: RootState) => s.chartBuilder.spec);
+  const showPareto = useSelector(
+    (s: RootState) => s.chartBuilder.style.showPareto !== false,
+  );
   const loadedRows = useSelector((s: RootState) => s.filters.sourceState);
   const railwayFilter = useSelector((s: RootState) => s.filters.railwayFilter);
   const regionFilter = useSelector((s: RootState) => s.filters.regionFilter);
@@ -325,7 +329,21 @@ const BuilderConfigPanel: React.FC = () => {
 
   return (
     <aside className="builder-config">
-      <h3 className="builder-panel-title">Настройки</h3>
+      <div className="builder-config-head">
+        <h3 className="builder-panel-title">Настройки</h3>
+        {spec.chartType === "bar" && (
+          <button
+            type="button"
+            className={showPareto ? "builder-pareto-btn is-on" : "builder-pareto-btn"}
+            aria-pressed={showPareto}
+            aria-label={showPareto ? "Отключить линию Парето" : "Показать линию Парето"}
+            title={showPareto ? "Отключить линию Парето" : "Показать линию Парето"}
+            onClick={() => dispatch(setShowPareto(!showPareto))}
+          >
+            Парето
+          </button>
+        )}
+      </div>
 
       <div className="builder-config-block">
         <span className="builder-label">Тип графика</span>
@@ -436,8 +454,8 @@ const BuilderConfigPanel: React.FC = () => {
           </select>
           {comparing && (
             <p className="builder-filter-empty">
-              Сравнение периодов строится по первому показателю. Цвет и вторая ось
-              недоступны.
+              Столбчатый показатель сравнивается по периодам, остальные рисуются
+              линиями. Цвет и вторая ось недоступны.
             </p>
           )}
           {!comparing && spec.colorField && yMeasures(spec).length > 1 && (
