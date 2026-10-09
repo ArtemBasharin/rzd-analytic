@@ -293,20 +293,47 @@ interface SeriesMap {
   map: Map<string, number>;
 }
 
+/** Bar series that form the column. Lines and the second axis are not the column height. */
+function columnSeries(seriesMaps: SeriesMap[]): SeriesMap[] {
+  const bars = seriesMaps.filter((s) => s.meta.axis !== "y2" && s.meta.mark !== "line");
+  return bars.length ? bars : seriesMaps;
+}
+
+/**
+ * Height used to rank categories.
+ * Grouped columns: the tallest bar. Stacked, shares and pie: the total.
+ */
+function columnMagnitude(label: string, spec: ChartSpec, seriesMaps: SeriesMap[]): number {
+  const pool = columnSeries(seriesMaps);
+  const stacked =
+    spec.chartType === "pie" ||
+    spec.seriesLayout === "stacked" ||
+    spec.seriesLayout === "normalized";
+  if (stacked) {
+    return pool.reduce((sum, s) => sum + (s.map.get(label) ?? 0), 0);
+  }
+  let max = 0;
+  for (const s of pool) {
+    const v = s.map.get(label) ?? 0;
+    if (v > max) max = v;
+  }
+  return max;
+}
+
 function sortLabels(
   labels: string[],
   spec: ChartSpec,
   grain: DateGrain | undefined,
   seriesMaps: SeriesMap[],
-  primaryIdx: number,
 ): string[] {
   const time = isTimeGrain(grain);
   const out = [...labels];
   const valueDir = spec.sortDir === "asc" ? 1 : -1;
   const byValue = (a: string, b: string) => {
-    const va = seriesMaps[primaryIdx]?.map.get(a) ?? 0;
-    const vb = seriesMaps[primaryIdx]?.map.get(b) ?? 0;
-    return (va - vb) * valueDir;
+    const va = columnMagnitude(a, spec, seriesMaps);
+    const vb = columnMagnitude(b, spec, seriesMaps);
+    if (va !== vb) return (va - vb) * valueDir;
+    return a.localeCompare(b, "ru");
   };
 
   if (spec.sortBy === "value") {
@@ -324,11 +351,7 @@ function sortLabels(
     out.sort((a, b) => compareTimeLabels(a, b, grain));
     return out;
   }
-  out.sort((a, b) => {
-    const va = seriesMaps[primaryIdx]?.map.get(a) ?? 0;
-    const vb = seriesMaps[primaryIdx]?.map.get(b) ?? 0;
-    return vb - va;
-  });
+  out.sort(byValue);
   return out;
 }
 
@@ -490,21 +513,35 @@ export function aggregateViolations(
   const seriesMaps: SeriesMap[] = [];
 
   if (comparing) {
-    const measure = measuresY[0];
-    for (const period of periods) {
-      const rows = applyDataFilters(
-        filterByDates(source, period.dateFrom, period.dateTo),
-        filters,
-      );
-      seriesMaps.push({
-        meta: { id: period.id, label: period.label, axis: "y" },
-        map: aggregateOneSeries(
-          rows,
-          spec.categoryField,
-          measure,
-          alignAcrossYears && time,
-        ),
-      });
+    const combo =
+      (spec.chartType === "bar" || spec.chartType === "line") && measuresY.length > 1;
+    const barMeasure = measuresY.find((m) => m.mark !== "line") ?? measuresY[0];
+    const drawn = combo ? [barMeasure, ...measuresY.filter((m) => m !== barMeasure)] : [measuresY[0]];
+    for (const measure of drawn) {
+      const asLine = combo && measure !== barMeasure;
+      for (const period of periods) {
+        const rows = applyDataFilters(
+          filterByDates(source, period.dateFrom, period.dateTo),
+          filters,
+        );
+        seriesMaps.push({
+          meta: {
+            id: asLine ? `${period.id}:${measure.fieldId}` : period.id,
+            label: asLine
+              ? `${measureSeriesLabel(measure)} · ${period.label}`
+              : period.label,
+            axis: "y",
+            mark: combo ? (asLine ? "line" : "bar") : undefined,
+            scaleKey: asLine ? measure.fieldId : undefined,
+          },
+          map: aggregateOneSeries(
+            rows,
+            spec.categoryField,
+            measure,
+            alignAcrossYears && time,
+          ),
+        });
+      }
     }
   } else if (useColor && spec.colorField) {
     const measure = measuresY[0];
@@ -566,7 +603,7 @@ export function aggregateViolations(
     for (const key of s.map.keys()) labelSet.add(key);
   }
 
-  const sorted = sortLabels(Array.from(labelSet), spec, grain, seriesMaps, rankIdx);
+  const sorted = sortLabels(Array.from(labelSet), spec, grain, seriesMaps);
   const { head, tail } = applyTopN(sorted, spec, time);
   const asSum = spec.chartType === "pie";
   const points = pointsFromLabels(head, seriesMaps, primaryId, asSum);
