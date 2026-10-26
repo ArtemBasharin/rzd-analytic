@@ -31,6 +31,43 @@ export function parsePlaceParts(placeValue: unknown): PlaceParts {
   return { railway: "", region: "" };
 }
 
+/**
+ * Подпись места с учётом фильтра.
+ * Дорога выбрана — без дороги: «РЕГ-2, ИНСКАЯ».
+ * РЕГ выбран — без дороги и РЕГ: «ИНСКАЯ».
+ * Снимается только совпавший префикс. Строка без пары «дорога, РЕГ-N» не меняется.
+ */
+export function displayPlaceName(
+  placeValue: unknown,
+  railway: string,
+  region: string,
+): string {
+  const text = placeValue == null ? "" : String(placeValue).trim();
+  if (!text) return text;
+  const railwayFilter = (railway || "").trim();
+  const regionFilter = (region || "").trim().toUpperCase();
+  if (!railwayFilter && !regionFilter) return text;
+
+  const parts = text
+    .split(",")
+    .map((part) => part.trim())
+    .filter(Boolean);
+  if (parts.length < 2 || !REGION_RE.test(parts[1])) return text;
+
+  const placeRailway = parts[0];
+  const placeRegion = parts[1].toUpperCase();
+
+  if (regionFilter) {
+    if (placeRegion !== regionFilter) return text;
+    if (railwayFilter && placeRailway !== railwayFilter) return text;
+    const rest = parts.slice(2).join(", ");
+    return rest || text;
+  }
+
+  if (placeRailway !== railwayFilter) return text;
+  return parts.slice(1).join(", ");
+}
+
 function byName(a: PlaceOption, b: PlaceOption) {
   return a.value.localeCompare(b.value, "ru");
 }

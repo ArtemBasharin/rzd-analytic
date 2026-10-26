@@ -182,7 +182,7 @@ function copyComputedPresentationToInline(el: any) {
   if (!(el instanceof HTMLElement)) return;
   if (el.tagName === "STYLE" || el.tagName === "SCRIPT") return;
 
-  if (el.id === "text_report") {
+  if (el.id === "text_report" || el.id === "insights_report") {
     el.style.height = "auto";
     el.style.maxHeight = "none";
     el.style.overflow = "visible";
@@ -500,6 +500,8 @@ async function replaceSankeySvgsWithWordFriendlyImages(cloneRoot: any, sourceRoo
 function DownloadButtons(props: any) {
   const dispatch = useDispatch();
   const toolPalette = useSelector((state) => state.filters.toolPalette);
+  const isTextSlide =
+    toolPalette.kind === "report" || toolPalette.kind === "insights";
   const reportSankeyBlocksVisible = useSelector(
     (state) => state.filters.reportSankeyBlocksVisible ?? true,
   );
@@ -555,9 +557,11 @@ function DownloadButtons(props: any) {
   // };
 
   const copyToBufferAsText = async () => {
-    const textContainer = document.getElementById("text_report");
+    const reportId =
+      toolPalette.kind === "insights" ? "insights_report" : "text_report";
+    const textContainer = document.getElementById(reportId);
     if (!textContainer) {
-      console.error("Элемент #text_report не найден");
+      console.error(`Элемент #${reportId} не найден`);
       return;
     }
 
@@ -754,14 +758,14 @@ function DownloadButtons(props: any) {
 
   return (
     <div className="buttons-copy_container">
-      {toolPalette.kind !== "report" && (
+      {!isTextSlide && (
         <button className="button-copy" onClick={downloadElementAsSVG}>
           <FaDownload className="button-copy_icon" />
           SVG
         </button>
       )}
 
-      {toolPalette.kind !== "report" && (
+      {!isTextSlide && (
         <button className="button-copy" onClick={downloadElementAsPNG}>
           <FaDownload className="button-copy_icon" />
           PNG
@@ -786,7 +790,7 @@ function DownloadButtons(props: any) {
         PNG
       </button> */}
 
-      {toolPalette.kind === "report" && (
+      {isTextSlide && (
         <button
           className="button-copy"
           id="text_copy"

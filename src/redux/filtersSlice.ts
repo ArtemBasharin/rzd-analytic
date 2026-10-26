@@ -882,6 +882,14 @@ const filtersSlice = createSlice({
         state.toolPalette.minValueVisibility = false;
         state.toolPalette.sumLineVisibility = false;
       }
+      if (action.payload === "insights") {
+        state.toolPalette = { ...state.toolPalette, kind: action.payload };
+        state.toolPalette.yearVisibility = false;
+        state.toolPalette.daysInGroupVisibility = false;
+        state.toolPalette.unitsListVisibility = false;
+        state.toolPalette.minValueVisibility = false;
+        state.toolPalette.sumLineVisibility = false;
+      }
       if (action.payload === "sumline") {
         state.toolPalette = { ...state.toolPalette, kind: action.payload };
         state.toolPalette.yearVisibility = false;

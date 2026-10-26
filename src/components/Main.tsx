@@ -24,6 +24,7 @@ import AnalyzeSection from "./AnalyzeSection";
 import RidgelineDiagram from "./RidgelineDiagramm";
 import DownloadButtons from "./ToolDownloadButtons";
 import TextReportTemplatePeriod from "./TextReport";
+import InsightsReport from "./InsightsReport";
 import SumLineDiagram from "./SumLineDiagram";
 import InteractiveMap from "./InteractiveMap";
 import BarChartRaceDiagram from "./BarChartRace";
@@ -33,7 +34,7 @@ const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
 const SwiperAny = Swiper as React.ComponentType<any>;
 
 const SLIDE_STORAGE_KEY = "rzd-active-slide";
-const SLIDE_COUNT = 11;
+const SLIDE_COUNT = 12;
 
 function readSavedSlideIndex() {
   try {
@@ -65,6 +66,7 @@ function paletteForSlide(index: number) {
   if (index === 8) return "sumline";
   if (index === 9) return "map";
   if (index === 10) return "race";
+  if (index === 11) return "insights";
   return "analyze";
 }
 
@@ -377,6 +379,28 @@ function Main() {
                   <div id="selectedElementId" ref={downloadRef}>
                     <BarChartRaceDiagram />
                   </div>
+                </div>
+              </>
+            )
+          }
+        </SwiperSlide>
+
+        <SwiperSlide>
+          {({ isActive }) =>
+            isActive && (
+              <>
+                <div className="slide" style={{ height: areaHeight }}>
+                  <h2 className="section-title">
+                    Аналитический отчёт: тенденции и закономерности (за период{" "}
+                    {timeFormat(dateStart)}-{timeFormatY(dateEnd)} г.)
+                  </h2>
+                  {noRows ? (
+                    <p className="text_paragraph">Нет данных за выбранный период.</p>
+                  ) : (
+                    <div id="insights_report" ref={downloadRef}>
+                      <InsightsReport />
+                    </div>
+                  )}
                 </div>
               </>
             )
