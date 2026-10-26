@@ -5,7 +5,7 @@ import StackedBarChartIcon from "@mui/icons-material/StackedBarChart";
 import ShowChartIcon from "@mui/icons-material/ShowChart";
 import PieChartIcon from "@mui/icons-material/PieChart";
 import type { RootState } from "../../redux/store";
-import { filterViolationsByPlace } from "../../utils/placeParts";
+import { displayPlaceName, filterViolationsByPlace } from "../../utils/placeParts";
 import {
   clearDataFilters,
   addMeasure,
@@ -113,22 +113,27 @@ const MultiCheckFilter: React.FC<{
   filterKey: ListFilterKey;
   options: FilterOption[];
   selected: string[];
-}> = ({ label, filterKey, options, selected }) => {
+  formatValue?: (value: string) => string;
+}> = ({ label, filterKey, options, selected, formatValue }) => {
   const dispatch = useDispatch();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const shown = (value: string) => formatValue?.(value) ?? value;
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return options;
-    return options.filter((o) => o.value.toLowerCase().includes(q));
-  }, [options, query]);
+    return options.filter((o) => {
+      const labelText = shown(o.value).toLowerCase();
+      return o.value.toLowerCase().includes(q) || labelText.includes(q);
+    });
+  }, [options, query, formatValue]);
 
   const summary =
     selected.length === 0
       ? "Все"
       : selected.length === 1
-        ? selected[0]
+        ? shown(selected[0])
         : `Выбрано: ${selected.length}`;
 
   return (
@@ -194,7 +199,7 @@ const MultiCheckFilter: React.FC<{
                     }
                   />
                   <span className="builder-filter-item-name" title={opt.value}>
-                    {opt.value}
+                    {shown(opt.value)}
                   </span>
                   <span className="builder-filter-count">
                     {opt.count.toLocaleString("ru-RU")}
@@ -799,6 +804,12 @@ const BuilderConfigPanel: React.FC = () => {
             filterKey={key}
             options={facets.options[key]}
             selected={filters[key]}
+            formatValue={
+              key === "places"
+                ? (value) =>
+                    displayPlaceName(value, railwayFilter, regionFilter)
+                : undefined
+            }
           />
         ))}
       </div>

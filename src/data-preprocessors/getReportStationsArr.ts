@@ -295,8 +295,7 @@ export const getReportStationsArr = (
       delete el.guiltyUnit;
       delete el.failReason;
       delete el.failKind;
-     
-      if (el.place) el.place = el.place.split(",").slice(-1).join("").trim();
+
       el["totalDelayed"] = cutDecimals(
         el.freightDelayed + el.passDelayed + el.subDelayed + el.otherDelayed
       );

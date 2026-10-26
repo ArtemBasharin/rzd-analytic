@@ -14,7 +14,7 @@ import {
   subDelayed,
   subDuration,
 } from "../utils/config";
-import { COUNT_FIELD_ID, FieldDef } from "./types";
+import { Aggregation, COUNT_FIELD_ID, FieldDef } from "./types";
 
 export const dimensionFields: FieldDef[] = [
   {
@@ -156,6 +156,43 @@ export const measureFields: FieldDef[] = [
 ];
 
 export const allFields: FieldDef[] = [...dimensionFields, ...measureFields];
+
+/** Failure counts, train counts, or delay hours. */
+export type MeasureUnit = "count" | "trains" | "hours";
+
+const TRAIN_MEASURE_IDS: ReadonlySet<string> = new Set([
+  "allDelayed",
+  "freightDelayed",
+  "passDelayed",
+  "subDelayed",
+  "otherDelayed",
+]);
+
+const HOUR_MEASURE_IDS: ReadonlySet<string> = new Set([
+  "allDuration",
+  "freightDuration",
+  "passDuration",
+  "subDuration",
+  "otherDuration",
+]);
+
+/**
+ * Unit of a plotted measure.
+ * Count aggregations count rows, so they stay with failure counts
+ * rather than hours or trains.
+ */
+export function measureUnit(fieldId: string, aggregation: Aggregation): MeasureUnit {
+  if (
+    fieldId === COUNT_FIELD_ID ||
+    aggregation === "count" ||
+    aggregation === "countUnique"
+  ) {
+    return "count";
+  }
+  if (TRAIN_MEASURE_IDS.has(fieldId)) return "trains";
+  if (HOUR_MEASURE_IDS.has(fieldId)) return "hours";
+  return "count";
+}
 
 export function findField(id: string | null): FieldDef | undefined {
   if (!id) return undefined;

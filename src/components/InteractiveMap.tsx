@@ -18,6 +18,8 @@ interface RootState {
       checked: boolean;
       isDisabled?: boolean;
     }>;
+    railwayFilter: string;
+    regionFilter: string;
   };
 }
 
@@ -207,6 +209,12 @@ const InteractiveMap = () => {
   const sankeyCheckList = useSelector(
     (state: RootState) => state.filters.sankeyCheckList,
   );
+  const railwayFilter = useSelector(
+    (state: RootState) => state.filters.railwayFilter,
+  );
+  const regionFilter = useSelector(
+    (state: RootState) => state.filters.regionFilter,
+  );
 
   const currentYearReport = useMemo(() => {
     if (!stationsReport?.length) return [];
@@ -345,6 +353,8 @@ const InteractiveMap = () => {
       segmentDurationByName={segmentDurationByName}
       stationDurationByName={stationDurationByName}
       placeDetailsByName={placeDetailsByName}
+      railwayFilter={railwayFilter}
+      regionFilter={regionFilter}
     />
   );
 };

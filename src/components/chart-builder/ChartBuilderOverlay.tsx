@@ -197,8 +197,12 @@ const ChartBuilderOverlay: React.FC = () => {
   );
 
   const aggregate = useMemo(
-    () => aggregateViolations(sourceState || [], effectiveSpec),
-    [sourceState, effectiveSpec],
+    () =>
+      aggregateViolations(sourceState || [], effectiveSpec, {
+        railway: railwayFilter,
+        region: regionFilter,
+      }),
+    [sourceState, effectiveSpec, railwayFilter, regionFilter],
   );
 
   const categoryLabel = findField(spec.categoryField)?.label ?? "Группа";

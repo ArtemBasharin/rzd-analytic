@@ -1,4 +1,4 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, current, isDraft } from "@reduxjs/toolkit";
 import { getAnalyze } from "../data-preprocessors/combiner";
 import { getStackedArr } from "../data-preprocessors/getStackedArr";
 import dummyArr from "../data-preprocessors/dummyArr";
@@ -125,14 +125,22 @@ let initialLoaderShow = {
   ridgeline: false,
 };
 
+function sourceRows(state: { sourceState: Violation[] }): Violation[] {
+  const rows = state.sourceState;
+  // Неизменённый массив Immer отдаёт как есть. Если его уже меняли
+  // в этом редюсере, current снимает прокси — иначе каждое поле строки
+  // читается через Proxy и выбор даты занимает секунды.
+  if (isDraft(rows)) return current(rows) as Violation[];
+  return rows;
+}
+
 function chartRows(state: {
   sourceState: Violation[];
   railwayFilter?: string;
   regionFilter?: string;
 }) {
-  const allRows = state.sourceState;
   return filterViolationsByPlace(
-    allRows,
+    sourceRows(state),
     state.railwayFilter || "",
     state.regionFilter || "",
   );
@@ -160,9 +168,55 @@ function prunePlaceFilters(state: {
   }
 }
 
+const timeIndex = new WeakMap<Violation[], Float64Array>();
+
+function indexRowTimes(rows: Violation[]) {
+  if (timeIndex.has(rows)) return;
+  const times = new Float64Array(rows.length);
+  for (let i = 0; i < rows.length; i += 1) {
+    const ts = Date.parse(rows[i]?.[violationStartKey]);
+    times[i] = Number.isFinite(ts) ? ts : Number.NaN;
+  }
+  timeIndex.set(rows, times);
+}
+
+/**
+ * Строки текущего диапазона и такого же диапазона год назад.
+ * Остальные предпроцессоры всё равно фильтруют точнее, но не должны
+ * заново разбирать все 100+ тысяч записей базы.
+ */
+function rowsInSelectedYears(rows: any[], dateStart: number, dateEnd: number) {
+  const start = Number(dateStart);
+  const end = Number(dateEnd);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || rows.length === 0) {
+    return rows;
+  }
+  const pastStart = new Date(start);
+  pastStart.setFullYear(pastStart.getFullYear() - 1);
+  const pastEnd = new Date(end);
+  pastEnd.setFullYear(pastEnd.getFullYear() - 1);
+  const pad = 3 * 24 * 60 * 60 * 1000;
+  const from = Math.min(start, pastStart.getTime()) - pad;
+  const to = Math.max(end, pastEnd.getTime()) + pad;
+  indexRowTimes(rows);
+  const times = timeIndex.get(rows)!;
+  const scoped: any[] = [];
+  for (let i = 0; i < rows.length; i += 1) {
+    const ts = times[i];
+    // Копия: getAnalyze дописывает нули в объект строки, а исходные
+    // записи в сторе заморожены Immer.
+    if (ts >= from && ts <= to) scoped.push({ ...rows[i] });
+  }
+  return scoped;
+}
+
 /** Пересчёт графиков и отчёта по строкам с учётом дороги и региона. Даты не трогает. */
 function refreshDerived(state: any) {
-  const rows = chartRows(state);
+  const rows = rowsInSelectedYears(
+    chartRows(state),
+    state.dateStart,
+    state.dateEnd,
+  );
 
   state.analyzeState = getAnalyze(
     rows,
@@ -348,6 +402,7 @@ const filtersSlice = createSlice({
         }
         return;
       }
+      indexRowTimes(normalized);
       state.sourceState = normalized;
       state.sourceReady = true;
       state.minCutoffDate = cutoffDates.min;

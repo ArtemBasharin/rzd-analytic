@@ -4,6 +4,9 @@ import axios from "axios";
 import { useDispatch } from "react-redux";
 
 import AbsentViolationsDialog from "./AbsentViolationsDialog";
+import UploadProgressDialog, {
+  type UploadProgressState,
+} from "./UploadProgressDialog";
 import {
   describeBulkUpload,
   postViolationsArray,
@@ -12,14 +15,14 @@ import {
   type AbsentViolation,
 } from "../utils/requests";
 import { guiltyUnit, guiltyNew } from "../utils/config";
-import { pushToast, recordsLabel, updateToast, type ToastStatus } from "../utils/toast";
+import { pushToast, recordsLabel, type ToastStatus } from "../utils/toast";
+import { periodText, MIN_CHARTS_MS, MIN_READ_MS, MIN_WRITE_MS, pauseForSmallFile, SMALL_FILE_ROWS } from "../utils/uploadPeriod";
 import { loadViolationsIntoStore } from "../utils/loadViolations";
 import type { AppDispatch } from "../redux/store";
 
 type UploadReview = {
   rows: AbsentViolation[];
   selected: Set<number>;
-  noticeId: number;
   message: string;
   status: ToastStatus;
   wrote: boolean;
@@ -28,6 +31,7 @@ type UploadReview = {
 type FileOutcome = {
   wrote: boolean;
   deleted: number;
+  rows: number;
   notice: { message: string; status: ToastStatus } | null;
   failed: boolean;
 };
@@ -41,11 +45,6 @@ function selectedIds(rows: AbsentViolation[]): Set<number> {
   return new Set(ids);
 }
 
-function reportProgress(noticeId: number, message: string, percent: number) {
-  const pct = Math.max(0, Math.min(100, Math.round(percent)));
-  updateToast(noticeId, message, "info", true, pct);
-}
-
 function filesLabel(count: number): string {
   const n = Math.abs(Math.trunc(count));
   const mod100 = n % 100;
@@ -56,12 +55,17 @@ function filesLabel(count: number): string {
   return "файлов";
 }
 
-function stageLabel(index: number, count: number, text: string): string {
-  if (count <= 1) return text;
-  return `Файл ${index + 1} из ${count}: ${text}`;
+function sleep(ms: number): Promise<void> {
+  if (ms <= 0) return Promise.resolve();
+  if (
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
-/** Чтение, разбор и запись занимают 0–90%. Обновление графиков — хвост. */
 function batchPercent(index: number, count: number, phasePercent: number): number {
   const span = 90 / Math.max(count, 1);
   const within = Math.min(Math.max(phasePercent, 0), 80) / 80;
@@ -145,39 +149,58 @@ function queueSummary(
 function DropZoneParser() {
   const [pending, setPending] = useState(false);
   const [review, setReview] = useState<UploadReview | null>(null);
+  const [progress, setProgress] = useState<UploadProgressState | null>(null);
   const dispatch = useDispatch<AppDispatch>();
   const reviewResolve = useRef<((deleted: number | null) => void) | null>(null);
-  const queuePos = useRef({ index: 0, count: 1 });
+  const queueBusy = useRef(false);
 
-  const reloadCharts = async (
-    noticeId: number,
-    message: string,
-    status: ToastStatus,
-  ) => {
+  const patchProgress = (patch: Partial<UploadProgressState>) => {
+    setProgress((current) => (current ? { ...current, ...patch } : current));
+  };
+
+  const reloadCharts = async (message: string, status: ToastStatus, hold: boolean) => {
+    const started = performance.now();
+    patchProgress({
+      phase: "charts",
+      percent: 90,
+      note: "Обновление графиков…",
+      period: null,
+      written: null,
+      rowTotal: null,
+    });
     try {
       await loadViolationsIntoStore(dispatch, {
         fallbackToDummy: false,
         onProgress: (done, total) => {
           const ratio = total > 0 ? done / total : 0;
-          reportProgress(
-            noticeId,
-            total > 1
-              ? `Обновление графиков: ${done} из ${total}`
-              : "Обновление графиков…",
-            90 + 10 * ratio,
-          );
+          patchProgress({
+            phase: "charts",
+            percent: Math.round(90 + 10 * ratio),
+            note: total > 1 ? `Страница ${done} из ${total}` : "Обновление графиков…",
+            period: null,
+            written: null,
+            rowTotal: null,
+          });
         },
       });
+      await sleep(pauseForSmallFile(performance.now() - started, MIN_CHARTS_MS, hold));
     } catch (loadError) {
       console.log("reload after upload failed:", loadError);
-      updateToast(
-        noticeId,
-        "Файл загружен, но графики не обновились. Обновите страницу.",
-        "fail",
-      );
+      patchProgress({
+        phase: "done",
+        failed: true,
+        percent: 100,
+        summary: "Файлы загружены, но графики не обновились. Обновите страницу.",
+      });
       return;
     }
-    updateToast(noticeId, message, status);
+    patchProgress({
+      phase: "done",
+      failed: status === "fail",
+      percent: 100,
+      summary: message,
+      note: null,
+    });
   };
 
   const finishReview = (deleted: number | null) => {
@@ -199,40 +222,68 @@ function DropZoneParser() {
     file: File,
     index: number,
     fileCount: number,
-    noticeId: number,
   ): Promise<FileOutcome> => {
-    queuePos.current = { index, count: fileCount };
-    const label = (text: string) => stageLabel(index, fileCount, text);
     const percent = (phase: number) => batchPercent(index, fileCount, phase);
+    const readStarted = performance.now();
     try {
-      reportProgress(noticeId, label(`Читаем «${file.name}»…`), percent(0));
-      const data = await readFileAsBinary(file, (ratio) => {
-        reportProgress(noticeId, label(`Читаем «${file.name}»…`), percent(8 * ratio));
+      patchProgress({
+        phase: "read",
+        fileIndex: index,
+        fileName: file.name,
+        period: null,
+        written: null,
+        rowTotal: null,
+        note: "Читаем файл…",
+        percent: percent(0),
       });
-      reportProgress(noticeId, label("Разбираем таблицу…"), percent(8));
+      const data = await readFileAsBinary(file, (ratio) => {
+        patchProgress({
+          phase: "read",
+          fileIndex: index,
+          fileName: file.name,
+          note: "Читаем файл…",
+          percent: percent(8 * ratio),
+        });
+      });
+      patchProgress({
+        phase: "read",
+        note: "Разбираем таблицу…",
+        percent: percent(8),
+      });
       await new Promise((resolve) => setTimeout(resolve, 0));
       const resultArray = await firstSheetRows(data);
       if (!resultArray) {
-        return { wrote: false, deleted: 0, notice: null, failed: true };
+        return { wrote: false, deleted: 0, rows: 0, notice: null, failed: true };
       }
       initialData = resultArray;
       const rows = cleanRows(resultArray);
       console.log("Length of the sent array:", rows.length);
-      reportProgress(
-        noticeId,
-        label(`Запись ${rows.length} ${recordsLabel(rows.length)}…`),
-        percent(12),
-      );
-      const summary = await postViolationsArray(rows, noticeId, (done, total) => {
-        reportProgress(
-          noticeId,
-          label(`Запись в базу: ${done} из ${total}`),
-          percent(12 + 68 * (total > 0 ? done / total : 1)),
-        );
+      const small = rows.length <= SMALL_FILE_ROWS;
+      await sleep(pauseForSmallFile(performance.now() - readStarted, MIN_READ_MS, small));
+      const period = periodText(rows);
+      const writeStarted = performance.now();
+      patchProgress({
+        phase: "write",
+        fileIndex: index,
+        fileName: file.name,
+        period,
+        written: 0,
+        rowTotal: rows.length,
+        note: null,
+        percent: percent(12),
       });
+      const summary = await postViolationsArray(rows, undefined, (done, total) => {
+        patchProgress({
+          phase: "write",
+          written: done,
+          rowTotal: total,
+          percent: percent(12 + 68 * (total > 0 ? done / total : 1)),
+        });
+      });
+      await sleep(pauseForSmallFile(performance.now() - writeStarted, MIN_WRITE_MS, small));
       const notice = describeBulkUpload(summary, rows.length);
       if (notice.status !== "success") {
-        return { wrote: false, deleted: 0, notice, failed: true };
+        return { wrote: false, deleted: 0, rows: rows.length, notice, failed: true };
       }
       const wrote =
         Number(summary?.upsertedCount ?? 0) > 0 ||
@@ -240,18 +291,16 @@ function DropZoneParser() {
       const absent = summary.absent ?? [];
       let deleted = 0;
       if (absent.length > 0) {
-        updateToast(noticeId, label(notice.message), notice.status, true);
         deleted =
           (await waitForReview({
             rows: absent,
             selected: selectedIds(absent),
-            noticeId,
             message: notice.message,
             status: notice.status,
             wrote,
           })) ?? 0;
       }
-      return { wrote, deleted, notice, failed: false };
+      return { wrote, deleted, rows: rows.length, notice, failed: false };
     } catch (error) {
       const handled =
         error instanceof Error &&
@@ -266,6 +315,7 @@ function DropZoneParser() {
       return {
         wrote: false,
         deleted: 0,
+        rows: 0,
         notice: { message, status: "fail" },
         failed: true,
       };
@@ -273,21 +323,32 @@ function DropZoneParser() {
   };
 
   const runQueue = async (files: File[]) => {
-    const noticeId = pushToast(
-      stageLabel(0, files.length, `Читаем «${files[0].name}»…`),
-      "info",
-      true,
-      0,
-    );
+    if (queueBusy.current) return;
+    queueBusy.current = true;
     setPending(true);
+    setProgress({
+      phase: "read",
+      fileIndex: 0,
+      fileCount: files.length,
+      fileName: files[0].name,
+      period: null,
+      written: null,
+      rowTotal: null,
+      percent: 0,
+      note: "Читаем файл…",
+      summary: null,
+      failed: false,
+    });
     const failed: string[] = [];
     let wroteAny = false;
     let deletedTotal = 0;
     let single: { message: string; status: ToastStatus } | null = null;
+    let allSmall = true;
     try {
       for (let index = 0; index < files.length; index += 1) {
         const file = files[index];
-        const outcome = await processFile(file, index, files.length, noticeId);
+        const outcome = await processFile(file, index, files.length);
+        if (outcome.rows > SMALL_FILE_ROWS) allSmall = false;
         if (outcome.failed) failed.push(`«${file.name}»`);
         if (outcome.wrote) wroteAny = true;
         deletedTotal += outcome.deleted;
@@ -295,11 +356,18 @@ function DropZoneParser() {
       }
       const summary = queueSummary(files.length, failed, deletedTotal, single);
       if (wroteAny || deletedTotal > 0) {
-        await reloadCharts(noticeId, summary.message, summary.status);
+        await reloadCharts(summary.message, summary.status, allSmall);
         return;
       }
-      updateToast(noticeId, summary.message, summary.status);
+      patchProgress({
+        phase: "done",
+        failed: summary.status === "fail",
+        percent: 100,
+        summary: summary.message,
+        note: null,
+      });
     } finally {
+      queueBusy.current = false;
       setPending(false);
     }
   };
@@ -327,22 +395,12 @@ function DropZoneParser() {
   const confirmRemove = async () => {
     if (!review || pending) return;
     const ids = Array.from(review.selected);
-    const { noticeId } = review;
     setPending(true);
     try {
-      reportProgress(
-        noticeId,
-        stageLabel(queuePos.current.index, queuePos.current.count, "Удаление отмеченных…"),
-        batchPercent(queuePos.current.index, queuePos.current.count, 80),
-      );
       const result = await removeSelectedViolations(ids);
       finishReview(result.deletedCount ?? 0);
     } catch (error) {
-      updateToast(
-        noticeId,
-        requestErrorText(error, "Не удалось удалить отмеченные отказы"),
-        "fail",
-      );
+      pushToast(requestErrorText(error, "Не удалось удалить отмеченные отказы"), "fail");
       setPending(false);
     }
   };
@@ -365,6 +423,9 @@ function DropZoneParser() {
           <p>Drag'n'drop zone</p>
         )}
       </div>
+      {progress && !review && (
+        <UploadProgressDialog progress={progress} onClose={() => setProgress(null)} />
+      )}
       {review && (
         <AbsentViolationsDialog
           rows={review.rows}

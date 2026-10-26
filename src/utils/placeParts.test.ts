@@ -1,6 +1,7 @@
 import { Violation } from "../types/violation";
 import {
   collectPlaceOptions,
+  displayPlaceName,
   filterViolationsByPlace,
   parsePlaceParts,
 } from "./placeParts";
@@ -28,6 +29,44 @@ describe("parsePlaceParts", () => {
       railway: "",
       region: "",
     });
+  });
+});
+
+describe("displayPlaceName", () => {
+  const full = "Западно-Сибирская, РЕГ-2, ИНСКАЯ";
+  const span = "Западно-Сибирская, РЕГ-4, ПП 162 КМ - СРЕДНЕСИБ";
+
+  it("оставляет полную строку, пока фильтры пустые", () => {
+    expect(displayPlaceName(full, "", "")).toBe(full);
+  });
+
+  it("убирает выбранную дорогу и оставляет РЕГ", () => {
+    expect(displayPlaceName(full, "Западно-Сибирская", "")).toBe(
+      "РЕГ-2, ИНСКАЯ",
+    );
+    expect(displayPlaceName(span, "Западно-Сибирская", "")).toBe(
+      "РЕГ-4, ПП 162 КМ - СРЕДНЕСИБ",
+    );
+  });
+
+  it("при выбранном РЕГ убирает и дорогу, и РЕГ", () => {
+    expect(displayPlaceName(full, "Западно-Сибирская", "РЕГ-2")).toBe("ИНСКАЯ");
+    expect(displayPlaceName(full, "", "рег-2")).toBe("ИНСКАЯ");
+    expect(displayPlaceName(span, "", "РЕГ-4")).toBe("ПП 162 КМ - СРЕДНЕСИБ");
+  });
+
+  it("не трогает чужую дорогу и строку без РЕГ-N", () => {
+    expect(displayPlaceName(full, "Красноярская", "")).toBe(full);
+    expect(displayPlaceName(full, "Западно-Сибирская", "РЕГ-1")).toBe(full);
+    expect(displayPlaceName("ИНСКАЯ", "Западно-Сибирская", "РЕГ-2")).toBe(
+      "ИНСКАЯ",
+    );
+    expect(
+      displayPlaceName("КОЧЕНЕВО - ЧИК", "Западно-Сибирская", ""),
+    ).toBe("КОЧЕНЕВО - ЧИК");
+    expect(
+      displayPlaceName("Остальные (менее 10 ч)", "", "РЕГ-2"),
+    ).toBe("Остальные (менее 10 ч)");
   });
 });
 

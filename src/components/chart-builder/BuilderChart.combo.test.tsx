@@ -48,10 +48,7 @@ test("comparison keeps period columns and draws the other measures as lines", ()
     spec,
   );
   expect(result.series.map((s) => s.mark)).toEqual(["bar", "bar", "line", "line"]);
-  expect(result.series.filter((s) => s.mark === "line").map((s) => s.scaleKey)).toEqual([
-    "freightDuration",
-    "freightDuration",
-  ]);
+  expect(result.series.map((s) => s.scaleKey)).toEqual(["hours", "hours", "hours", "hours"]);
   const point = result.points.find((p) => p.label === "А");
   expect(point?.values.current).toBe(6);
   expect(point?.values["current:freightDuration"]).toBe(6);
@@ -72,6 +69,28 @@ test("one measure is columns and the rest are lines", () => {
     spec,
   );
   expect(result.series.map((s) => s.mark)).toEqual(["bar", "line"]);
+  expect(result.series.map((s) => s.scaleKey)).toEqual(["count", "hours"]);
+});
+
+test("measures share a scale key only when they are the same unit", () => {
+  const spec = defaultChartSpec();
+  spec.categoryField = "unit";
+  spec.chartType = "bar";
+  spec.dateFrom = null;
+  spec.dateTo = null;
+  spec.measures = [
+    { fieldId: "__count__", aggregation: "count", axis: "y", mark: "bar" },
+    { fieldId: "allDelayed", aggregation: "sum", axis: "y", mark: "line" },
+    { fieldId: "freightDuration", aggregation: "sum", axis: "y", mark: "line" },
+    { fieldId: "passDuration", aggregation: "count", axis: "y", mark: "line" },
+  ];
+  const result = aggregateViolations([row("А", 5)], spec);
+  expect(result.series.map((s) => s.scaleKey)).toEqual([
+    "count",
+    "trains",
+    "hours",
+    "count",
+  ]);
 });
 
 test("combo chart draws columns for the bar measure and a line for the other", async () => {
@@ -117,11 +136,76 @@ function pathMinY(d: string | null): number {
   return ys.length ? Math.min(...ys) : Number.POSITIVE_INFINITY;
 }
 
-test("a smaller line measure keeps its own scale instead of collapsing onto the axis", async () => {
+test("a line in the same unit uses the column scale and no extra axis", async () => {
   const series = [
-    { id: "bars", label: "Число отказов", axis: "y" as const, mark: "bar" as const },
-    { id: "big", label: "Все задержки, ч", axis: "y" as const, mark: "line" as const },
-    { id: "small", label: "Задержки пассажирских, ч", axis: "y" as const, mark: "line" as const },
+    {
+      id: "bars",
+      label: "Все задержки, ч",
+      axis: "y" as const,
+      mark: "bar" as const,
+      scaleKey: "hours",
+    },
+    {
+      id: "line",
+      label: "Задержки пригородных, ч",
+      axis: "y" as const,
+      mark: "line" as const,
+      scaleKey: "hours",
+    },
+  ];
+  const data = [
+    { label: "А", value: 40, values: { bars: 40, line: 8 } },
+    { label: "Б", value: 10, values: { bars: 10, line: 2 } },
+  ];
+  const { container } = render(
+    <BuilderChart
+      data={data}
+      series={series}
+      chartType="bar"
+      valueLabel="значение"
+      categoryLabel="ось"
+      style={{ ...defaultChartStyle(), showPareto: false, showLabels: false }}
+    />,
+  );
+
+  await waitFor(() => {
+    expect(container.querySelectorAll("path.series-line")).toHaveLength(1);
+  });
+  const barTop = Math.min(
+    ...[...container.querySelectorAll("path.bar")].map((bar) =>
+      pathMinY(bar.getAttribute("d")),
+    ),
+  );
+  const lineTop = pathMinY(
+    container.querySelector("path.series-line")?.getAttribute("d") ?? null,
+  );
+  expect(lineTop).toBeGreaterThan(barTop + 40);
+  expect(container.querySelectorAll(".domain")).toHaveLength(2);
+});
+
+test("lines of one unit share a scale, and a different unit keeps its own axis", async () => {
+  const series = [
+    {
+      id: "bars",
+      label: "Число отказов",
+      axis: "y" as const,
+      mark: "bar" as const,
+      scaleKey: "count",
+    },
+    {
+      id: "big",
+      label: "Все задержки, ч",
+      axis: "y" as const,
+      mark: "line" as const,
+      scaleKey: "hours",
+    },
+    {
+      id: "small",
+      label: "Задержки пассажирских, ч",
+      axis: "y" as const,
+      mark: "line" as const,
+      scaleKey: "hours",
+    },
   ];
   const data = [
     { label: "А", value: 5, values: { bars: 5, big: 100, small: 1 } },
@@ -144,10 +228,63 @@ test("a smaller line measure keeps its own scale instead of collapsing onto the 
   const drawn = [...container.querySelectorAll("path.series-line")];
   const big = drawn.find((path) => path.getAttribute("stroke")?.toLowerCase() === "#fb8c00");
   const small = drawn.find((path) => path.getAttribute("stroke")?.toLowerCase() === "#43a047");
-  expect(big).toBeTruthy();
-  expect(small).toBeTruthy();
+  const barTop = Math.min(
+    ...[...container.querySelectorAll("path.bar")].map((bar) =>
+      pathMinY(bar.getAttribute("d")),
+    ),
+  );
   const bigTop = pathMinY(big?.getAttribute("d") ?? null);
   const smallTop = pathMinY(small?.getAttribute("d") ?? null);
-  expect(smallTop).toBeLessThan(160);
-  expect(Math.abs(smallTop - bigTop)).toBeLessThan(80);
+  expect(Math.abs(barTop - bigTop)).toBeLessThan(80);
+  expect(smallTop).toBeGreaterThan(bigTop + 40);
+  expect(container.querySelectorAll(".domain")).toHaveLength(3);
+});
+
+test("a smaller label moves below a larger one and zeros stay unlabeled", async () => {
+  const series = [
+    {
+      id: "bars",
+      label: "Все задержки, ч",
+      axis: "y" as const,
+      mark: "bar" as const,
+      scaleKey: "hours",
+    },
+    {
+      id: "line",
+      label: "Задержки пригородных, ч",
+      axis: "y" as const,
+      mark: "line" as const,
+      scaleKey: "hours",
+    },
+  ];
+  const data = [
+    { label: "А", value: 0.1, values: { bars: 0.1, line: 0.7 } },
+    { label: "Б", value: 40, values: { bars: 40, line: 0 } },
+    { label: "В", value: 0, values: { bars: 0, line: 0 } },
+  ];
+  const { container } = render(
+    <BuilderChart
+      data={data}
+      series={series}
+      chartType="bar"
+      valueLabel="значение"
+      categoryLabel="ось"
+      style={{ ...defaultChartStyle(), showPareto: false, showLabels: true }}
+    />,
+  );
+
+  await waitFor(() => {
+    expect(container.querySelectorAll(".bar-value-label, .line-value-label").length).toBeGreaterThan(0);
+  });
+  const labels = [...container.querySelectorAll(".bar-value-label, .line-value-label")];
+  const parsed = labels.map((el) => ({
+    y: Number(el.getAttribute("y")),
+    value: Number((el.textContent || "").replace(/\s/g, "").replace(",", ".")),
+  }));
+  expect(parsed.some((item) => item.value === 0)).toBe(false);
+  const small = parsed.find((item) => item.value === 0.1);
+  const peak = parsed.find((item) => item.value === 0.7);
+  expect(small).toBeTruthy();
+  expect(peak).toBeTruthy();
+  expect(small!.y).toBeGreaterThan(peak!.y);
 });

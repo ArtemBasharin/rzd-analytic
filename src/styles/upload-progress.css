@@ -1,0 +1,239 @@
+.upload-progress {
+  position: fixed;
+  inset: 0;
+  z-index: 2100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.35);
+  padding: 24px;
+  color: #1c1c1c;
+}
+
+.upload-progress__panel {
+  width: min(560px, 100%);
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  padding: 18px 20px 16px;
+  box-sizing: border-box;
+}
+
+.upload-progress__title {
+  margin: 0 0 12px;
+  height: 26px;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 700;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.upload-progress__steps {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.upload-progress__step {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 36px;
+  margin: 0;
+  padding: 0 8px 0 16px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #5c6b7a;
+  background: #e8eef5;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%);
+}
+
+.upload-progress__step:first-child {
+  padding-left: 8px;
+  border-radius: 8px 0 0 8px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%);
+}
+
+.upload-progress__step:last-child {
+  border-radius: 0 8px 8px 0;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%);
+}
+
+.upload-progress__step_done {
+  background: #2979ff;
+  color: #fff;
+}
+
+.upload-progress__step_current {
+  background: #005397;
+  color: #fff;
+}
+
+.upload-progress__percent {
+  margin: 10px 0 6px;
+  height: 24px;
+  text-align: center;
+  font-size: 22px;
+  line-height: 24px;
+  font-weight: 700;
+  color: #005397;
+}
+
+.upload-progress__bar {
+  height: 10px;
+  background: #e6e6e6;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.upload-progress__bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #2979ff, #005397);
+  transition: width 0.25s ease;
+}
+
+.upload-progress__bar_fail .upload-progress__bar-fill {
+  background: #d32f2f;
+}
+
+.upload-progress__files {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  position: relative;
+}
+
+.upload-progress__files::before {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  top: 13px;
+  height: 2px;
+  background: #e0e0e0;
+}
+
+.upload-progress__file {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+}
+
+.upload-progress__file span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #d0d7e2;
+  color: #5c6b7a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.upload-progress__file_done span {
+  background: #2979ff;
+  border-color: #2979ff;
+  color: #fff;
+}
+
+.upload-progress__file_current span {
+  background: #fff;
+  border-color: #2979ff;
+  color: #005397;
+  box-shadow: 0 0 0 4px rgba(41, 121, 255, 0.18);
+}
+
+.upload-progress__detail {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 66px;
+  margin-top: 10px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.upload-progress__file-label,
+.upload-progress__note {
+  flex: 0 0 18px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 18px;
+  color: #5c6b7a;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.upload-progress__period {
+  flex: 0 0 24px;
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  line-height: 24px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.upload-progress__count {
+  flex: 0 0 24px;
+  margin: 0;
+  font-size: 20px;
+  line-height: 24px;
+  font-weight: 700;
+  color: #005397;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.upload-progress__summary {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+  overflow: hidden;
+}
+
+.upload-progress__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+}
+
+.upload-progress__close {
+  border-radius: 6px;
+  padding: 8px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid #2979ff;
+  background: #2979ff;
+  color: #fff;
+}
+
+.upload-progress__close:hover {
+  background: #005397;
+  border-color: #005397;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .upload-progress__bar-fill {
+    transition: none;
+  }
+}

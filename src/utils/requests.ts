@@ -280,8 +280,8 @@ const postViolationsArray = async (
 ): Promise<BulkUploadSummary> => {
   const sending = `Отправка ${arr.length} ${recordsLabel(arr.length)}…`;
   const id =
-    noticeId != null ? noticeId : pushToast(sending, "info", true, 12);
-  if (noticeId != null && !onBatch) updateToast(id, sending, "info", true);
+    noticeId != null ? noticeId : onBatch ? null : pushToast(sending, "info", true, 12);
+  if (id != null && !onBatch) updateToast(id, sending, "info", true);
 
   const controller = new AbortController();
   const timer = window.setTimeout(() => controller.abort(), UPLOAD_TIMEOUT_MS);
@@ -328,7 +328,7 @@ const postViolationsArray = async (
         : error instanceof Error && error.message
           ? error.message
           : "Не удалось загрузить файл";
-    updateToast(id, message, "fail");
+    if (id != null) updateToast(id, message, "fail");
     if (error instanceof Error) {
       (error as Error & { uploadHandled?: boolean }).uploadHandled = true;
     }

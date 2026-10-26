@@ -434,12 +434,17 @@ function ensureLabelHeadroom(
   if (needed > y.domain()[1]) y.domain([0, needed]);
 }
 
-/** Periods of one measure share a scale; different measures stay separate. */
+/** Unit of a series. Missing keys stay separate so unmarked series keep their own scale. */
+function scaleGroupKey(seriesItem: ChartSeriesMeta): string {
+  return seriesItem.scaleKey ?? seriesItem.id;
+}
+
+/** Series of one unit share a scale. Periods of one measure stay together. */
 function lineScaleGroups(series: ChartSeriesMeta[]): ChartSeriesMeta[][] {
   const groups: ChartSeriesMeta[][] = [];
   const index = new Map<string, number>();
   for (const seriesItem of series) {
-    const key = seriesItem.scaleKey ?? seriesItem.id;
+    const key = scaleGroupKey(seriesItem);
     const at = index.get(key);
     if (at == null) {
       index.set(key, groups.length);
@@ -535,11 +540,12 @@ function lineLabelBox(
   w: number,
   fontPx: number,
 ): LabelBox {
+  const padX = 3;
   return {
-    l: cx - w / 2,
-    r: cx + w / 2,
-    t: baseline - fontPx * 0.92,
-    b: baseline + fontPx * 0.18,
+    l: cx - w / 2 - padX,
+    r: cx + w / 2 + padX,
+    t: baseline - fontPx * 0.95,
+    b: baseline + fontPx * 0.4,
   };
 }
 
@@ -547,34 +553,93 @@ function boxesOverlap(a: LabelBox, b: LabelBox): boolean {
   return a.r > b.l + 0.5 && a.l < b.r - 0.5 && a.b > b.t + 0.5 && a.t < b.b - 0.5;
 }
 
-/** Prefer a label just above the point; step aside when another label is already there. */
-function resolveLineLabelBaseline(
-  cx: number,
-  cy: number,
-  w: number,
+interface ValueLabelItem {
+  text: string;
+  value: number;
+  cx: number;
+  /** Mark position. The label prefers to sit just above it. */
+  cy: number;
+  w: number;
+  fontPx: number;
+  className: string;
+}
+
+function valueLabelItems(
+  data: AggregatedPoint[],
+  series: ChartSeriesMeta[],
+  x: (label: string) => number | undefined,
+  y: (seriesId: string, value: number) => number,
   fontPx: number,
-  innerH: number,
-  occupied: LabelBox[],
-): number {
-  const above = cy - LINE_POINT_R - LINE_LABEL_GAP;
-  const below = cy + LINE_POINT_R + LINE_LABEL_GAP + fontPx * 0.85;
-  const candidates = [above, below];
-  for (let i = 1; i <= 2; i++) candidates.push(above - i * (fontPx + 2));
-  candidates.push(below + fontPx + 2);
-
-  const fits = (baseline: number) => {
-    const box = lineLabelBox(cx, baseline, w, fontPx);
-    if (box.t < -1 || box.b > innerH + 2) return false;
-    return !occupied.some((o) => boxesOverlap(box, o));
-  };
-
-  for (const baseline of candidates) {
-    if (!fits(baseline)) continue;
-    occupied.push(lineLabelBox(cx, baseline, w, fontPx));
-    return baseline;
+  className: string,
+): ValueLabelItem[] {
+  const items: ValueLabelItem[] = [];
+  for (const s of series) {
+    for (const d of data) {
+      const value = pointValue(d, s.id);
+      if (!value) continue;
+      const text = formatBarLabel(value);
+      if (!text || text === "0") continue;
+      items.push({
+        text,
+        value,
+        cx: x(d.label) ?? 0,
+        cy: y(s.id, value),
+        w: measureTextWidth(text, `${fontPx}px`),
+        fontPx,
+        className,
+      });
+    }
   }
-  occupied.push(lineLabelBox(cx, above, w, fontPx));
-  return above;
+  return items;
+}
+
+/** Larger values keep the spot above the mark. A smaller one steps downward until it is clear. */
+function reserveDownwardBaseline(item: ValueLabelItem, occupied: LabelBox[]): number {
+  const step = item.fontPx * 1.35 + 4;
+  const overlapsAt = (baseline: number) => {
+    const box = lineLabelBox(item.cx, baseline, item.w, item.fontPx);
+    return occupied.some((taken) => boxesOverlap(box, taken));
+  };
+  const claim = (baseline: number) => {
+    occupied.push(lineLabelBox(item.cx, baseline, item.w, item.fontPx));
+    return baseline;
+  };
+  let baseline = item.cy - LINE_POINT_R - LINE_LABEL_GAP;
+  for (let i = 0; i < 48; i++) {
+    if (!overlapsAt(baseline)) return claim(baseline);
+    baseline += step;
+  }
+  return claim(baseline);
+}
+
+function paintValueLabels(
+  g: d3.Selection<SVGGElement, unknown, null, undefined>,
+  items: ValueLabelItem[],
+  occupied: LabelBox[],
+) {
+  const ordered = [...items].sort((a, b) => b.value - a.value || a.cx - b.cx);
+  for (const item of ordered) {
+    const baseline = reserveDownwardBaseline(item, occupied);
+    const text = g
+      .append("text")
+      .attr("class", item.className)
+      .attr("pointer-events", "none")
+      .attr("font-family", FONT)
+      .attr("font-weight", "700")
+      .attr("font-size", `${item.fontPx}px`)
+      .attr("fill", AXIS)
+      .attr("text-anchor", "middle")
+      .attr("x", item.cx)
+      .attr("y", baseline)
+      .text(item.text);
+    if (item.className === "line-value-label") {
+      text
+        .attr("stroke", "#ffffff")
+        .attr("stroke-width", 3)
+        .attr("paint-order", "stroke")
+        .attr("stroke-linejoin", "round");
+    }
+  }
 }
 
 function drawLineValueLabels(
@@ -584,48 +649,13 @@ function drawLineValueLabels(
   x: (label: string) => number | undefined,
   y: (seriesId: string, value: number) => number,
   fontPx: number,
-  innerH: number,
+  occupied: LabelBox[] = [],
 ) {
-  const occupied: LabelBox[] = [];
-  const items = series.flatMap((s) =>
-    data.map((d) => {
-      const text = formatBarLabel(pointValue(d, s.id));
-      return {
-        text,
-        cx: x(d.label) ?? 0,
-        cy: y(s.id, pointValue(d, s.id)),
-        w: measureTextWidth(text, `${fontPx}px`),
-      };
-    }),
+  paintValueLabels(
+    g,
+    valueLabelItems(data, series, x, y, fontPx, "line-value-label"),
+    occupied,
   );
-  items.sort((a, b) => a.cy - b.cy || a.cx - b.cx);
-
-  for (const item of items) {
-    if (!item.text) continue;
-    const baseline = resolveLineLabelBaseline(
-      item.cx,
-      item.cy,
-      item.w,
-      fontPx,
-      innerH,
-      occupied,
-    );
-    g.append("text")
-      .attr("class", "line-value-label")
-      .attr("pointer-events", "none")
-      .attr("font-family", FONT)
-      .attr("font-weight", "700")
-      .attr("font-size", `${fontPx}px`)
-      .attr("fill", AXIS)
-      .attr("stroke", "#ffffff")
-      .attr("stroke-width", 3)
-      .attr("paint-order", "stroke")
-      .attr("stroke-linejoin", "round")
-      .attr("text-anchor", "middle")
-      .attr("x", item.cx)
-      .attr("y", baseline)
-      .text(item.text);
-  }
 }
 
 function appendHBarValueLabel(
@@ -1394,9 +1424,9 @@ function drawValueLines(
   showTip: (e: MouseEvent, d: AggregatedPoint) => void,
   hideTip: () => void,
   showLabels: boolean,
-  innerH: number,
   step: number,
   classPrefix: string,
+  labelOut?: ValueLabelItem[],
 ) {
   lineSeries.forEach((s, si) => {
     const yScale = yFor(s.id);
@@ -1443,15 +1473,19 @@ function drawValueLines(
     data.flatMap((d) => lineSeries.map((s) => formatBarLabel(pointValue(d, s.id)))),
     Math.max(16, step - 6),
   );
-  drawLineValueLabels(
-    g,
+  const items = valueLabelItems(
     data,
     lineSeries,
     xMid,
     (seriesId, value) => yFor(seriesId)(value),
     fontPx,
-    innerH,
+    "line-value-label",
   );
+  if (labelOut) {
+    labelOut.push(...items);
+    return;
+  }
+  paintValueLabels(g, items, []);
 }
 
 function drawBar(
@@ -1471,19 +1505,30 @@ function drawBar(
   const ySeries = explicitCombo
     ? series.filter((s) => s.mark === "bar")
     : axisSeries(series, "y");
-  // Each line measure has its own right axis, so a larger line cannot flatten the rest.
-  const y2Series = explicitCombo
+  const lineSeries = explicitCombo
     ? series.filter((s) => s.mark === "line")
     : axisSeries(series, "y2");
   const stacked =
     !explicitCombo && (opts.layout === "stacked" || opts.layout === "normalized");
   const normalized = !explicitCombo && opts.layout === "normalized";
+  const primaryKey = ySeries[0] ? scaleGroupKey(ySeries[0]) : "";
+  // Same unit as the columns: one scale, no extra axis for the line or the bars.
+  const sharedLines = normalized
+    ? []
+    : lineSeries.filter((s) => primaryKey !== "" && scaleGroupKey(s) === primaryKey);
+  const y2Series = lineSeries.filter((s) => !sharedLines.includes(s));
+  const splitRightAxes =
+    explicitCombo || y2Series.some((s) => s.scaleKey != null);
   const paretoActive = !!pareto && pareto.total > 0 && pareto.hitIndex >= 0;
-  const paretoAxis = paretoActive && y2Series.length === 0 && style.showYAxis;
-  const lineGroups = explicitCombo ? lineScaleGroups(y2Series) : [];
+  const paretoAxis =
+    paretoActive &&
+    y2Series.length === 0 &&
+    sharedLines.length === 0 &&
+    style.showYAxis;
+  const lineGroups = splitRightAxes ? lineScaleGroups(y2Series) : [];
   const right = y2Series.length
     ? style.showYAxis
-      ? explicitCombo
+      ? splitRightAxes
         ? 18 + Math.max(lineGroups.length, 1) * LINE_AXIS_STEP
         : 72
       : MARGIN.right
@@ -1535,8 +1580,8 @@ function drawBar(
   const yMax = normalized
     ? 100
     : stacked
-      ? stackExtent(data, barSeries) || 0
-      : maxPointValue(data, barSeries) || 0;
+      ? Math.max(stackExtent(data, barSeries) || 0, maxPointValue(data, sharedLines) || 0)
+      : maxPointValue(data, barSeries.concat(sharedLines)) || 0;
   const y = d3.scaleLinear().domain([0, yMax]).nice().range([innerH, 0]);
   if (normalized) y.domain([0, 100]);
   if (opts.showLabels && !stacked) {
@@ -1639,6 +1684,9 @@ function drawBar(
     }
   }
 
+  const labelOccupied: LabelBox[] = [];
+  const pendingLabels: ValueLabelItem[] = [];
+
   barSeries.forEach((s, si) => {
     const rx = style.rounded && !stacked ? Math.min(5, bw / 4) : 0;
     const fill = seriesFill(style, s, si);
@@ -1698,15 +1746,44 @@ function drawBar(
         return;
       }
       const barTop = y(v);
-      appendBarValueLabel(
-        d3.select(this),
-        formatBarLabel(v),
-        x1(s.id)! + bw / 2,
-        barTop,
-        Math.max(0, innerH - barTop),
-        fill,
-        labelLayout,
-      );
+      const label = formatBarLabel(v);
+      if (!v || !label || label === "0") return;
+      const localCx = x1(s.id)! + bw / 2;
+      const plotCx = (x0(d.label) ?? 0) + localCx;
+      const barHeight = Math.max(0, innerH - barTop);
+      const textLen = measureTextWidth(label, `${labelLayout.fontPx}px`);
+      const aboveRoom = Math.max(0, barTop - 2);
+      const inside =
+        labelLayout.vertical &&
+        textLen + 2 > aboveRoom &&
+        barHeight - 6 >= textLen + 2;
+      if (inside) {
+        appendBarValueLabel(
+          d3.select(this),
+          label,
+          localCx,
+          barTop,
+          barHeight,
+          fill,
+          labelLayout,
+        );
+        labelOccupied.push({
+          l: plotCx - labelLayout.fontPx / 2,
+          r: plotCx + labelLayout.fontPx / 2,
+          t: barTop + 4,
+          b: barTop + 4 + textLen,
+        });
+        return;
+      }
+      pendingLabels.push({
+        text: label,
+        value: v,
+        cx: plotCx,
+        cy: barTop,
+        w: textLen,
+        fontPx: labelLayout.fontPx,
+        className: "bar-value-label",
+      });
     });
   });
 
@@ -1737,10 +1814,27 @@ function drawBar(
     );
   }
 
+  if (sharedLines.length) {
+    drawValueLines(
+      g,
+      data,
+      sharedLines,
+      () => y,
+      barCenter,
+      style,
+      showTip,
+      hideTip,
+      opts.showLabels,
+      x0.step(),
+      "y-shared",
+      pendingLabels,
+    );
+  }
+
   if (y2Series.length) {
     const labelRoom = opts.showLabels ? 18 : 0;
     const scales = new Map<string, d3.ScaleLinear<number, number>>();
-    const groups = explicitCombo ? lineGroups : [y2Series];
+    const groups = splitRightAxes ? lineGroups : [y2Series];
     for (const group of groups) {
       const shared = valueScale(data, group, innerH, labelRoom);
       for (const s of group) scales.set(s.id, shared);
@@ -1748,26 +1842,26 @@ function drawBar(
     if (style.showYAxis) {
       groups.forEach((group, i) => {
         const y2 = scales.get(group[0].id)!;
-        const color = explicitCombo ? seriesFill(style, group[0], i) : AXIS;
+        const color = splitRightAxes ? seriesFill(style, group[0], i) : AXIS;
         const y2Axis = g
           .append("g")
           .attr(
             "transform",
-            `translate(${innerW + (explicitCombo ? i * LINE_AXIS_STEP : 0)},0)`,
+            `translate(${innerW + (splitRightAxes ? i * LINE_AXIS_STEP : 0)},0)`,
           )
           .call(
             d3
               .axisRight(y2)
-              .ticks(explicitCombo && groups.length > 1 ? 4 : 5)
+              .ticks(splitRightAxes && groups.length > 1 ? 4 : 5)
               .tickSize(0)
               .tickFormat((d) => formatValue(Number(d))),
           );
         y2Axis.select(".domain").attr("stroke", color).attr("stroke-width", 2);
         styleAxisText(
           y2Axis.selectAll("text"),
-          explicitCombo && groups.length > 1 ? "11px" : "12px",
+          splitRightAxes && groups.length > 1 ? "11px" : "12px",
         );
-        if (explicitCombo) y2Axis.selectAll("text").attr("fill", color);
+        if (splitRightAxes) y2Axis.selectAll("text").attr("fill", color);
       });
     }
     drawValueLines(
@@ -1780,10 +1874,14 @@ function drawBar(
       showTip,
       hideTip,
       opts.showLabels,
-      innerH,
       x0.step(),
       "y2",
+      pendingLabels,
     );
+  }
+
+  if (opts.showLabels && pendingLabels.length) {
+    paintValueLabels(g, pendingLabels, labelOccupied);
   }
 }
 
@@ -1972,9 +2070,13 @@ function drawLine(
   series: ChartSeriesMeta[],
   opts: { layout: SeriesLayout; showLabels: boolean },
 ) {
-  const y2Series = axisSeries(series, "y2");
   const ySeries = axisSeries(series, "y");
-  const leftSeries = ySeries.length ? ySeries : series.filter((s) => s.axis !== "y2");
+  const primaryKey = (ySeries[0] ?? series[0]) ? scaleGroupKey(ySeries[0] ?? series[0]) : "";
+  const onPrimary = (s: ChartSeriesMeta) =>
+    primaryKey !== "" && s.scaleKey != null && scaleGroupKey(s) === primaryKey;
+  const y2Series = axisSeries(series, "y2").filter((s) => !onPrimary(s));
+  const leftSeries = series.filter((s) => (s.axis ?? "y") !== "y2" || onPrimary(s));
+  const rightIds = new Set(y2Series.map((s) => s.id));
   const right = y2Series.length ? 72 : MARGIN.right;
   const labelFont = "11px";
   const topPad = series.length > 1 ? 28 : 0;
@@ -2076,7 +2178,7 @@ function drawLine(
   }
 
   series.forEach((s, si) => {
-    const scale = s.axis === "y2" ? y2 : y;
+    const scale = rightIds.has(s.id) ? y2 : y;
     const color = seriesFill(style, s, si);
     const line = d3
       .line<AggregatedPoint>()
@@ -2108,11 +2210,12 @@ function drawLine(
   });
 
   if (opts.showLabels) {
+    const occupied: LabelBox[] = [];
     if (leftSeries.length) {
-      drawLineValueLabels(g, data, leftSeries, (label) => x(label), (_id, v) => y(v), fontPx, innerH);
+      drawLineValueLabels(g, data, leftSeries, (label) => x(label), (_id, v) => y(v), fontPx, occupied);
     }
     if (y2Series.length) {
-      drawLineValueLabels(g, data, y2Series, (label) => x(label), (_id, v) => y2(v), fontPx, innerH);
+      drawLineValueLabels(g, data, y2Series, (label) => x(label), (_id, v) => y2(v), fontPx, occupied);
     }
   }
 }

@@ -5,6 +5,7 @@ import { useSelector as useReduxSelector } from "react-redux";
 import type { TypedUseSelectorHook } from "react-redux";
 import type { RootState } from "../redux/store";
 import { cutDecimals, displayUnitName } from "../utils/functions";
+import { displayPlaceName } from "../utils/placeParts";
 
 const useSelector: TypedUseSelectorHook<RootState> = useReduxSelector;
 
@@ -48,6 +49,8 @@ const SankeyDiagram = ({
 
   let resData = useSelector((state) => state.filters.sankeyArrState);
   let globalCheckList = useSelector((state) => state.filters.sankeyCheckList);
+  const railwayFilter = useSelector((state) => state.filters.railwayFilter);
+  const regionFilter = useSelector((state) => state.filters.regionFilter);
   let checkList = filteredCheckList || globalCheckList;
 
   useEffect(() => {
@@ -76,6 +79,12 @@ const SankeyDiagram = ({
     if (!resData?.nodes || !resData?.links) return;
 
     const isReport = mode === "report";
+    const visibleName = (name: string) =>
+      displayPlaceName(
+        displayUnitName(name || ""),
+        railwayFilter || "",
+        regionFilter || "",
+      );
 
     d3.select(`#${svgId}`).selectAll("g").remove();
 
@@ -500,7 +509,7 @@ const SankeyDiagram = ({
       .append("title")
       .text(function (d) {
         const v = d.reportTrueValue ?? d.value;
-        return `${displayUnitName(d.name)}\n${cutDecimals(v)}`;
+        return `${visibleName(d.name)}\n${cutDecimals(v)}`;
       });
 
     //draw tooltips
@@ -526,8 +535,8 @@ const SankeyDiagram = ({
       .text(
         (d) =>
           `${
-            d.names?.map((name: string) => displayUnitName(name)).join(" → ") ||
-            `${displayUnitName(d.source.name)} → ${displayUnitName(d.target.name)}`
+            d.names?.map((name: string) => visibleName(name)).join(" → ") ||
+            `${visibleName(d.source.name)} → ${visibleName(d.target.name)}`
           }\n${d.value.toLocaleString()}`,
       );
 
@@ -584,7 +593,7 @@ const SankeyDiagram = ({
     };
 
     const provisionalMainMiddleOrOther = (d: any) => {
-      const raw = displayUnitName(d.name || "");
+      const raw = visibleName(d.name || "");
       if (raw.length >= allowedCharsAmount) {
         return raw.substr(0, allowedCharsAmount) + " ...";
       }
@@ -623,7 +632,7 @@ const SankeyDiagram = ({
     };
 
     const mainNameForNode = (d: any) => {
-      const raw = displayUnitName(d.name || "");
+      const raw = visibleName(d.name || "");
       const suffix = suffixFor(d);
       const isLeftCol = d.depth === minDepth && d.sourceLinks?.length > 0;
       if (isLeftCol) {
@@ -701,7 +710,16 @@ const SankeyDiagram = ({
       tspans.style("font-size", reportFontPx);
     }
     tspans.text((d) => ` (${cutDecimals(nodeDisplayValue(d))} ч)`);
-  }, [resData, checkList, svgId, mode, singleUnit, reportOuterWidth]);
+  }, [
+    resData,
+    checkList,
+    svgId,
+    mode,
+    singleUnit,
+    reportOuterWidth,
+    railwayFilter,
+    regionFilter,
+  ]);
 
   return (
     <svg

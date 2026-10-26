@@ -1,5 +1,8 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useSelector } from "react-redux";
+import type { RootState } from "../redux/store";
+import { displayPlaceName } from "../utils/placeParts";
 import type { AbsentViolation } from "../utils/requests";
 
 type Props = {
@@ -41,6 +44,12 @@ function AbsentViolationsDialog({
   onDismiss,
 }: Props) {
   const masterRef = useRef<HTMLInputElement>(null);
+  const railwayFilter = useSelector(
+    (state: RootState) => state.filters.railwayFilter,
+  );
+  const regionFilter = useSelector(
+    (state: RootState) => state.filters.regionFilter,
+  );
   const allChecked = rows.length > 0 && selected.size === rows.length;
 
   useEffect(() => {
@@ -110,7 +119,15 @@ function AbsentViolationsDialog({
                   <span>{cell(row["ID отказа"])}</span>
                   <span>{formatStart(row["Начало отказа"])}</span>
                   <span>{cell(row["Виновное предприятие"])}</span>
-                  <span>{cell(row["Место"])}</span>
+                  <span>
+                    {cell(
+                      displayPlaceName(
+                        row["Место"],
+                        railwayFilter,
+                        regionFilter,
+                      ),
+                    )}
+                  </span>
                   <span>{cell(row["Причина 2 ур"])}</span>
                 </label>
               );

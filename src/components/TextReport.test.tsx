@@ -118,6 +118,63 @@ describe('TextReportTemplatePeriod', () => {
     expect(screen.getByText(/↑/)).toBeInTheDocument();
   });
 
+  test('sums delayed trains and hours when total columns are absent', () => {
+    const store = createMockStore({
+      filters: {
+        ...mockState.filters,
+        sourceState: [
+          {
+            'ID отказа': 11,
+            'Начало отказа': '2025-06-01T10:00:00.000Z',
+            'Место': 'БИЙСК',
+            'Причина 2 ур': 'Невыдача локомотива',
+            'Виновное предприятие': 'СЛД-64 БАРНАУЛ',
+            'Количество грузовых поездов(по месту)': 1,
+            'Время грузовых поездов(по месту)': 4.18,
+          },
+          {
+            'ID отказа': 22,
+            'Начало отказа': '2025-06-02T10:00:00.000Z',
+            'Место': 'КУЛУНДА',
+            'Причина 2 ур': 'Отказ',
+            'Виновное предприятие': 'ТЧЭ-10',
+            'Количество пассажирских поездов(по месту)': 2,
+            'Время пассажирских поездов(по месту)': 1.2,
+            'Количество пригородных поездов(по месту)': 3,
+            'Время пригородных поездов(по месту)': 0.5,
+          },
+          {
+            'ID отказа': 33,
+            'Начало отказа': '2025-06-03T10:00:00.000Z',
+            'Место': 'ИНСКАЯ',
+            'Причина 2 ур': 'Сбой',
+            'Виновное предприятие': 'ДЦУП',
+            'Количество всех поездов(по месту)': 8,
+            'Время всех поездов(по месту)': 6.5,
+          },
+        ],
+      },
+    });
+    render(
+      <Provider store={store}>
+        <TextReportTemplatePeriod />
+      </Provider>
+    );
+
+    expect(screen.getByText(/ТН №11/)).toHaveTextContent(
+      'задержано поездов: 1 на 4.18 ч',
+    );
+    expect(screen.getByText(/ТН №22/)).toHaveTextContent(
+      'задержано поездов: 5 на 1.7 ч',
+    );
+    expect(screen.getByText(/ТН №33/)).toHaveTextContent(
+      'задержано поездов: 8 на 6.5 ч',
+    );
+    expect(
+      screen.getByText(/наибольшее количество потерь/i).textContent,
+    ).not.toMatch(/NaN/);
+  });
+
   test('toggles right table visibility', () => {
     const store = createMockStore(mockState);
     render(

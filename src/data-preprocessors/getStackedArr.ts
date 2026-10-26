@@ -12,12 +12,6 @@ import { Violation } from "../types/violation";
 
 type CheckedUnit = { checked?: boolean; guiltyUnit: string };
 
-type DurationPoint = {
-  violationDate: Date;
-  totalDuration: number;
-  guiltyUnit: string;
-};
-
 type DateRow = { date: Date | number; [key: string]: any };
 
 export const getStackedArr = (
@@ -27,25 +21,11 @@ export const getStackedArr = (
   customCalendar: number[],
   unitsList?: CheckedUnit[] | null,
 ) => {
-  const filterCheckedUnits = (srcArr: Violation[], units: string[]) => {
-    let result: Violation[] = [];
-    srcArr.forEach((el) => units.includes(el[guiltyUnit]) && result.push(el));
-    return result;
-  };
-
-  let checkedUnitsSimpleArray: string[] = [];
-  if (unitsList)
-    unitsList.forEach(
-      (el) => el.checked === true && checkedUnitsSimpleArray.push(el.guiltyUnit)
-    );
-
-  let filteredArrByUncheckedUnits: Violation[] = [];
-  if (unitsList)
-    filteredArrByUncheckedUnits = filterCheckedUnits(
-      srcArray,
-      checkedUnitsSimpleArray
-    );
-  else filteredArrByUncheckedUnits = srcArray;
+  const checked = unitsList
+    ? new Set(
+        unitsList.filter((el) => el.checked).map((el) => el.guiltyUnit),
+      )
+    : null;
 
   const calcTotalDuration = (obj: Violation) => {
     let freightDur,
@@ -62,59 +42,57 @@ export const getStackedArr = (
     return total;
   };
 
-  let summedDurationsList: DurationPoint[] = [];
-  filteredArrByUncheckedUnits.forEach((el) =>
-    summedDurationsList.push({
-      violationDate: new Date(new Date(el[startTime]).setHours(0, 0, 0)),
-      totalDuration: calcTotalDuration(el),
-      guiltyUnit: el[guiltyUnit],
-    })
-  );
+  const rangeStart = customCalendar[0];
+  const rangeEnd = customCalendar[customCalendar.length - 1];
+  const byDay = new Map<number, DateRow>();
+  const units = new Set<string>();
 
-  let result: DateRow[] = [];
-  let units = new Set<string>();
-  let dates = new Set<Date>();
-
-  for (let obj of summedDurationsList) {
-    units.add(obj.guiltyUnit);
-    dates.add(obj.violationDate);
-  }
-
-  for (let date of dates) {
-    let obj: DateRow = { date };
-    for (let unitName of units) {
-      obj[unitName] = 0;
+  for (const el of srcArray) {
+    const unit = el[guiltyUnit];
+    if (checked && !checked.has(unit)) continue;
+    const ts = new Date(el[startTime]).setHours(0, 0, 0);
+    if (
+      customCalendar.length >= 2 &&
+      (ts < rangeStart || ts >= rangeEnd)
+    ) {
+      continue;
     }
-    result.push(obj);
+    units.add(unit);
+    const row = byDay.get(ts);
+    if (row) {
+      row[unit] = (row[unit] || 0) + calcTotalDuration(el);
+    } else {
+      byDay.set(ts, { date: ts, [unit]: calcTotalDuration(el) });
+    }
   }
 
-  for (let obj of summedDurationsList) {
-    let date = obj.violationDate;
-    let unit = obj.guiltyUnit;
-    let total = obj.totalDuration;
-    let targetObj = result.find((row) => row.date === date)!;
-    targetObj[unit] += total;
-  }
+  const result = Array.from(byDay.values()).sort((a, b) => +a.date - +b.date);
 
-  result.sort((a, b) => +a.date - +b.date);
-
-  let unitedDatesResult: DateRow[] = [];
+  const unitedDatesResult: DateRow[] = [];
+  let eventIndex = 0;
   for (let i = 0; i < customCalendar.length - 1; i++) {
     const currentDate = customCalendar[i];
     const nextDate = customCalendar[i + 1];
-    unitedDatesResult.push({ date: currentDate });
-    result.forEach((el) => {
-      const rowDate = Number(el.date);
-      if (rowDate >= currentDate && rowDate < nextDate) {
-        for (let key in el) {
-          if (unitedDatesResult[i].hasOwnProperty(key) && key !== "date") {
-            unitedDatesResult[i][key] = unitedDatesResult[i][key] + el[key];
-          } else {
-            unitedDatesResult[i][key] = el[key];
-          }
-        }
+    const bucket: DateRow = { date: currentDate };
+    while (
+      eventIndex < result.length &&
+      Number(result[eventIndex].date) < currentDate
+    ) {
+      eventIndex += 1;
+    }
+    let cursor = eventIndex;
+    let lastDate: number | undefined;
+    while (cursor < result.length && Number(result[cursor].date) < nextDate) {
+      const el = result[cursor];
+      lastDate = Number(el.date);
+      for (const key in el) {
+        if (key === "date") continue;
+        bucket[key] = (bucket[key] || 0) + el[key];
       }
-    });
+      cursor += 1;
+    }
+    if (lastDate !== undefined) bucket.date = lastDate;
+    unitedDatesResult.push(bucket);
   }
 
   let yMaxArr: number[] = [];
@@ -130,12 +108,12 @@ export const getStackedArr = (
 
   let yMax = d3.max(yMaxArr);
 
-  let unitsAsArr = Array.from(units);
-  unitedDatesResult.map((el) =>
-    Object.keys(el).length === 1
-      ? unitsAsArr.forEach((unit) => (el[unit] = 0))
-      : el
-  );
+  const unitsAsArr = Array.from(units);
+  for (const el of unitedDatesResult) {
+    for (const unit of unitsAsArr) {
+      if (el[unit] == null) el[unit] = 0;
+    }
+  }
 
   return {
     arr: unitedDatesResult,

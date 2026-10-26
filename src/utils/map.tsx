@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import { createPortal } from "react-dom";
 import { cutDecimals, displayUnitName } from "./functions";
+import { displayPlaceName } from "./placeParts";
 import {
   canonicalKeyFromPlace,
   canonicalPairFromPlainTwoStationLine,
@@ -30,6 +31,8 @@ type Props = {
   stationDurationByName?: Record<string, number>;
   /** Агрегат по месту из отчёта станций (ключ — как в segment/station maps) */
   placeDetailsByName?: Record<string, MapPlaceTooltipDetails>;
+  railwayFilter?: string;
+  regionFilter?: string;
 };
 
 const MAP_CIRCLE_BASE_R = "data-map-base-r";
@@ -309,6 +312,39 @@ function resolveRecordKey(
     (key) => normalizeMapName(key) === normalizedTarget,
   );
   return foundKey;
+}
+
+/** Последний фрагмент «Место» после запятой — имя станции на карте. */
+function placeStationSuffix(value: string): string {
+  const comma = value.lastIndexOf(",");
+  return (comma >= 0 ? value.slice(comma + 1) : value).trim();
+}
+
+/** Ключи отчёта, которые относятся к станции на карте. Полное место не укорачивается. */
+function keysMatchingStation(stationName: string, keys: string[]): string[] {
+  if (keys.includes(stationName)) return [stationName];
+  const target = normalizeMapName(stationName);
+  const exact = keys.filter((key) => normalizeMapName(key) === target);
+  if (exact.length > 0) return exact;
+  return keys.filter(
+    (key) => normalizeMapName(placeStationSuffix(key)) === target,
+  );
+}
+
+function detailsForStation(
+  stationName: string,
+  details: Record<string, MapPlaceTooltipDetails>,
+): MapPlaceTooltipDetails | undefined {
+  const keys = keysMatchingStation(stationName, Object.keys(details));
+  if (keys.length === 0) return undefined;
+  let acc = details[keys[0]];
+  if (!acc) return undefined;
+  for (let i = 1; i < keys.length; i++) {
+    const next = details[keys[i]];
+    if (next) acc = mergeMapTooltipDetails(acc, next);
+  }
+  if (keys.length === 1) return acc;
+  return { ...acc, placeLabel: stationName };
 }
 
 /** Станции из подписи линии на карте (все участки по « - ») */
@@ -601,6 +637,8 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
       segmentDurationByName = {},
       stationDurationByName = {},
       placeDetailsByName = {},
+      railwayFilter = "",
+      regionFilter = "",
     },
     ref,
   ) => {
@@ -641,11 +679,15 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
 
     const resolveStationDuration = useCallback(
       (stationName: string) => {
-        const direct = stationDurationByName[stationName];
-        if (typeof direct === "number") return direct;
-
-        const key = resolveRecordKey(stationName, stationDurationByName);
-        return key !== undefined ? stationDurationByName[key] : undefined;
+        const keys = keysMatchingStation(
+          stationName,
+          Object.keys(stationDurationByName),
+        );
+        if (keys.length === 0) return undefined;
+        return keys.reduce(
+          (sum, key) => sum + (stationDurationByName[key] || 0),
+          0,
+        );
       },
       [stationDurationByName],
     );
@@ -850,9 +892,9 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
       };
 
       const bindStationTooltipTarget = (el: SVGElement, label: string) => {
-        const rk = resolveRecordKey(label, stationDurationByName);
-        if (!rk || !placeDetailsByName[rk]) return;
-        el.setAttribute(MAP_PLACE_KEY, rk);
+        const details = detailsForStation(label, placeDetailsByName);
+        if (!details) return;
+        el.setAttribute(MAP_PLACE_KEY, label);
         el.style.cursor = "pointer";
       };
 
@@ -1012,7 +1054,8 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
         const details =
           key.includes(" - ")
             ? buildSegmentTooltipForLineLabel(key, placeDetailsByName)
-            : placeDetailsByName[key];
+            : detailsForStation(key, placeDetailsByName) ??
+              placeDetailsByName[key];
         if (!details) return;
 
         clearHideTimer();
@@ -1021,7 +1064,11 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
         pending = {
           x: e.clientX,
           y: e.clientY,
-          title: details.placeLabel,
+          title: displayPlaceName(
+            details.placeLabel,
+            railwayFilter,
+            regionFilter,
+          ),
           lines: formatMapTooltipLines(details),
         };
 
@@ -1090,7 +1137,7 @@ const SvgMap = React.forwardRef<SVGSVGElement, Props>(
         svg.removeEventListener("pointermove", onMove);
         setMapTooltip(null);
       };
-    }, [svgMarkup, placeDetailsByName]);
+    }, [svgMarkup, placeDetailsByName, railwayFilter, regionFilter]);
 
     useImperativeHandle(ref, () => {
       const svg = containerRef.current?.querySelector("svg");

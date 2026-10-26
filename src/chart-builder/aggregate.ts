@@ -1,7 +1,8 @@
 import { Violation } from "../types/violation";
 import { startTime as startTimeKey } from "../utils/config";
+import { displayPlaceName } from "../utils/placeParts";
 import { applyDataFilters, normalizeFilters } from "./dataFilters";
-import { findField } from "./fieldCatalog";
+import { findField, measureUnit } from "./fieldCatalog";
 import { assignParetoWeights } from "./pareto";
 import {
   AggregateResult,
@@ -138,6 +139,8 @@ function categoryLabel(
   row: Violation,
   fieldId: string,
   alignAcrossYears: boolean,
+  railway = "",
+  region = "",
 ): string {
   const field = findField(fieldId);
   if (!field) return "—";
@@ -169,7 +172,9 @@ function categoryLabel(
 
   const raw = row[field.key];
   if (raw == null || raw === "") return "не указано";
-  return String(raw);
+  const text = String(raw);
+  if (fieldId === "place") return displayPlaceName(text, railway, region);
+  return text;
 }
 
 function numericValue(row: Violation, valueFieldId: string): number {
@@ -242,10 +247,18 @@ function aggregateOneSeries(
   categoryField: string,
   measure: MeasureSlot,
   alignAcrossYears: boolean,
+  railway = "",
+  region = "",
 ): Map<string, number> {
   const buckets = new Map<string, Violation[]>();
   for (const row of rows) {
-    const label = categoryLabel(row, categoryField, alignAcrossYears);
+    const label = categoryLabel(
+      row,
+      categoryField,
+      alignAcrossYears,
+      railway,
+      region,
+    );
     const list = buckets.get(label);
     if (list) list.push(row);
     else buckets.set(label, [row]);
@@ -259,6 +272,10 @@ function aggregateOneSeries(
 
 function measureSeriesId(measure: MeasureSlot, index: number): string {
   return `${measure.axis}:${measure.fieldId}:${index}`;
+}
+
+function seriesScaleKey(measure: MeasureSlot): string {
+  return measureUnit(measure.fieldId, measure.aggregation);
 }
 
 function measureSeriesLabel(measure: MeasureSlot): string {
@@ -488,6 +505,7 @@ function emptyResult(indicator: IndicatorSummary | null = null): AggregateResult
 export function aggregateViolations(
   source: Violation[],
   spec: ChartSpec,
+  placeFilters?: { railway?: string; region?: string },
 ): AggregateResult {
   if (spec.chartType === "indicator") {
     return emptyResult(buildIndicator(source, spec));
@@ -497,6 +515,8 @@ export function aggregateViolations(
   if (!spec.categoryField || measuresY.length === 0) return emptyResult();
 
   const filters = normalizeFilters(spec.filters ?? defaultDataFilters());
+  const railway = placeFilters?.railway ?? "";
+  const region = placeFilters?.region ?? "";
   const comparing = spec.compareMode === "yoy" || spec.compareMode === "custom";
   const periods = resolveCompareSeries(spec);
   const alignAcrossYears = comparing && periods.length > 1;
@@ -532,13 +552,15 @@ export function aggregateViolations(
               : period.label,
             axis: "y",
             mark: combo ? (asLine ? "line" : "bar") : undefined,
-            scaleKey: asLine ? measure.fieldId : undefined,
+            scaleKey: seriesScaleKey(measure),
           },
           map: aggregateOneSeries(
             rows,
             spec.categoryField,
             measure,
             alignAcrossYears && time,
+            railway,
+            region,
           ),
         });
       }
@@ -552,7 +574,7 @@ export function aggregateViolations(
     const colorOrder: string[] = [];
     const byColor = new Map<string, Violation[]>();
     for (const row of rows) {
-      const color = categoryLabel(row, spec.colorField, false);
+      const color = categoryLabel(row, spec.colorField, false, railway, region);
       const list = byColor.get(color);
       if (list) list.push(row);
       else {
@@ -564,7 +586,14 @@ export function aggregateViolations(
     colorOrder.forEach((color, index) => {
       seriesMaps.push({
         meta: { id: `color:${index}:${color}`, label: color, axis: "y" },
-        map: aggregateOneSeries(byColor.get(color) || [], spec.categoryField!, measure, false),
+        map: aggregateOneSeries(
+          byColor.get(color) || [],
+          spec.categoryField!,
+          measure,
+          false,
+          railway,
+          region,
+        ),
       });
     });
   } else {
@@ -585,8 +614,16 @@ export function aggregateViolations(
           label: measureSeriesLabel(measure),
           axis: measure.axis,
           mark: measure.mark === "line" ? "line" : "bar",
+          scaleKey: seriesScaleKey(measure),
         },
-        map: aggregateOneSeries(rows, spec.categoryField!, measure, false),
+        map: aggregateOneSeries(
+          rows,
+          spec.categoryField!,
+          measure,
+          false,
+          railway,
+          region,
+        ),
       });
     });
   }

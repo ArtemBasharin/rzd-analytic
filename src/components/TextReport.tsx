@@ -19,19 +19,24 @@ import { useMemo, useState } from "react";
 
 import {
   startTime,
-  // freightDelayed,
+  freightDelayed,
   freightDuration,
+  passDelayed,
+  passDuration,
+  subDelayed,
+  subDuration,
+  otherDelayed,
+  otherDuration,
   ID,
   place,
   allDelayed,
   allDuration,
-  // guiltyNew,
   failReason,
   guiltyUnit,
 } from "../utils/config";
 import SankeyDiagram from "./SankeyDiagram";
 import { Loader } from "./Loader";
-import { filterViolationsByPlace } from "../utils/placeParts";
+import { displayPlaceName, filterViolationsByPlace } from "../utils/placeParts";
 
 interface RootState {
   filters: {
@@ -69,6 +74,46 @@ const varFails: string[] = [
   "технологических нарушений",
 ];
 const varDelay: string[] = ["задержан", "задержано", "задержано"];
+
+const delayedPartKeys = [
+  freightDelayed,
+  passDelayed,
+  subDelayed,
+  otherDelayed,
+];
+const durationPartKeys = [
+  freightDuration,
+  passDuration,
+  subDuration,
+  otherDuration,
+];
+
+function finiteNumber(value: unknown): number | null {
+  if (value == null || value === "") return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
+}
+
+/** Сумма по видам поездов. Колонки «всех» есть не у каждой записи. */
+function sumTrainParts(row: any, partKeys: string[], totalKey: string): number {
+  let seen = false;
+  let sum = 0;
+  for (const key of partKeys) {
+    const n = finiteNumber(row?.[key]);
+    if (n == null) continue;
+    seen = true;
+    sum += n;
+  }
+  if (seen) return sum;
+  return finiteNumber(row?.[totalKey]) ?? 0;
+}
+
+function rowTrainTotals(row: any): { delayed: number; duration: number } {
+  return {
+    delayed: sumTrainParts(row, delayedPartKeys, allDelayed),
+    duration: sumTrainParts(row, durationPartKeys, allDuration),
+  };
+}
 
 const TextReportTemplatePeriod = () => {
   // const analyze = useSelector((state: RootState) => state.filters.analyzeState);
@@ -144,7 +189,9 @@ const TextReportTemplatePeriod = () => {
       const elDate = new Date(el[startTime] as string);
       return elDate > start && elDate < end;
     })
-    .sort((b, a) => a[freightDuration] - b[freightDuration]);
+    .sort(
+      (b, a) => rowTrainTotals(a).duration - rowTrainTotals(b).duration,
+    );
 
   let currentYear: number = d3.max(arr.map((el) => el.year));
   let pastYear: number = currentYear - 1;
@@ -455,7 +502,9 @@ const TextReportTemplatePeriod = () => {
     return {
       layout: (
         <tr key={index}>
-          <td className="table_bold_right">{place}</td>
+          <td className="table_bold_right">
+            {displayPlaceName(place, railwayFilter, regionFilter)}
+          </td>
           <td>{pastYearPlaceTotalDuration}</td>
           <td className="table_bold_right">{currentYearPlaceTotalDuration}</td>
           {cellComparingPercents(
@@ -700,6 +749,8 @@ const TextReportTemplatePeriod = () => {
           Технологические нарушения, повлекшие за собой наибольшее количество
           потерь:
           {topCases.slice(0, 5).map((el: any, index: any) => {
+            const totals = rowTrainTotals(el);
+            const reason = el[failReason] ? String(el[failReason]).toLowerCase() : "";
             return (
               <p key={index}>
                 {index + 1}
@@ -709,9 +760,11 @@ const TextReportTemplatePeriod = () => {
                   month: "2-digit",
                   year: "numeric",
                 })}{" "}
-                г. , станция/перегон: {el[place]}, задержано поездов:{" "}
-                {el[allDelayed]} на {cutDecimals(Number(el[allDuration]))} ч,
-                причина: {el[failReason].toLowerCase()} отнесено за{" "}
+                г. , станция/перегон:{" "}
+                {displayPlaceName(el[place], railwayFilter, regionFilter)},
+                задержано поездов:{" "}
+                {totals.delayed} на {cutDecimals(totals.duration)} ч,
+                причина: {reason} отнесено за{" "}
                 {displayUnitName(el[guiltyUnit])};
               </p>
             );
